@@ -270,14 +270,15 @@ module.exports = function installActivity({ Panel, recovery }) {
                 }
             }
             await this._customAutoResumeTransfers?.();
-            detect(this);
+            if (this.showTransferLog || (this._customTransferRows || []).some(row => ['Running','Queued','Paused'].includes(row.status))) detect(this);
         } catch (e) { if (!this._customRecoveryError) { this._customRecoveryError = e.message; this.showToast?.('Recovery unavailable: ' + e.message); } }
         finally { this._customActivityBusy = false; }
     };
     const init = Panel.prototype.ngOnInit;
     Panel.prototype.ngOnInit = function (...args) {
         const result = init?.apply(this, args);
-        this._customActivityTimer = setInterval(() => void this._customActivityTick(), 1000);
+        const start = () => { this._customActivityTimer = setInterval(() => void this._customActivityTick(), 1000); };
+        if (this.zone?.runOutsideAngular) this.zone.runOutsideAngular(start); else start();
         void this._customActivityTick(); return result;
     };
     const connect = Panel.prototype.connect;

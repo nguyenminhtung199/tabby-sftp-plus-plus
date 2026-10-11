@@ -5,6 +5,10 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
     const crypto = require('crypto');
     const hashFile = async file => {const digest=crypto.createHash('sha256');for await(const chunk of fs.createReadStream(file,{highWaterMark:256*1024}))digest.update(chunk);return digest.digest('hex');};
     const signature = stat => [stat.size,stat.mtimeMs,stat.ctimeMs,stat.ino].join(':');
+    const poll = (panel, state) => {
+        const start = () => setInterval(() => void panel._customSyncExternal(state), 1000);
+        return panel.zone?.runOutsideAngular ? panel.zone.runOutsideAngular(start) : start();
+    };
     const baseline = st => {
         if (!st || !Number.isFinite(Number(st.size))) throw new Error('Cannot verify remote file metadata');
         const date = st.modified instanceof Date ? st.modified.getTime() : Number(st.mtime || 0);
@@ -57,7 +61,7 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
                 if (state.session !== this.sftpSession || state.stopped) {
                     clearInterval(state.timer); state.session = this.sftpSession; state.stopped = false;
                     status(this, state, state.blockedHash ? (saved.status === 'Failed' ? 'Failed' : 'Conflict') : 'Editing', state.blockedHash ? 'Resolve or retry this local edit' : '');
-                    state.timer = setInterval(() => void this._customSyncExternal(state), 1000);
+                    state.timer = poll(this, state);
                     void this._customSyncExternal(state);
                 }
             }
@@ -69,7 +73,7 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
         if(this._customPendingEditUpload?.(state.remotePath)&&!await this._customRetrySavedEditUpload(state.remotePath))return;
         if (state.id && recovery && !recovery.claim(state.id, this)) return;
         state.blockedHash = null; state.retries = 0; state.nextRetry = 0; state.stopped = false; state.session = this.sftpSession;
-        clearInterval(state.timer); state.timer = setInterval(() => void this._customSyncExternal(state), 1000);
+        clearInterval(state.timer); state.timer = poll(this, state);
         status(this, state, 'Editing'); await this._customSyncExternal(state);
     };
     Panel.prototype.customOpenEdit = async function (state) {
@@ -117,7 +121,7 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
             existing.nextRetry = 0; existing.retries = 0;
             if (existing.stopped) {
                 existing.stopped = false;
-                existing.timer = setInterval(() => void this._customSyncExternal(existing), 1000);
+                existing.timer = poll(this, existing);
             }
             const error = await shell.openPath(existing.localPath);
             if (error) notice(this, `Cannot open editor: ${error}. Local copy: ${existing.localPath}`, true);
@@ -158,7 +162,7 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
                 state.checkedSignature=signature(await fsp.stat(state.localPath));state.checkedHash=state.syncedHash;
                 if (this._destroyed || this.sftpSession !== state.session || state.stopped) throw new Error('Connection closed while downloading');
                 // Poll the path: atomic-save editors may replace the inode or briefly remove the file.
-                state.timer = setInterval(() => void this._customSyncExternal(state), 1000);
+                state.timer = poll(this, state);
                 status(this, state, 'Editing');
                 const error = await shell.openPath(state.localPath);
                 if (error) throw new Error(error);

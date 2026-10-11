@@ -39,13 +39,17 @@ const transfer = panel => panel.trackTransfer({}, 'download', panel.remotePath +
     await go(p, '/c'); advance(6000); await p.refreshRemote(); advance(4001);
     assert.equal(p.customRecentFolders()[0].path, '/c', 'refresh does not reset dwell');
     await go(p, '/file'); assert.equal(transfer(p), 'tracked'); assert.equal(p.customRecentFolders()[0].path, '/file', 'file operation bypasses dwell');
-    const savedCount = saves; advance(20000); assert.equal(saves, savedCount, 'file action cancels duplicate timer write');
+    advance(350);
+    const savedCount = saves, stableItems = p.customRecentFolders();
+    for (let i = 0; i < 1000; i++) { transfer(p); assert.equal(p.customRecentFolders(), stableItems, 'idle renders retain array and row identity'); }
+    advance(20000); assert.equal(saves, savedCount, '1000 same-folder file actions do not save config or reset UI');
     await go(p, '/denied'); advance(20000); assert.ok(!p.customRecentFolders().some(row => row.path === '/denied'), 'failed folder is excluded');
     await go(p, '/disconnect'); p.disconnect(); advance(20000); assert.ok(!p.customRecentFolders().some(row => row.path === '/disconnect'));
     p.connected = true; await go(p, '/destroy'); p.ngOnDestroy(); advance(20000); assert.ok(!p.customRecentFolders().some(row => row.path === '/destroy'));
     const restored = make(); assert.equal(restored.customRecentFolders()[0].path, '/file', 'reopened panel restores config history');
     assert.equal(make('two').customRecentFolders().length, 0, 'other server isolated'); assert.equal(make('one', 'other').customRecentFolders().length, 0, 'other account isolated');
     for (let i = 0; i < 12; i++) { await go(restored, '/folder' + i); transfer(restored); }
+    const beforeBatchFlush = saves; advance(350); assert.equal(saves, beforeBatchFlush + 1, 'rapid folder changes share one config save');
     assert.equal(restored.customRecentFolders().length, 5);
     const settings = Object.assign(new Settings(), { configService });
     settings.setCustomRecentFolderLimit(20); assert.equal(settings.customRecentFolderLimit, 10); assert.equal(restored.customRecentFolders().length, 10);

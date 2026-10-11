@@ -7,7 +7,7 @@ module.exports = function patchRecent(source) {
             let text = node.text;
             if (text.includes('<sftp-bookmark-popup')) text = text.replace('[allBookmarks]="getAllBookmarksForPane()"', '[allBookmarks]="getAllBookmarksForPane()"\n        [customRecentItems]="customRecentFolders()"');
             if (text.includes('class="bookmark-list" #bookmarkList')) text = text.replace('<!-- 分组模式：', `<div class="bookmark-scope-label">Recent</div>
-        <div class="bookmark-item" *ngFor="let b of customRecentItems" [class.current]="isCurrent(b)" (click)="gotoBookmark.emit(b)" [title]="b.path">
+        <div class="bookmark-item" *ngFor="let b of customRecentItems; trackBy: customTrackRecent" [class.current]="isCurrent(b)" (click)="gotoBookmark.emit(b)" [title]="b.path">
           <span class="bm-drag-handle" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="5.5"/><path d="M8 4.5V8l2.5 1.5"/></svg></span>
           <div class="bm-info"><span class="bm-name">{{ b.name }}</span><span class="bm-path">{{ b.path }}</span></div>
         </div>

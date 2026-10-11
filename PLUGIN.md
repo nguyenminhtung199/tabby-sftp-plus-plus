@@ -46,4 +46,6 @@ The bookmark popup includes **Recent**, separate from saved bookmarks. It shows 
 
 `node test-recent-folders.cjs` checks the dwell threshold, rapid navigation, file actions, deduplicated MRU order, count limit, live setting changes, server/account isolation, disconnect/destroy cleanup, and persistence using the installed Tabby ConfigProxy. The bundle test also parses the updated bookmark popup with Angular.
 
+Recent rows keep stable identities across UI updates, so background refreshes do not replace the row being clicked. Repeated file operations in the current most-recent folder do not rewrite config; rapid changes share a config-save batch. Activity checks and local edit watchers run outside Angular's global change detection. Idle activity checks do not repaint the file list, while active transfers and visible Transfer history continue to update.
+
 `test-transfer-engine.cjs` exercises a 300 MiB disk-backed download/edit/upload, bounded memory, queue limits, progress, pause/resume, cancellation, queued destination changes, failed replacement rollback and preservation of local edits. The existing external-edit, recovery, history, autocomplete, sidebar, Screen reporter and Angular bundle tests are retained. These tests do not substitute for measuring throughput against a live server.

@@ -1,6 +1,21 @@
 module.exports = function installRecentFolders({ Panel, Settings, Bookmark, Angular, clock = { now: Date.now, setTimeout, clearTimeout } }) {
     const path = require('path');
     const panels = new Set();
+    const saves = new WeakMap();
+    const outside = (owner, fn) => owner.zone?.runOutsideAngular ? owner.zone.runOutsideAngular(fn) : fn();
+    const flush = owner => {
+        const service = owner.configService, pending = service && saves.get(service);
+        if (!pending) return;
+        clock.clearTimeout(pending); saves.delete(service);
+        try { Promise.resolve(service.save()).catch(error => owner.showToast?.('Cannot save recent folders: ' + error.message)); }
+        catch (error) { owner.showToast?.('Cannot save recent folders: ' + error.message); }
+    };
+    const scheduleSave = owner => {
+        const service = owner.configService;
+        // Share one timer across panels and keep a fixed deadline even during large folder transfers.
+        if (!service || saves.has(service)) return;
+        saves.set(service, outside(owner, () => clock.setTimeout(() => flush(owner), 350)));
+    };
     const config = owner => owner.configService?.store?.['tabby-sftp-plus'];
     const integer = (value, fallback, max) => Number.isFinite(Number(value)) ? Math.min(max, Math.max(1, Math.round(Number(value)))) : fallback;
     const limit = owner => integer(config(owner)?.recentFolderLimit ?? 5, 5, 10);
@@ -15,19 +30,25 @@ module.exports = function installRecentFolders({ Panel, Settings, Bookmark, Angu
     const bucket = (owner, side) => side === 'local' ? 'local' : server(owner);
     const rows = owner => Array.isArray(config(owner)?.recentFolderEntries) ? config(owner).recentFolderEntries : [];
     Panel.prototype.customRecentFolders = function (side = this.bookmarkPane) {
-        const key = bucket(this, side);
-        return rows(this).filter(row => row.side === side && row.server === key).slice(0, limit(this)).map(row => ({
+        const key = bucket(this, side), source = rows(this), count = limit(this);
+        const cache = this._customRecentCache ||= {};
+        if (cache[side]?.source === source && cache[side].key === key && cache[side].count === count) return cache[side].items;
+        const items = source.filter(row => row.side === side && row.server === key).slice(0, count).map(row => ({
             ...row, type: side, id: 'recent:' + row.path, name: (side === 'remote' ? path.posix : path.win32).basename(row.path) || row.path,
         }));
+        cache[side] = { source, key, count, items };
+        return items;
     };
     Panel.prototype._customRecordRecent = function (side, folder) {
         const cfg = config(this), key = bucket(this, side);
         if (!cfg || !key || !folder || this._destroyed || (side === 'remote' && !this.connected)) return;
         folder = normalize(side, folder);
         const previous = rows(this), sameBucket = row => row.side === side && row.server === key;
+        const first = previous.find(sameBucket);
+        if (first && identity(side, first.path) === identity(side, folder)) return;
         const retained = previous.filter(row => sameBucket(row) && identity(side, row.path) !== identity(side, folder)).slice(0, 9);
         cfg.recentFolderEntries = [{ side, server: key, path: folder, lastVisited: clock.now() }, ...retained, ...previous.filter(row => !sameBucket(row))];
-        this.configService.save();
+        scheduleSave(this);
         this._safeDetect?.();
     };
     Panel.prototype._customStopRecent = function (side) {
@@ -38,13 +59,13 @@ module.exports = function installRecentFolders({ Panel, Settings, Bookmark, Angu
     Panel.prototype._customArmRecent = function (side, state) {
         clock.clearTimeout(state.timer);
         if (state.recorded) return;
-        state.timer = clock.setTimeout(() => {
+        state.timer = outside(this, () => clock.setTimeout(() => {
             if (this._destroyed || this[side + 'Path'] !== state.folder || bucket(this, side) !== state.bucket ||
                 (side === 'remote' && (!this.connected || this.sftpSession !== state.session))) return this._customStopRecent(side);
             if (clock.now() - state.started <= dwell(this) * 1000) return this._customArmRecent(side, state);
             state.recorded = true;
             this._customRecordRecent(side, state.folder);
-        }, Math.max(1, dwell(this) * 1000 + 1 - (clock.now() - state.started)));
+        }, Math.max(1, dwell(this) * 1000 + 1 - (clock.now() - state.started))));
     };
     Panel.prototype._customVisitRecent = function (side, folder) {
         if (this._destroyed || !folder || !bucket(this, side) || (side === 'remote' && !this.connected)) return;
@@ -107,7 +128,7 @@ module.exports = function installRecentFolders({ Panel, Settings, Bookmark, Angu
         const original = Panel.prototype[name];
         Panel.prototype[name] = function (...args) {
             this._customStopRecent('remote');
-            if (name === 'ngOnDestroy') { this._customStopRecent('local'); panels.delete(this); }
+            if (name === 'ngOnDestroy') { this._customStopRecent('local'); panels.delete(this); flush(this); }
             return original.apply(this, args);
         };
     }
@@ -120,4 +141,5 @@ module.exports = function installRecentFolders({ Panel, Settings, Bookmark, Angu
         };
     }
     Angular?.Input()(Bookmark.prototype, 'customRecentItems');
+    Bookmark.prototype.customTrackRecent = (_, row) => row.type + ':' + row.path;
 };
