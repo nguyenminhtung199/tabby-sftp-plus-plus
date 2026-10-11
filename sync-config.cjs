@@ -25,7 +25,7 @@ function key(create) {
 }
 function copyPlugin(from, to) {
     fs.mkdirSync(to, { recursive: true });
-    for (const name of sourceFiles) fs.copyFileSync(path.join(from, name), path.join(to, name));
+    for (const name of [...sourceFiles, 'clipboard-upload.cjs', 'test-clipboard-upload.cjs']) fs.copyFileSync(path.join(from, name), path.join(to, name));
     for (const name of ['assets', 'dist']) fs.cpSync(path.join(from, name), path.join(to, name), { recursive: true });
 }
 function decrypt() {

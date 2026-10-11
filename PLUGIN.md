@@ -2,6 +2,10 @@
 
 Independent local Tabby plugin: `tabby-sftp-plus-plus` 1.0.0, forked from DD1024z's MIT-licensed SFTP Plus 2.4.1. The upstream license is preserved in LICENSE. No Tabby application files are modified.
 
+## Paste images and drop local files
+
+Focus the remote file list and press Ctrl+V (Cmd+V on macOS) to upload a clipboard image as a uniquely named `clipboard-...png` into the currently open remote directory. Path/filter/editable fields retain normal text paste. Local/remote file copy-paste remains available when the clipboard does not contain an image. Drag files or directories from File Explorer onto the remote list, or onto a folder row to upload into that folder. These uploads use the existing transfer queue, progress/history and conflict handling. Navigating during preparation does not change the captured destination. Virtual dropped files are streamed to local staging rather than buffered in memory. Staged image/virtual-file copies remain under the Tabby user-data `sftp-plus-plus/uploads` directory for failed-transfer recovery/retry; they are excluded from Git export.
+
 ## Local editing
 
 The settings page no longer includes the About section (version, build time, author and promotional links). Upstream attribution and license remain in this documentation and LICENSE.

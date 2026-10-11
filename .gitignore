@@ -6,5 +6,7 @@ config.yaml
 .env*
 migration-backup/
 recovery/
+uploads/
+test-fixtures/
 icon-preview/
 *.log

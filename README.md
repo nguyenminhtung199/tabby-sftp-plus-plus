@@ -4,6 +4,15 @@ Repo chứa plugin **SFTP++** đã build, source để sửa tiếp, danh sách 
 
 Tài liệu tính năng SFTP++: [PLUGIN.md](PLUGIN.md).
 
+## Dán ảnh và kéo file lên remote
+
+- Click vùng danh sách file remote rồi bấm **Ctrl+V** để upload ảnh clipboard thành file `clipboard-...png` trong thư mục đang mở.
+- Kéo file/thư mục từ File Explorer vào danh sách remote; thả lên một hàng folder để upload vào folder đó.
+- Upload dùng queue và Transfer history hiện có. Ô path/filter vẫn dán văn bản bình thường.
+- Bản staging của ảnh/file ảo được giữ tại `%APPDATA%\tabby\sftp-plus-plus\uploads` để còn nguồn retry khi upload lỗi; không đưa vào Git.
+
+Kiểm tra luồng paste/drop bằng `node test-clipboard-upload.cjs`. Kiểm tra này dùng file và clipboard giả lập, không upload vào server thật.
+
 ## Cài trên máy Windows khác
 
 1. Cài **Tabby**, **Git** và **Node.js LTS** (kèm npm). Nên dùng cùng phiên bản Tabby với máy cũ trước.

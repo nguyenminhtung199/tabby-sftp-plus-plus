@@ -13,6 +13,7 @@ patched=once(patched,next,template.replace(/\n/g,'\\n').replace(/'/g,"\\'")+next
 patched=once(patched,'const so=to;',`const customSftpRecovery=(${runtime('recovery-store.cjs')})();/* LOCAL_TRANSFER_ENGINE_V1 */(${runtime('transfer-engine.cjs')})({Panel:Xi});/* LOCAL_EXTERNAL_EDIT_V1 */(${runtime('external-edit.cjs')})({Panel:Xi,Settings:Wt,download:I,shell:t(288).shell,recovery:customSftpRecovery});const so=to;`);
 patched=require('./patch-navigation.cjs')(patched);
 patched=require('./cleanup-config.cjs')(patched);
+patched=once(patched,'const so=to;',`/* CLIPBOARD_UPLOAD_V1 */(${runtime('clipboard-upload.cjs')})({Panel:Xi,electron:t(288)});const so=to;`);
 patched=patched.replaceAll('tabby-sftp-plus','tabby-sftp-plus-plus').replaceAll('sftp-plus-toggle-panel','sftp-plus-plus-toggle-panel').replaceAll('SFTP+','SFTP++');
 new vm.Script(patched,{filename:'SFTP++/dist/index.js'});
 const dist=path.join(__dirname,'dist');fs.mkdirSync(dist,{recursive:true});
