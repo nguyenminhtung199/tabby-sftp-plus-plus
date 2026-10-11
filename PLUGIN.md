@@ -42,4 +42,8 @@ Migration backups are in `migration-backup/`. Recovery is in `recovery/`; local 
 
 ## Validation
 
+The bookmark popup includes **Recent**, separate from saved bookmarks. It shows the latest **5** qualified folders by default; **Recent folders (1–10)** controls the visible count (at most 10). **Recent folder dwell time (seconds)** defaults to **10**: a folder is added only after staying there longer than this threshold, or immediately when opening/editing a file, starting an upload/download, or confirming create/rename/delete/permissions. Simply selecting files or typing a path does not add a folder. Refreshing the same folder does not restart the timer. Remote history is persistent and isolated by host, port and account; local history is separate. Clicking a Recent row opens that folder through normal navigation. Recent does not change Manual/Remember path mode.
+
+`node test-recent-folders.cjs` checks the dwell threshold, rapid navigation, file actions, deduplicated MRU order, count limit, live setting changes, server/account isolation, disconnect/destroy cleanup, and persistence using the installed Tabby ConfigProxy. The bundle test also parses the updated bookmark popup with Angular.
+
 `test-transfer-engine.cjs` exercises a 300 MiB disk-backed download/edit/upload, bounded memory, queue limits, progress, pause/resume, cancellation, queued destination changes, failed replacement rollback and preservation of local edits. The existing external-edit, recovery, history, autocomplete, sidebar, Screen reporter and Angular bundle tests are retained. These tests do not substitute for measuring throughput against a live server.
