@@ -32,6 +32,10 @@ Script khôi phục vào `%APPDATA%\tabby`, thay config hiện có bằng snapsh
 
 ## Cập nhật từ máy đang dùng
 
+**Quy định cập nhật:** Bất kỳ thay đổi nào đối với plugin, config, danh sách plugin, script hoặc tài liệu đều phải được cập nhật vào repo, commit và push lên Git ngay sau khi hoàn tất và kiểm tra. Không để thay đổi chỉ nằm trên máy local. Quy định này áp dụng cả khi chỉnh sửa thủ công và khi nhờ coding agent thực hiện.
+
+Nếu sửa source SFTP++, build lại `dist/` trước khi export. Nếu thay config hoặc bản plugin đang cài trên máy nguồn, chạy export theo hướng dẫn dưới đây trước khi commit. Với thay đổi chỉ ở script hoặc README trong repo, commit và push trực tiếp. Luôn giữ khóa giải mã và config chưa mã hóa ngoài Git.
+
 Đóng Tabby sau khi lưu config. Export lấy config hiện tại, manifest/lockfile và bản SFTP++ hiện tại vào repo:
 
 ```powershell
