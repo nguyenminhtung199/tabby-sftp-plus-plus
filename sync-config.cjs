@@ -25,7 +25,7 @@ function key(create) {
 }
 function copyPlugin(from, to) {
     fs.mkdirSync(to, { recursive: true });
-    for (const name of [...sourceFiles, 'clipboard-upload.cjs', 'test-clipboard-upload.cjs', 'resume-transfer.cjs', 'test-resume-transfer.cjs', 'recent-folders.cjs', 'patch-recent.cjs', 'test-recent-folders.cjs', 'config-proxy-fixture.cjs', 'test-activity.cjs', 'test-external-edit.cjs', 'transfer-ui.cjs', 'patch-transfer-ui.cjs', 'test-transfer-ui.cjs']) fs.copyFileSync(path.join(from, name), path.join(to, name));
+    for (const name of [...sourceFiles, 'clipboard-upload.cjs', 'test-clipboard-upload.cjs', 'resume-transfer.cjs', 'test-resume-transfer.cjs', 'recent-folders.cjs', 'patch-recent.cjs', 'test-recent-folders.cjs', 'config-proxy-fixture.cjs', 'test-activity.cjs', 'test-external-edit.cjs', 'transfer-ui.cjs', 'patch-transfer-ui.cjs', 'test-transfer-ui.cjs', 'test-native-buffer.cjs']) fs.copyFileSync(path.join(from, name), path.join(to, name));
     for (const name of ['assets', 'dist']) fs.cpSync(path.join(from, name), path.join(to, name), { recursive: true });
 }
 function decrypt() {

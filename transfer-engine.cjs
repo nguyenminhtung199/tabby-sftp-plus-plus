@@ -1,6 +1,7 @@
 module.exports = function installTransferEngine({Panel,resume}) {
     const fs=require('fs'),fsp=fs.promises,path=require('path'),crypto=require('crypto');
-    // One network read plus one disk write/read overlap, bounded to 512 KiB.
+    // Downloads copy native memory and finish the disk write before the next read.
+    // Uploads overlap one owned disk buffer with one network write (512 KiB bound).
     // Cursor-based russh handles must never receive concurrent read/write calls.
     const CHUNK=256*1024;
     const original={upload:Panel.prototype._doUpload,download:Panel.prototype._doDownload};
@@ -54,12 +55,14 @@ module.exports = function installTransferEngine({Panel,resume}) {
                 const read=()=>settled(remoteHandle.read());pending=read();
                 while(true){
                     await transfer.gate(panel,session);const result=await pending;pending=null;if(result.error)throw result.error;
-                    const value=result.value,chunk=Buffer.isBuffer(value)?value:Buffer.from(value.buffer,value.byteOffset,value.byteLength);if(!chunk.length)break;
+                    // Do not retain a zero-copy view over the native addon backing store.
+                    // A new native read must not overlap use of the previous native memory.
+                    const chunk=Buffer.from(result.value);if(!chunk.length)break;
                     if(chunk.length>CHUNK)throw new Error('SFTP chunk exceeds bounded transfer buffer');
                     if(transfer.bytes+chunk.length>size)throw new Error('Remote file grew while downloading');
-                    // Prefetch the next chunk while persisting this one; requests retain cursor order.
-                    pending=read();let written=0;while(written<chunk.length){const r=await localHandle.write(chunk,written,chunk.length-written,transfer.bytes+written);if(!r.bytesWritten)throw new Error('Local write made no progress');written+=r.bytesWritten;}
+                    let written=0;while(written<chunk.length){const r=await localHandle.write(chunk,written,chunk.length-written,transfer.bytes+written);if(!r.bytesWritten)throw new Error('Local write made no progress');written+=r.bytesWritten;}
                     transfer.bytes+=chunk.length;if(state)resume.checkpoint(state,transfer.bytes,chunk);onProgress?.(transfer.bytes);
+                    pending=read();
                 }
                 if(transfer.bytes!==size)throw new Error('Download incomplete: expected '+size+', received '+transfer.bytes);
                 const after=await session.stat(remote);if(remoteStamp(after)!==remoteStamp(remoteBefore))throw new Error('Remote file changed while downloading');
