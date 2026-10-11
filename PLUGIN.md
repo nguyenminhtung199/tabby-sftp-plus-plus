@@ -8,6 +8,18 @@ Focus the remote file list and press Ctrl+V (Cmd+V on macOS) to upload a clipboa
 
 ## Local editing
 
+## Resume after reconnect
+
+Interrupted file uploads/downloads retain their staging file and a durable checkpoint in `recovery/resume-state.json`. Once the same server/account reconnects, SFTP++ queues automatic continuation at the saved byte offset. A process restart also restores checkpoints belonging to a terminated process. Progress includes the bytes already transferred. Explicit Cancel removes the checkpoint and does not auto-resume; user-paused jobs remain paused until resumed manually.
+
+Source and destination metadata must still match. The last saved partial chunk is verified before reuse; upload discards any unacknowledged suffix before continuing, so lost ACKs cannot duplicate bytes. Changed source/destination or corrupt partials stop with a conflict. Use Retry and confirm a restart when the source/destination changed. If a partial itself is rejected, cancel it and start a fresh transfer. Files are committed only after completion and metadata/size verification.
+
+The bundled Tabby/russh file handle has no seek. On this build, continuation uses a separate SSH exec channel with **Python 3 (`python3`) on the remote server**; no commands are pasted into the terminal and Tabby core is not modified. The helper reads/writes only the requested chunk, with bounded buffers. Servers without SSH exec/Python 3 retain the partial and show an error; they do not silently restart. Seek-capable adapters can resume through SFTP directly. Checkpoints are saved periodically, so an abrupt machine crash can resend a small tail after the latest durable checkpoint, rather than the whole file.
+
+Resume also applies to image/file-drop uploads, interrupted local-edit downloads and immutable save-upload snapshots. For directory transfers, partial individual files can continue; continuing the remaining directory traversal still uses the existing folder Retry/conflict workflow. Checkpoints, partials and edit snapshots remain local and are not synced to Git.
+
+Run `node test-resume-transfer.cjs` with Python 3 available locally, or set `SFTP_TEST_PYTHON` to its executable. The test exercises the actual Python protocol over a simulated SSH channel, including reconnect/process restart, lost ACKs, changed-source conflicts, corrupt partials and cancellation; it does not connect to a live server.
+
 The settings page no longer includes the About section (version, build time, author and promotional links). Upstream attribution and license remain in this documentation and LICENSE.
 
 Double-click a remote file: queue an **edit-download**, stream the complete file to a durable local copy, verify its size and metadata, then open the Windows default app. Saving queues **edit-upload**, preserving the original bytes and encoding. Both operations appear in the existing transfer queue and Transfer history with size, percentage and speed. Cancelling or failing the download never opens an incomplete file. Large files use bounded buffers rather than loading the entire file into memory. Unchanged local files are not repeatedly hashed. Saving during upload schedules the latest saved contents after the current immutable snapshot finishes.
@@ -16,7 +28,7 @@ Local app editing and upload-on-save are always enabled. The internal viewer/edi
 
 This follows Bitvise's documented local-edit behavior: [Bitvise SSH Client 6.x release notes](https://bitvise.com/ssh-client-version-history-6). Bitvise also uses aggressive SFTP protocol request pipelining: [performance FAQ](https://bitvise.com/ssh-server-usage-faq). The bundled Tabby russh API only exposes cursor-based file handles, not offset-based protocol requests. SFTP++ safely overlaps network and disk work within 512 KiB, but does **not** claim Bitvise's protocol pipeline or identical throughput. Native handles are never read or written concurrently, avoiding cursor corruption. A future offset-capable adapter can implement that optimization without editing Tabby.
 
-Uploads use unique staging files and verified completion before replacement, with backup/rollback when the server cannot rename over an existing target. Changes to the source or destination during transfer abort replacement. Failed uploads retain local edits. Remote conflicts require confirmation. Recovered normal transfers require manual Retry. Edit save retries remain bounded and cancellation blocks reuploading that content.
+Uploads use unique staging files and verified completion before replacement, with backup/rollback when the server cannot rename over an existing target. Changes to the source or destination during transfer abort replacement. Failed uploads retain local edits. Remote conflicts require confirmation. Verified partial file transfers resume automatically after reconnection; legacy jobs without checkpoints and remaining folder traversal use manual Retry. Edit save retries remain bounded and cancellation blocks reuploading that content.
 
 ## Install and build
 

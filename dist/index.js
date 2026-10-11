@@ -65,7 +65,155 @@
         owner(id) { return owners.get(id); },
         release(id, panel) { if (owners.get(id) === panel) owners.delete(id); },
     };
-})();/* LOCAL_TRANSFER_ENGINE_V1 */(function installTransferEngine({Panel}) {
+})();const customSftpResume=(function createResumeTransfer({Panel,root,server}) {
+    const fs=require('fs'),fsp=fs.promises,path=require('path'),crypto=require('crypto');
+    const file=path.join(root,'resume-state.json'),states=new Map(),attempts=new WeakMap();
+    const registry=globalThis[Symbol.for('sftp-plus-plus.resume-owners')] ||= new Map();
+    const owners=registry.get(file)||new Map();registry.set(file,owners);
+    const CHUNK=256*1024;
+    const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
+    const quote=value=>"'"+String(value).replaceAll("'","'\\''")+"'";
+    function disk(){try{return JSON.parse(fs.readFileSync(file,'utf8')).states||[];}catch(e){if(e.code==='ENOENT')return [];throw e;}}
+    function alive(pid){if(!pid)return false;try{process.kill(pid,0);return true;}catch(e){return e.code==='EPERM';}}
+    function refresh(){const current=new Map(disk().map(s=>[s.id,s]));for(const [identity,state] of states)if(owners.has(identity))current.set(identity,state);states.clear();for(const [identity,state] of current){if(state.status==='Running'&&!owners.has(identity)&&!alive(state.ownerPid)){state.status='Interrupted';save(state);}states.set(identity,state);}}
+    function save(state,removed){fs.mkdirSync(root,{recursive:true});const entries=new Map(disk().map(s=>[s.id,s]));if(state)entries.set(state.id,state);if(removed)entries.delete(removed);const tmp=file+'.'+crypto.randomUUID()+'.tmp';try{fs.writeFileSync(tmp,JSON.stringify({version:1,states:[...entries.values()]}),{flag:'wx',mode:0o600});fs.renameSync(tmp,file);}finally{try{fs.unlinkSync(tmp);}catch{}}}
+    try{const data=JSON.parse(fs.readFileSync(file,'utf8'));if(data.version!==1)throw Error('Unsupported resume journal');for(const item of data.states||[])states.set(item.id,item);refresh();}
+    catch(error){if(error.code!=='ENOENT')throw error;}
+    const id=(p,d,r,l,operation)=>hash(Buffer.from(JSON.stringify([server(p),d,r,l,operation])));
+    const fail=message=>{const error=new Error(message);error.code='RESUME_CONFLICT';return error;};
+    const equal=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+    const validTemp=s=>typeof s.temp==='string'&&s.temp.startsWith((s.direction==='upload'?s.remote:s.local)+(s.direction==='upload'?'.sftp-plus-plus-upload-':'.sftp-plus-plus-download-'))&&/^[0-9a-f-]{36}$/i.test(s.temp.slice(s.temp.lastIndexOf(s.direction==='upload'?'.sftp-plus-plus-upload-':'.sftp-plus-plus-download-')+(s.direction==='upload'?'.sftp-plus-plus-upload-':'.sftp-plus-plus-download-').length));
+    async function localBoundary(local,offset,n){const h=await fsp.open(local,'r');try{const b=Buffer.alloc(n);const result=await h.read(b,0,n,offset-n);if(result.bytesRead!==n)throw fail('Partial file is shorter than its saved checkpoint.');return hash(b);}finally{await h.close();}}
+    // Request/response protocol: the helper emits at most one requested chunk, preserving backpressure.
+    const python=`import sys,struct,hashlib,os
+mode,p,off,digest,boundarylen=sys.argv[1:]
+off=int(off)
+boundarylen=int(boundarylen)
+f=open(p,'rb' if mode=='download' else 'r+b')
+f.seek(off-boundarylen)
+if hashlib.sha256(f.read(boundarylen)).hexdigest()!=digest: raise RuntimeError('resume boundary changed')
+if mode=='upload':
+ if os.fstat(f.fileno()).st_size<off: raise RuntimeError('partial file is shorter than checkpoint')
+ f.truncate(off)
+f.seek(off)
+i=sys.stdin.buffer;o=sys.stdout.buffer
+def exact(n):
+ b=b''
+ while len(b)<n:
+  c=i.read(n-len(b))
+  if not c: raise EOFError()
+  b+=c
+ return b
+o.write(b'SFTPRES1');o.flush()
+while True:
+ h=i.read(4)
+ if not h: break
+ if len(h)!=4: h+=exact(4-len(h))
+ n=struct.unpack('!I',h)[0]
+ if n==0: break
+ if n>262144: raise RuntimeError('invalid chunk size')
+ if mode=='download':
+  b=f.read(n);o.write(struct.pack('!I',len(b))+b)
+ else:
+  b=exact(n);f.write(b);f.flush();o.write(struct.pack('!I',len(b)))
+ o.flush()
+if mode=='upload': f.flush();os.fsync(f.fileno())
+f.close()
+o.write(struct.pack('!I',0));o.flush()`;
+    async function remoteAt(panel,session,remote,offset,direction,boundary,boundarylen){
+        const ssh=(panel.sshSession||panel.terminalRef?.session)?.ssh;
+        if(!ssh?.openSessionChannel||!ssh.activateChannel)throw Error('Resume requires a seek-capable SFTP adapter or SSH exec with Python 3. Partial file retained.');
+        const channel=await ssh.activateChannel(await ssh.openSessionChannel());
+        let buffer=Buffer.alloc(0),waiter,dead=false,error,subscriptions=[];
+        const reject=e=>{error=e;dead=true;if(waiter){const w=waiter;waiter=null;clearTimeout(w.timer);w.reject(e);}};
+        function drain(){if(!waiter||buffer.length<waiter.size)return;const w=waiter;waiter=null;clearTimeout(w.timer);const result=buffer.subarray(0,w.size);buffer=buffer.subarray(w.size);w.resolve(result);}
+        function readBytes(size){const promise=dead?Promise.reject(error||Error('Resume SSH channel closed')):waiter?Promise.reject(Error('Concurrent resume reads are not allowed')):new Promise((resolve,rejectRead)=>{waiter={size,resolve,reject:rejectRead,timer:setTimeout(()=>{reject(Error('Resume channel timed out; Python 3 and SSH exec must be available.'));void channel.close();},30000)};drain();});promise.catch(()=>{});return promise;}
+        subscriptions.push(channel.data$.subscribe({next:data=>{buffer=Buffer.concat([buffer,Buffer.from(data)]);if(buffer.length>CHUNK+12)reject(Error('Invalid resume response'));else drain();},error:reject}));
+        const ended=()=>reject(Error('Resume SSH channel closed; Python 3 may be unavailable or partial file changed.'));
+        subscriptions.push(channel.closed$.subscribe(ended));if(channel.eof$)subscriptions.push(channel.eof$.subscribe(ended));
+        const close=async()=>{dead=true;if(waiter)reject(Error('Resume channel closed'));for(const s of subscriptions)s.unsubscribe();try{await channel.close();}catch{}};
+        try{
+            const ready=readBytes(8); // Subscribe before exec so even an immediate response is retained.
+            await channel.requestExec('python3 -u -c '+quote(python)+' '+quote(direction)+' '+quote(remote)+' '+quote(offset)+' '+quote(boundary||'')+' '+quote(boundarylen||0));
+            if((await ready).toString()!=='SFTPRES1')throw Error('Unexpected resume helper output.');
+            let position=offset;
+            return {read:async()=>{const n=Buffer.alloc(4);n.writeUInt32BE(CHUNK);const header=readBytes(4);await channel.write(n);const length=(await header).readUInt32BE();if(length>CHUNK)throw Error('Invalid resume chunk');const bytes=length?await readBytes(length):Buffer.alloc(0);position+=length;return bytes;},
+                write:async bytes=>{const header=Buffer.alloc(4);header.writeUInt32BE(bytes.length);const ack=readBytes(4);await channel.write(Buffer.concat([header,bytes]));if((await ack).readUInt32BE()!==bytes.length)throw Error('Resume write acknowledgement mismatch');position+=bytes.length;},
+                close:async()=>{try{if(!dead){const ack=readBytes(4);await channel.write(Buffer.alloc(4));if((await ack).readUInt32BE()!==0)throw Error('Resume final acknowledgement mismatch');}}finally{await close();}}};
+        }catch(e){await close();throw e;}
+    }
+    async function openAt(panel,session,target,offset,direction,state){
+        const native=await session.open(target,direction==='download'?1:3);
+        try{
+            if(typeof native.seek==='function'){
+                if(direction==='upload'){
+                    const stat=await session.stat(target);
+                    if(stat.size<offset)throw fail('Remote partial file is shorter than checkpoint.');
+                    await native.seek(offset-state.boundaryLength);
+                    const data=await native.read();if(hash(Buffer.from(data).subarray(0,state.boundaryLength))!==state.boundary)throw fail('Remote partial file changed; restart explicitly.');
+                    if(typeof native.truncate==='function')await native.truncate(offset);
+                    else if(stat.size!==offset){await native.close();return remoteAt(panel,session,target,offset,direction,state.boundary,state.boundaryLength);}
+                }
+                await native.seek(offset);return native;
+            }
+            await native.close();return remoteAt(panel,session,target,offset,direction,state.boundary,state.boundaryLength);
+        }catch(e){await native.close().catch(()=>{});throw e;}
+    }
+    const api={
+        async prepare(panel,direction,remote,local,operation,source,destination,size){
+            refresh();
+            const identity=id(panel,direction,remote,local,operation),old=states.get(identity);
+            if(owners.has(identity))throw Error('This resumable transfer is already active.');
+            if(old){
+                if(!validTemp(old)||!Number.isSafeInteger(old.offset)||old.offset<0||old.offset>size||(old.offset&&(!Number.isInteger(old.boundaryLength)||old.boundaryLength<1||old.boundaryLength>CHUNK||old.boundaryLength>old.offset||!/^[0-9a-f]{64}$/i.test(old.boundary)))){old.status='Conflict';save(old);throw fail('Invalid resume checkpoint; partial file retained.');}
+                if(!equal(old.source,source)||!equal(old.destination,destination)||old.size!==size){old.status='Conflict';save(old);throw fail('Source or destination changed. Partial file retained; restart this transfer explicitly.');}
+                if(direction==='download'&&old.offset>0){const stat=await fsp.stat(old.temp);if(stat.size<old.offset||await localBoundary(old.temp,old.offset,old.boundaryLength)!==old.boundary){old.status='Conflict';save(old);throw fail('Local partial file changed; restart explicitly.');}}
+                old.status='Running';old.ownerPid=process.pid;owners.set(identity,panel);save(old);return old;
+            }
+            const state={id:identity,server:server(panel),ownerPid:process.pid,direction,remote,local,operation,source,destination,size,offset:0,boundary:'',status:'Running',temp:direction==='upload'?remote+'.sftp-plus-plus-upload-'+crypto.randomUUID():local+'.sftp-plus-plus-download-'+crypto.randomUUID()};
+            states.set(identity,state);owners.set(identity,panel);save(state);return state;
+        },
+        checkpoint(state,offset,chunk){state.offset=offset;state.boundary=hash(chunk);state.boundaryLength=chunk.length;if(offset-(state.savedOffset||0)>=4*1024*1024||Date.now()-(state.savedAt||0)>1000){state.savedOffset=offset;state.savedAt=Date.now();save(state);}},
+        finish(state){states.delete(state.id);owners.delete(state.id);save(null,state.id);},
+        fail(state,status){if(!state)return;state.status=status;owners.delete(state.id);save(state);},
+        openAt,
+        has(panel,direction,remote,local){return [...states.values()].some(s=>s.server===server(panel)&&s.direction===direction&&s.remote===remote&&s.local===local);},
+        status(panel,direction,remote,local){return [...states.values()].find(s=>s.server===server(panel)&&s.direction===direction&&s.remote===remote&&s.local===local)?.status;},
+        findEdit(panel,remote){return [...states.values()].find(s=>s.server===server(panel)&&s.remote===remote&&s.operation==='edit-download');},
+        async discard(panel,direction,remote,local){for(const s of [...states.values()])if(s.server===server(panel)&&s.direction===direction&&s.remote===remote&&s.local===local){if(owners.has(s.id))throw Error('Cancel the running transfer first.');if(s.operation==='edit-upload')await panel._customBlockResumedEdit?.(remote,local);if(validTemp(s)){if(s.direction==='download')await fsp.unlink(s.temp).catch(()=>{});else await panel.sftpSession?.unlink(s.temp).catch(()=>{});}api.finish(s);}},
+        async auto(panel){
+            if(!panel.connected||!panel.sftpSession||panel._destroyed)return;
+            refresh();
+            let tried=attempts.get(panel);if(!tried){tried=new Map();attempts.set(panel,tried);}
+            for(const state of [...states.values()]){
+                if(state.server!==server(panel)||state.status!=='Interrupted'||owners.has(state.id)||tried.get(state.id)===panel.sftpSession)continue;
+                tried.set(state.id,panel.sftpSession);
+                if(state.operation==='edit-download'){void panel._customExternalEdit?.({name:path.posix.basename(state.remote),fullPath:state.remote,size:state.size,mode:420});continue;}
+                const row=panel._customTransferRows?.find(r=>r.direction===state.direction&&r.remotePath===state.remote&&r.localPath===state.local&&!['Completed','Cancelled'].includes(r.status));
+                if(row){if(row._retryBusy||['Running','Queued','Paused'].includes(row.status)){tried.delete(state.id);continue;}void panel.customRetryTransfer(row,true);continue;}
+                void panel._customQueueEditTransfer(state.direction,state.remote,state.local,state.size,state.operation,async()=>{
+                    const ok=state.direction==='upload'?await panel._doUpload(state.remote,state.local,state.operation):await panel._doDownload(state.remote,state.local,420,state.size,state.operation);
+                    if(ok&&state.operation==='edit-upload')await panel._customResumeUploadedEdit?.(state.remote,state.local);
+                    return ok;
+                });
+            }
+        }
+    };
+    Panel.prototype._customHasPartial=function(direction,remote,local){return api.has(this,direction,remote,local);};
+    Panel.prototype._customPartialStatus=function(direction,remote,local){return api.status(this,direction,remote,local);};
+    Panel.prototype._customPendingEditUpload=function(remote){return [...states.values()].find(s=>s.server===server(this)&&s.remote===remote&&s.operation==='edit-upload');};
+    Panel.prototype._customRetrySavedEditUpload=async function(remote){
+        const state=this._customPendingEditUpload(remote);if(!state||owners.has(state.id))return false;
+        return this._customQueueEditTransfer('upload',state.remote,state.local,state.size,'edit-upload',async()=>{
+            const ok=await this._doUpload(state.remote,state.local,'edit-upload');
+            if(ok)await this._customResumeUploadedEdit?.(state.remote,state.local);return ok;
+        });
+    };
+    Panel.prototype._customResumeLocalForEdit=function(remote){return api.findEdit(this,remote)?.local;};
+    Panel.prototype._customAutoResumeTransfers=function(){return api.auto(this);};
+    Panel.prototype._customDiscardPartial=function(direction,remote,local){return api.discard(this,direction,remote,local);};
+    return api;
+})({Panel:Xi,root:customSftpRecovery.root,server:customSftpRecovery.server});/* LOCAL_TRANSFER_ENGINE_V1 */(function installTransferEngine({Panel,resume}) {
     const fs=require('fs'),fsp=fs.promises,path=require('path'),crypto=require('crypto');
     // One network read plus one disk write/read overlap, bounded to 512 KiB.
     // Cursor-based russh handles must never receive concurrent read/write calls.
@@ -81,7 +229,7 @@
         getCompletedBytes(){return this.bytes;} isComplete(){return this.complete;} isCancelled(){return this.cancelled;}
         isPaused(){return this.paused;} isFailed(){return this.failed;} getStatus(){return this.error;}
         setStatus(message){this.error=message;this.failed=true;} close(){}
-        cancel(){this.cancelled=true;this.resume();} pause(){this.paused=true;return this.bytes;}
+        cancel(){this.userCancelled=true;this.cancelled=true;this.resume();} interrupt(){this.interrupted=true;this.cancelled=true;this.resume();} pause(){this.paused=true;return this.bytes;}
         resume(){this.paused=false;for(const resolve of this.waiters.splice(0))resolve();}
         async gate(panel,session){while(this.paused&&!this.cancelled)await new Promise(r=>this.waiters.push(r));if(this.cancelled||panel._destroyed||!panel.connected||panel.sftpSession!==session)throw new Error('Transfer cancelled or connection closed');}
     }
@@ -101,18 +249,23 @@
         const session=panel.sftpSession;if(!session?.open)return direction==='upload'?original.upload.call(panel,remote,local,operation):original.download.call(panel,remote,local,mode,size,operation);
         const targets=direction==='upload'?(panel._activeUploadTargets ||= new Set()):(panel._activeDownloadTargets ||= new Set());
         const key=direction==='upload'?remote:local;if(targets.has(key))return false;targets.add(key);
-        let transfer,remoteHandle,localHandle,pending,temp,initial,remoteBefore;
+        let transfer,remoteHandle,localHandle,pending,temp,initial,remoteBefore,state,closedSub,retained=false;
         try{
             if(direction==='upload'){initial=await fsp.stat(local);size=initial.size;try{remoteBefore=await session.stat(remote);}catch(e){if(!missing(e))throw e;}}
             else{remoteBefore=await session.stat(remote);size=Number(remoteBefore.size);if(!Number.isSafeInteger(size)||size<0)throw new Error('Cannot determine remote file size');}
-            transfer=new Transfer(local,size,mode);(panel._customStreamTransfers ||= new Set()).add(transfer);
+            let destination;
+            if(direction==='download'){try{destination=stamp(await fsp.stat(local));}catch(e){if(!missing(e))throw e;}}
+            if(resume)state=await resume.prepare(panel,direction,remote,local,operation,direction==='upload'?stamp(initial):remoteStamp(remoteBefore),direction==='upload'?(remoteBefore?remoteStamp(remoteBefore):null):(destination||null),size);
+            transfer=new Transfer(local,size,mode);transfer.bytes=state?.offset||0;(panel._customStreamTransfers ||= new Set()).add(transfer);
+            if(session.closed$)closedSub=session.closed$.subscribe(()=>transfer.interrupt());
             if(track){panel.trackTransfer(transfer,direction,remote,local,operation);await Promise.resolve();}
             const cancelRef=panel._byteTransferCtx?.().cancelRef;
             transfer.cancelRef=cancelRef;if(cancelRef){cancelRef.active ||= new Set();cancelRef.active.add(transfer);cancelRef.current=transfer;}
             await transfer.gate(panel,session);
             if(direction==='download'){
-                await fsp.mkdir(path.dirname(local),{recursive:true});temp=local+'.sftp-plus-plus-download-'+crypto.randomUUID();
-                localHandle=await fsp.open(temp,'wx');remoteHandle=await session.open(remote,1);
+                await fsp.mkdir(path.dirname(local),{recursive:true});temp=state?.temp||local+'.sftp-plus-plus-download-'+crypto.randomUUID();
+                localHandle=await fsp.open(temp,state&&fs.existsSync(temp)?'r+':'wx');if(state)await localHandle.truncate(state.offset);
+                remoteHandle=state?.offset?await resume.openAt(panel,session,remote,state.offset,'download',state):await session.open(remote,1);
                 const read=()=>settled(remoteHandle.read());pending=read();
                 while(true){
                     await transfer.gate(panel,session);const result=await pending;pending=null;if(result.error)throw result.error;
@@ -120,22 +273,22 @@
                     if(chunk.length>CHUNK)throw new Error('SFTP chunk exceeds bounded transfer buffer');
                     if(transfer.bytes+chunk.length>size)throw new Error('Remote file grew while downloading');
                     // Prefetch the next chunk while persisting this one; requests retain cursor order.
-                    pending=read();let written=0;while(written<chunk.length){const r=await localHandle.write(chunk,written,chunk.length-written,null);if(!r.bytesWritten)throw new Error('Local write made no progress');written+=r.bytesWritten;}
-                    transfer.bytes+=chunk.length;onProgress?.(transfer.bytes);
+                    pending=read();let written=0;while(written<chunk.length){const r=await localHandle.write(chunk,written,chunk.length-written,transfer.bytes+written);if(!r.bytesWritten)throw new Error('Local write made no progress');written+=r.bytesWritten;}
+                    transfer.bytes+=chunk.length;if(state)resume.checkpoint(state,transfer.bytes,chunk);onProgress?.(transfer.bytes);
                 }
                 if(transfer.bytes!==size)throw new Error('Download incomplete: expected '+size+', received '+transfer.bytes);
                 const after=await session.stat(remote);if(remoteStamp(after)!==remoteStamp(remoteBefore))throw new Error('Remote file changed while downloading');
                 await transfer.gate(panel,session);await localHandle.sync();await localHandle.close();localHandle=null;
                 await remoteHandle.close();remoteHandle=null;await fsp.rename(temp,local);temp=null;
             }else{
-                temp=remote+'.sftp-plus-plus-upload-'+crypto.randomUUID();remoteHandle=await session.open(temp,2|8|16);localHandle=await fsp.open(local,'r');
-                let offset=0;
+                temp=state?.temp||remote+'.sftp-plus-plus-upload-'+crypto.randomUUID();remoteHandle=state?.offset?await resume.openAt(panel,session,temp,state.offset,'upload',state):await session.open(temp,2|8|16);localHandle=await fsp.open(local,'r');
+                let offset=state?.offset||0;
                 const read=()=>{const at=offset;offset+=CHUNK;const buffer=Buffer.alloc(CHUNK);return settled(localHandle.read(buffer,0,CHUNK,at).then(r=>buffer.subarray(0,r.bytesRead)));};
                 pending=read();
                 while(true){
                     await transfer.gate(panel,session);const result=await pending;pending=null;if(result.error)throw result.error;
                     const chunk=result.value;if(!chunk.length)break;pending=read();
-                    await remoteHandle.write(chunk);transfer.bytes+=chunk.length;onProgress?.(transfer.bytes);
+                    await remoteHandle.write(chunk);transfer.bytes+=chunk.length;if(state)resume.checkpoint(state,transfer.bytes,chunk);onProgress?.(transfer.bytes);
                 }
                 const after=await fsp.stat(local);if(transfer.bytes!==size||stamp(after)!==stamp(initial))throw new Error('Local file changed while uploading; retry after saving');
                 await transfer.gate(panel,session);await remoteHandle.close();remoteHandle=null;
@@ -145,12 +298,17 @@
                 if((!!current)!=(!!remoteBefore)||(current&&remoteStamp(current)!==remoteStamp(remoteBefore)))throw new Error('Remote file changed during upload; local copy retained');
                 await transfer.gate(panel,session);await replaceRemote(session,temp,remote);temp=null;
             }
-            transfer.complete=true;return true;
-        }catch(error){if(transfer){transfer.setStatus(error.message);transfer.cancelled=true;}panel.showToast?.('Transfer failed: '+path.basename(remote)+' — '+error.message,7000);return false;}
+            if(state)resume.finish(state);transfer.complete=true;return true;
+        }catch(error){
+            retained=!!state&&!transfer?.userCancelled;
+            if(state){if(retained)resume.fail(state,error.code==='RESUME_CONFLICT'?'Conflict':(!panel.connected||panel._destroyed||panel.sftpSession!==session||transfer?.interrupted||/connection|closed|disconnect/i.test(error.message)?'Interrupted':'Failed'));else resume.finish(state);}
+            if(transfer){transfer.setStatus(error.message);transfer.cancelled=true;}panel.showToast?.((retained?'Transfer interrupted; partial file retained: ':'Transfer failed: ')+path.basename(remote)+' — '+error.message,7000);return false;
+        }
         finally{
             if(pending)await pending;
             if(remoteHandle)await remoteHandle.close().catch(()=>{});if(localHandle)await localHandle.close().catch(()=>{});
-            if(temp){if(direction==='upload')await session.unlink(temp).catch(()=>{});else await fsp.unlink(temp).catch(()=>{});}
+            if(temp&&!retained){if(direction==='upload')await session.unlink(temp).catch(()=>{});else await fsp.unlink(temp).catch(()=>{});}
+            closedSub?.unsubscribe();
             if(transfer){panel._customStreamTransfers?.delete(transfer);const ref=transfer.cancelRef;ref?.active?.delete(transfer);if(ref?.current===transfer)ref.current=null;}
             targets.delete(key);
         }
@@ -195,10 +353,10 @@
         Panel.prototype[method]=function(entry,...args){if(!entry.transfer?._customStream)return native?.call(this,entry,...args);entry.transfer[action]();entry.paused=action==='pause';this._safeDetect?.();};
     }
     const cancel=Panel.prototype.cancelTransfer;
-    Panel.prototype.cancelTransfer=function(entry,...args){const queued=entry.queued;const result=cancel?.call(this,entry,...args);if(queued)entry._customFinish?.(false);return result;};
+    Panel.prototype.cancelTransfer=function(entry,...args){const queued=entry.queued,inactive=queued||!entry.transfer||entry.transfer.isCancelled?.()||entry.transfer.isComplete?.();if(resume&&entry.direction==='upload'&&this._customPendingEditUpload?.(entry.remotePath)?.local===entry.localPath)void this._customBlockResumedEdit?.(entry.remotePath,entry.localPath).catch(e=>this.showToast?.('Cannot stop edit sync: '+e.message));const result=cancel?.call(this,entry,...args);if(queued)entry._customFinish?.(false);if(inactive&&resume)void resume.discard(this,entry.direction,entry.remotePath,entry.localPath).catch(e=>this.showToast?.('Cannot remove partial: '+e.message));return result;};
     const destroy=Panel.prototype.ngOnDestroy;
-    Panel.prototype.ngOnDestroy=function(...args){for(const transfer of this._customStreamTransfers||[])transfer.cancel();for(const entry of this.transfers||[])entry._customFinish?.(false);return destroy?.apply(this,args);};
-})({Panel:Xi});/* LOCAL_EXTERNAL_EDIT_V1 */(function installExternalEdit({ Panel, Settings, download, shell, recovery }) {
+    Panel.prototype.ngOnDestroy=function(...args){for(const transfer of this._customStreamTransfers||[])transfer.interrupt();for(const entry of this.transfers||[])entry._customFinish?.(false);return destroy?.apply(this,args);};
+})({Panel:Xi,resume:customSftpResume});/* LOCAL_EXTERNAL_EDIT_V1 */(function installExternalEdit({ Panel, Settings, download, shell, recovery }) {
     const fs = require('fs');
     const fsp = fs.promises;
     const path = require('path');
@@ -225,6 +383,19 @@
         persist(panel, state); if(!panel._customActivityDisposing && !panel._customEditDisposing)panel._safeDetect?.();
     };
     Panel.prototype._customPersistEdit = function (state) { persist(this, state); };
+    Panel.prototype._customBlockResumedEdit = async function(remote,snapshot){
+        const state=this._customExternalSessions?.get(remote);if(!state)return;
+        state.stopped=true;clearInterval(state.timer);state.cancelledUpload=true;
+        state.blockedHash=await hashFile(snapshot);status(this,state,'Failed','Upload cancelled; local copy retained. Use Retry to continue.');persist(this,state);
+    };
+    Panel.prototype._customResumeUploadedEdit = async function(remote,snapshot){
+        const state=this._customExternalSessions?.get(remote);
+        if(state){state.baseline=baseline(await this.sftpSession.stat(remote));state.syncedHash=await hashFile(snapshot);state.blockedHash=null;state.session=this.sftpSession;state.retries=0;state.nextRetry=0;status(this,state,'Synced');persist(this,state);}
+        const folder=path.dirname(snapshot),base=path.resolve(recovery?.root||'');
+        if(path.resolve(folder).startsWith(base+path.sep)&&path.basename(folder).startsWith('.sync-')){
+            await fsp.unlink(snapshot).catch(()=>{});await fsp.rmdir(folder).catch(()=>{});
+        }
+    };
     Panel.prototype._customEditStatus = function (state,value,error) { status(this,state,value,error); };
     Panel.prototype._customRestoreEdits = function () {
         if (!recovery || !this.connected || !this.sftpSession || this._destroyed) return;
@@ -253,6 +424,7 @@
     Panel.prototype.customRetryEdit = async function (state) {
         if (!this.connected || state.busy || state.opening || this._destroyed) return;
         if (state.openingError) return this._customExternalEdit(state.entry);
+        if(this._customPendingEditUpload?.(state.remotePath)&&!await this._customRetrySavedEditUpload(state.remotePath))return;
         if (state.id && recovery && !recovery.claim(state.id, this)) return;
         state.blockedHash = null; state.retries = 0; state.nextRetry = 0; state.stopped = false; state.session = this.sftpSession;
         clearInterval(state.timer); state.timer = setInterval(() => void this._customSyncExternal(state), 1000);
@@ -326,8 +498,9 @@
             try {
                 const before = baseline(await state.session.stat(entry.fullPath));
                 if(this._customDownloadForEdit){
-                    const directory=path.join(id?recovery.root:require('os').tmpdir(),'edits',crypto.randomUUID());
-                    await fsp.mkdir(directory,{recursive:true});state.localPath=path.join(directory,path.basename(entry.fullPath));
+                    const resumed=this._customResumeLocalForEdit?.(entry.fullPath);
+                    const directory=resumed?path.dirname(resumed):path.join(id?recovery.root:require('os').tmpdir(),'edits',crypto.randomUUID());
+                    await fsp.mkdir(directory,{recursive:true});state.localPath=resumed||path.join(directory,path.basename(entry.fullPath));
                     status(this,state,'Downloading');
                     if(!await this._customDownloadForEdit({...entry,size:before.size},state.localPath))throw new Error('Download failed or cancelled; local app was not opened');
                 }else state.localPath = await download(state.session, entry.fullPath, entry.size ?? 0, entry.mode, { requireExactSize: true });
@@ -359,6 +532,7 @@
         return state.opening;
     };
     Panel.prototype._customSyncExternal = async function (state) {
+        if(this._customPendingEditUpload?.(state.remotePath))return;
         if (state.stopped || state.busy || this._destroyed) return;
         if (state.nextRetry > Date.now()) return;
         if (!this.connected || this.sftpSession !== state.session) {
@@ -417,8 +591,9 @@
                 notice(this, `Sync failed: ${error.message}. Local copy retained: ${state.localPath}. Use Retry to upload again.`, true);
             }
         } finally {
-            if (snapshot) await fsp.unlink(snapshot).catch(() => {});
-            if (snapshotDirectory) await fsp.rmdir(snapshotDirectory).catch(() => {});
+            const keep=snapshot&&this._customHasPartial?.('upload',state.remotePath,snapshot);
+            if (snapshot&&!keep) await fsp.unlink(snapshot).catch(() => {});
+            if (snapshotDirectory&&!keep) await fsp.rmdir(snapshotDirectory).catch(() => {});
             state.uploadSnapshot=null;state.pendingHash=null;
             state.busy = false;
         }
@@ -954,7 +1129,7 @@ function installCwd({Panel, reporter}) {
             if (entry?.logEntryId) row.logEntryId = entry.logEntryId;
             if (row.status === 'Cancelled') return false;
             if (entry?.paused || row.status === 'Paused') row.status = 'Paused';
-            else row.status = ok ? 'Completed' : (!this.connected || this._destroyed ? 'Interrupted' : 'Failed');
+            else row.status = ok ? 'Completed' : (this._customPartialStatus?.(row.direction,row.remotePath,row.localPath) || (!this.connected || this._destroyed ? 'Interrupted' : 'Failed'));
             if (row.status === 'Completed') { row.percent = 100; row.error = ''; }
             else if (row.status !== 'Paused') row.error = row.error || 'Transfer did not complete; use Retry';
             return ok;
@@ -1033,11 +1208,11 @@ function installCwd({Panel, reporter}) {
         const enqueue=Panel.prototype[method];if(!enqueue)continue;
         Panel.prototype[method]=function(...args){const result=enqueue.apply(this,args);this._customCaptureQueued();return result;};
     }
-    // Recovery never starts a transfer automatically: retry requires the user's action.
-    Panel.prototype.customRetryTransfer = async function (row) {
+    // Reconnect can retry verified partial files; changed files always require manual review.
+    Panel.prototype.customRetryTransfer = async function (row, automatic=false) {
         if (!this.connected || !this.sftpSession || this._destroyed || terminal(row.status) || row.status === 'Running' || row.status === 'Queued') return;
         const entry = rowEntry(this, row);
-        if (entry?.paused) { await this.resumeTransfer(entry); return; }
+        if (entry?.paused&&!entry.transfer?.isCancelled?.()&&!entry.transfer?.isFailed?.()) { await this.resumeTransfer(entry); return; }
         if (row._retryBusy) return;
         row._retryBusy = true;
         try {
@@ -1046,8 +1221,13 @@ function installCwd({Panel, reporter}) {
                 const source = await metadata(this, row.direction === 'upload' ? 'local' : 'remote', row.direction === 'upload' ? row.localPath : row.remotePath);
                 if (!source) throw new Error('Source file is missing');
                 const changed = !row.prepared || !equal(destination, row.destination) || !equal(source, row.source);
-                if (changed && !window.confirm('Source or destination changed since this transfer.\nRestart with the current source and replace the destination?\n' + row.remotePath + '\n' + row.localPath)) {
+                if (changed && (automatic || !window.confirm('Source or destination changed since this transfer.\nRestart with the current source and replace the destination?\n' + row.remotePath + '\n' + row.localPath))) {
                     row.status = 'Conflict'; row.error = 'Source or destination changed; review before retrying'; save(this, row); return;
+                }
+                if(changed)await this._customDiscardPartial?.(row.direction,row.remotePath,row.localPath);
+                else if(!automatic&&this._customPartialStatus?.(row.direction,row.remotePath,row.localPath)==='Conflict'){
+                    if(!window.confirm('The partial file cannot be resumed safely. Discard it and restart from the beginning?\n'+row.remotePath))return;
+                    await this._customDiscardPartial(row.direction,row.remotePath,row.localPath);
                 }
                 row.destination = destination; row.source = source; row.prepared = true;
                 if(row.direction==='download')row.args=[row.args?.[0],source.size];
@@ -1069,16 +1249,23 @@ function installCwd({Panel, reporter}) {
                 if (!fn) throw new Error('Folder transfer is unavailable');
                 if (row.method === 'mergeLocalDirToRemote' && !window.confirm('Retry this folder upload and replace existing files?\n' + row.remotePath)) return;
                 await this._customRunTransfer(row, () => scope.run(row, () => fn.apply(this._transferCoordinator, row.args)));
-            } else await this._customRunTransfer(row, () => original[row.direction].call(this, row.remotePath, row.localPath, ...row.args));
+            } else {
+                if(entry?.transfer&&(entry.transfer.isCancelled?.()||entry.transfer.isComplete?.()))this.transfers=this.transfers.filter(e=>e!==entry);
+                const execute=()=>this._customRunTransfer(row,()=>original[row.direction].call(this,row.remotePath,row.localPath,...row.args));
+                if(this._customQueueEditTransfer)await this._customQueueEditTransfer(row.direction,row.remotePath,row.localPath,row.source?.size||0,row.direction,execute);
+                else await execute();
+            }
         } catch (e) { row.status = 'Failed'; row.error = e.message; save(this, row); }
         finally { row._retryBusy = false; }
     };
     Panel.prototype.customCancelTransfer = function (row) {
         const entry = rowEntry(this, row);
+        const inactive=!entry||entry.transfer?.isCancelled?.()||entry.transfer?.isComplete?.();
         if (entry) this.cancelTransfer(entry);
         else if (row.status === 'Running' || row.status === 'Queued') return;
         row.status = 'Cancelled'; row.error = ''; save(this, row);
         release(row);
+        if(inactive)void this._customDiscardPartial?.(row.direction,row.remotePath,row.localPath).catch(e=>this.showToast?.('Cannot remove partial: '+e.message));
     };
     Panel.prototype.customClearFinishedTransfers = function () {
         this._customTransferRows = (this._customTransferRows || []).filter(row => {
@@ -1098,6 +1285,7 @@ function installCwd({Panel, reporter}) {
                 this._customEditStatus?.(edit,'Failed','Upload cancelled; local copy retained');
             }
             const row = this._customTransferRows?.find(r => rowEntry(this, r) === entry && !terminal(r.status));
+            if(row&&method==='resumeTransfer'&&(entry.transfer?.isCancelled?.()||entry.transfer?.isFailed?.()))return this.customRetryTransfer(row);
             if (row && method === 'resumeTransfer' && !row.isFolder) {
                 try {
                     const source = await metadata(this, row.direction === 'upload' ? 'local' : 'remote', row.direction === 'upload' ? row.localPath : row.remotePath);
@@ -1157,6 +1345,10 @@ function installCwd({Panel, reporter}) {
                 if(entry?.skippedAsDuplicate) {row.status='Completed';row.percent=100;row.error='Identical content; skipped';save(this,row);continue;}
                 if (!this.connected && ['Running','Queued'].includes(row.status)) { row.status = 'Interrupted'; row.error = 'Waiting for reconnection; use Retry'; save(this, row); continue; }
                 if (entry) {
+                    if(entry.transfer?.isCancelled?.()||entry.transfer?.isFailed?.()){
+                        const partial=this._customPartialStatus?.(row.direction,row.remotePath,row.localPath);
+                        if(partial){row.status=partial;row.error=partial==='Interrupted'?'Waiting for reconnection; resume checkpoint saved':row.error||'Partial file retained; use Retry';release(row);save(this,row);continue;}
+                    }
                     row.percent = entry.percent || 0; row.speed = entry.speed || ''; row.logEntryId = entry.logEntryId;
                     if (row.status !== 'Conflict' && this.connected) row.status = entry.paused ? 'Paused' : entry.queued ? 'Queued' : 'Running';
                 } else if (row.logEntryId && ['Running','Paused'].includes(row.status)) {
@@ -1164,6 +1356,7 @@ function installCwd({Panel, reporter}) {
                     if (log && !log.pending && log.endTime) { row.status = log.success ? 'Completed' : 'Failed'; row.error = log.success ? '' : 'Transfer failed; use Retry'; release(row); save(this, row); }
                 }
             }
+            await this._customAutoResumeTransfers?.();
             detect(this);
         } catch (e) { if (!this._customRecoveryError) { this._customRecoveryError = e.message; this.showToast?.('Recovery unavailable: ' + e.message); } }
         finally { this._customActivityBusy = false; }

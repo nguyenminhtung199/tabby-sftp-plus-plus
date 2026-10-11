@@ -6,6 +6,7 @@ Tài liệu tính năng SFTP++: [PLUGIN.md](PLUGIN.md).
 
 ## Dán ảnh và kéo file lên remote
 
+- Upload/download file bị gián đoạn sẽ giữ partial và tự tiếp tục sau khi reconnect đúng server, nếu nguồn/đích chưa thay đổi. Với bản Tabby hiện tại, server cần **Python 3 (`python3`) và cho phép SSH exec** để tiếp tục theo offset; không cần sửa core Tabby.
 - Click vùng danh sách file remote rồi bấm **Ctrl+V** để upload ảnh clipboard thành file `clipboard-...png` trong thư mục đang mở.
 - Kéo file/thư mục từ File Explorer vào danh sách remote; thả lên một hàng folder để upload vào folder đó.
 - Upload dùng queue và Transfer history hiện có. Ô path/filter vẫn dán văn bản bình thường.

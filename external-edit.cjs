@@ -25,6 +25,19 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
         persist(panel, state); if(!panel._customActivityDisposing && !panel._customEditDisposing)panel._safeDetect?.();
     };
     Panel.prototype._customPersistEdit = function (state) { persist(this, state); };
+    Panel.prototype._customBlockResumedEdit = async function(remote,snapshot){
+        const state=this._customExternalSessions?.get(remote);if(!state)return;
+        state.stopped=true;clearInterval(state.timer);state.cancelledUpload=true;
+        state.blockedHash=await hashFile(snapshot);status(this,state,'Failed','Upload cancelled; local copy retained. Use Retry to continue.');persist(this,state);
+    };
+    Panel.prototype._customResumeUploadedEdit = async function(remote,snapshot){
+        const state=this._customExternalSessions?.get(remote);
+        if(state){state.baseline=baseline(await this.sftpSession.stat(remote));state.syncedHash=await hashFile(snapshot);state.blockedHash=null;state.session=this.sftpSession;state.retries=0;state.nextRetry=0;status(this,state,'Synced');persist(this,state);}
+        const folder=path.dirname(snapshot),base=path.resolve(recovery?.root||'');
+        if(path.resolve(folder).startsWith(base+path.sep)&&path.basename(folder).startsWith('.sync-')){
+            await fsp.unlink(snapshot).catch(()=>{});await fsp.rmdir(folder).catch(()=>{});
+        }
+    };
     Panel.prototype._customEditStatus = function (state,value,error) { status(this,state,value,error); };
     Panel.prototype._customRestoreEdits = function () {
         if (!recovery || !this.connected || !this.sftpSession || this._destroyed) return;
@@ -53,6 +66,7 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
     Panel.prototype.customRetryEdit = async function (state) {
         if (!this.connected || state.busy || state.opening || this._destroyed) return;
         if (state.openingError) return this._customExternalEdit(state.entry);
+        if(this._customPendingEditUpload?.(state.remotePath)&&!await this._customRetrySavedEditUpload(state.remotePath))return;
         if (state.id && recovery && !recovery.claim(state.id, this)) return;
         state.blockedHash = null; state.retries = 0; state.nextRetry = 0; state.stopped = false; state.session = this.sftpSession;
         clearInterval(state.timer); state.timer = setInterval(() => void this._customSyncExternal(state), 1000);
@@ -126,8 +140,9 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
             try {
                 const before = baseline(await state.session.stat(entry.fullPath));
                 if(this._customDownloadForEdit){
-                    const directory=path.join(id?recovery.root:require('os').tmpdir(),'edits',crypto.randomUUID());
-                    await fsp.mkdir(directory,{recursive:true});state.localPath=path.join(directory,path.basename(entry.fullPath));
+                    const resumed=this._customResumeLocalForEdit?.(entry.fullPath);
+                    const directory=resumed?path.dirname(resumed):path.join(id?recovery.root:require('os').tmpdir(),'edits',crypto.randomUUID());
+                    await fsp.mkdir(directory,{recursive:true});state.localPath=resumed||path.join(directory,path.basename(entry.fullPath));
                     status(this,state,'Downloading');
                     if(!await this._customDownloadForEdit({...entry,size:before.size},state.localPath))throw new Error('Download failed or cancelled; local app was not opened');
                 }else state.localPath = await download(state.session, entry.fullPath, entry.size ?? 0, entry.mode, { requireExactSize: true });
@@ -159,6 +174,7 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
         return state.opening;
     };
     Panel.prototype._customSyncExternal = async function (state) {
+        if(this._customPendingEditUpload?.(state.remotePath))return;
         if (state.stopped || state.busy || this._destroyed) return;
         if (state.nextRetry > Date.now()) return;
         if (!this.connected || this.sftpSession !== state.session) {
@@ -217,8 +233,9 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
                 notice(this, `Sync failed: ${error.message}. Local copy retained: ${state.localPath}. Use Retry to upload again.`, true);
             }
         } finally {
-            if (snapshot) await fsp.unlink(snapshot).catch(() => {});
-            if (snapshotDirectory) await fsp.rmdir(snapshotDirectory).catch(() => {});
+            const keep=snapshot&&this._customHasPartial?.('upload',state.remotePath,snapshot);
+            if (snapshot&&!keep) await fsp.unlink(snapshot).catch(() => {});
+            if (snapshotDirectory&&!keep) await fsp.rmdir(snapshotDirectory).catch(() => {});
             state.uploadSnapshot=null;state.pendingHash=null;
             state.busy = false;
         }

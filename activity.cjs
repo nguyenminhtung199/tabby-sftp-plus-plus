@@ -42,7 +42,7 @@ module.exports = function installActivity({ Panel, recovery }) {
             if (entry?.logEntryId) row.logEntryId = entry.logEntryId;
             if (row.status === 'Cancelled') return false;
             if (entry?.paused || row.status === 'Paused') row.status = 'Paused';
-            else row.status = ok ? 'Completed' : (!this.connected || this._destroyed ? 'Interrupted' : 'Failed');
+            else row.status = ok ? 'Completed' : (this._customPartialStatus?.(row.direction,row.remotePath,row.localPath) || (!this.connected || this._destroyed ? 'Interrupted' : 'Failed'));
             if (row.status === 'Completed') { row.percent = 100; row.error = ''; }
             else if (row.status !== 'Paused') row.error = row.error || 'Transfer did not complete; use Retry';
             return ok;
@@ -121,11 +121,11 @@ module.exports = function installActivity({ Panel, recovery }) {
         const enqueue=Panel.prototype[method];if(!enqueue)continue;
         Panel.prototype[method]=function(...args){const result=enqueue.apply(this,args);this._customCaptureQueued();return result;};
     }
-    // Recovery never starts a transfer automatically: retry requires the user's action.
-    Panel.prototype.customRetryTransfer = async function (row) {
+    // Reconnect can retry verified partial files; changed files always require manual review.
+    Panel.prototype.customRetryTransfer = async function (row, automatic=false) {
         if (!this.connected || !this.sftpSession || this._destroyed || terminal(row.status) || row.status === 'Running' || row.status === 'Queued') return;
         const entry = rowEntry(this, row);
-        if (entry?.paused) { await this.resumeTransfer(entry); return; }
+        if (entry?.paused&&!entry.transfer?.isCancelled?.()&&!entry.transfer?.isFailed?.()) { await this.resumeTransfer(entry); return; }
         if (row._retryBusy) return;
         row._retryBusy = true;
         try {
@@ -134,8 +134,13 @@ module.exports = function installActivity({ Panel, recovery }) {
                 const source = await metadata(this, row.direction === 'upload' ? 'local' : 'remote', row.direction === 'upload' ? row.localPath : row.remotePath);
                 if (!source) throw new Error('Source file is missing');
                 const changed = !row.prepared || !equal(destination, row.destination) || !equal(source, row.source);
-                if (changed && !window.confirm('Source or destination changed since this transfer.\nRestart with the current source and replace the destination?\n' + row.remotePath + '\n' + row.localPath)) {
+                if (changed && (automatic || !window.confirm('Source or destination changed since this transfer.\nRestart with the current source and replace the destination?\n' + row.remotePath + '\n' + row.localPath))) {
                     row.status = 'Conflict'; row.error = 'Source or destination changed; review before retrying'; save(this, row); return;
+                }
+                if(changed)await this._customDiscardPartial?.(row.direction,row.remotePath,row.localPath);
+                else if(!automatic&&this._customPartialStatus?.(row.direction,row.remotePath,row.localPath)==='Conflict'){
+                    if(!window.confirm('The partial file cannot be resumed safely. Discard it and restart from the beginning?\n'+row.remotePath))return;
+                    await this._customDiscardPartial(row.direction,row.remotePath,row.localPath);
                 }
                 row.destination = destination; row.source = source; row.prepared = true;
                 if(row.direction==='download')row.args=[row.args?.[0],source.size];
@@ -157,16 +162,23 @@ module.exports = function installActivity({ Panel, recovery }) {
                 if (!fn) throw new Error('Folder transfer is unavailable');
                 if (row.method === 'mergeLocalDirToRemote' && !window.confirm('Retry this folder upload and replace existing files?\n' + row.remotePath)) return;
                 await this._customRunTransfer(row, () => scope.run(row, () => fn.apply(this._transferCoordinator, row.args)));
-            } else await this._customRunTransfer(row, () => original[row.direction].call(this, row.remotePath, row.localPath, ...row.args));
+            } else {
+                if(entry?.transfer&&(entry.transfer.isCancelled?.()||entry.transfer.isComplete?.()))this.transfers=this.transfers.filter(e=>e!==entry);
+                const execute=()=>this._customRunTransfer(row,()=>original[row.direction].call(this,row.remotePath,row.localPath,...row.args));
+                if(this._customQueueEditTransfer)await this._customQueueEditTransfer(row.direction,row.remotePath,row.localPath,row.source?.size||0,row.direction,execute);
+                else await execute();
+            }
         } catch (e) { row.status = 'Failed'; row.error = e.message; save(this, row); }
         finally { row._retryBusy = false; }
     };
     Panel.prototype.customCancelTransfer = function (row) {
         const entry = rowEntry(this, row);
+        const inactive=!entry||entry.transfer?.isCancelled?.()||entry.transfer?.isComplete?.();
         if (entry) this.cancelTransfer(entry);
         else if (row.status === 'Running' || row.status === 'Queued') return;
         row.status = 'Cancelled'; row.error = ''; save(this, row);
         release(row);
+        if(inactive)void this._customDiscardPartial?.(row.direction,row.remotePath,row.localPath).catch(e=>this.showToast?.('Cannot remove partial: '+e.message));
     };
     Panel.prototype.customClearFinishedTransfers = function () {
         this._customTransferRows = (this._customTransferRows || []).filter(row => {
@@ -186,6 +198,7 @@ module.exports = function installActivity({ Panel, recovery }) {
                 this._customEditStatus?.(edit,'Failed','Upload cancelled; local copy retained');
             }
             const row = this._customTransferRows?.find(r => rowEntry(this, r) === entry && !terminal(r.status));
+            if(row&&method==='resumeTransfer'&&(entry.transfer?.isCancelled?.()||entry.transfer?.isFailed?.()))return this.customRetryTransfer(row);
             if (row && method === 'resumeTransfer' && !row.isFolder) {
                 try {
                     const source = await metadata(this, row.direction === 'upload' ? 'local' : 'remote', row.direction === 'upload' ? row.localPath : row.remotePath);
@@ -245,6 +258,10 @@ module.exports = function installActivity({ Panel, recovery }) {
                 if(entry?.skippedAsDuplicate) {row.status='Completed';row.percent=100;row.error='Identical content; skipped';save(this,row);continue;}
                 if (!this.connected && ['Running','Queued'].includes(row.status)) { row.status = 'Interrupted'; row.error = 'Waiting for reconnection; use Retry'; save(this, row); continue; }
                 if (entry) {
+                    if(entry.transfer?.isCancelled?.()||entry.transfer?.isFailed?.()){
+                        const partial=this._customPartialStatus?.(row.direction,row.remotePath,row.localPath);
+                        if(partial){row.status=partial;row.error=partial==='Interrupted'?'Waiting for reconnection; resume checkpoint saved':row.error||'Partial file retained; use Retry';release(row);save(this,row);continue;}
+                    }
                     row.percent = entry.percent || 0; row.speed = entry.speed || ''; row.logEntryId = entry.logEntryId;
                     if (row.status !== 'Conflict' && this.connected) row.status = entry.paused ? 'Paused' : entry.queued ? 'Queued' : 'Running';
                 } else if (row.logEntryId && ['Running','Paused'].includes(row.status)) {
@@ -252,6 +269,7 @@ module.exports = function installActivity({ Panel, recovery }) {
                     if (log && !log.pending && log.endTime) { row.status = log.success ? 'Completed' : 'Failed'; row.error = log.success ? '' : 'Transfer failed; use Retry'; release(row); save(this, row); }
                 }
             }
+            await this._customAutoResumeTransfers?.();
             detect(this);
         } catch (e) { if (!this._customRecoveryError) { this._customRecoveryError = e.message; this.showToast?.('Recovery unavailable: ' + e.message); } }
         finally { this._customActivityBusy = false; }

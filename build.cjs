@@ -10,7 +10,7 @@ const template=`          <label class="ss-toggle-row" title="Download the compl
           </label>
 `;
 patched=once(patched,next,template.replace(/\n/g,'\\n').replace(/'/g,"\\'")+next);
-patched=once(patched,'const so=to;',`const customSftpRecovery=(${runtime('recovery-store.cjs')})();/* LOCAL_TRANSFER_ENGINE_V1 */(${runtime('transfer-engine.cjs')})({Panel:Xi});/* LOCAL_EXTERNAL_EDIT_V1 */(${runtime('external-edit.cjs')})({Panel:Xi,Settings:Wt,download:I,shell:t(288).shell,recovery:customSftpRecovery});const so=to;`);
+patched=once(patched,'const so=to;',`const customSftpRecovery=(${runtime('recovery-store.cjs')})();const customSftpResume=(${runtime('resume-transfer.cjs')})({Panel:Xi,root:customSftpRecovery.root,server:customSftpRecovery.server});/* LOCAL_TRANSFER_ENGINE_V1 */(${runtime('transfer-engine.cjs')})({Panel:Xi,resume:customSftpResume});/* LOCAL_EXTERNAL_EDIT_V1 */(${runtime('external-edit.cjs')})({Panel:Xi,Settings:Wt,download:I,shell:t(288).shell,recovery:customSftpRecovery});const so=to;`);
 patched=require('./patch-navigation.cjs')(patched);
 patched=require('./cleanup-config.cjs')(patched);
 patched=once(patched,'const so=to;',`/* CLIPBOARD_UPLOAD_V1 */(${runtime('clipboard-upload.cjs')})({Panel:Xi,electron:t(288)});const so=to;`);
