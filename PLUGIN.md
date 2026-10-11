@@ -1,0 +1,27 @@
+# SFTP++
+
+Independent local Tabby plugin: `tabby-sftp-plus-plus` 1.0.0, forked from DD1024z's MIT-licensed SFTP Plus 2.4.1. The upstream license is preserved in LICENSE. No Tabby application files are modified.
+
+## Local editing
+
+Double-click a remote file: queue an **edit-download**, stream the complete file to a durable local copy, verify its size and metadata, then open the Windows default app. Saving queues **edit-upload**, preserving the original bytes and encoding. Both operations appear in the existing transfer queue and Transfer history with size, percentage and speed. Cancelling or failing the download never opens an incomplete file. Large files use bounded buffers rather than loading the entire file into memory. Unchanged local files are not repeatedly hashed. Saving during upload schedules the latest saved contents after the current immutable snapshot finishes.
+
+Local app editing and upload-on-save are always enabled. The internal viewer/editor and their type restrictions, line-number/caret options are removed, along with the hide-author and default-new-tab settings. Sidebar edge uses the same Left/Right segmented controls as other settings. Path mode selects **Manual** or **Remember**. Only Remember saves and restores the last successfully opened folder per session; there is no separate remember switch. Legacy explicit automatic Sync mode becomes Manual; the old separate enabled remember preference moves into Remember mode. Stored folders are retained. **Sync now** remains available for a one-time terminal path sync without changing mode. Native SFTP hiding responds immediately to settings and survives toolbar recreation/reconnect. The Open/close panel shortcut uses the same add/edit/remove chip layout as other shortcuts while preserving Tabby's global shortcut storage and key sequences. Retired options are removed from SFTP++ configuration without touching other Tabby configuration; a private backup is kept before migration.
+
+This follows Bitvise's documented local-edit behavior: [Bitvise SSH Client 6.x release notes](https://bitvise.com/ssh-client-version-history-6). Bitvise also uses aggressive SFTP protocol request pipelining: [performance FAQ](https://bitvise.com/ssh-server-usage-faq). The bundled Tabby russh API only exposes cursor-based file handles, not offset-based protocol requests. SFTP++ safely overlaps network and disk work within 512 KiB, but does **not** claim Bitvise's protocol pipeline or identical throughput. Native handles are never read or written concurrently, avoiding cursor corruption. A future offset-capable adapter can implement that optimization without editing Tabby.
+
+Uploads use unique staging files and verified completion before replacement, with backup/rollback when the server cannot rename over an existing target. Changes to the source or destination during transfer abort replacement. Failed uploads retain local edits. Remote conflicts require confirmation. Recovered normal transfers require manual Retry. Edit save retries remain bounded and cancellation blocks reuploading that content.
+
+## Install and build
+
+Run `node sftp-plus-plus/install.cjs` from the Tabby user directory. It builds and installs the independent package, copies the SFTP+ config into `tabby-sftp-plus-plus`, migrates the recovery journal while retaining existing local-file paths, and disables the original `sftp-plus` plugin. The original plugin is retained. Restart Tabby once to activate SFTP++.
+
+Run `node sftp-plus-plus/build.cjs` to rebuild only. `npm pack` inside this directory creates an installable archive. `dist/` is self-contained at runtime; it embeds the original local VS Code Seti font and includes all icon assets. Build tools use the TypeScript package already present in the parent plugin directory.
+
+The fork retains the customized sidebar, path-mode Screen support, last folders per session, instant prefix suggestions (hover only highlights; click selects), English UI, yellow folders and Seti Python font. Editing/recovery are integrated into Transfer history. Notifications sit above the bottom edge of the panel.
+
+Migration backups are in `migration-backup/`. Recovery is in `recovery/`; local files are deliberately retained after closing the panel or stopping a watcher.
+
+## Validation
+
+`test-transfer-engine.cjs` exercises a 300 MiB disk-backed download/edit/upload, bounded memory, queue limits, progress, pause/resume, cancellation, queued destination changes, failed replacement rollback and preservation of local edits. The existing external-edit, recovery, history, autocomplete, sidebar, Screen reporter and Angular bundle tests are retained. These tests do not substitute for measuring throughput against a live server.

@@ -1,0 +1,29 @@
+/* LOCAL_ACTIVITY_V1: uses plugin font and terminal-derived panel colors. */
+.sftp-root .sftp-toast { top: auto; bottom: clamp(28px, 8%, 64px); }
+@keyframes sftp-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.sftp-root .custom-activity { display: flex; flex-direction: column; background: var(--_bg); color: var(--_text); border-bottom: 1px solid var(--_border, #444); }
+.sftp-root .custom-activity-heading { display: flex; align-items: center; gap: 8px; padding: 5px 10px; flex: 0 0 auto; }
+.sftp-root .custom-activity-heading > span { flex: 1; font-weight: 600; }
+.sftp-root .custom-activity-list { min-height: 0; }
+.sftp-root .custom-activity-row { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-top: 1px solid var(--_border, #444); }
+.sftp-root .custom-activity-info { flex: 1; min-width: 0; }
+.sftp-root .custom-activity-name { display: inline-block; max-width: 70%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+.sftp-root .custom-activity-state { font-size: .9em; margin-left: 7px; opacity: .85; }
+.sftp-root .custom-activity-detail { display: block; font-size: .9em; opacity: .7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sftp-root .custom-activity-empty, .sftp-root .custom-recovery-warning { padding: 10px; opacity: .8; }
+.sftp-root .custom-state-error, .sftp-root .custom-recovery-warning { color: #e5a65b; }
+.sftp-root .custom-state-success { color: #9acb74; }
+.sftp-root .custom-activity .btn-link { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 0; color: inherit; flex-shrink: 0; }
+.sftp-root .custom-activity .btn-link:disabled { opacity: .3; }
+.sftp-root .custom-direction { width: 14px; text-align: center; }
+.sftp-root .custom-transfer-progress { height: 2px; margin-top: 4px; background: var(--_border, #444); }
+.sftp-root .custom-transfer-progress > span { display: block; height: 100%; background: #9acb74; }
+.sftp-root .btn-activity, .sftp-root .btn-path-mode { position: relative; }
+.sftp-root .custom-activity-count { position: absolute; right: 0; top: -2px; font-size: 8px; line-height: 11px; border-radius: 5px; padding: 0 2px; background: var(--_bg); color: var(--_text); }
+.sftp-root .custom-cwd-dot { position: absolute; width: 5px; height: 5px; border-radius: 50%; right: 1px; bottom: 1px; background: #999; }
+.sftp-root .custom-cwd-dot.tracking { background: #9acb74; }
+.sftp-root .custom-cwd-dot.waiting { background: #e5a65b; }
+.sftp-root .custom-cwd-dot.failed { background: #e57373; }

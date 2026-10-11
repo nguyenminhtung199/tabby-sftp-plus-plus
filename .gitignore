@@ -1,0 +1,10 @@
+node_modules/
+sync/plugins/node_modules/
+config.yaml
+*.key
+*.pem
+.env*
+migration-backup/
+recovery/
+icon-preview/
+*.log

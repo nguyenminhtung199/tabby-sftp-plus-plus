@@ -1,0 +1,30 @@
+      <section class="custom-activity" *ngIf="customEditRows.length || customHistoryRecoveryRows.length || _customRecoveryError" (mousedown)="$event.stopPropagation()">
+        <div class="custom-activity-heading">
+          <span>Local editing &amp; recovered transfers</span>
+          <button class="btn-link" (click)="customClearFinishedTransfers()" title="Clear completed and cancelled transfers"><i class="fas fa-broom"></i></button>
+        </div>
+        <div class="custom-recovery-warning" *ngIf="_customRecoveryError">Recovery could not be saved: {{ _customRecoveryError }}</div>
+        <div class="custom-activity-list">
+          <div class="custom-activity-row" *ngFor="let e of customEditRows; trackBy: customTrackActivity">
+            <div class="custom-activity-info" [title]="e.remotePath + '\nLocal: ' + (e.localPath || 'Downloading…')">
+              <span class="custom-activity-name">{{ customActivityName(e) }}</span>
+              <span class="custom-activity-state" [class.custom-state-error]="e.status === 'Failed' || e.status === 'Conflict' || e.status === 'Missing'" [class.custom-state-success]="e.status === 'Synced'">{{ e.status }}</span>
+              <span class="custom-activity-detail" *ngIf="e.error">{{ e.error }}</span>
+            </div>
+            <button class="btn-link" (click)="customOpenEdit(e)" [disabled]="!e.localPath || e.status === 'Missing'" title="Open local copy"><i class="fas fa-external-link-alt"></i></button>
+            <button class="btn-link" (click)="customRetryEdit(e)" [disabled]="!connected || e.busy || e.opening || e.status === 'Missing'" title="Retry sync"><i class="fas fa-redo-alt"></i></button>
+            <button class="btn-link" (click)="customStopEdit(e)" [disabled]="e.busy || e.opening" title="Stop watching; keep local copy"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="custom-activity-row" *ngFor="let t of customHistoryRecoveryRows; trackBy: customTrackActivity">
+            <span class="custom-direction" [title]="t.direction">{{ t.direction === 'upload' ? '↑' : '↓' }}</span>
+            <div class="custom-activity-info" [title]="t.remotePath + '\nLocal: ' + t.localPath">
+              <span class="custom-activity-name">{{ customActivityName(t) }}</span>
+              <span class="custom-activity-state" [class.custom-state-error]="t.status === 'Failed' || t.status === 'Conflict' || t.status === 'Interrupted'" [class.custom-state-success]="t.status === 'Completed'">{{ t.status }}</span>
+              <span class="custom-activity-detail">{{ customTransferDetails(t) }}</span>
+              <div class="custom-transfer-progress" *ngIf="t.status === 'Running'"><span [style.width.%]="t.percent || 0"></span></div>
+            </div>
+            <button class="btn-link" (click)="customRetryTransfer(t)" *ngIf="t.status !== 'Completed' && t.status !== 'Cancelled' && t.status !== 'Running' && t.status !== 'Queued'" [disabled]="!connected || t._retryBusy" [title]="t.status === 'Paused' ? 'Resume (restart if session ended)' : 'Retry transfer'"><i class="fas fa-play"></i></button>
+            <button class="btn-link" (click)="customCancelTransfer(t)" *ngIf="t.status !== 'Completed' && t.status !== 'Cancelled'" title="Cancel transfer"><i class="fas fa-times"></i></button>
+          </div>
+        </div>
+      </section>

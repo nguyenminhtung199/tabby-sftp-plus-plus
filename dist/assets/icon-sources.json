@@ -1,0 +1,911 @@
+{
+  "kind": "local-vscode-seti",
+  "installation": "Microsoft VS Code",
+  "assets": {
+    "vscode_upper-r.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_R",
+      "sha256": "ba46814791c57e6de70f84b2248a3050adec630e705940fe04a652c31c07d9ec"
+    },
+    "vscode_argdown.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_argdown",
+      "sha256": "7b55b98e47dfae412632d803d2bd5cbb74f903bb8eddc10f051c9dba99b06a2a"
+    },
+    "vscode_asm.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_asm",
+      "sha256": "a7e44f50cd506a22c7bfc4425b0403a7c7811b3f05203d06b512cbf334ccf642"
+    },
+    "vscode_audio.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_audio",
+      "sha256": "7678d1714a8f68c972d42c63ea72e04ae00547837f3ac51560da307dc5c30e61"
+    },
+    "vscode_babel.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_babel",
+      "sha256": "5f32f2b0e4624dc80b6050da3f96c5fe8038e19fe6a5f400fb9e27710508e91d"
+    },
+    "vscode_bazel.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_bazel",
+      "sha256": "043090d379f369eac0ba446add218e56d0ea6b471a4af02357bff42bafddf27a"
+    },
+    "vscode_bazel_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_bazel_1",
+      "sha256": "011cb337a9276bb508f0710330919e007d7528f20e375f9fcbcda52002fe1364"
+    },
+    "vscode_bicep.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_bicep",
+      "sha256": "d2e179c191d05b23c3dfbd85d4ec51e8cc57b5478294506358178da0b0e24b55"
+    },
+    "vscode_bower.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_bower",
+      "sha256": "0cbcc66a89271e34d29ddafa08f53994a720777dbb3b0fcfd3bb05fa5b215190"
+    },
+    "vscode_bsl.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_bsl",
+      "sha256": "917f457fec91400e0d12512d05457b01df27821df23f93cc44f885c8648d9301"
+    },
+    "vscode_c.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_c",
+      "sha256": "c1de4f055cf1d8803e7605008eb9b8cc1d51c8477b854b56eceacb3a8eab099e"
+    },
+    "vscode_c-sharp.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_c-sharp",
+      "sha256": "c47efdca355f678c99ce9752adc6a239a0d562f8a84fe24a2b9dc6d2b2a0235a"
+    },
+    "vscode_c_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_c_1",
+      "sha256": "a022a7da7c41c6f770a25dde7f1ab407aafa4f483b0ed6832a8e6aa26713d3bc"
+    },
+    "vscode_c_2.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_c_2",
+      "sha256": "a106d4063a0d1178923ffd077979db41f7dddf7073b24bfe33c871d40d83b7b7"
+    },
+    "vscode_cake.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_cake",
+      "sha256": "96dd9f183db42e5ee352adc5548fe86ec8367bebc85abb736d706cd22c3f7c44"
+    },
+    "vscode_cake_php.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_cake_php",
+      "sha256": "fb18eaf2e790ed7e70dbdb8401b308fa794563c9a43f00390b28aaf9dafd1c62"
+    },
+    "vscode_clock.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_clock",
+      "sha256": "c2500273e34f6adcb0bd9c92995553db7c7fee238b0bfcacdbd2991a6ab1e45a"
+    },
+    "vscode_clock_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_clock_1",
+      "sha256": "277d005555586224470163f899df66081bb336bd5e30bfa28e913a2e0e759d66"
+    },
+    "vscode_clojure.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_clojure",
+      "sha256": "6e4ca21a11e498c3cd87d31863c9d21b812ba6cfeb1c0f6555397b8b1b94aa75"
+    },
+    "vscode_clojure_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_clojure_1",
+      "sha256": "acddb647a1a71ee02ef4a0b167788ba8fbb9b654108635c14f000fd8928b5683"
+    },
+    "vscode_code-climate.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_code-climate",
+      "sha256": "0dcce548c8bb0a10fe2682b790abbd8cd17d7993b0531f98bf2bde37bad8b136"
+    },
+    "vscode_code-search.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_code-search",
+      "sha256": "0e23e730ee90bb8b622766314ade771cda14ddb1ab2a5bdcba96845122b1ef45"
+    },
+    "vscode_coffee.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_coffee",
+      "sha256": "65561d2ad61eab5cb05d86c7c5803a28c18fc5dd1c7ff89772083a9f8ebf7f8c"
+    },
+    "vscode_coldfusion.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_coldfusion",
+      "sha256": "7ac5e260d2aa8ca911c54a6b4d0af08f1c428c124750ab342b468a707cfe82c1"
+    },
+    "vscode_config.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_config",
+      "sha256": "31d6f72a24c6f8a04d0948928255d4a1537b646d6d25de130fc57aa47c1264dc"
+    },
+    "vscode_cpp.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_cpp",
+      "sha256": "ae6635ed39ce6de5a69660f913cc29f77d5465664a7c6f32eaff5cec0f8f9787"
+    },
+    "vscode_cpp_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_cpp_1",
+      "sha256": "0e9f2cbc65621ec71fb5e3df49732c8a84dfd9a418d7608f76c45742cd735caf"
+    },
+    "vscode_cpp_2.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_cpp_2",
+      "sha256": "95650c0d7dc2422bd2c9518bac5a09b2f4d52ab04e6ce6d0dfe2e8eab490cdc7"
+    },
+    "vscode_crystal.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_crystal",
+      "sha256": "a450f7a3e68d2c5349c6f49fc22fc94baabee6667568d607dcaa6445a835bf08"
+    },
+    "vscode_crystal_embedded.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_crystal_embedded",
+      "sha256": "72e81ae1719847030603420844e168088d708900a11846efce613337910ffbf2"
+    },
+    "vscode_css.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_css",
+      "sha256": "06bbff61bd177458659be19e099a90025080f33dea1b44902f938477c83dfa04"
+    },
+    "vscode_csv.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_csv",
+      "sha256": "cd9d6646f263ff63d72aefcf8301b2ef32139f09b671692612a0c9ace5eaba2d"
+    },
+    "vscode_cu.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_cu",
+      "sha256": "7ff466a34091605f39995526eb4ad380deb527cdd9fcda156549aa2f683361e3"
+    },
+    "vscode_cu_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_cu_1",
+      "sha256": "cee2bdb326268a7d681706dd2b58e6fd7977fe20fb0be8f50cb961d896080a6d"
+    },
+    "vscode_d.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_d",
+      "sha256": "25e8eaaf7d70fc7ac18258fbcc7c9471b2474077ad59a7aa19674cf920550169"
+    },
+    "vscode_dart.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_dart",
+      "sha256": "76899e7162c1c266617fbaeb5ab5c2a80e2234c7a556d4c1f5bacf7857d654a9"
+    },
+    "vscode_db.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_db",
+      "sha256": "bc5b0406e9b92cc943ef96ce4a0b4c20c38ecf81b36724e07905f9a6506b463c"
+    },
+    "vscode_db_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_db_1",
+      "sha256": "1cfe93caedbad26cec1ebae4ea950aa8e01de614de24adfc8df74ab8d2f47f5a"
+    },
+    "vscode_default.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_default",
+      "sha256": "246930abf79f68854a339fd3680a23ec6f2b19543aae710fc9cebaa3d5ac52bc"
+    },
+    "vscode_docker.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_docker",
+      "sha256": "3609b9548f8690e6e4852bb1d1b77cf1e7a7cf9bc826ecd294b0f68a5d1dcac6"
+    },
+    "vscode_docker_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_docker_1",
+      "sha256": "0927e63243a00f72a1d38d0946319ce7533a8dcbd425f8806f38ea9c41bcba64"
+    },
+    "vscode_docker_2.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_docker_2",
+      "sha256": "753314f19ec6423570201a2dae0ade34d687fae8205220a40ecf069441f09ac8"
+    },
+    "vscode_docker_3.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_docker_3",
+      "sha256": "9b886bdfe876b6a6799045101dc70f88377cf2ef245b24cb76d70d3b098dbfea"
+    },
+    "vscode_ejs.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_ejs",
+      "sha256": "d73eda299b0abc4d34ca95ad5b29ab502e2b4ee061f92bbcc0236d6b3c545305"
+    },
+    "vscode_elixir.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_elixir",
+      "sha256": "b93659bc9f215b65696924a3e4ca9144ac3c31f5757f31ca29d5f932d5bb44d8"
+    },
+    "vscode_elixir_script.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_elixir_script",
+      "sha256": "04e34e15d73ac1db31a1b9f1a59688763303f6b2ce8d0e44f877c0b63607bb1c"
+    },
+    "vscode_elm.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_elm",
+      "sha256": "6a3663ece945c3a3750c2bf9464167e753d86b4ddffda158560af53f8c49913f"
+    },
+    "vscode_eslint.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_eslint",
+      "sha256": "a4e866cbd22b4af91518ec92c1d272b7f8e220bfe57c65d27ec5a671c70a4394"
+    },
+    "vscode_eslint_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_eslint_1",
+      "sha256": "d3687724ac291000d8afc3741869b35efe1e46862461aa1340f10f67fd69ed55"
+    },
+    "vscode_ethereum.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_ethereum",
+      "sha256": "51ac62ba33e0db33a76eca930e1b624857e519dd45c147f02d7b12255abceaa0"
+    },
+    "vscode_f-sharp.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_f-sharp",
+      "sha256": "26fe2cf758c7480c46517fe05d2cea9e1756f692603898155678b95797c5ee9a"
+    },
+    "vscode_favicon.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_favicon",
+      "sha256": "a4913ae19f3a0a3c1051197dd93d0dadc6873ce0b78d59f0c0b51f88bc385781"
+    },
+    "vscode_firebase.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_firebase",
+      "sha256": "1a75d2cdf0930e88257b11e860076fd93b3d596c63f314e8e69739a2b9c98c47"
+    },
+    "vscode_firefox.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_firefox",
+      "sha256": "38b1ee339f5f6e1c410e41596322a17b08e28130266e2d15e50028b9ab9d95b0"
+    },
+    "vscode_font.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_font",
+      "sha256": "47f3d19750535ec196e8af486c9f22663e0b7fc3d57dd20cc19aea8132854b98"
+    },
+    "vscode_git.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_git",
+      "sha256": "3c142758b8aff5317a9936a083a968221348d1c188771c025af97e60477e89e6"
+    },
+    "vscode_github.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_github",
+      "sha256": "18deae5ce8fa06691c3d5bd493f7047c1923639d9979b3383c0aa4dc3c5bf163"
+    },
+    "vscode_gitlab.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_gitlab",
+      "sha256": "1ba4114bb8daf254601834deb4f23da476d4f4e0825a056fe669bb23cdccbfc1"
+    },
+    "vscode_go.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_go",
+      "sha256": "18486093373352bb822cb773a685c6a25049bf6fdae9fe2c577e76a09abaae86"
+    },
+    "vscode_go2.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_go2",
+      "sha256": "e60c87076873d402c867d016b00f942147905f29d63bda5ab47492764c11cfe1"
+    },
+    "vscode_godot.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_godot",
+      "sha256": "a6f6de52f870debe14ce22903c916175c265bd5cca86e6c615a30bc494261a96"
+    },
+    "vscode_godot_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_godot_1",
+      "sha256": "0027cd6563acdb796b083270e3c338c699b91f50fe6ea825c5f0caeead02a545"
+    },
+    "vscode_godot_2.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_godot_2",
+      "sha256": "a53eea1dbc530eae46dd92228fa1533ec509ebe521904643bbf1a6b0792a8468"
+    },
+    "vscode_godot_3.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_godot_3",
+      "sha256": "18262e9f5f006031fea0ae4a0aa59c137517db8abf95bbf45bd3c200c45206fc"
+    },
+    "vscode_gradle.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_gradle",
+      "sha256": "bfd9b49c40f094c9570716195369fe9f14b4b21e029f90c3ebfb264f2164222f"
+    },
+    "vscode_grails.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_grails",
+      "sha256": "4b4fd16c7e35b382467757b841d9abe588d83df7b9056f40a9edd7566a4c0950"
+    },
+    "vscode_graphql.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_graphql",
+      "sha256": "4b3b8f44166615ce26f426ffdfa9f9a8ab3d7b14c24a72f5abfed2b7350695e5"
+    },
+    "vscode_grunt.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_grunt",
+      "sha256": "797144b50a6ceba554b075ac81f612feced26b772e8a2fd05f1c05f3dfa7c0e9"
+    },
+    "vscode_gulp.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_gulp",
+      "sha256": "0bc2b5e1da27e941c7d4dff107952fd54d480e8698b815b1254b2c07b0e9f07d"
+    },
+    "vscode_hacklang.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_hacklang",
+      "sha256": "b7d1f3fe987c9eb862aa0faab8dc4837ffe2184665462b88826aa3badb762dc8"
+    },
+    "vscode_haml.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_haml",
+      "sha256": "0ee94c1b1f450644de1ac83c193364ad2b630b81b0755e3ec288e12715f268e7"
+    },
+    "vscode_happenings.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_happenings",
+      "sha256": "fec0dbbfdb12346081b71e81219520844c1daf4053bbedd0b9e1a2da2c30063d"
+    },
+    "vscode_haskell.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_haskell",
+      "sha256": "17dad20d27edc3f1c96266193f1baaf89cbd0ccbbcdb60e2042e7f96ff873630"
+    },
+    "vscode_haxe.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_haxe",
+      "sha256": "af6389618309e5f8a03d1c2a7c03983a10e7c1586ad7d6ced1f323fedd0b6b27"
+    },
+    "vscode_haxe_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_haxe_1",
+      "sha256": "40911d282b15079a1ff43e95991db375111558d74634ae6b4c4fc0f36a5d6132"
+    },
+    "vscode_haxe_2.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_haxe_2",
+      "sha256": "2792bebb7d2819015bf2fb130d7996374367e2344212e62d06e15ba90dfc8f16"
+    },
+    "vscode_haxe_3.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_haxe_3",
+      "sha256": "ff1e2dfe7763f3eb5d853734705fd037bfab17b3349e16f84da3c49e152c7b49"
+    },
+    "vscode_heroku.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_heroku",
+      "sha256": "c9e7a2a3662279b0e543f25a479dd6bf8746774cf8c84b21fd6e0c19eb75cfd9"
+    },
+    "vscode_hex.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_hex",
+      "sha256": "867454d1f15402abea1843248556ce6f1246ba049e26ec443e77f9ff6e03195e"
+    },
+    "vscode_html.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_html",
+      "sha256": "70f360e86749b6ee84f110b5a65135c3286f241524e30e352dd63ef43a3f48c3"
+    },
+    "vscode_html_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_html_1",
+      "sha256": "88dd71c1a7a3d91c1c99cc7747c16aa6954755648228a9443714e72a0afaf065"
+    },
+    "vscode_html_2.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_html_2",
+      "sha256": "3beded525823537813e90f4d21d3ed716c37a86e41b105d11abaf09c8859981c"
+    },
+    "vscode_html_3.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_html_3",
+      "sha256": "e1d3149ec3ca5375a400686aaa0d3001b49ed6787a176b7da8926ca7e2560841"
+    },
+    "vscode_html_erb.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_html_erb",
+      "sha256": "21d969667dca229861ed9c512d0e830b0c4847b57a0dec57ba38a2488fadadc0"
+    },
+    "vscode_ignored.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_ignored",
+      "sha256": "c5e424e8790f41b6b492d33d0802188ec534cbf40afb26ee87abb0af1dfb46cf"
+    },
+    "vscode_illustrator.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_illustrator",
+      "sha256": "bf8705edfb5b822dcef5b0fcccd96b50553a69024efbae122633fe0abf4c5d50"
+    },
+    "vscode_image.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_image",
+      "sha256": "5abe14f76b0ac09ff61e5875a771e0495a339dafcd32637371ffae0f7aeabb8d"
+    },
+    "vscode_info.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_info",
+      "sha256": "f55c2284f8722293a92bde5592389129d2728246553bd796bbf33f0e2b18f180"
+    },
+    "vscode_ionic.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_ionic",
+      "sha256": "247483be40846bca6670792e7063897e3607aa81b238998766755e9dd0a62aa2"
+    },
+    "vscode_jade.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_jade",
+      "sha256": "7a78176c55345b5273f6d46f1928c889926ba8f0b9ac698056c79406cebbbc8c"
+    },
+    "vscode_java.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_java",
+      "sha256": "61d0c0faf332f9af85dc3a973361a1da8b5dd9bc202433b633dfc4865463451f"
+    },
+    "vscode_java_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_java_1",
+      "sha256": "56189ff548ddeb6e6d955098a790372fc8407c67b55a1d137c1fd8c26c82fb0b"
+    },
+    "vscode_javascript.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_javascript",
+      "sha256": "3a7eb41ace91362b2ba28ac85854801fb8706954575e3e97738d03e3be6f29b9"
+    },
+    "vscode_javascript_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_javascript_1",
+      "sha256": "b525b8b82e968891fa11374261b5911090cc5cd53324345f0e8986b21e65d43f"
+    },
+    "vscode_javascript_2.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_javascript_2",
+      "sha256": "eb046fefed5522c4591c7373959f78e59773d5234e25e60115c5b23d85c39f5f"
+    },
+    "vscode_jenkins.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_jenkins",
+      "sha256": "9cd79358990a477cddfcbe691c15e1d25ac22e5da3366cb857c9843e57725d4e"
+    },
+    "vscode_jinja.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_jinja",
+      "sha256": "f743c631a083f1a443419516781f44aed1d7c74775fbe460b0630e956621a618"
+    },
+    "vscode_json.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_json",
+      "sha256": "2d181a660dc205495d6baadaaf1d34b57f9069901c677a0158d80c42b641ec22"
+    },
+    "vscode_json_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_json_1",
+      "sha256": "0f90bb7ca1f28d3dc6beee52ea2d1b80a1d3299dc0c732ca697eb56abc2ca510"
+    },
+    "vscode_julia.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_julia",
+      "sha256": "c183a4e217d68aa1587ecd9f95f13110d19c22d7d44b5d49e094de5cfb2637f1"
+    },
+    "vscode_karma.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_karma",
+      "sha256": "2b885919c462374dc440de86c65924615466635ac144077d7fd193cb81a9ea3a"
+    },
+    "vscode_kotlin.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_kotlin",
+      "sha256": "b150fa2fe64dc69d7765976743480fbc15852ded72dc9bc89fb20353c90cd17a"
+    },
+    "vscode_less.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_less",
+      "sha256": "fe24d2e804a6e320d4f8a78b155ca738c8a67745c311f2f8ccfaa24fdd1c1111"
+    },
+    "vscode_license.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_license",
+      "sha256": "297b1e3300c0f98059d54ecff32d57bb29b664bd9a8329a008da7df10c636970"
+    },
+    "vscode_license_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_license_1",
+      "sha256": "8c04c449504bec30cc9274dd2f99dbe6262cd428684b8b7808dc500c5261663c"
+    },
+    "vscode_license_2.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_license_2",
+      "sha256": "52a05ff2e1ee89859f4193941380b9b4e0628b46c6da29ed19cada1ccffb2f0e"
+    },
+    "vscode_liquid.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_liquid",
+      "sha256": "e11bd53c97f846a0339eae18a835612d06174b8d50ea3b220bd038848f9e8603"
+    },
+    "vscode_livescript.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_livescript",
+      "sha256": "e9f7216f45450fd72cf24acbe813cf7f9688cf24f1218d0d990d410d0a7c09c6"
+    },
+    "vscode_lock.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_lock",
+      "sha256": "4160af555341d2244c91ef6ae150bd91177feeeb8face0c24c593429869d6769"
+    },
+    "vscode_lua.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_lua",
+      "sha256": "58c84890b18b679ffaf12a1580e08f13dcc74f37cb41b9605bcfc6c44a8da72c"
+    },
+    "vscode_makefile.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_makefile",
+      "sha256": "c182a5b49ac2a5890d8699e8c0217f23aecc57fbce0cd7e0d83dedbf805aacd0"
+    },
+    "vscode_makefile_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_makefile_1",
+      "sha256": "fbabcc2ebacebdaecbf5650679243f5fbda84b0cc079c4cecac9ae42195b7866"
+    },
+    "vscode_makefile_2.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_makefile_2",
+      "sha256": "d8c666da47ff533814b1a86e13ac783f15ef38b1cdbf6f5b6050737024c9efef"
+    },
+    "vscode_makefile_3.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_makefile_3",
+      "sha256": "235a5571e177d0c1d863061cd0ccd0fc5267e092a6f2d818519288ad8f397b8f"
+    },
+    "vscode_markdown.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_markdown",
+      "sha256": "56f2d01503775fa7bcb6c3a1dd9560c940ac27fece15dcb14ea62dbfa89abbdf"
+    },
+    "vscode_maven.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_maven",
+      "sha256": "4757a5879734c07842114bf9f92754c0ecaeb5d59e191944f912fe8410148a32"
+    },
+    "vscode_mdo.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_mdo",
+      "sha256": "738ff0320c4715ae38e84195492acc15f74f395b996a14f5cc5cbe1a19f8ae15"
+    },
+    "vscode_mustache.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_mustache",
+      "sha256": "badf0da490398ceef26b3911bfb64bfabf58a1631ce5b1f6a8acbe5af80b3df2"
+    },
+    "vscode_nim.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_nim",
+      "sha256": "7d2abd41c39fb5fdb243ef137402bcb04569e87bcfeb4d7ef756b5d975a2a4ec"
+    },
+    "vscode_notebook.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_notebook",
+      "sha256": "30f0c1da18e7c10590acec6573d73ee99a37c6dd96630d25200579a4fb23fa2e"
+    },
+    "vscode_npm.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_npm",
+      "sha256": "dce6ba9b53d31379305d1ea77dbac83eff8f2e889e0f61d0c88aa994f030bace"
+    },
+    "vscode_npm_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_npm_1",
+      "sha256": "c91287e4022e50abbe7e7ca2c0f21df3c0ce8ea5bb71ef8a41d15b09d9bb5ad6"
+    },
+    "vscode_npm_ignored.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_npm_ignored",
+      "sha256": "964199ba93c4b13916be66cfe3e45b07f37b026486397f28e162845b3706bad0"
+    },
+    "vscode_nunjucks.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_nunjucks",
+      "sha256": "19e1d4ed480d77dcde638428bd294cf1774d5f32e0bbbaae23112cbe08b90642"
+    },
+    "vscode_ocaml.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_ocaml",
+      "sha256": "2a646c807742bbc619bcdde0707ad768813e0da49efc8af756e1eccd01206215"
+    },
+    "vscode_odata.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_odata",
+      "sha256": "3743a6e9607c9f4675aac6c784f5cd22524484c3bd1ea03992995bdd0a41765a"
+    },
+    "vscode_pddl.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_pddl",
+      "sha256": "0dd8c9cfdf4117c51d079f13105c95d60956d8f621376ab2c919f9174ce1d23d"
+    },
+    "vscode_pdf.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_pdf",
+      "sha256": "64079121847201813a7ce3b8d34cfbadb6bde03c30ef30e821e4380d05d3a1f2"
+    },
+    "vscode_perl.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_perl",
+      "sha256": "62593e54962fe07fee5325875031193c462866edabaa33875a46689ac6926040"
+    },
+    "vscode_photoshop.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_photoshop",
+      "sha256": "16f03da916a422954b64721f32caef67621991a7bd2e3a2cce889b388b802678"
+    },
+    "vscode_php.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_php",
+      "sha256": "ff83c77cd9761aa323af2e0640b4e85278e7dc10d39d00ef63e317d440b07145"
+    },
+    "vscode_pipeline.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_pipeline",
+      "sha256": "530386f71211f7ff75aa93d1d61de1c2c8aa9566136134a02798b2b5e5629211"
+    },
+    "vscode_plan.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_plan",
+      "sha256": "8b2a1ff08ba165db5ef071eef7391451aaadbec29253ab93d8237dce73a919c5"
+    },
+    "vscode_platformio.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_platformio",
+      "sha256": "2efac395cda7e3fd8cd2b0478ef376a55333b4ce0a2084087f6243adbacaf325"
+    },
+    "vscode_powershell.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_powershell",
+      "sha256": "4055d41eda543a74a65a08056c43dfdea9a713933d9c6634916ea891a009d993"
+    },
+    "vscode_prisma.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_prisma",
+      "sha256": "12c4bd409f7bbb4664cbc59738f3f30736f256e9da529dd5c1f0c6115a3df50e"
+    },
+    "vscode_prolog.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_prolog",
+      "sha256": "7a618eac0862e6909c3988a85c2e678c13886ff359b6030eb3aeecb775c01be7"
+    },
+    "vscode_pug.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_pug",
+      "sha256": "80e63a4aec3edb61ab0e79d66402fdbc0edec73ac0aef6ed25343a494372b9fd"
+    },
+    "vscode_puppet.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_puppet",
+      "sha256": "539fae776e9deb26999a26c38c1b77e5666fafdb58bf58b2773dd27ab74d1942"
+    },
+    "vscode_purescript.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_purescript",
+      "sha256": "f2d6bfc827c33f49ce51019d705cdb72229b82c39385ec7466efebcba1d17c68"
+    },
+    "vscode_python.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_python",
+      "sha256": "cc184bdf08de4f9af1c41324c2763b927b1aa419d950426b16eb8d5e5d3cff48"
+    },
+    "vscode_react.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_react",
+      "sha256": "40e69371ea6ea068c04c2671f5237a0eabb0fd2cb22f0dca07f746f33e70e17d"
+    },
+    "vscode_react_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_react_1",
+      "sha256": "56279e05f5430e9182f48937c85bc8b7166e7aadb2a329d38cd095c231fdcfa9"
+    },
+    "vscode_reasonml.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_reasonml",
+      "sha256": "016dfefdc62f9519852ae9caaee350d41e5e46a74b34e3ce9a26f4f53acfb682"
+    },
+    "vscode_rescript.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_rescript",
+      "sha256": "1eb195ddb04a44064e3b95bf3a2d8ad27f2ebb306edb0b5e28e8c1bc91cb2bcf"
+    },
+    "vscode_rescript_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_rescript_1",
+      "sha256": "2fee06b63b7b60f69d58f3694423c5a323939436b91a0961afef0afdde34d0c0"
+    },
+    "vscode_rollup.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_rollup",
+      "sha256": "e77e77cc64f3270c5178eb3f9cecfb6f7f36280c7e7bbc3bb13fadec021418a9"
+    },
+    "vscode_ruby.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_ruby",
+      "sha256": "f949074006be0f23f46213df52bafd76cfa5b1636b23256569522d9832cad505"
+    },
+    "vscode_rust.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_rust",
+      "sha256": "d19d517ad430e85dcd5e095b651430827dca8b2d32bae0c978caeff4a9e4656c"
+    },
+    "vscode_salesforce.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_salesforce",
+      "sha256": "446f3267bdbe0dee9b67096daddedab2fe6b77a1ced5045d8fe7648353271807"
+    },
+    "vscode_sass.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_sass",
+      "sha256": "e054f6ed7f653405cbba6248ec8f5a3f2351ffb0c528d5d71ee42129d57d547e"
+    },
+    "vscode_sbt.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_sbt",
+      "sha256": "35a076c1fbe7ef5f3791ae4a6c66e5aacb00ed5cfdbaffa74d070deaf6120b08"
+    },
+    "vscode_scala.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_scala",
+      "sha256": "981ba010428c62c562946143802e171b41671665afc938cf9218bc7dd335d19c"
+    },
+    "vscode_shell.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_shell",
+      "sha256": "1a9626135353ffb1f3f300d24ebe4d56d1c210974f4083cd09e65799217bfaac"
+    },
+    "vscode_slim.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_slim",
+      "sha256": "4a7b46c2a9f3ba686b65913dac7397ffde4c15245c16df91499cc333fcec1c00"
+    },
+    "vscode_smarty.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_smarty",
+      "sha256": "818597ac632b1bbb0f0c74b243fc530991f9882b1548d79d9ec1224bbc0b8c40"
+    },
+    "vscode_spring.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_spring",
+      "sha256": "14f13e9a218ae8b456212dd39d68bd93cf79b10b58b3d56528cfcac0ab9f1149"
+    },
+    "vscode_stylelint.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_stylelint",
+      "sha256": "46be77bc6175007293ea439f170ba10e6d9f598e5359624a4dba6fa9f42d90fc"
+    },
+    "vscode_stylelint_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_stylelint_1",
+      "sha256": "072537eba12e9142b7bdf21f58579e6a31daa405be38556528f48fb7424d6b1d"
+    },
+    "vscode_stylus.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_stylus",
+      "sha256": "4ecdafa1f50e10fdcbd10c2b05f30a81527b8dbc8fcbecf06e249204efac00c5"
+    },
+    "vscode_sublime.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_sublime",
+      "sha256": "653ac3a82d7a7253baefcb3f7a40cd6f333509e658f4b19a626a7fa578c326a5"
+    },
+    "vscode_svelte.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_svelte",
+      "sha256": "d885bde1e7f7bff201531c1000d4338aa4667aa49ed5b086c6967e2c96251b63"
+    },
+    "vscode_svg.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_svg",
+      "sha256": "ff612a6450848c180cdd839f988a8541ac602b8ccc5e0eaf4f972b5c2151b744"
+    },
+    "vscode_svg_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_svg_1",
+      "sha256": "43953adb888f80c966efb1f04ec2540d8e5ee01c59afde658063c34e59166dda"
+    },
+    "vscode_swift.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_swift",
+      "sha256": "b2e89065feaf013ca9afd993536cfeb80ff0ea74257a168ba55e1ee10c2cb200"
+    },
+    "vscode_terraform.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_terraform",
+      "sha256": "b0a31056920b78ea216a137065252a575ce55fbf7eb169799f91e07c32ae2d61"
+    },
+    "vscode_tex.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_tex",
+      "sha256": "c309a0caae5f12a1c97b4b44498f7991a87627b7553f1f763284b40e62071691"
+    },
+    "vscode_tex_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_tex_1",
+      "sha256": "ca849d71e30c4e94eba766dcac16139d8ca0d529a575bfff3fd0813923d7e61c"
+    },
+    "vscode_tex_2.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_tex_2",
+      "sha256": "2abff4b6274b9423b31ab6264abe08c30dff195f5abf0aab3eed3173d92eb549"
+    },
+    "vscode_tex_3.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_tex_3",
+      "sha256": "9cdad68aba613be49dcd408e763ad754e61c2e7f096397a60588f4cd34028720"
+    },
+    "vscode_todo.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_todo",
+      "sha256": "2ce0f2f4315b9d3b28dbb91fee0a02a183bee936498f7f230ec5d7b8446c9028"
+    },
+    "vscode_tsconfig.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_tsconfig",
+      "sha256": "bfce520dcfcf114d9594003c5591f5202cbaad59f583cb97571a63bcfb4fea09"
+    },
+    "vscode_twig.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_twig",
+      "sha256": "93da19e826b0afa9a70ff98aa009c63d8666ba72e0649c3f4d759df1443fa36c"
+    },
+    "vscode_typescript.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_typescript",
+      "sha256": "94e1bffcad08e64b56e11b4ff32476f61f01d65adf7d48cfdfb95818d6e2cd67"
+    },
+    "vscode_typescript_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_typescript_1",
+      "sha256": "41c5d4b3be37ba0e82d05ce51f48f326e45270cbec51bb913d32066fd947b2aa"
+    },
+    "vscode_vala.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_vala",
+      "sha256": "821225dd07bbbaad18a006aabeadcd319337f9c6cc42ac8494bc33f332e3d15d"
+    },
+    "vscode_video.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_video",
+      "sha256": "cdcd942090f36621d833c732a888b661f9eb8d88d30e4ceceac736cde2bd80be"
+    },
+    "vscode_vite.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_vite",
+      "sha256": "50d2fe94ac02aba7c390278be3c8a719d4a2560ed8a4b21a0b7209df2e1e49dd"
+    },
+    "vscode_vue.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_vue",
+      "sha256": "7771866cf6b511b162a507936794a0e610f134b819e6b44efb8d890b0e1bd4e0"
+    },
+    "vscode_wasm.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_wasm",
+      "sha256": "7dee8b3f6303b5cc9897f6d8114558ee50b4a640420853e254a230db4cf4daf2"
+    },
+    "vscode_wat.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_wat",
+      "sha256": "65ef57c81b75e9445f69ffec58072173345b5cd9ee727d03d029098889c247a9"
+    },
+    "vscode_webpack.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_webpack",
+      "sha256": "1104894c2000fcc1d58ee038283f37e8d48378b13795d4f57c417f70dc37ae8f"
+    },
+    "vscode_wgt.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_wgt",
+      "sha256": "baa74d26b1d0e0afb0083175b34df39f0af974d1808ddc1d67353a76aa2f6785"
+    },
+    "vscode_windows.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_windows",
+      "sha256": "a7f6d1b6339eee9a432a8d2a63150f68f48acb43756478b36ea28ebe1b51495c"
+    },
+    "vscode_word.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_word",
+      "sha256": "595800baabdcb30abff933509f26c337412cec7522488c53f764d0fe47b62e73"
+    },
+    "vscode_xls.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_xls",
+      "sha256": "74ec0750507a15c2131a081d251f12d2a31065c5e301b79f5df6e36505cf457a"
+    },
+    "vscode_xml.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_xml",
+      "sha256": "af790e66cfaea8d7e3ac47d8790e14c99fbf97cd541f8be418f6c55e6504b5a3"
+    },
+    "vscode_yarn.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_yarn",
+      "sha256": "60a656a6a52241c6eb571afc3a1c2156d6fed7f6774b97597d6c7e93564598c4"
+    },
+    "vscode_yml.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_yml",
+      "sha256": "6569a82a4f77f8aea19fae71d2bb04c5900929a618c59a58c43ebe6753c02d77"
+    },
+    "vscode_zig.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_zig",
+      "sha256": "05bf782fdb1b103799d9be83c71702c14e26c3e3468177ae402cca54f61f1c97"
+    },
+    "vscode_zip.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_zip",
+      "sha256": "1f5a51348da9140a81c7791fbbc9f5f02b7134f6bc05a6738c064c501c08d836"
+    },
+    "vscode_zip_1.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_zip_1",
+      "sha256": "7f5ff7a5bbb568974d9f765e8d2a61057cb4c206a9c07d72df6307ffd6f9c3af"
+    },
+    "docker.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_docker",
+      "sha256": "3609b9548f8690e6e4852bb1d1b77cf1e7a7cf9bc826ecd294b0f68a5d1dcac6"
+    },
+    "docker-compose.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_docker_3",
+      "sha256": "9b886bdfe876b6a6799045101dc70f88377cf2ef245b24cb76d70d3b098dbfea"
+    },
+    "python.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_python",
+      "sha256": "cc184bdf08de4f9af1c41324c2763b927b1aa419d950426b16eb8d5e5d3cff48"
+    },
+    "javascript.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_javascript",
+      "sha256": "3a7eb41ace91362b2ba28ac85854801fb8706954575e3e97738d03e3be6f29b9"
+    },
+    "typescript.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_typescript",
+      "sha256": "94e1bffcad08e64b56e11b4ff32476f61f01d65adf7d48cfdfb95818d6e2cd67"
+    },
+    "json.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_json",
+      "sha256": "2d181a660dc205495d6baadaaf1d34b57f9069901c677a0158d80c42b641ec22"
+    },
+    "yaml.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_yml",
+      "sha256": "6569a82a4f77f8aea19fae71d2bb04c5900929a618c59a58c43ebe6753c02d77"
+    },
+    "shell.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_shell",
+      "sha256": "1a9626135353ffb1f3f300d24ebe4d56d1c210974f4083cd09e65799217bfaac"
+    },
+    "go.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_go2",
+      "sha256": "e60c87076873d402c867d016b00f942147905f29d63bda5ab47492764c11cfe1"
+    },
+    "rust.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_rust",
+      "sha256": "d19d517ad430e85dcd5e095b651430827dca8b2d32bae0c978caeff4a9e4656c"
+    },
+    "java.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_java",
+      "sha256": "61d0c0faf332f9af85dc3a973361a1da8b5dd9bc202433b633dfc4865463451f"
+    },
+    "sql.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_db",
+      "sha256": "bc5b0406e9b92cc943ef96ce4a0b4c20c38ecf81b36724e07905f9a6506b463c"
+    },
+    "html.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_html",
+      "sha256": "70f360e86749b6ee84f110b5a65135c3286f241524e30e352dd63ef43a3f48c3"
+    },
+    "css.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_css",
+      "sha256": "06bbff61bd177458659be19e099a90025080f33dea1b44902f938477c83dfa04"
+    },
+    "markdown.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_markdown",
+      "sha256": "56f2d01503775fa7bcb6c3a1dd9560c940ac27fece15dcb14ea62dbfa89abbdf"
+    },
+    "env.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_config",
+      "sha256": "31d6f72a24c6f8a04d0948928255d4a1537b646d6d25de130fc57aa47c1264dc"
+    },
+    "git.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_git",
+      "sha256": "3c142758b8aff5317a9936a083a968221348d1c188771c025af97e60477e89e6"
+    },
+    "nginx.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_config",
+      "sha256": "31d6f72a24c6f8a04d0948928255d4a1537b646d6d25de130fc57aa47c1264dc"
+    },
+    "default.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_default",
+      "sha256": "246930abf79f68854a339fd3680a23ec6f2b19543aae710fc9cebaa3d5ac52bc"
+    },
+    "text.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_default",
+      "sha256": "246930abf79f68854a339fd3680a23ec6f2b19543aae710fc9cebaa3d5ac52bc"
+    },
+    "code.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_xml",
+      "sha256": "af790e66cfaea8d7e3ac47d8790e14c99fbf97cd541f8be418f6c55e6504b5a3"
+    },
+    "pdf.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_pdf",
+      "sha256": "64079121847201813a7ce3b8d34cfbadb6bde03c30ef30e821e4380d05d3a1f2"
+    },
+    "doc.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_word",
+      "sha256": "595800baabdcb30abff933509f26c337412cec7522488c53f764d0fe47b62e73"
+    },
+    "ppt.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_default",
+      "sha256": "246930abf79f68854a339fd3680a23ec6f2b19543aae710fc9cebaa3d5ac52bc"
+    },
+    "xls.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_xls",
+      "sha256": "74ec0750507a15c2131a081d251f12d2a31065c5e301b79f5df6e36505cf457a"
+    },
+    "zip.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_zip",
+      "sha256": "1f5a51348da9140a81c7791fbbc9f5f02b7134f6bc05a6738c064c501c08d836"
+    },
+    "exe.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_windows",
+      "sha256": "a7f6d1b6339eee9a432a8d2a63150f68f48acb43756478b36ea28ebe1b51495c"
+    },
+    "image.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_image",
+      "sha256": "5abe14f76b0ac09ff61e5875a771e0495a339dafcd32637371ffae0f7aeabb8d"
+    },
+    "audio.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_audio",
+      "sha256": "7678d1714a8f68c972d42c63ea72e04ae00547837f3ac51560da307dc5c30e61"
+    },
+    "video.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_video",
+      "sha256": "cdcd942090f36621d833c732a888b661f9eb8d88d30e4ceceac736cde2bd80be"
+    },
+    "npm.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_npm",
+      "sha256": "dce6ba9b53d31379305d1ea77dbac83eff8f2e889e0f61d0c88aa994f030bace"
+    },
+    "github.svg": {
+      "source": "extensions/theme-seti/icons/seti.woff#_github",
+      "sha256": "18deae5ce8fa06691c3d5bd493f7047c1923639d9979b3383c0aa4dc3c5bf163"
+    },
+    "folder.svg": {
+      "source": "native-folder.png",
+      "sha256": "bcb4bcb953e47445fadac39858a951abfd242edc326b851c72790f1f0313a66d"
+    }
+  },
+  "normalized": {
+    "visibleSize": 20,
+    "boxSize": 24,
+    "maxCenterError": 0.13
+  }
+}

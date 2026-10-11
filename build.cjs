@@ -1,0 +1,21 @@
+const fs=require('fs'),path=require('path'),vm=require('vm');
+const original=fs.readFileSync(path.join(__dirname,'index.original.js'),'utf8');
+const once=(source,old,replacement)=>{if(source.split(old).length!==2)throw new Error('Build anchor mismatch: '+old.slice(0,70));return source.replace(old,replacement);};
+const runtime=name=>fs.readFileSync(path.join(__dirname,name),'utf8').replace(/^\uFEFF/,'').trim().replace(/^module\.exports = /,'').replace(/;$/,'');
+let patched=once(original,'openOnClick:"double",openUnsupportedInSystem:','openOnClick:"double",fileOpenAction:"external-edit",openUnsupportedInSystem:');
+const next='          <div class="ss-toggle-row ss-pathmode-row">\\n            <span class="ss-toggle-label">{{ i18n.t(\\\'settings.defaultPathMode\\\') }}</span>';
+const template=`          <label class="ss-toggle-row" title="Download the complete file, open it in your local app, and upload on save. Progress appears in Transfer history.">
+            <span class="ss-toggle-label">Open files in default app + auto sync</span>
+            <span class="ss-toggle-track" [class.active]="externalEditOnOpen" (click)="toggleExternalEditOnOpen()"><span class="ss-toggle-thumb"></span></span>
+          </label>
+`;
+patched=once(patched,next,template.replace(/\n/g,'\\n').replace(/'/g,"\\'")+next);
+patched=once(patched,'const so=to;',`const customSftpRecovery=(${runtime('recovery-store.cjs')})();/* LOCAL_TRANSFER_ENGINE_V1 */(${runtime('transfer-engine.cjs')})({Panel:Xi});/* LOCAL_EXTERNAL_EDIT_V1 */(${runtime('external-edit.cjs')})({Panel:Xi,Settings:Wt,download:I,shell:t(288).shell,recovery:customSftpRecovery});const so=to;`);
+patched=require('./patch-navigation.cjs')(patched);
+patched=require('./cleanup-config.cjs')(patched);
+patched=patched.replaceAll('tabby-sftp-plus','tabby-sftp-plus-plus').replaceAll('sftp-plus-toggle-panel','sftp-plus-plus-toggle-panel').replaceAll('SFTP+','SFTP++');
+new vm.Script(patched,{filename:'SFTP++/dist/index.js'});
+const dist=path.join(__dirname,'dist');fs.mkdirSync(dist,{recursive:true});
+fs.cpSync(path.join(__dirname,'assets'),path.join(dist,'assets'),{recursive:true});
+fs.writeFileSync(path.join(dist,'index.js'),patched);
+console.log('Built independent tabby-sftp-plus-plus 1.0.0 (SFTP++).');
