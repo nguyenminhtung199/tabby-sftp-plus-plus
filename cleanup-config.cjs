@@ -63,6 +63,10 @@ module.exports=function cleanup(source){
     if(count!==1)throw new Error('Settings removal anchor: '+binding+' ('+count+')');
    }
    html=removeContaining(html,'<div','</div>','showHideAuthorConfirm');
+   const aboutMarker=html.indexOf("i18n.t('settings.about')");
+   const aboutStart=html.lastIndexOf('<div class="ss-section">',aboutMarker);
+   if(aboutMarker<0||aboutStart<0)throw new Error('About settings section missing');
+   html=html.slice(0,aboutStart)+html.slice(findElementEnd(html,aboutStart,'div'));
    const start=html.lastIndexOf('<div',html.indexOf("settings.viewerEditor"));
    const end=html.indexOf('</div>',start)+6;
    // All viewer options occupy the end of the interaction section.
