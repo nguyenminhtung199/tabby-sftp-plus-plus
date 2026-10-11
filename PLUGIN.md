@@ -59,6 +59,6 @@ Right-click menus isolate mouse down/up and item clicks from the surrounding Tab
 
 The rubber-band selection controller receives mouseup during document capture, before the panel blocks propagation to Tabby. Right/left drag release removes the rectangle and listeners; stationary right clicks continue to open the menu.
 
-### Download destination probe
+### Right-click Edit and Download
 
-Right-click Download checks whether the local destination exists before checking conflicts. Missing targets use a non-throwing `lstatSync` probe, avoiding an asynchronous ENOENT rejection. Existing files keep the original size, timestamp, digest and symlink checks. Stage logs identify whether the destination probe or asynchronous existing-file check was reached. This is a targeted workaround under investigation; a live Tabby retry is still required to confirm the white-screen failure is resolved.
+Edit calls the same local or remote double-click handler, including clearing its pending click timer. Download opens Tabby's native folder picker, then downloads the captured selection into the chosen directory. Cancelling the picker or closing the panel starts no download. Existing conflict checks remain unchanged.

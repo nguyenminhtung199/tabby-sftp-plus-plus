@@ -10,7 +10,7 @@ const args = process.argv.slice(2);
 const option = name => { const i = args.indexOf(name); return i < 0 ? undefined : args[i + 1]; };
 const root = path.resolve(option('--root') || path.join(process.env.APPDATA || '', 'tabby'));
 const keyPath = option('--key');
-const sourceFiles = ['patch-conflict-probe.cjs', 'test-conflict-probe.cjs', 'context-menu.cjs', 'patch-context-menu.cjs', 'test-context-menu.cjs', 'package.json', 'LICENSE', 'README.md', 'index.original.js', 'build.cjs', 'patch-navigation.cjs', 'cleanup-config.cjs', 'cleanup-runtime.cjs', 'cleanup-settings.cjs', 'recovery-store.cjs', 'transfer-engine.cjs', 'external-edit.cjs', 'navigation.cjs', 'sidebar.cjs', 'file-icons.cjs', 'cwd.cjs', 'activity.cjs', 'screen-reporter.cjs', 'settings-controls.cjs', 'icon-alignment.css', 'activity.css', 'activity-template.html'];
+const sourceFiles = ['context-menu.cjs', 'patch-context-menu.cjs', 'test-context-menu.cjs', 'package.json', 'LICENSE', 'README.md', 'index.original.js', 'build.cjs', 'patch-navigation.cjs', 'cleanup-config.cjs', 'cleanup-runtime.cjs', 'cleanup-settings.cjs', 'recovery-store.cjs', 'transfer-engine.cjs', 'external-edit.cjs', 'navigation.cjs', 'sidebar.cjs', 'file-icons.cjs', 'cwd.cjs', 'activity.cjs', 'screen-reporter.cjs', 'settings-controls.cjs', 'icon-alignment.css', 'activity.css', 'activity-template.html'];
 function key(create) {
     if (!keyPath) throw new Error('Specify --key with the path to your separate 32-byte key file. Never commit this key.');
     const p = path.resolve(keyPath);

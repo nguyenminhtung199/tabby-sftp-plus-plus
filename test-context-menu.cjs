@@ -50,11 +50,26 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  p.contextMenuPane='local';p.contextMenuEntry={fullPath:'/wrong'};await pending;assert.equal(edit,1);assert.equal(nativeMenu,0);
  // Double-click still calls the same local-edit implementation directly.
  await p._activateEntry('remote',{fullPath:'/chosen.py',mode:420},{});assert.equal(edit,2);
- const q=panel();const files=[];let target;
- q._ensureTransferTargetDir=async(direction,dir)=>{assert.equal(direction,'download');target=dir;return dir;};q._streamDownloadOne=async(entry,dir)=>{assert.equal(q.contextMenuVisible,false);files.push(entry.fullPath);assert.equal(dir,'C:/target');};q._showConflictDialog=()=>{q.conflictShown=true;};q._conflictQueue.push({});
- const download=q.onContextMenuAction('download');q.selectedRemote=[];q.localPath='C:/different';q.contextMenuPane='local';await download;assert.deepEqual(files,['/chosen.py']);assert.equal(target,'C:/target');assert.equal(q.refreshed,true);assert.equal(q.conflictShown,true);
+ const q=panel();const files=[];let target,pickerOpened=0,acceptPicker;
+ q.injector={get:()=>({pickDirectory:()=>{assert.equal(q.contextMenuVisible,false);pickerOpened++;return new Promise(resolve=>{acceptPicker=resolve;});}})};
+ q._ensureTransferTargetDir=async(direction,dir)=>{assert.equal(direction,'download');target=dir;return dir;};q._streamDownloadOne=async(entry,dir)=>{assert.equal(q.contextMenuVisible,false);files.push(entry.fullPath);assert.equal(dir,'C:/picked');};q._showConflictDialog=()=>{q.conflictShown=true;};q._conflictQueue.push({});
+ const download=q.onContextMenuAction('download');q.selectedRemote=[];q.localPath='C:/different';q.contextMenuPane='local';
+ await new Promise(resolve=>setTimeout(resolve,10));assert.equal(pickerOpened,1);assert.equal(files.length,0,'no download until folder selected');acceptPicker('C:/picked');
+ await download;assert.deepEqual(files,['/chosen.py']);assert.equal(target,'C:/picked');assert.equal(q.refreshed,true);assert.equal(q.conflictShown,true);
+ for(const outcome of ['cancel','destroy','error']){
+  const cancelled=panel();let transfers=0;cancelled._streamDownloadOne=()=>transfers++;
+  cancelled.injector={get:()=>({pickDirectory:async()=>{if(outcome==='error')throw Error('picker failed');if(outcome==='destroy'){cancelled._destroyed=true;return 'C:/picked';}return '';}})};
+  assert.equal(await cancelled.onContextMenuAction('download'),false);assert.equal(transfers,0);
+  if(outcome==='error')assert.match(cancelled.toast,/picker failed/);
+ }
+ const local=panel();local.contextMenuPane='local';let localOpened=0;
+ local._openPathInSystem=async name=>{assert.equal(name,'/chosen.py');localOpened++;};
+ await local.onContextMenuAction('editFile');assert.equal(localOpened,1,'local menu uses local double-click path');
+ const double=panel();let invoked=0;double._activateEntry=async()=>{invoked++;return 'finished';};
+ assert.equal(await double.onRemoteEntryDblClick({},event()),'finished');assert.equal(invoked,1);
+ double.connected=false;await double.onRemoteEntryDblClick({},event());assert.equal(invoked,1,'disconnected remote double-click is ignored');
  const failing=panel();failing._activateEntry=async()=>{throw Error('fixture failure');};assert.equal(await failing.onContextMenuAction('editFile'),false);assert.match(failing.toast,/fixture failure/);
  class Disposable{onPanelMouseDown(){}onContextMenuAction(){}getContextSelection(){return [];}closeContextMenu(){}ngOnDestroy(){this._destroyed=true;} }
  require('./context-menu.cjs')({Panel:Disposable,Angular:{HostListener:()=>()=>{}}});const d=new Disposable();d.contextMenuPane='remote';d._activateEntry=()=>{throw Error('must not run after destroy');};const cancelled=d.onContextMenuAction('editFile');d.ngOnDestroy();assert.equal(await cancelled,false);assert.equal(d._customContextActions.size,0);
- console.log('PASS: actual Angular menu parses; right-button events are isolated from Tabby and rubber-band release/cleanup still completes; click stops before emit; Edit/Download wait for menu close and retain file/target snapshots; double-click is unchanged; failures and destroy are handled.');
+ console.log('PASS: Angular menu parses; right-button isolation and rubber-band cleanup work; menu Edit uses local/remote double-click handlers; Download waits for native folder choice and keeps selected files; cancel, destroy and errors start no transfer.');
 })().catch(error=>{console.error(error);process.exitCode=1;});
