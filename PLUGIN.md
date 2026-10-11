@@ -58,3 +58,7 @@ Downloads retain an owned Node buffer, rather than a zero-copy view over native 
 Right-click menus isolate mouse down/up and item clicks from the surrounding Tabby terminal. Edit and Download close the menu before starting asynchronously and retain the clicked file/selected files and target folder. Double-click editing and the transfer engine are unchanged. Run node test-context-menu.cjs to validate event isolation, deferred actions, captured selections, errors and teardown against the actual Angular bundle.
 
 The rubber-band selection controller receives mouseup during document capture, before the panel blocks propagation to Tabby. Right/left drag release removes the rectangle and listeners; stationary right clicks continue to open the menu.
+
+### Download destination probe
+
+Right-click Download checks whether the local destination exists before checking conflicts. Missing targets use a non-throwing `lstatSync` probe, avoiding an asynchronous ENOENT rejection. Existing files keep the original size, timestamp, digest and symlink checks. Stage logs identify whether the destination probe or asynchronous existing-file check was reached. This is a targeted workaround under investigation; a live Tabby retry is still required to confirm the white-screen failure is resolved.
