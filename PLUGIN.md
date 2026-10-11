@@ -56,3 +56,5 @@ Downloads retain an owned Node buffer, rather than a zero-copy view over native 
 
 
 Right-click menus isolate mouse down/up and item clicks from the surrounding Tabby terminal. Edit and Download close the menu before starting asynchronously and retain the clicked file/selected files and target folder. Double-click editing and the transfer engine are unchanged. Run node test-context-menu.cjs to validate event isolation, deferred actions, captured selections, errors and teardown against the actual Angular bundle.
+
+The rubber-band selection controller receives mouseup during document capture, before the panel blocks propagation to Tabby. Right/left drag release removes the rectangle and listeners; stationary right clicks continue to open the menu.
