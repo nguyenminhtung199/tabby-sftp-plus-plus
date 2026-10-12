@@ -133,7 +133,18 @@ module.exports = function installSidebar({ Panel, Settings, Decorator }) {
         };
         m.expand=()=>{clearTimeout(m.collapseTimer);m.dismissed=false;this.zone.run(()=>{try{if(!m.connect()){this.notifications.error('SFTP+','Connect the SSH terminal first.');return;}m.expanded=true;m.layout();m.ref?.changeDetectorRef.detectChanges();resizeTerminal();}catch(e){this.notifications.error('SFTP+','Cannot open sidebar: '+e.message);}});};
         m.collapse=force=>{clearTimeout(m.collapseTimer);if(m.pinned&&!force)return;m.expanded=false;if(m.full){m.full=false;if(m.cmp)m.cmp._layoutMode=m.mode==='sidebar'?'single':'auto';}m.dismissed=!!force;m.cmp?.saveCurrentPath();m.layout();resizeTerminal();};
-        m.togglePin=()=>{m.pinned=!m.pinned;if(m.pinned&&!m.expanded)m.expand();save(this,m);m.layout();m.cmp?._safeDetect?.();resizeTerminal();if(!m.pinned&&!m.hovering)m.scheduleCollapse();};
+        m.togglePin=()=>{
+            const trace=(stage)=>m.cmp?._customTraceTransfer?.('sidebar:pin:'+stage,{pinned:m.pinned,expanded:m.expanded});
+            trace('start');
+            try {
+                m.pinned=!m.pinned;if(m.pinned&&!m.expanded)m.expand();
+                trace('config:start');save(this,m);trace('config:return');
+                trace('layout:start');m.layout();trace('layout:end');
+                trace('detect:start');m.cmp?._safeDetect?.();trace('detect:end');
+                trace('resize:start');resizeTerminal();trace('resize:end');
+                if(!m.pinned&&!m.hovering)m.scheduleCollapse();trace('end');
+            } catch(error) { trace('error');throw error; }
+        };
         m.toggleMode=()=>{m.full=!m.full;m.mode='sidebar';m.expanded=true;if(m.cmp){m.cmp._layoutMode=m.full?'auto':'single';m.cmp.activePane='remote';m.cmp._scheduleLayoutRefresh?.();}m.layout();m.cmp?._safeDetect?.();resizeTerminal();};
         m.scheduleCollapse=()=>{clearTimeout(m.collapseTimer);m.collapseTimer=setTimeout(()=>{
             if(m.disposed||m.full||m.pinned||m.hovering||m.mode!=='sidebar')return;

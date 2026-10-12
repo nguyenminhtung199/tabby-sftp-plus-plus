@@ -2,6 +2,7 @@ module.exports=function installDropDiagnostics({Panel,root}){
  const fs=require('fs'),path=require('path'),{AsyncLocalStorage}=require('async_hooks'),cfg=require('./transfer-policy.json').dropDiagnostics;
  if(!fs.existsSync(path.join(root,cfg.enabledMarker)))return;
  fs.mkdirSync(root,{recursive:true});const scope=new AsyncLocalStorage(),panels=new WeakMap(),jobs=new WeakMap(),spans=new Map();
+ const observedZones=new WeakSet();
  const file=path.join(root,cfg.file);let writes=Promise.resolve(),pending=0,records=0,nextPanel=0,nextJob=0,nextOperation=0,nextSpan=0,timer,last,owner;
  const outside=(p,fn)=>p?.zone?.runOutsideAngular?p.zone.runOutsideAngular(fn):fn();
  const panelId=p=>{if(!p)return undefined;if(!panels.has(p))panels.set(p,++nextPanel);return panels.get(p);};
@@ -18,7 +19,9 @@ module.exports=function installDropDiagnostics({Panel,root}){
   return {errorType:error?.name,errorCode:error?.code,errorFrames:frames};
  }
  function start(p,method,frame){
-  owner=p;spans.set(frame.spanId,{frame,method,started:Date.now()});record(p,method+':start',{},frame);
+  owner=p;
+  if(p?.zone?.onError?.subscribe&&!observedZones.has(p.zone)){observedZones.add(p.zone);outside(p,()=>p.zone.onError.subscribe(error=>record(owner,'runtime:zone:error',errorData(error))));}
+  spans.set(frame.spanId,{frame,method,started:Date.now()});record(p,method+':start',{},frame);
   if(!timer){last=Date.now();outside(p,()=>{timer=setInterval(()=>{
    const now=Date.now();record(owner,'heartbeat',{activeStages:spans.size,lagMs:now-last-cfg.heartbeatMs,inflight:[...spans.values()].slice(0,cfg.heartbeatMaxSpans).map(s=>({operationId:s.frame.operationId,jobId:s.frame.jobId,spanId:s.frame.spanId,method:s.method,ageMs:now-s.started}))});last=now;
    if(records>=cfg.maxRecords||owner?._destroyed){clearInterval(timer);timer=null;}
@@ -47,6 +50,13 @@ module.exports=function installDropDiagnostics({Panel,root}){
     try{const result=original.apply(this,args);if(result?.then)return outside(this,()=>Promise.resolve(result).then(value=>{finish(this,method,frame,null,value);return value;},error=>{finish(this,method,frame,error);throw error;}));finish(this,method,frame,null,result);return result;}catch(error){finish(this,method,frame,error);throw error;}
    });
   };
+ }
+ // Observe failures without cancelling browser events or replacing Tabby's handlers.
+ if(typeof window!=='undefined'&&window.addEventListener){
+  outside(null,()=>{
+   window.addEventListener('error',event=>record(owner,'runtime:window:error',errorData(event.error)));
+   window.addEventListener('unhandledrejection',event=>record(owner,'runtime:promise:error',errorData(event.reason)));
+  });
  }
  record(null,'diagnostics:ready');return {flush:()=>writes};
 };

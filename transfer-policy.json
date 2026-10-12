@@ -34,7 +34,13 @@
       "trackTransfer",
       "pauseTransfer",
       "resumeTransfer",
-      "cancelTransfer"
+      "cancelTransfer",
+      "toggleCustomSidebarPin",
+      "toggleCustomSidebarMode",
+      "toggleCustomSidebarFull",
+      "_scheduleLayoutRefresh",
+      "closeContextMenu",
+      "ctxNewFile"
     ],
     "flushBeforeMethods": [
       "_customUploadLocalPaths",
@@ -58,7 +64,25 @@
     "criticalSyncPhases": [
       "clipboard:key:capture",
       "clipboard:key:capture-route",
-      "clipboard:key-route"
+      "clipboard:key-route",
+      "runtime:zone:error",
+      "runtime:window:error",
+      "runtime:promise:error",
+      "toggleCustomSidebarPin:start",
+      "toggleCustomSidebarPin:error",
+      "toggleCustomSidebarPin:end",
+      "_safeDetect:error",
+      "sidebar:pin:start",
+      "sidebar:pin:config:start",
+      "sidebar:pin:config:return",
+      "sidebar:pin:layout:start",
+      "sidebar:pin:layout:end",
+      "sidebar:pin:detect:start",
+      "sidebar:pin:detect:end",
+      "sidebar:pin:resize:start",
+      "sidebar:pin:resize:end",
+      "sidebar:pin:end",
+      "sidebar:pin:error"
     ]
   }
 }
