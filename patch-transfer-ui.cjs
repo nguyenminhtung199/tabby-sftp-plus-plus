@@ -12,6 +12,15 @@ module.exports = function patchTransferUI(source) {
     const paint='this.transfersMinimized=!1,this.transfersHidden=!1,this._safeDetect(),new Promise(e=>{this._upQueue.push';
     if(source.split(paint).length!==2)throw Error('Upload paint trace anchor changed');
     source=source.replace(paint,'this.transfersMinimized=!1,this.transfersHidden=!1,this._customTraceClipboard&&await this._customTraceClipboard("queue:paint"),this._safeDetect(),this._customTraceClipboard&&await this._customTraceClipboard("queue:pump"),new Promise(e=>{this._upQueue.push');
+    const job='return this.transfers.push(m),this.transfersMinimized';
+    if(source.split(job).length!==2)throw Error('Queue job correlation anchor changed');
+    source=source.replace(job,'return m._customDiagnosticContext=this._customTraceQueueEntry?.(m),this.transfers.push(m),this.transfersMinimized');
+    const download='_streamDownloadOne(n,e){';
+    if(source.split(download).length!==2)throw Error('Download queue trace anchor changed');
+    source=source.replace(download,'async _streamDownloadOne(n,e){if(this._customTraceClipboard)await this._customTraceClipboard("queue.download:entry:create");');
+    const downloadPaint='return this.transfers.push(g),this.transfersMinimized=!1,this.transfersHidden=!1,this._safeDetect(),new Promise(e=>{this._dlQueue.push';
+    if(source.split(downloadPaint).length!==2)throw Error('Download queue paint anchor changed');
+    source=source.replace(downloadPaint,'return g._customDiagnosticContext=this._customTraceQueueEntry?.(g),this.transfers.push(g),this.transfersMinimized=!1,this.transfersHidden=!1,this._customTraceClipboard&&await this._customTraceClipboard("queue.download:paint"),this._safeDetect(),this._customTraceClipboard&&await this._customTraceClipboard("queue.download:pump"),new Promise(e=>{this._dlQueue.push');
     const premature = '||l.percent>=100';
     if (source.split(premature).length !== 2) throw new Error('Transfer completion anchor changed');
     source = source.replace(premature, '||(!m._customStream&&l.percent>=100)');

@@ -117,3 +117,5 @@ Chẩn đoán drop trực tiếp: tạo file `recovery/enable-drop-trace` trong 
 Paste ảnh được hoãn sang lượt event loop sau; đọc clipboard, encode và staging chạy ngoài callback paste. Task ảnh đang chạy được dedup, bytes PNG được copy sang buffer sở hữu riêng, menu paste trên folder giữ đúng folder đích. Trace riêng image:read/encode/stage/queue ghi từng bước trước khi thực hiện để xác định lần lỗi tiếp theo.
 
 Trace paste ảnh được bổ sung flush trước các bước hàng đợi, tạo entry, paint và pump khi bật chẩn đoán, để giữ bước cuối ngay cả khi renderer thoát. Thay đổi này phục vụ khoanh vùng lỗi, chưa xác nhận đã sửa crash.
+
+Log queue/upload/download có operationId/spanId/jobId, duration, trạng thái queue hai chiều, byte/chunk offset và các bước stat/open/read/write/close/verify/chmod/commit/cleanup. Ctrl+V ghi key-route trước khi xử lý; callback phím không gọi native availableFormats. Khi bật chẩn đoán, chỉ record key-route dùng append đồng bộ nhỏ để giữ bằng chứng nếu renderer thoát ngay; các record khác vẫn bất đồng bộ/flush tại điểm đã chọn.

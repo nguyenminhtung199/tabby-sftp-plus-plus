@@ -1,7 +1,7 @@
 const assert=require('assert'),fs=require('fs'),path=require('path');
 const install=require('./clipboard-upload.cjs');
 const root=path.join(__dirname,'test-fixtures','clipboard-'+process.pid);
-let currentImage=null,nativeKeys=0,nativeDrops=0,nativePaste=0;
+let currentImage=null,nativeKeys=0,nativeDrops=0,nativePaste=0,formatCalls=0;
 const uploads=[];
 class Panel {
     constructor(){this.connected=true;this.sftpSession={};this.remotePath='/initial';this.activePane='remote';this._isPanelActive=true;this.clipboardEntries=[];this.listeners=new Map();this.elRef={nativeElement:{contains:()=>true,addEventListener:(key,fn)=>this.listeners.set(key,fn),removeEventListener:key=>this.listeners.delete(key)}};}
@@ -10,7 +10,7 @@ class Panel {
     _resolveDropDestDir(e){return e.destination;}_safeDetect(){}refreshRemote(){return Promise.resolve();}
     ngAfterViewInit(){}ngOnDestroy(){this._destroyed=true;}showToast(message){this.notice=message;}
 }
-install({Panel,electron:{clipboard:{readImage:()=>currentImage,availableFormats:()=>currentImage?['image/png']:['text/plain']},webUtils:{getPathForFile:file=>file.nativePath||''}},stagingRoot:root});
+install({Panel,electron:{clipboard:{readImage:()=>currentImage,availableFormats:()=>{formatCalls++;return currentImage?['image/png']:['text/plain'];}},webUtils:{getPathForFile:file=>file.nativePath||''}},stagingRoot:root});
 const event=(target={})=>({target,key:'v',ctrlKey:true,preventDefault(){this.prevented=true;},stopImmediatePropagation(){this.stopped=true;},stopPropagation(){}});
 const image={isEmpty:()=>false,toPNG:()=>Buffer.from('png-fixture')};
 (async()=>{
@@ -25,11 +25,11 @@ const image={isEmpty:()=>false,toPNG:()=>Buffer.from('png-fixture')};
     p.activePane='local';p.onGlobalKeyDown(event());assert.equal(nativeKeys,2);p.activePane='remote';
     let calls=0;const original=p.customPasteImage;p.customPasteImage=(value,dir)=>{calls++;assert.equal(dir,'/initial');return Promise.resolve(true);};
     const pasteKey=event();p.onGlobalKeyDown(pasteKey);assert.equal(calls,1);assert(pasteKey.prevented&&pasteKey.stopped);
-    currentImage=null;p.onGlobalKeyDown(event());assert.equal(nativeKeys,3);
-    currentImage=image;p._isPanelActive=false;p.onGlobalKeyDown(event());assert.equal(nativeKeys,4);p._isPanelActive=true;
-    p.inputDialogVisible=true;p.onGlobalKeyDown(event());assert.equal(calls,1);p.inputDialogVisible=false;
+    currentImage=null;p.onGlobalKeyDown(event());assert.equal(nativeKeys,2);assert.equal(calls,2);
+    currentImage=image;p._isPanelActive=false;p.onGlobalKeyDown(event());assert.equal(nativeKeys,3);p._isPanelActive=true;
+    p.inputDialogVisible=true;p.onGlobalKeyDown(event());assert.equal(calls,2);p.inputDialogVisible=false;
     p.ngAfterViewInit();p.ngAfterViewInit();assert.equal(p.listeners.size,1);
-    const domPaste=event();p.listeners.get('paste')(domPaste);assert(domPaste.prevented);assert.equal(calls,2);
+    const domPaste=event();p.listeners.get('paste')(domPaste);assert(domPaste.prevented);assert.equal(calls,3);
     const textPaste=event({closest:()=>({})});p.listeners.get('paste')(textPaste);assert(!textPaste.prevented);
 
     // Internal copied files win even when a screenshot remains in Windows clipboard.
@@ -71,8 +71,9 @@ const image={isEmpty:()=>false,toPNG:()=>Buffer.from('png-fixture')};
     const count=uploads.length;
     const unsafe=event();unsafe.dataTransfer={files:[{...virtual,name:'../escape.dat'}],getData:()=>''};await p.onDrop(unsafe,'remote');assert.equal(uploads.length,count);assert(/Invalid/.test(p.notice));
     p.connected=false;assert.equal(await p.customPasteImage(image),false);await p.onDrop(drop,'remote');assert.equal(uploads.length,count);p.connected=true;
-    p.contextMenuPane='remote';currentImage=null;p.ctxClipboardPaste();assert.equal(nativePaste,1);
+    p.contextMenuPane='remote';currentImage=null;assert.equal(await p.ctxClipboardPaste(),false);assert.equal(nativePaste,0);
     p.ngOnDestroy();assert.equal(p.listeners.size,0);
+    assert.equal(formatCalls,0,'native clipboard format APIs are never called from key/paste callbacks');
     console.log('PASS: image staging/unique names, scoped Ctrl+V, editable/modal protection, paste listener cleanup, native drop/internal transfers, streaming virtual files, captured destinations, unsafe names and disconnected uploads.');
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(()=>{
     const base=path.resolve(__dirname,'test-fixtures');if(path.resolve(root).startsWith(base+path.sep))fs.rmSync(root,{recursive:true,force:true});

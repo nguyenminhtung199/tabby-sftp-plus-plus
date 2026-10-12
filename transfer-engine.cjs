@@ -6,6 +6,7 @@ module.exports = function installTransferEngine({Panel,resume}) {
     const permissions=require('./file-permissions.cjs');
     const metadata=require('./remote-metadata.cjs');
     Panel.prototype._customSetCreatedFilePermissions=function(file){return permissions.apply(this.sftpSession,file,permissions.newFileMode);};
+    const diagnosticPolicy=require('./transfer-policy.json').dropDiagnostics;
     const CHUNK=256*1024;
     const original={upload:Panel.prototype._doUpload,download:Panel.prototype._doDownload};
     const stamp=s=>[s.size,s.mtimeMs,s.ctimeMs,s.ino].join(':');
@@ -38,24 +39,32 @@ module.exports = function installTransferEngine({Panel,resume}) {
         const session=panel.sftpSession;if(!session?.open)return direction==='upload'?original.upload.call(panel,remote,local,operation):original.download.call(panel,remote,local,mode,size,operation);
         const targets=direction==='upload'?(panel._activeUploadTargets ||= new Set()):(panel._activeDownloadTargets ||= new Set());
         const key=direction==='upload'?remote:local;if(targets.has(key))return false;targets.add(key);
+        const transferId=crypto.randomUUID();let chunkIndex=0;
+        const trace=(phase,data={})=>panel._customTraceTransfer?.('transfer.'+direction+'.'+phase,{transferId,direction,operation,...data});
+        const step=async(phase,work,data={})=>{
+            if(!panel._customTraceTransfer)return work();
+            await trace(phase+':start',data);
+            try{const result=await work();await trace(phase+':end',data);return result;}
+            catch(error){await trace(phase+':error',{...data,errorType:error.name,errorCode:error.code});throw error;}
+        };
         let transfer,remoteHandle,localHandle,pending,temp,initial,remoteBefore,state,closedSub,retained=false;
         try{
-            if(direction==='upload'){initial=await fsp.stat(local);size=initial.size;try{remoteBefore=await metadata(session,remote);}catch(e){if(!missing(e))throw e;}}
-            else{remoteBefore=await metadata(session,remote);size=Number(remoteBefore.size);if(!Number.isSafeInteger(size)||size<0)throw new Error('Cannot determine remote file size');}
+            if(direction==='upload'){initial=await step('local-stat',()=>fsp.stat(local));size=initial.size;try{remoteBefore=await step('remote-stat',()=>metadata(session,remote));}catch(e){if(!missing(e))throw e;}}
+            else{remoteBefore=await step('remote-stat',()=>metadata(session,remote));size=Number(remoteBefore.size);if(!Number.isSafeInteger(size)||size<0)throw new Error('Cannot determine remote file size');}
             let destination;
-            if(direction==='download'){try{destination=stamp(await fsp.stat(local));}catch(e){if(!missing(e))throw e;}}
-            if(resume)state=await resume.prepare(panel,direction,remote,local,operation,direction==='upload'?stamp(initial):remoteStamp(remoteBefore),direction==='upload'?(remoteBefore?remoteStamp(remoteBefore):null):(destination||null),size);
+            if(direction==='download'){try{destination=stamp(await step('local-stat',()=>fsp.stat(local)));}catch(e){if(!missing(e))throw e;}}
+            if(resume)state=await step('resume-prepare',()=>resume.prepare(panel,direction,remote,local,operation,direction==='upload'?stamp(initial):remoteStamp(remoteBefore),direction==='upload'?(remoteBefore?remoteStamp(remoteBefore):null):(destination||null),size));
             transfer=new Transfer(local,size,mode);transfer.bytes=state?.offset||0;(panel._customStreamTransfers ||= new Set()).add(transfer);
             if(session.closed$)closedSub=session.closed$.subscribe(()=>transfer.interrupt());
-            if(track){panel.trackTransfer(transfer,direction,remote,local,operation);await Promise.resolve();}
+            if(track){await trace('track-transfer:start',{size,offset:transfer.bytes});panel.trackTransfer(transfer,direction,remote,local,operation);await trace('track-transfer:end',{size,offset:transfer.bytes});await Promise.resolve();}
             const cancelRef=panel._byteTransferCtx?.().cancelRef;
             transfer.cancelRef=cancelRef;if(cancelRef){cancelRef.active ||= new Set();cancelRef.active.add(transfer);cancelRef.current=transfer;}
             await transfer.gate(panel,session);
             if(direction==='download'){
                 await fsp.mkdir(path.dirname(local),{recursive:true});temp=state?.temp||local+'.sftp-plus-plus-download-'+crypto.randomUUID();
-                localHandle=await fsp.open(temp,state&&fs.existsSync(temp)?'r+':'wx');if(state)await localHandle.truncate(state.offset);
-                remoteHandle=state?.offset?await resume.openAt(panel,session,remote,state.offset,'download',state):await session.open(remote,1);
-                const read=()=>settled(remoteHandle.read());pending=read();
+                localHandle=await step('local-open',()=>fsp.open(temp,state&&fs.existsSync(temp)?'r+':'wx'));if(state)await localHandle.truncate(state.offset);
+                remoteHandle=state?.offset?await step('resume-open',()=>resume.openAt(panel,session,remote,state.offset,'download',state),{offset:state.offset}):await step('remote-open',()=>session.open(remote,1),{flags:1});
+                const read=()=>settled(chunkIndex<diagnosticPolicy.chunkTraceLimit?step('native-read',()=>remoteHandle.read(),{chunkIndex,offset:transfer.bytes}):remoteHandle.read());pending=read();
                 while(true){
                     await transfer.gate(panel,session);const result=await pending;pending=null;if(result.error)throw result.error;
                     // Do not retain a zero-copy view over the native addon backing store.
@@ -63,36 +72,36 @@ module.exports = function installTransferEngine({Panel,resume}) {
                     const chunk=Buffer.from(result.value);if(!chunk.length)break;
                     if(chunk.length>CHUNK)throw new Error('SFTP chunk exceeds bounded transfer buffer');
                     if(transfer.bytes+chunk.length>size)throw new Error('Remote file grew while downloading');
-                    let written=0;while(written<chunk.length){const r=await localHandle.write(chunk,written,chunk.length-written,transfer.bytes+written);if(!r.bytesWritten)throw new Error('Local write made no progress');written+=r.bytesWritten;}
-                    transfer.bytes+=chunk.length;if(state)resume.checkpoint(state,transfer.bytes,chunk);onProgress?.(transfer.bytes);
+                    let written=0;while(written<chunk.length){const r=await (chunkIndex<diagnosticPolicy.chunkTraceLimit?step('disk-write',()=>localHandle.write(chunk,written,chunk.length-written,transfer.bytes+written),{chunkIndex,offset:transfer.bytes+written,bytes:chunk.length-written}):localHandle.write(chunk,written,chunk.length-written,transfer.bytes+written));if(!r.bytesWritten)throw new Error('Local write made no progress');written+=r.bytesWritten;}
+                    transfer.bytes+=chunk.length;if(state)resume.checkpoint(state,transfer.bytes,chunk);onProgress?.(transfer.bytes);if(chunkIndex<diagnosticPolicy.chunkTraceLimit)await trace('chunk:complete',{chunkIndex,bytesDone:transfer.bytes,size});chunkIndex++;
                     pending=read();
                 }
                 if(transfer.bytes!==size)throw new Error('Download incomplete: expected '+size+', received '+transfer.bytes);
-                const after=await metadata(session,remote);if(remoteStamp(after)!==remoteStamp(remoteBefore))throw new Error('Remote file changed while downloading');
-                await transfer.gate(panel,session);await localHandle.sync();await localHandle.close();localHandle=null;
-                await remoteHandle.close();remoteHandle=null;await fsp.rename(temp,local);temp=null;
+                const after=await step('remote-stat',()=>metadata(session,remote));if(remoteStamp(after)!==remoteStamp(remoteBefore))throw new Error('Remote file changed while downloading');
+                await transfer.gate(panel,session);await step('local-sync',()=>localHandle.sync());await step('local-close',()=>localHandle.close());localHandle=null;
+                await step('remote-close',()=>remoteHandle.close());remoteHandle=null;await step('commit',()=>fsp.rename(temp,local));temp=null;
             }else{
-                temp=state?.temp||remote+'.sftp-plus-plus-upload-'+crypto.randomUUID();remoteHandle=state?.offset?await resume.openAt(panel,session,temp,state.offset,'upload',state):await session.open(temp,2|8|16);localHandle=await fsp.open(local,'r');
+                temp=state?.temp||remote+'.sftp-plus-plus-upload-'+crypto.randomUUID();remoteHandle=state?.offset?await step('resume-open',()=>resume.openAt(panel,session,temp,state.offset,'upload',state),{offset:state.offset}):await step('remote-open',()=>session.open(temp,2|8|16),{flags:2|8|16});localHandle=await step('local-open',()=>fsp.open(local,'r'));
                 let offset=state?.offset||0;
-                const read=()=>{const at=offset;offset+=CHUNK;const buffer=Buffer.alloc(CHUNK);return settled(localHandle.read(buffer,0,CHUNK,at).then(r=>buffer.subarray(0,r.bytesRead)));};
+                const read=()=>{const at=offset;offset+=CHUNK;const buffer=Buffer.alloc(CHUNK);return settled((chunkIndex<diagnosticPolicy.chunkTraceLimit?step('disk-read',()=>localHandle.read(buffer,0,CHUNK,at),{offset:at,chunkIndex}):localHandle.read(buffer,0,CHUNK,at)).then(r=>buffer.subarray(0,r.bytesRead)));};
                 pending=read();
                 while(true){
                     await transfer.gate(panel,session);const result=await pending;pending=null;if(result.error)throw result.error;
                     const chunk=result.value;if(!chunk.length)break;pending=read();
-                    await remoteHandle.write(chunk);transfer.bytes+=chunk.length;if(state)resume.checkpoint(state,transfer.bytes,chunk);onProgress?.(transfer.bytes);
+                    await (chunkIndex<diagnosticPolicy.chunkTraceLimit?step('native-write',()=>remoteHandle.write(chunk),{chunkIndex,offset:transfer.bytes,bytes:chunk.length}):remoteHandle.write(chunk));transfer.bytes+=chunk.length;if(state)resume.checkpoint(state,transfer.bytes,chunk);onProgress?.(transfer.bytes);if(chunkIndex<diagnosticPolicy.chunkTraceLimit)await trace('chunk:complete',{chunkIndex,bytesDone:transfer.bytes,size});chunkIndex++;
                 }
-                const after=await fsp.stat(local);if(transfer.bytes!==size||stamp(after)!==stamp(initial))throw new Error('Local file changed while uploading; retry after saving');
-                await transfer.gate(panel,session);await remoteHandle.close();remoteHandle=null;
-                const uploaded=await metadata(session,temp);if(Number(uploaded.size)!==size)throw new Error('Uploaded size could not be verified');
-                let current;try{current=await metadata(session,remote);}catch(e){if(!missing(e))throw e;}
+                const after=await step('local-stat',()=>fsp.stat(local));if(transfer.bytes!==size||stamp(after)!==stamp(initial))throw new Error('Local file changed while uploading; retry after saving');
+                await transfer.gate(panel,session);await step('remote-close',()=>remoteHandle.close());remoteHandle=null;
+                const uploaded=await step('staging-stat',()=>metadata(session,temp));if(Number(uploaded.size)!==size)throw new Error('Uploaded size could not be verified');
+                let current;try{current=await step('remote-stat',()=>metadata(session,remote));}catch(e){if(!missing(e))throw e;}
                 if((!!current)!=(!!remoteBefore)||(current&&remoteStamp(current)!==remoteStamp(remoteBefore)))throw new Error('Remote file changed during upload; local copy retained');
                 // Preserve permissions in effect at commit, including special bits.
                 // A fresh upload uses the configured new-file mode, not Windows local mode.
                 const targetMode=current?permissions.mode(current):permissions.newFileMode;
-                await permissions.apply(session,temp,targetMode);
-                await transfer.gate(panel,session);await replaceRemote(session,temp,remote);temp=null;
+                await step('permissions',()=>permissions.apply(session,temp,targetMode),{mode:targetMode});
+                await transfer.gate(panel,session);await step('commit',()=>replaceRemote(session,temp,remote));temp=null;
             }
-            if(state)resume.finish(state);transfer.complete=true;return true;
+            if(state)resume.finish(state);transfer.complete=true;await trace('completed',{bytesDone:transfer.bytes,size});return true;
         }catch(error){
             retained=!!state&&!transfer?.userCancelled;
             if(state){if(retained)resume.fail(state,error.code==='RESUME_CONFLICT'?'Conflict':(!panel.connected||panel._destroyed||panel.sftpSession!==session||transfer?.interrupted||/connection|closed|disconnect/i.test(error.message)?'Interrupted':'Failed'));else resume.finish(state);}
@@ -104,7 +113,7 @@ module.exports = function installTransferEngine({Panel,resume}) {
             if(temp&&!retained){if(direction==='upload')await session.unlink(temp).catch(()=>{});else await fsp.unlink(temp).catch(()=>{});}
             closedSub?.unsubscribe();
             if(transfer){panel._customStreamTransfers?.delete(transfer);const ref=transfer.cancelRef;ref?.active?.delete(transfer);if(ref?.current===transfer)ref.current=null;}
-            targets.delete(key);
+            targets.delete(key);await trace('cleanup:end',{retained});
         }
     }
     Panel.prototype._doUpload=function(remote,local,operation){return run(this,'upload',remote,local,undefined,undefined,operation||'upload');};
@@ -126,6 +135,7 @@ module.exports = function installTransferEngine({Panel,resume}) {
         if(!this[pump]||!this.transferLog?.add)return run();
         const log=this.transferLog.add({operation,localPath:local,remotePath:remote,profileName:this.profile?.name,size,duration:0,startTime:Date.now(),pending:true,success:true});
         const entry={transfer:null,direction,name:path.basename(remote),remotePath:remote,localPath:local,percent:0,speed:'',bytesDone:0,bytesTotal:size,paused:false,queued:true,logEntryId:log.id,customEditTransfer:true};
+        entry._customDiagnosticContext=this._customTraceQueueEntry?.(entry);
         this.transfers.push(entry);this.transfersMinimized=false;this.transfersHidden=false;this._safeDetect?.();
         return new Promise(resolve=>{
             let done=false;entry._customFinish=ok=>{if(done)return;done=true;

@@ -43,6 +43,7 @@ let ssh,sftp;const deadline=setTimeout(()=>{console.error('native SFTP fixture t
  const adapter={sftp,readdir:async folder=>(await sftp.readDirectory(folder)).map(entry=>({name:entry.name,fullPath:path.posix.join(folder,entry.name),isDirectory:entry.metadata.type===0,isSymlink:entry.metadata.type===2,mode:entry.metadata.permissions,size:entry.metadata.size,modified:new Date(entry.metadata.mtime*1000)})),stat:()=>{throw Error('unsafe native stat must not be called');},open:async(file,mode)=>{const inner=await sftp.open(file,mode);return {read:()=>inner.read(256*1024),write:data=>inner.writeAll(data),close:()=>inner.shutdown()};},chmod:(file,mode)=>sftp.chmod(file,mode),rename:(from,to)=>sftp.rename(from,to),unlink:file=>sftp.removeFile(file)};
  class Panel{constructor(){this.connected=true;this.transfers=[];this.sftpSession=adapter;}_doUpload(){}_doDownload(){}ctxClipboardPaste(){throw Error('same-path paste reached native backend');}closeContextMenu(){}trackTransfer(){}showToast(message){console.error(message);}ngOnDestroy(){}}
  require('./transfer-engine.cjs')({Panel});
+ const traceRoot=path.join(root,'trace'),cfg=require('./transfer-policy.json').dropDiagnostics;await fs.mkdir(traceRoot,{recursive:true});await fs.writeFile(path.join(traceRoot,cfg.enabledMarker),'enabled');const diagnostic=require('./drop-diagnostics.cjs')({Panel,root:traceRoot});
  require('./clipboard-safety.cjs')({Panel});
  const p=new Panel(),local=path.join(root,'edit.txt');await fs.writeFile(local,'edited content');
  for(let i=0;i<8;i++){
@@ -72,5 +73,8 @@ let ssh,sftp;const deadline=setTimeout(()=>{console.error('native SFTP fixture t
  const imageTask=imagePanel.customPasteImage({toPNG:()=>png},'/fixture/images');assert.strictEqual(imageTask,imagePanel.customPasteImage({toPNG:()=>png},'/fixture/images'));assert.equal(await imageTask,true);
  const imageEntry=[...files].find(([name])=>name.startsWith('/fixture/images/clipboard-'));assert.ok(imageEntry);assert.ok(imageEntry[1].data.equals(png));assert.equal(imageEntry[1].mode,0o764);
  console.log('PASS: image staging + native upload preserves PNG bytes, selected folder and 0764; concurrent image paste is deduplicated.');
+ await diagnostic.flush();const traceRows=(await fs.readFile(path.join(traceRoot,cfg.file),'utf8')).trim().split('\n').map(JSON.parse);
+ for(const phase of ['transfer.upload.native-write:start','transfer.upload.remote-close:end','transfer.upload.permissions:end','transfer.upload.commit:end','transfer.download.native-read:start','transfer.download.disk-write:end','transfer.download.commit:end'])assert.ok(traceRows.some(row=>row.phase===phase),phase);
+ assert.ok(traceRows.filter(row=>row.phase.startsWith('transfer.')).every(row=>row.transferId&&row.operationId));
  assert.equal(files.size,9);console.log('PASS: actual installed russh native adapter survives 8 empty creations + chmod + save-upload + downloads against an isolated loopback SFTP server; exact bytes and permissions preserved.');
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(async()=>{clearTimeout(deadline);try{await sftp?.close();}catch{}try{await ssh?.disconnect();}catch{}for(const client of clients)client.end();server.close();if(path.dirname(root)===path.resolve(__dirname,'test-fixtures'))await fs.rm(root,{recursive:true,force:true});});

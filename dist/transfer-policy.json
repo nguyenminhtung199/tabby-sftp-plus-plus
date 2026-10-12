@@ -5,7 +5,7 @@
     "enabledMarker": "enable-drop-trace",
     "file": "drop-trace.jsonl",
     "heartbeatMs": 1000,
-    "maxRecords": 5000,
+    "maxRecords": 15000,
     "maxPendingRecords": 256,
     "methods": [
       "onDrop",
@@ -20,14 +20,43 @@
       "refreshRemote",
       "_safeDetect",
       "customPasteImage",
-      "ctxClipboardPaste"
+      "ctxClipboardPaste",
+      "_streamDownloadOne",
+      "_pumpDownloadQueue",
+      "_runQueuedDownload",
+      "_doDownload",
+      "_doUploadRaw",
+      "_doDownloadRaw",
+      "_customQueueEditTransfer",
+      "_customDownloadForEdit",
+      "_customUploadForEdit",
+      "_customDownloadToDirectory",
+      "trackTransfer",
+      "pauseTransfer",
+      "resumeTransfer",
+      "cancelTransfer"
     ],
     "flushBeforeMethods": [
       "_customUploadLocalPaths",
       "_streamUploadOne",
       "_runQueuedUpload",
       "uploadPathToRemote",
-      "_doUpload"
+      "_doUpload",
+      "_streamDownloadOne",
+      "_runQueuedDownload",
+      "_doDownload",
+      "_doUploadRaw",
+      "_doDownloadRaw",
+      "_customQueueEditTransfer",
+      "_customDownloadForEdit",
+      "_customUploadForEdit",
+      "_customDownloadToDirectory"
+    ],
+    "maxErrorFrames": 8,
+    "heartbeatMaxSpans": 16,
+    "chunkTraceLimit": 32,
+    "criticalSyncPhases": [
+      "clipboard:key-route"
     ]
   }
 }
