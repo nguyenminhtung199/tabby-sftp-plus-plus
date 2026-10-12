@@ -27,3 +27,7 @@ The same-path paste branch previously reached conflict detection and hashing bef
 ## Explorer drop follow-up
 
 Drop processing previously started preparing/queuing uploads during the native Explorer drop callback, and _streamUploadOne used statSync on the local file. The callback now captures File/path/destination, then defers staging/upload preparation outside Angular. Queue metadata is asynchronous and validates the captured session. Pending drop tasks are cancelled on panel destruction. Regression checks verify no upload starts inside the drop callback, UI event-loop progress while stat is pending, fixed destinations during navigation, and a one-byte Explorer-style drop through the actual native adapter. Live-window responsiveness still needs manual verification.
+
+## Live reproduction instrumentation
+
+Because isolated tests did not reproduce the user's live freeze and Computer Use cannot initialize in the current Windows sandbox, private opt-in diagnostic logging was added for the drop preparation, queue, upload and repaint path. It is activated only with recovery/enable-drop-trace and writes bounded asynchronous records plus heartbeat lag to recovery/drop-trace.jsonl. This is instrumentation to capture an actual failing interaction, not another claimed freeze fix. The next reproduction requires a complete Tabby restart, one Explorer drop, then inspecting the last completed/started phase and heartbeat. No credentials, file contents, source paths or server addresses are recorded.

@@ -1,4 +1,24 @@
 {
   "newFileMode": "0764",
-  "symlinkDepthLimit": 32
+  "symlinkDepthLimit": 32,
+  "dropDiagnostics": {
+    "enabledMarker": "enable-drop-trace",
+    "file": "drop-trace.jsonl",
+    "heartbeatMs": 1000,
+    "maxRecords": 5000,
+    "maxPendingRecords": 256,
+    "methods": [
+      "onDrop",
+      "_customDeferDrop",
+      "_customStageDropFile",
+      "_customUploadLocalPaths",
+      "_streamUploadOne",
+      "_pumpUploadQueue",
+      "_runQueuedUpload",
+      "uploadPathToRemote",
+      "_doUpload",
+      "refreshRemote",
+      "_safeDetect"
+    ]
+  }
 }

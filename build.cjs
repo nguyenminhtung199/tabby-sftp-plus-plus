@@ -19,10 +19,11 @@ patched=once(patched,'const so=to;',`/* CLIPBOARD_UPLOAD_V1 */(${runtime('clipbo
 patched=require('./patch-transfer-ui.cjs')(patched);
 patched=require('./patch-context-menu.cjs')(patched);
 patched=once(patched,'const so=to;',`/* CLIPBOARD_SAFETY_V1 */(${runtime('clipboard-safety.cjs')})({Panel:Xi});const so=to;`);
+patched=once(patched,'const so=to;',"/* DROP_DIAGNOSTICS_V1 */require('./drop-diagnostics.cjs')({Panel:Xi,root:customSftpRecovery.root});const so=to;");
 patched=patched.replaceAll('tabby-sftp-plus','tabby-sftp-plus-plus').replaceAll('sftp-plus-toggle-panel','sftp-plus-plus-toggle-panel').replaceAll('SFTP+','SFTP++');
 new vm.Script(patched,{filename:'SFTP++/dist/index.js'});
 const dist=path.join(__dirname,'dist');fs.mkdirSync(dist,{recursive:true});
 fs.cpSync(path.join(__dirname,'assets'),path.join(dist,'assets'),{recursive:true});
-for(const file of ['file-permissions.cjs','transfer-policy.json','remote-metadata.cjs'])fs.copyFileSync(path.join(__dirname,file),path.join(dist,file));
+for(const file of ['file-permissions.cjs','transfer-policy.json','remote-metadata.cjs','drop-diagnostics.cjs'])fs.copyFileSync(path.join(__dirname,file),path.join(dist,file));
 fs.writeFileSync(path.join(dist,'index.js'),patched);
 console.log('Built independent tabby-sftp-plus-plus 1.0.0 (SFTP++).');
