@@ -3,7 +3,8 @@ const pluginRequire=createRequire(path.resolve(__dirname,'package.json'));
 const generic=new Proxy({}, {get:(_,key)=>key==='__esModule'?true:class{}});
 const releaseListeners=new Map();
 const document={addEventListener(name,callback,capture=false){if(name==='mouseup')releaseListeners.set(callback,capture);},removeEventListener(name,callback,capture=false){if(name==='mouseup'){assert.equal(releaseListeners.get(callback),capture,'release cleanup matches capture flag');releaseListeners.delete(callback);}},elementFromPoint:()=>null};
-const sandbox={module:{exports:{}},exports:{},console,Buffer,process,setTimeout,clearTimeout,setInterval,clearInterval,CompositionEvent:class{},FocusEvent:class{},ClipboardEvent:class{},Event:class{},KeyboardEvent:class{},MouseEvent:class{},WheelEvent:class{},DragEvent:class{},HTMLElement:class{},Element:class{},window:{},document,localStorage:{getItem:()=>null,setItem(){}},require(name){if(name==='@angular/core')return pluginRequire(name);if(name.startsWith('tabby-')||['@angular/common','@angular/forms'].includes(name))return generic;if(name==='electron')return {shell:{openPath:async()=>''}};return pluginRequire(name);}};
+let spawnMock;
+const sandbox={module:{exports:{}},exports:{},console,Buffer,process,setTimeout,clearTimeout,setInterval,clearInterval,CompositionEvent:class{},FocusEvent:class{},ClipboardEvent:class{},Event:class{},KeyboardEvent:class{},MouseEvent:class{},WheelEvent:class{},DragEvent:class{},HTMLElement:class{},Element:class{},window:{},document,localStorage:{getItem:()=>null,setItem(){}},require(name){if(name==='child_process'&&spawnMock)return {spawn:spawnMock};if(name==='@angular/core')return pluginRequire(name);if(name.startsWith('tabby-')||['@angular/common','@angular/forms'].includes(name))return generic;if(name==='electron')return {shell:{openPath:async()=>''}};return pluginRequire(name);}};
 sandbox.global=sandbox;vm.runInNewContext(fs.readFileSync(path.join(__dirname,'dist/index.js'),'utf8').replace('const so=to;','globalThis.__testRubberBand=qt;const so=to;'),sandbox);
 const classes=sandbox.module.exports.default.__annotations__[0].declarations;
 const Panel=classes.find(c=>c.prototype._customExternalEdit),Menu=classes.find(c=>c.__annotations__?.[0]?.selector==='sftp-context-menu');
@@ -91,7 +92,51 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  serial._streamDownloadOne=async entry=>{assert.equal(scanning,false,'native entry scans do not overlap');scanning=true;await new Promise(resolve=>setTimeout(resolve,1));order.push(entry.fullPath);scanning=false;};
  assert.equal(await serial.ctxDownload([{fullPath:'/first'},{fullPath:'/second'}],'C:/picked'),true);
  assert.deepEqual(order,['/first','/second']);
+
+ const menu=new Menu();menu.i18n={t:key=>key};menu.pane='remote';menu.entry={name:'config.py',fullPath:'/config.py'};menu.singleSelected=true;menu.hasSelection=true;menu.canEdit=true;
+ for(const action of ['editFile','openWith','openTerminalHere','copyFileName'])assert.ok(menu.orderedVisibleActions.includes(action));
+ assert.equal(menu.contextActionLabel('editFile'),'Open');assert.equal(menu.contextActionLabel('openWith'),'Open with…');
+ menu.menuOrder=['editFile','copyPath'];assert.ok(menu.orderedVisibleActions.includes('openWith'),'new actions appear with a saved old order');
+ menu.disabledMenuEntries.add('openWith');assert.equal(menu.orderedVisibleActions.includes('openWith'),false);menu.disabledMenuEntries.clear();
+ menu.entry.isDirectory=true;assert.equal(menu.isActionVisible('openWith'),false);assert.equal(menu.isActionVisible('openTerminalHere'),true);
+ menu.pane='local';assert.equal(menu.isActionVisible('openTerminalHere'),false);assert.equal(menu.isActionVisible('editFile'),false,'local Open is not duplicated');
+ const copy=panel();let copied;copy.injector={get:()=>({setClipboard:content=>{copied=content.text;}})};
+ copy.selectedRemote=[{name:'first file.py',fullPath:'/a/first file.py'},{fullPath:'/b/second.txt'}];
+ assert.equal(await copy.onContextMenuAction('copyFileName'),true);assert.equal(copied,'first file.py\nsecond.txt');
+ const terminalPanel=panel();const commands=[];let focused=0;
+ terminalPanel.terminalRef={sendInput:command=>commands.push(command),emitFocused:()=>focused++};
+ terminalPanel.contextMenuEntry={name:'file.py',fullPath:"/tmp/a b/o'neil/file.py"};
+ assert.equal(await terminalPanel.onContextMenuAction('openTerminalHere'),true);
+ assert.equal(commands[0],"cd -- '/tmp/a b/o'\\''neil'\n");assert.equal(focused,1);
+ terminalPanel.contextMenuEntry={fullPath:'/folder',isDirectory:true};await terminalPanel.onContextMenuAction('openTerminalHere');assert.equal(commands[1],"cd -- '/folder'\n");
+ terminalPanel.contextMenuEntry=null;terminalPanel.remotePath='/current';await terminalPanel.onContextMenuAction('openTerminalHere');assert.equal(commands[2],"cd -- '/current'\n");
+ terminalPanel.contextMenuEntry={fullPath:'/bad\ncommand',isDirectory:true};assert.equal(await terminalPanel.onContextMenuAction('openTerminalHere'),false);assert.equal(commands.length,3);
+ const choose=panel();let appOpens=0,editDownloads=0;
+ choose._customPickApplication=async()=> 'C:/Program Files/Editor/editor.exe';
+ choose._customLaunchApplication=async(app,file)=>{assert.equal(app,'C:/Program Files/Editor/editor.exe');assert.equal(file,'C:/copy/chosen.py');appOpens++;return '';};
+ choose._customExternalEdit=async(entry,open)=>{assert.equal(entry.fullPath,'/chosen.py');editDownloads++;return open('C:/copy/chosen.py');};
+ await choose.onContextMenuAction('openWith');assert.equal(appOpens,1);assert.equal(editDownloads,1);
+ choose.contextMenuPane='local';choose.contextMenuEntry={fullPath:'C:/copy/chosen.py'};await choose.onContextMenuAction('openWith');assert.equal(appOpens,2);assert.equal(editDownloads,1);
+ for(const outcome of ['cancel','disconnect','error']){
+  const cancelled=panel();cancelled._customExternalEdit=()=>{throw Error('must not download');};
+  cancelled._customPickApplication=async()=>{if(outcome==='error')throw Error('app picker failed');if(outcome==='disconnect')cancelled.sftpSession={};return outcome==='cancel'?null:'editor.exe';};
+  assert.equal(await cancelled.onContextMenuAction('openWith'),false);
+ }
+
+
+ const picker=panel();let dialogOptions;
+ picker.injector={get:()=>({electron:{dialog:{showOpenDialog:async(window,options)=>{assert.equal(window,'host-window');dialogOptions=options;return {canceled:false,filePaths:['C:/Editor/editor.exe']};}}},hostWindow:{getWindow:()=> 'host-window'}})};
+ assert.equal(await picker._customPickApplication(),'C:/Editor/editor.exe');assert.equal(dialogOptions.title,'Open with…');assert.deepEqual([...dialogOptions.properties],['openFile']);
+ const launcher=panel();let unref=0;
+ spawnMock=(application,args,options)=>{
+  assert.equal(application,'C:/Program Files/Editor/editor.exe');assert.equal(args[0],'C:/local copy/a & b.py');assert.equal(options.shell,false);
+  const child=new (require('events').EventEmitter)();child.unref=()=>unref++;setTimeout(()=>child.emit('spawn'),0);return child;
+ };
+ assert.equal(await launcher._customLaunchApplication('C:/Program Files/Editor/editor.exe','C:/local copy/a & b.py'),'');assert.equal(unref,1);
+ spawnMock=()=>{const child=new (require('events').EventEmitter)();setTimeout(()=>child.emit('error',Error('app not found')),0);return child;};
+ await assert.rejects(launcher._customLaunchApplication('missing.exe','a.py'),/app not found/);spawnMock=null;
+
  class Disposable{onPanelMouseDown(){}onContextMenuAction(){}getContextSelection(){return [];}closeContextMenu(){}ngOnDestroy(){this._destroyed=true;} }
  require('./context-menu.cjs')({Panel:Disposable,Angular:{HostListener:()=>()=>{}}});const d=new Disposable();d.contextMenuPane='remote';d._activateEntry=()=>{throw Error('must not run after destroy');};const cancelled=d.onContextMenuAction('editFile');d.ngOnDestroy();assert.equal(await cancelled,false);assert.equal(d._customContextActions.size,0);
- console.log('PASS: Angular menu parses; right-button isolation and rubber-band cleanup work; menu Edit uses local/remote double-click handlers; Download waits for native folder choice and keeps selected files; cancel, destroy and errors start no transfer.');
+ console.log('PASS: Angular menu parses; right-button isolation and rubber-band cleanup work; menu Open uses local/remote double-click handlers; Open with launches chosen apps and retains auto-sync; terminal paths and clipboard names are preserved; Download waits for native folder choice and keeps selected files; cancel, destroy and errors start no transfer.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

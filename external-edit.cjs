@@ -109,21 +109,26 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
         if (pane === 'local') return this._openPathInSystem(entry.linkTarget || entry.fullPath, { waitForModRelease: true });
         return this._customExternalEdit(entry);
     };
-    Panel.prototype._customExternalEdit = async function (entry) {
+    Panel.prototype._customExternalEdit = async function (entry, opener) {
+        const open=opener||((file)=>shell.openPath(file));
         if (!this.connected || !this.sftpSession || this._destroyed) return;
         this._customRestoreEdits();
         const sessions = this._customExternalSessions ||= new Map();
         let existing = sessions.get(entry.fullPath);
         if(existing?.openingError){sessions.delete(entry.fullPath);if(existing.id && recovery)recovery.release(existing.id,this);existing=null;}
         if (existing && existing.session === this.sftpSession) {
-            if (existing.opening) return existing.opening;
+            if (existing.opening) {
+                await existing.opening;
+                if(opener&&existing.syncedHash&&!existing.stopped&&!this._destroyed&&existing.session===this.sftpSession)return open(existing.localPath);
+                return;
+            }
             existing.blockedHash = null;
             existing.nextRetry = 0; existing.retries = 0;
             if (existing.stopped) {
                 existing.stopped = false;
                 existing.timer = poll(this, existing);
             }
-            const error = await shell.openPath(existing.localPath);
+            const error = await open(existing.localPath);
             if (error) notice(this, `Cannot open editor: ${error}. Local copy: ${existing.localPath}`, true);
             else if(existing.status==='Failed')status(this,existing,'Editing');
             return;
@@ -133,7 +138,7 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
         const id = server && recovery.editId(server, entry.fullPath);
         if (id && !recovery.claim(id, this)) {
             const owner = recovery.owner(id); const state = owner?._customExternalSessions?.get(entry.fullPath);
-            if (state?.localPath) await shell.openPath(state.localPath);
+            if (state?.localPath) await open(state.localPath);
             else notice(this, 'This file is already opening in another SFTP panel.');
             return;
         }
@@ -164,7 +169,7 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
                 // Poll the path: atomic-save editors may replace the inode or briefly remove the file.
                 state.timer = poll(this, state);
                 status(this, state, 'Editing');
-                const error = await shell.openPath(state.localPath);
+                const error = await open(state.localPath);
                 if (error) throw new Error(error);
                 notice(this, `Editing ${entry.name}: save in the local app to sync to the server.`);
             } catch (error) {

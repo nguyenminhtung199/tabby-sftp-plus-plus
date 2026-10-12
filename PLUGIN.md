@@ -62,3 +62,13 @@ The rubber-band selection controller receives mouseup during document capture, b
 ### Right-click Edit and Download
 
 Edit calls the same local or remote double-click opening path, including clearing its pending click timer. Explicit Edit also works when single-click opening is selected. Both menu dispatch and direct context commands close the menu and defer work outside Angular. Download opens Tabby's native folder picker, then queues the captured selection into the chosen directory in order. Cancelling the picker, closing the panel, disconnecting or switching sessions starts no download against the old connection. Errors are contained even when notification rendering fails. Existing conflict checks remain unchanged.
+
+
+### Additional right-click actions
+
+- **Open** replaces the former **Edit** label and opens the file through the same path as double click.
+- **Open with…** opens a local application picker (choose the application's .exe on Windows). Remote files use the existing verified local download and upload-on-save session. Reopening an already edited file reuses its local copy. Cancelling the picker starts no transfer; app launch errors are shown in the panel.
+- **Open terminal here** is available in the remote pane. It sends a quoted cd command to the current SSH terminal: the selected folder, the parent of a selected file, or the current folder when right-clicking empty space. Use it at a shell prompt. Symlinks to folders are resolved, and terminal control characters are rejected.
+- **Copy file name** copies only selected names, one per line, in both local and remote panes.
+
+These actions also appear when an older custom menu order is saved; disabled actions remain hidden. The local pane has one Open item. Existing menu event isolation and deferred error handling are retained.

@@ -71,5 +71,17 @@ const save = async (state, bytes) => { await fs.writeFile(state.localPath, bytes
     p.connected = false; await save(a, Buffer.from('disconnected')); await p._customSyncExternal(a);
     assert.equal(a.stopped, true); assert.equal(p.uploads.length, 6);
     p.ngOnDestroy(); assert.equal(b.stopped, true); assert.ok(await fs.stat(b.localPath));
+
+    // Choosing another app retains the exact same edit session and save-upload.
+    const custom = new Panel();custom.remote.set('/custom.conf',{size:4,mtime:1700000000});
+    const customPaths=[];const defaultCount=opened.length;
+    await custom._customExternalEdit({name:'custom.conf',fullPath:'/custom.conf'},async file=>{customPaths.push(file);return '';});
+    const customState=custom._customExternalSessions.get('/custom.conf');clearInterval(customState.timer);
+    assert.equal(customPaths.length,1);assert.equal(opened.length,defaultCount,'chosen app replaces default opener');
+    await save(customState,Buffer.from('save from chosen app'));await custom._customSyncExternal(customState);
+    assert.equal(custom.uploads[0].name,'/custom.conf');assert.equal(custom.uploads[0].data.toString(),'save from chosen app');
+    await custom._customExternalEdit({name:'custom.conf',fullPath:'/custom.conf'},async file=>{customPaths.push(file);return '';});
+    assert.equal(customPaths[1],customPaths[0],'opening with another app reuses verified local copy');custom.ngOnDestroy();
+
     console.log('PASS: deduplicated open, byte preservation, repeat saves, save during upload, multiple files, conflicts, failed-upload recovery, directories, settings, disconnect, cleanup.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

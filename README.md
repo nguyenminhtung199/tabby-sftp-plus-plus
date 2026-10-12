@@ -96,3 +96,6 @@ node test-context-menu.cjs
 ```
 
 Menu Edit dùng cùng luồng mở file với double click, kể cả khi cấu hình single click. Menu Download mở hộp chọn thư mục local; hủy chọn hoặc đổi kết nối trong lúc chọn sẽ không tải file. Các lối gọi menu dùng chung xử lý lỗi và chờ menu đóng trước khi thực hiện. Khởi động lại Tabby để nạp bundle mới.
+
+
+Menu chuột phải có **Open** (đổi tên từ Edit), **Open with…** (chọn ứng dụng .exe, vẫn tự upload khi lưu file remote), **Open terminal here** (chuyển terminal SSH đến thư mục tương ứng) và **Copy file name** (mỗi tên một dòng). Khởi động lại Tabby sau khi build để nạp menu mới.
