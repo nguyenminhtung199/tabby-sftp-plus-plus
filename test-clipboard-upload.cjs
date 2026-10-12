@@ -10,7 +10,7 @@ class Panel {
     _resolveDropDestDir(e){return e.destination;}_safeDetect(){}refreshRemote(){return Promise.resolve();}
     ngAfterViewInit(){}ngOnDestroy(){this._destroyed=true;}showToast(message){this.notice=message;}
 }
-install({Panel,electron:{clipboard:{readImage:()=>currentImage},webUtils:{getPathForFile:file=>file.nativePath||''}},stagingRoot:root});
+install({Panel,electron:{clipboard:{readImage:()=>currentImage,availableFormats:()=>currentImage?['image/png']:['text/plain']},webUtils:{getPathForFile:file=>file.nativePath||''}},stagingRoot:root});
 const event=(target={})=>({target,key:'v',ctrlKey:true,preventDefault(){this.prevented=true;},stopImmediatePropagation(){this.stopped=true;},stopPropagation(){}});
 const image={isEmpty:()=>false,toPNG:()=>Buffer.from('png-fixture')};
 (async()=>{
@@ -40,6 +40,17 @@ const image={isEmpty:()=>false,toPNG:()=>Buffer.from('png-fixture')};
     p.clipboardEntries=[];
 
     p.customPasteImage=original;
+
+    const imagePanel=new Panel();let inPasteEvent=true,encoded=0,stageUploads=0;
+    const oneImage={toPNG(){assert.equal(inPasteEvent,false,'encoding runs after the input callback');encoded++;return Buffer.from('owned-image');}};
+    imagePanel._streamUploadOne=async()=>{stageUploads++;};
+    const firstImage=imagePanel.customPasteImage(oneImage,'/image-folder'),secondImage=imagePanel.customPasteImage(oneImage,'/image-folder');
+    assert.strictEqual(firstImage,secondImage);assert.equal(encoded,0);inPasteEvent=false;assert.equal(await firstImage,true);assert.equal(encoded,1);assert.equal(stageUploads,1);
+    imagePanel.contextMenuPane='remote';imagePanel.contextMenuEntry={fullPath:'/selected-folder',isDirectory:true};currentImage=image;
+    imagePanel._streamUploadOne=async(local,destination)=>{assert.equal(destination,'/selected-folder');};
+    assert.equal(await imagePanel.ctxClipboardPaste(),true);
+    const deadImage=new Panel();let deadEncode=0;const pendingImage=deadImage.customPasteImage({toPNG(){deadEncode++;return Buffer.from('x');}});deadImage.ngOnDestroy();assert.equal(await pendingImage,false);assert.equal(deadEncode,0);
+
     const local=path.join(root,'file.bin');fs.writeFileSync(local,'local-content');
     const drop=event();drop.destination='/folder';drop.dataTransfer={files:[{name:'file.bin',nativePath:local,arrayBuffer(){throw Error('must not buffer disk file');}}],getData:()=>''};
     await p.onDrop(drop,'remote');assert(drop.prevented&&drop.stopped);assert.equal(uploads.at(-1).local,local);assert.equal(uploads.at(-1).dir,'/folder');

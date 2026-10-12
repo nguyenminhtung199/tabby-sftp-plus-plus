@@ -113,3 +113,5 @@ Kéo file từ File Explorer: callback drop chỉ chụp đường dẫn/đích,
 Chẩn đoán drop trực tiếp: tạo file `recovery/enable-drop-trace` trong thư mục SFTP++ rồi khởi động lại Tabby. Log riêng `recovery/drop-trace.jsonl` ghi start/end của các bước drop, queue, upload, refresh và heartbeat; không ghi nội dung file, mật khẩu hoặc địa chỉ server. Mặc định không bật nếu marker không tồn tại. Xóa marker rồi khởi động lại để tắt.
 
 Đã xác định lỗi drop qua trace thực tế: gán `_remoteDragOver` trên panel gây TypeError vì đây là getter chỉ đọc. Drop giờ reset trạng thái bằng `_fileDnd.reset()`. Regression dùng class Panel và controller thật từ bundle, không chỉ panel giả.
+
+Paste ảnh được hoãn sang lượt event loop sau; đọc clipboard, encode và staging chạy ngoài callback paste. Task ảnh đang chạy được dedup, bytes PNG được copy sang buffer sở hữu riêng, menu paste trên folder giữ đúng folder đích. Trace riêng image:read/encode/stage/queue ghi từng bước trước khi thực hiện để xác định lần lỗi tiếp theo.

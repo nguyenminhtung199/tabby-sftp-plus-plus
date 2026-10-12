@@ -179,6 +179,15 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  assert.equal(await explorer.onDrop(explorerEvent,'remote'),true);
  assert.equal(fileDrops,1);assert.equal(explorer._remoteDragOver,false,'controller.reset clears the actual read-only view');
 
+
+ // Actual bundled panel: selected-folder image paste uses owned bytes and deferred work.
+ const imagePanel=panel();imagePanel.remotePath='/current';imagePanel.refreshRemote=async()=>{};
+ const borrowed=Buffer.from('png-bytes'),expected=Buffer.from(borrowed);let imageUploads=0;
+ imagePanel._customTraceClipboard=async phase=>{if(phase==='image:encode:end')borrowed.fill(0);};
+ imagePanel._streamUploadOne=async(local,destination)=>{assert.equal(destination,'/folder');assert.deepEqual(fs.readFileSync(local),expected);imageUploads++;};
+ const firstPaste=imagePanel.customPasteImage({toPNG:()=>borrowed},'/folder');const duplicatePaste=imagePanel.customPasteImage({toPNG:()=>borrowed},'/folder');
+ assert.strictEqual(firstPaste,duplicatePaste);assert.equal(await firstPaste,true);assert.equal(imageUploads,1);assert.equal(imagePanel._customImagePasteTask,null);
+
  class Disposable{onPanelMouseDown(){}onContextMenuAction(){}getContextSelection(){return [];}closeContextMenu(){}ngOnDestroy(){this._destroyed=true;} }
  require('./context-menu.cjs')({Panel:Disposable,Angular:{HostListener:()=>()=>{}}});const d=new Disposable();d.contextMenuPane='remote';d._activateEntry=()=>{throw Error('must not run after destroy');};const cancelled=d.onContextMenuAction('editFile');d.ngOnDestroy();assert.equal(await cancelled,false);assert.equal(d._customContextActions.size,0);
  console.log('PASS: Angular menu parses; right-button isolation and rubber-band cleanup work; menu Open uses local/remote double-click handlers; Open with launches chosen apps and retains auto-sync; terminal paths and clipboard names are preserved; Download waits for native folder choice and keeps selected files; cancel, destroy and errors start no transfer.');

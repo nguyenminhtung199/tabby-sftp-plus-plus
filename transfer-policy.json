@@ -18,7 +18,9 @@
       "uploadPathToRemote",
       "_doUpload",
       "refreshRemote",
-      "_safeDetect"
+      "_safeDetect",
+      "customPasteImage",
+      "ctxClipboardPaste"
     ]
   }
 }

@@ -22,6 +22,7 @@ module.exports=function installDropDiagnostics({Panel,root}){
         record(p,method+(error?':error':':end'),error?{errorType:error.name,errorCode:error.code}:{});
         active--;if(!active&&timer){clearInterval(timer);timer=null;}
     }
+    Panel.prototype._customTraceClipboard=function(phase,data){record(this,phase,data);return outside(this,()=>writes);};
     for(const method of cfg.methods){
         const original=Panel.prototype[method];if(typeof original!=='function')continue;
         Panel.prototype[method]=function(...args){

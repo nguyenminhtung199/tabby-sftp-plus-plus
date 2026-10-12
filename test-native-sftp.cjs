@@ -52,7 +52,7 @@ let ssh,sftp;const deadline=setTimeout(()=>{console.error('native SFTP fixture t
   await adapter.chmod(remote,0o750);assert.equal(await p._doUpload(remote,local,'edit-upload'),true);assert.equal(files.get(remote).mode,0o750);
   const downloaded=path.join(root,'download'+i);assert.equal(await p._doDownload(remote,downloaded,0o750,14),true);assert.equal(await fs.readFile(downloaded,'utf8'),'edited content');
  }
- require('./clipboard-upload.cjs')({Panel,electron:{webUtils:{getPathForFile:file=>file.nativePath}}});
+ require('./clipboard-upload.cjs')({Panel,electron:{webUtils:{getPathForFile:file=>file.nativePath}},stagingRoot:path.join(root,'image-staging')});
  const dropped=new Panel();dropped.remotePath='/fixture';dropped._safeDetect=()=>{};dropped.refreshRemote=async()=>{};
  dropped._streamUploadOne=(local,destination)=>dropped._doUpload(path.posix.join(destination,path.basename(local)),local);
  const tiny=path.join(root,'file0');await fs.writeFile(tiny,'x');
@@ -66,5 +66,11 @@ let ssh,sftp;const deadline=setTimeout(()=>{console.error('native SFTP fixture t
  for(let i=0;i<10;i++)assert.equal(await pastePanel.ctxClipboardPaste(),false);
  assert.equal(pasteCalls,0);assert.ok(files.get('/fixture/file0').data.equals(before));assert.equal(pastePanel.clipboardEntries.length,1);
  console.log('PASS: 10 same-folder pastes with the native adapter invoke no SFTP/exec/hash, preserve source bytes and retain the internal clipboard.');
- assert.equal(files.size,8);console.log('PASS: actual installed russh native adapter survives 8 empty creations + chmod + save-upload + downloads against an isolated loopback SFTP server; exact bytes and permissions preserved.');
+ const imagePanel=new Panel();imagePanel.remotePath='/fixture/images';imagePanel._safeDetect=()=>{};imagePanel.refreshRemote=async()=>{};
+ imagePanel._streamUploadOne=(local,destination)=>imagePanel._doUpload(path.posix.join(destination,path.basename(local)),local);
+ const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=','base64');
+ const imageTask=imagePanel.customPasteImage({toPNG:()=>png},'/fixture/images');assert.strictEqual(imageTask,imagePanel.customPasteImage({toPNG:()=>png},'/fixture/images'));assert.equal(await imageTask,true);
+ const imageEntry=[...files].find(([name])=>name.startsWith('/fixture/images/clipboard-'));assert.ok(imageEntry);assert.ok(imageEntry[1].data.equals(png));assert.equal(imageEntry[1].mode,0o764);
+ console.log('PASS: image staging + native upload preserves PNG bytes, selected folder and 0764; concurrent image paste is deduplicated.');
+ assert.equal(files.size,9);console.log('PASS: actual installed russh native adapter survives 8 empty creations + chmod + save-upload + downloads against an isolated loopback SFTP server; exact bytes and permissions preserved.');
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(async()=>{clearTimeout(deadline);try{await sftp?.close();}catch{}try{await ssh?.disconnect();}catch{}for(const client of clients)client.end();server.close();if(path.dirname(root)===path.resolve(__dirname,'test-fixtures'))await fs.rm(root,{recursive:true,force:true});});

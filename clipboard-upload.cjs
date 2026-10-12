@@ -7,6 +7,7 @@ module.exports = function installClipboardUpload({Panel, electron, stagingRoot})
     const notice=(p,error)=>p.showToast?.('Upload failed: '+error.message);
     const capture=event=>{event.preventDefault?.();event.stopImmediatePropagation?.();event.stopPropagation?.();};
     const image=()=>{try{const value=electron?.clipboard?.readImage();return value&&!value.isEmpty()?value:null;}catch{return null;}};
+    const hasImage=()=>{try{const formats=electron?.clipboard?.availableFormats?.();return Array.isArray(formats)?formats.some(format=>/image\/|^png$|^bitmap$|^cf_dib(v5)?$/i.test(format)):undefined;}catch{return undefined;}};
     const outside=(panel,fn)=>panel.zone?.runOutsideAngular?panel.zone.runOutsideAngular(fn):fn();
     const nativeDrop=Panel.prototype.onDrop;
     Panel.prototype._customDeferDrop=function(work){
@@ -31,19 +32,37 @@ module.exports = function installClipboardUpload({Panel, electron, stagingRoot})
         }));
         if(!this._destroyed&&this.connected&&this.sftpSession===session){await this.refreshRemote();this._safeDetect?.();}
     };
-    Panel.prototype.customPasteImage=async function(value=image(),destination=this.remotePath){
-        if(!value)return false;
-        if(blocked(this)){this.showToast?.('Connect SFTP before pasting an image.');return false;}
+    Panel.prototype.customPasteImage=function(value,destination=this.remotePath){
+        if(value===null)return Promise.resolve(false);
+        if(blocked(this)){this.showToast?.('Connect SFTP before pasting an image.');return Promise.resolve(false);}
+        if(this._customImagePasteTask)return this._customImagePasteTask;
         const session=this.sftpSession;
-        try{
-            const bytes=value.toPNG();if(!bytes.length)throw new Error('Clipboard image is empty.');
+        const trace=(phase,data)=>this._customTraceClipboard?.(phase,data);
+        const task=this._customDeferDrop(async()=>{
+            if(blocked(this)||this.sftpSession!==session)return false;
+            await trace('image:read:start');
+            if(value===undefined)value=image();
+            await trace('image:read:end',{hasImage:!!value});
+            if(!value)return false;
+            // Yield the paste event and destroy any menu before native image encoding.
+            await trace('image:encode:start');
+            const bytes=Buffer.from(value.toPNG());
+            if(!bytes.length)throw Error('Clipboard image is empty.');
+            await trace('image:encode:end',{bytes:bytes.length});
             await fsp.mkdir(root,{recursive:true});
             const name='clipboard-'+new Date().toISOString().replace(/[:.]/g,'-')+'-'+crypto.randomUUID().slice(0,8)+'.png';
-            const local=path.join(root,name);await fsp.writeFile(local,bytes,{flag:'wx',mode:0o600});
-            if(this.sftpSession!==session||blocked(this))throw new Error('Connection changed while preparing image; local image retained.');
+            const local=path.join(root,name);
+            await trace('image:stage:start');
+            await fsp.writeFile(local,bytes,{flag:'wx',mode:0o600});
+            await trace('image:stage:end',{bytes:bytes.length});
+            if(this.sftpSession!==session||blocked(this))throw Error('Connection changed while preparing image; local image retained.');
+            await trace('image:queue:start');
             await this._customUploadLocalPaths([local],destination);
+            await trace('image:queue:end');
             return true;
-        }catch(error){notice(this,error);return false;}
+        });
+        const tracked=task.finally(()=>{if(this._customImagePasteTask===tracked)this._customImagePasteTask=null;});
+        this._customImagePasteTask=tracked;return tracked;
     };
     const keydown=Panel.prototype.onGlobalKeyDown;
     Panel.prototype.onGlobalKeyDown=function(event){
@@ -51,14 +70,14 @@ module.exports = function installClipboardUpload({Panel, electron, stagingRoot})
         const owns=this._isPanelActive&&(host?.contains?.(event.target)||this._panelOwnsClipboardHotkeys);
         if(owns&&this.activePane==='remote'&&!this.clipboardEntries?.length&&!editable(event.target)&&!this._isPanelTyping?.(event)&&!blocked(this)&&
             (event.ctrlKey||event.metaKey)&&!event.altKey&&!event.shiftKey&&event.key?.toLowerCase()==='v'){
-            const value=image();if(value){capture(event);void this.customPasteImage(value,this.remotePath);return;}
+            if(hasImage()!==false){capture(event);void this.customPasteImage(undefined,this.remotePath);return;}
         }
         return keydown?.call(this,event);
     };
     const paste=Panel.prototype.ctxClipboardPaste;
     Panel.prototype.ctxClipboardPaste=function(...args){
         if(this.contextMenuPane==='remote'&&!this.clipboardEntries?.length&&!blocked(this)){
-            const value=image();if(value){this.closeContextMenu?.();return this.customPasteImage(value,this.remotePath);}
+            if(hasImage()!==false){const entry=this.contextMenuEntry;const destination=entry&&(entry.isDirectory||this.isDirByMode?.(entry.mode))?entry.fullPath:this.remotePath;this.closeContextMenu?.();return this.customPasteImage(undefined,destination);}
         }
         return paste?.apply(this,args);
     };
@@ -98,7 +117,7 @@ module.exports = function installClipboardUpload({Panel, electron, stagingRoot})
         if(host?.addEventListener&&!this._customImagePasteHandler){
             this._customImagePasteHandler=event=>{
                 if(this.activePane!=='remote'||this.clipboardEntries?.length||editable(event.target)||blocked(this))return;
-                const value=image();if(value){capture(event);void this.customPasteImage(value,this.remotePath);}
+                if(hasImage()!==false){capture(event);void this.customPasteImage(undefined,this.remotePath);}
             };
             host.addEventListener('paste',this._customImagePasteHandler,true);
         }
