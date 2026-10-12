@@ -149,8 +149,17 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  const created=panel();Object.assign(created,{inputDialogVisible:true,inputDialogMode:'remote-touch',inputDialogValue:'new.txt',inputDialogTargetPath:'/folder',inputDialogRemotePath:''});
  created._remoteEntryExists=async()=>({exists:false,isDirectory:false});created.cancelInputDialog=()=>{created.inputDialogVisible=false;};created.refreshRemote=async()=>{created.remoteRefreshed=true;};
  let createdUpload=0;
- created._doUpload=async(remote,local,operation)=>{assert.equal(remote,'/folder/new.txt');assert.equal(operation,'create-file');assert.equal(fs.statSync(local).size,0);createdUpload++;return true;};
- await created.confirmInputDialog();assert.equal(createdUpload,1);assert.equal(created.inputDialogVisible,false);assert.equal(created.remoteRefreshed,true,'New File uses the permission-preserving upload engine');
+ created._doUpload=()=>{throw Error('empty file must not use the streamed upload engine');};created.sftpSession.upload=async(remote,transfer)=>{assert.equal(remote,'/folder/new.txt');createdUpload++;await transfer.close?.();};created._customSetCreatedFilePermissions=async(remote)=>{assert.equal(remote,'/folder/new.txt');created.modeApplied=true;};
+ await created.confirmInputDialog();assert.equal(createdUpload,1);assert.equal(created.inputDialogVisible,false);assert.equal(created.remoteRefreshed,true);assert.equal(created.modeApplied,true,'New File sets configured mode after its original upload path');
+
+
+ const exists=panel();exists.sftpSession={stat:()=>{throw Error('unsafe native stat must not run');},readdir:async()=>[{name:'exists.txt',isDirectory:false}]};
+ assert.equal((await exists._remoteEntryExists('/folder','exists.txt')).exists,true);assert.equal((await exists._remoteEntryExists('/folder','missing.txt')).exists,false);
+ exists.sftpSession.readdir=async()=>{throw Error('permission denied');};await assert.rejects(exists._remoteEntryExists('/folder','missing.txt'),/permission denied/);
+ for(const [action,method] of Object.entries({newFolder:'ctxNewFolder',newFile:'ctxNewFile',rename:'ctxRename',delete:'ctxDelete',openLocal:'ctxOpenLocal',upload:'ctxUpload',revealInExplorer:'ctxRevealInExplorer',chmod:'ctxChmod',details:'ctxDetails',copy:'ctxClipboardCopy',cut:'ctxClipboardCut',paste:'ctxClipboardPaste',refresh:'ctxRefresh',selectAll:'ctxSelectAll',selectInvert:'ctxSelectInvert',copyPath:'ctxCopyPath'})){
+  const command=panel();let calls=0;command[method]=async()=>{calls++;throw Error('fixture '+action);};
+  assert.equal(await command.onContextMenuAction(action),false);assert.equal(calls,1);assert.match(command.toast,/fixture/);
+ }
 
  class Disposable{onPanelMouseDown(){}onContextMenuAction(){}getContextSelection(){return [];}closeContextMenu(){}ngOnDestroy(){this._destroyed=true;} }
  require('./context-menu.cjs')({Panel:Disposable,Angular:{HostListener:()=>()=>{}}});const d=new Disposable();d.contextMenuPane='remote';d._activateEntry=()=>{throw Error('must not run after destroy');};const cancelled=d.onContextMenuAction('editFile');d.ngOnDestroy();assert.equal(await cancelled,false);assert.equal(d._customContextActions.size,0);

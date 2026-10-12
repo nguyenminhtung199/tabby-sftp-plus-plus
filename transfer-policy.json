@@ -1,3 +1,4 @@
 {
-  "newFileMode": "0764"
+  "newFileMode": "0764",
+  "symlinkDepthLimit": 32
 }

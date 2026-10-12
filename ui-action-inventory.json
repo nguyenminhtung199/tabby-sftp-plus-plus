@@ -1,0 +1,289 @@
+[
+  {
+    "selector": "sftp-plus-panel",
+    "eventCount": 218,
+    "actions": [
+      "addBookmark",
+      "applyLocalFilter",
+      "applyRemoteFilter",
+      "cancelBookmarkEdit",
+      "cancelCurrentFile",
+      "cancelDelete",
+      "cancelInputDialog",
+      "cancelPermDialog",
+      "cancelTransfer",
+      "clearLocalFilter",
+      "clearLog",
+      "clearRemoteFilter",
+      "close",
+      "closeBookmarks",
+      "confirmDelete",
+      "confirmInputDialog",
+      "confirmPermDialog",
+      "customCancelTransfer",
+      "customClearFinishedTransfers",
+      "customOpenEdit",
+      "customRetryEdit",
+      "customRetryTransfer",
+      "customStopEdit",
+      "customSyncNow",
+      "cycleLayoutMode",
+      "cyclePathMode",
+      "exportLog",
+      "goToLocalPathInput",
+      "goToRemotePathInput",
+      "gotoBookmark",
+      "minimize",
+      "onBookmarkContextMenu",
+      "onBookmarkDragEnd",
+      "onBookmarkDragOver",
+      "onBookmarkDragStart",
+      "onBookmarkDrop",
+      "onColHeaderReorderStart",
+      "onColResizeAutoFit",
+      "onColResizeStart",
+      "onContextMenuAction",
+      "onCwdSetupChoice",
+      "onDetailsCalcSize",
+      "onDragEnter",
+      "onDragLeave",
+      "onDragOver",
+      "onDragStartLocal",
+      "onDragStartRemote",
+      "onDrop",
+      "onEntryDragEnd",
+      "onGroupByMenuAction",
+      "onGroupToggleAll",
+      "onHeaderContextMenu",
+      "onHeaderMenuAction",
+      "onLocalClick",
+      "onLocalContextMenu",
+      "onLocalEntryDblClick",
+      "onLocalGroupSelect",
+      "onLocalGroupToggle",
+      "onLocalPaneNav",
+      "onLocalPathBlur",
+      "onLocalSort",
+      "onPaneContextMenu",
+      "onPaneListClick",
+      "onPaneMouseDown",
+      "onPaneScroll",
+      "onPaneWheel",
+      "onPermFieldChange",
+      "onReconnect",
+      "onRemoteClick",
+      "onRemoteContextMenu",
+      "onRemoteEntryDblClick",
+      "onRemoteGroupSelect",
+      "onRemoteGroupToggle",
+      "onRemotePaneNav",
+      "onRemotePathBlur",
+      "onRemoteSort",
+      "onResizeStart",
+      "onSplitterDblClick",
+      "onSplitterDown",
+      "onToastMouseEnter",
+      "onToastMouseLeave",
+      "onTopBarContextMenu",
+      "onTopBarMouseDown",
+      "openBookmarkAddForm",
+      "openPluginSettings",
+      "pauseTransfer",
+      "removeBookmark",
+      "resolveConflict",
+      "resolveDirMissing",
+      "restoreDefaultSize",
+      "resumeTransfer",
+      "toggleBookmarksForPane",
+      "toggleCustomSidebarFull",
+      "toggleCustomSidebarMode",
+      "toggleCustomSidebarPin",
+      "toggleMaximize",
+      "toggleTransferLog"
+    ]
+  },
+  {
+    "selector": "sftp-plus-workspace-tab",
+    "eventCount": 0,
+    "actions": []
+  },
+  {
+    "selector": "settings",
+    "eventCount": 160,
+    "actions": [
+      "_saveToConfig",
+      "cancelAddCustomRule",
+      "cancelEditFolderIcon",
+      "cancelEditIcon",
+      "cancelHotkeyRecording",
+      "cancelThemeColorOverwrite",
+      "closeClearConfirm",
+      "closeExportDialog",
+      "confirmAddCustomRule",
+      "confirmEditFolderIcon",
+      "confirmEditIcon",
+      "confirmThemeColorOverwrite",
+      "customRemoveToggleBinding",
+      "customStartToggleRecording",
+      "deleteIcon",
+      "doClearData",
+      "exportData",
+      "importData",
+      "onBookmarkGroupDragEnd",
+      "onBookmarkGroupDragOver",
+      "onBookmarkGroupDragStart",
+      "onBookmarkGroupDrop",
+      "onColorChange",
+      "onCustomDragEnd",
+      "onCustomDragOver",
+      "onCustomDragStart",
+      "onCustomDrop",
+      "onFontSizeChange",
+      "onMenuDragEnd",
+      "onMenuDragOver",
+      "onMenuDragStart",
+      "onMenuDrop",
+      "openClearConfirm",
+      "openExportDialog",
+      "removePanelHotkeyAt",
+      "resetBookmarkPanel",
+      "resetDateFormat",
+      "resetFontSize",
+      "resetIconSettings",
+      "resetMenuOrder",
+      "resetPaneLayout",
+      "resetPanelHotkeys",
+      "restoreFolderIcon",
+      "saveChannelMode",
+      "saveConcurrency",
+      "saveConflictDigestMaxSize",
+      "saveDateFormat",
+      "saveDefaultPathMode",
+      "saveInteraction",
+      "saveLang",
+      "saveTableSettings",
+      "setCustomRecentFolderDwellSeconds",
+      "setCustomRecentFolderLimit",
+      "setCustomSidebarSide",
+      "setLayoutMode",
+      "setTheme",
+      "startEditFolderIcon",
+      "startEditIcon",
+      "startHotkeyRecording",
+      "startPanelHotkeyRecording",
+      "toggleAddCustomRule",
+      "toggleBookmarkPanelGroupByScope",
+      "toggleCloseBookmarkPanelOnSelect",
+      "toggleConflictAutoSkip",
+      "toggleConflictDigest",
+      "toggleCustomFolderAutocomplete",
+      "toggleCustomSidebar",
+      "toggleDefaultShowHidden",
+      "toggleExportAll",
+      "toggleHideNativeBtn",
+      "toggleMenuEnabled",
+      "toggleOccupiedHotkeys",
+      "togglePaneItemHidden"
+    ]
+  },
+  {
+    "selector": "sftp-conflict-dialog",
+    "eventCount": 10,
+    "actions": [
+      "onKeyDown"
+    ]
+  },
+  {
+    "selector": "sftp-transfer-queue",
+    "eventCount": 20,
+    "actions": []
+  },
+  {
+    "selector": "sftp-transfer-log-dialog",
+    "eventCount": 22,
+    "actions": [
+      "onOverlayWheel",
+      "onScrollableWheel"
+    ]
+  },
+  {
+    "selector": "sftp-file-pane",
+    "eventCount": 63,
+    "actions": [
+      "blurPathInput",
+      "onColHeaderMouseDown",
+      "onColResizeDblClick",
+      "onColResizeMouseDown",
+      "onHeaderDragOver",
+      "onPaneAreaMouseDown",
+      "onPathBlur",
+      "onPathFocus",
+      "onPathModelChange",
+      "onSortCol",
+      "onToolbarAction"
+    ]
+  },
+  {
+    "selector": "sftp-context-menu",
+    "eventCount": 40,
+    "actions": [
+      "positionGroupBySubmenu"
+    ]
+  },
+  {
+    "selector": "sftp-bookmark-popup",
+    "eventCount": 40,
+    "actions": [
+      "locateCurrent"
+    ]
+  },
+  {
+    "selector": "sftp-delete-dialog",
+    "eventCount": 4,
+    "actions": [
+      "onKeyDown"
+    ]
+  },
+  {
+    "selector": "sftp-dir-missing-dialog",
+    "eventCount": 6,
+    "actions": [
+      "emitChoice",
+      "onKeyDown"
+    ]
+  },
+  {
+    "selector": "sftp-input-dialog",
+    "eventCount": 6,
+    "actions": [
+      "onEnter",
+      "onKeyDown"
+    ]
+  },
+  {
+    "selector": "sftp-perm-dialog",
+    "eventCount": 11,
+    "actions": [
+      "onPermChange"
+    ]
+  },
+  {
+    "selector": "sftp-details-dialog",
+    "eventCount": 6,
+    "actions": []
+  },
+  {
+    "selector": "sftp-text-context-menu",
+    "eventCount": 7,
+    "actions": [
+      "do"
+    ]
+  },
+  {
+    "selector": "sftp-cwd-setup-dialog",
+    "eventCount": 6,
+    "actions": [
+      "onBackdrop"
+    ]
+  }
+]

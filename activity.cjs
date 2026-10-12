@@ -1,5 +1,6 @@
 module.exports = function installActivity({ Panel, recovery }) {
     const fs = require('fs'), path = require('path'), crypto = require('crypto');
+    const remoteStat=require('./remote-metadata.cjs');
     const scope = new (require('async_hooks').AsyncLocalStorage)();
     const live = new Map();
     const release = row => { const key=JSON.stringify([row.server,row.direction,row.remotePath,row.localPath]);if(live.get(key)===row)live.delete(key); };
@@ -14,7 +15,7 @@ module.exports = function installActivity({ Panel, recovery }) {
     };
     const snapshot = stat => stat ? { size: Number(stat.size), time: stat.mtimeMs ?? (stat.modified instanceof Date ? stat.modified.getTime() : Number(stat.mtime || 0) * 1000) } : null;
     async function metadata(p, side, file) {
-        try { return snapshot(side === 'local' ? await fs.promises.stat(file) : await p.sftpSession.stat(file)); }
+        try { return snapshot(side === 'local' ? await fs.promises.stat(file) : await remoteStat(p.sftpSession,file)); }
         catch (e) { if (e.code === 'ENOENT' || /no such file|not found/i.test(e.message || '')) return null; throw e; }
     }
     const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);

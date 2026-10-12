@@ -3,6 +3,7 @@ module.exports = function createResumeTransfer({Panel,root,server}) {
     const file=path.join(root,'resume-state.json'),states=new Map(),attempts=new WeakMap();
     const registry=globalThis[Symbol.for('sftp-plus-plus.resume-owners')] ||= new Map();
     const owners=registry.get(file)||new Map();registry.set(file,owners);
+    const metadata=require('./remote-metadata.cjs');
     const CHUNK=256*1024;
     const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
     const quote=value=>"'"+String(value).replaceAll("'","'\\''")+"'";
@@ -80,7 +81,7 @@ o.write(struct.pack('!I',0));o.flush()`;
         try{
             if(typeof native.seek==='function'){
                 if(direction==='upload'){
-                    const stat=await session.stat(target);
+                    const stat=await metadata(session,target);
                     if(stat.size<offset)throw fail('Remote partial file is shorter than checkpoint.');
                     await native.seek(offset-state.boundaryLength);
                     const data=await native.read();if(hash(Buffer.from(data).subarray(0,state.boundaryLength))!==state.boundary)throw fail('Remote partial file changed; restart explicitly.');

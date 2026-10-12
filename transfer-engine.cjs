@@ -4,6 +4,8 @@ module.exports = function installTransferEngine({Panel,resume}) {
     // Uploads overlap one owned disk buffer with one network write (512 KiB bound).
     // Cursor-based russh handles must never receive concurrent read/write calls.
     const permissions=require('./file-permissions.cjs');
+    const metadata=require('./remote-metadata.cjs');
+    Panel.prototype._customSetCreatedFilePermissions=function(file){return permissions.apply(this.sftpSession,file,permissions.newFileMode);};
     const CHUNK=256*1024;
     const original={upload:Panel.prototype._doUpload,download:Panel.prototype._doDownload};
     const stamp=s=>[s.size,s.mtimeMs,s.ctimeMs,s.ino].join(':');
@@ -22,7 +24,7 @@ module.exports = function installTransferEngine({Panel,resume}) {
     }
     async function replaceRemote(session,temp,target){
         try{await session.rename(temp,target);return;}catch(error){
-            try{await session.stat(target);}catch{throw error;}
+            try{await metadata(session,target);}catch{throw error;}
             const backup=target+'.sftp-plus-plus-backup-'+crypto.randomUUID();
             await session.rename(target,backup);
             try{await session.rename(temp,target);}catch(failure){
@@ -38,8 +40,8 @@ module.exports = function installTransferEngine({Panel,resume}) {
         const key=direction==='upload'?remote:local;if(targets.has(key))return false;targets.add(key);
         let transfer,remoteHandle,localHandle,pending,temp,initial,remoteBefore,state,closedSub,retained=false;
         try{
-            if(direction==='upload'){initial=await fsp.stat(local);size=initial.size;try{remoteBefore=await session.stat(remote);}catch(e){if(!missing(e))throw e;}}
-            else{remoteBefore=await session.stat(remote);size=Number(remoteBefore.size);if(!Number.isSafeInteger(size)||size<0)throw new Error('Cannot determine remote file size');}
+            if(direction==='upload'){initial=await fsp.stat(local);size=initial.size;try{remoteBefore=await metadata(session,remote);}catch(e){if(!missing(e))throw e;}}
+            else{remoteBefore=await metadata(session,remote);size=Number(remoteBefore.size);if(!Number.isSafeInteger(size)||size<0)throw new Error('Cannot determine remote file size');}
             let destination;
             if(direction==='download'){try{destination=stamp(await fsp.stat(local));}catch(e){if(!missing(e))throw e;}}
             if(resume)state=await resume.prepare(panel,direction,remote,local,operation,direction==='upload'?stamp(initial):remoteStamp(remoteBefore),direction==='upload'?(remoteBefore?remoteStamp(remoteBefore):null):(destination||null),size);
@@ -66,7 +68,7 @@ module.exports = function installTransferEngine({Panel,resume}) {
                     pending=read();
                 }
                 if(transfer.bytes!==size)throw new Error('Download incomplete: expected '+size+', received '+transfer.bytes);
-                const after=await session.stat(remote);if(remoteStamp(after)!==remoteStamp(remoteBefore))throw new Error('Remote file changed while downloading');
+                const after=await metadata(session,remote);if(remoteStamp(after)!==remoteStamp(remoteBefore))throw new Error('Remote file changed while downloading');
                 await transfer.gate(panel,session);await localHandle.sync();await localHandle.close();localHandle=null;
                 await remoteHandle.close();remoteHandle=null;await fsp.rename(temp,local);temp=null;
             }else{
@@ -81,9 +83,8 @@ module.exports = function installTransferEngine({Panel,resume}) {
                 }
                 const after=await fsp.stat(local);if(transfer.bytes!==size||stamp(after)!==stamp(initial))throw new Error('Local file changed while uploading; retry after saving');
                 await transfer.gate(panel,session);await remoteHandle.close();remoteHandle=null;
-                if(typeof session.chmod==='function')await session.chmod(temp,(remoteBefore?.mode ?? mode ?? 420)&0o777);
-                const uploaded=await session.stat(temp);if(Number(uploaded.size)!==size)throw new Error('Uploaded size could not be verified');
-                let current;try{current=await session.stat(remote);}catch(e){if(!missing(e))throw e;}
+                const uploaded=await metadata(session,temp);if(Number(uploaded.size)!==size)throw new Error('Uploaded size could not be verified');
+                let current;try{current=await metadata(session,remote);}catch(e){if(!missing(e))throw e;}
                 if((!!current)!=(!!remoteBefore)||(current&&remoteStamp(current)!==remoteStamp(remoteBefore)))throw new Error('Remote file changed during upload; local copy retained');
                 // Preserve permissions in effect at commit, including special bits.
                 // A fresh upload uses the configured new-file mode, not Windows local mode.
@@ -138,7 +139,7 @@ module.exports = function installTransferEngine({Panel,resume}) {
         return this._customQueueEditTransfer('download',entry.fullPath,local,entry.size,'edit-download',()=>this._doDownload(entry.fullPath,local,entry.mode,entry.size,'edit-download'));
     };
     Panel.prototype._customUploadForEdit=function(remote,local,size,expected){return this._customQueueEditTransfer('upload',remote,local,size,'edit-upload',async()=>{
-        if(expected){const st=await this.sftpSession.stat(remote);const time=st.modified instanceof Date?st.modified.getTime():Number(st.mtime||0)*1000;if(Number(st.size)!==expected.size||time!==expected.time){this.showToast?.('Remote file changed while upload was queued; use Retry to review the conflict.');return false;}}
+        if(expected){const st=await metadata(this.sftpSession,remote);const time=st.modified instanceof Date?st.modified.getTime():Number(st.mtime||0)*1000;if(Number(st.size)!==expected.size||time!==expected.time){this.showToast?.('Remote file changed while upload was queued; use Retry to review the conflict.');return false;}}
         return this._doUpload(remote,local,'edit-upload');
     });};
     for(const [method,action]of [['pauseTransfer','pause'],['resumeTransfer','resume']]){

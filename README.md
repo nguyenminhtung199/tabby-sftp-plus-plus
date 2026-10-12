@@ -103,3 +103,5 @@ Menu chuột phải có **Open** (đổi tên từ Edit), **Open with…** (ch�
 Danh sách cấu hình menu chỉ có một mục **Open** dùng chung cho local và remote; thứ tự và trạng thái bật/tắt cũ được gộp khi đọc cấu hình.
 
 File mới trên server mặc định **0764** (cấu hình `transfer-policy.json`). Khi upload hoặc tự sync, plugin giữ permission hiện tại trên server, xác minh quyền của file tạm trước khi thay file gốc; nếu đặt quyền thất bại thì báo lỗi và giữ file gốc.
+
+Đã rà toàn bộ binding nút/menu và bổ sung test native loopback: xem `BUTTON-AUDIT.md`. New File dùng lại luồng tạo file rỗng trước đây, sau đó đặt/xác minh 0764. Metadata upload/sync lấy từ readdir trên adapter russh để giữ đúng permission; lỗi thao tác menu được bắt và thông báo.

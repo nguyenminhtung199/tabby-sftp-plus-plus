@@ -31,5 +31,11 @@ engine({Panel});
   assert.equal(p.files.get('/file').data.toString(),'original','failed permission verification never replaces original');
   assert.equal(p.files.size,1,'failed upload staging is removed');assert.ok(p.messages.length);
  }
+
+ const native=new Panel(0o764);native.sftpSession.sftp={inner:{}};
+ native.sftpSession.stat=()=>{throw Error('native stat must not be called');};
+ native.sftpSession.readdir=async folder=>[...native.files].filter(([name])=>path.posix.dirname(name)===folder).map(([name,file])=>({name:path.posix.basename(name),fullPath:name,mode:file.mode,size:file.data.length,modified:file.modified,isDirectory:false,isSymlink:false}));
+ assert.equal(await native._doUpload('/file',local,'edit-upload'),true);assert.equal(native.files.get('/file').mode,0o764,'native-adapter sync retains permissions without unsafe stat');
+
  console.log('PASS: new files are 0764; sync preserves current permissions including special/zero bits; changes during upload survive; failed/unsupported/ignored chmod or unknown mode never replace the original.');
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(async()=>{if(path.dirname(root)!==path.resolve(__dirname,'test-fixtures')||!path.basename(root).startsWith('permissions-'))throw Error('Unsafe fixture path');await fs.rm(root,{recursive:true,force:true});});

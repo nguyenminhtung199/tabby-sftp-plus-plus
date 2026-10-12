@@ -1,8 +1,12 @@
 // Use the actual installed Tabby implementation (read-only) rather than a plain-object config mock.
 const fs=require('fs'),vm=require('vm'),ts=require('typescript');
 module.exports=function createConfigProxy(defaults,real={}){
- const file='C:/Program Files/Tabby/resources/builtin-plugins/tabby-core/src/services/config.service.ts';
- const source=fs.readFileSync(file,'utf8'),ast=ts.createSourceFile(file,source,ts.ScriptTarget.Latest,true);
+ const file=process.env.SFTP_TEST_TABBY_CORE_MAP;
+ if(!file)throw Error('Set SFTP_TEST_TABBY_CORE_MAP to the installed tabby-core index.js.map');
+ const map=JSON.parse(fs.readFileSync(file,'utf8'));
+ const index=map.sources.findIndex(name=>name.endsWith('/src/services/config.service.ts'));
+ if(index<0||!map.sourcesContent[index])throw Error('Installed Tabby source map does not contain config.service.ts');
+ const source=map.sourcesContent[index],ast=ts.createSourceFile('config.service.ts',source,ts.ScriptTarget.Latest,true);
  const pieces=ast.statements.filter(n=>(ts.isFunctionDeclaration(n)&&['isStructuralMember','isNonStructuralObjectMember'].includes(n.name?.text))||(ts.isClassDeclaration(n)&&n.name?.text==='ConfigProxy')).map(n=>n.getText(ast));
  if(pieces.length!==3)throw new Error('Installed Tabby ConfigProxy source changed');
  const context=vm.createContext({exports:{},defaultsJSON:JSON.stringify(defaults),realJSON:JSON.stringify(real)});

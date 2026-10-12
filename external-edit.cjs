@@ -3,6 +3,7 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
     const fsp = fs.promises;
     const path = require('path');
     const crypto = require('crypto');
+    const metadata=require('./remote-metadata.cjs');
     const hashFile = async file => {const digest=crypto.createHash('sha256');for await(const chunk of fs.createReadStream(file,{highWaterMark:256*1024}))digest.update(chunk);return digest.digest('hex');};
     const signature = stat => [stat.size,stat.mtimeMs,stat.ctimeMs,stat.ino].join(':');
     const poll = (panel, state) => {
@@ -36,7 +37,7 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
     };
     Panel.prototype._customResumeUploadedEdit = async function(remote,snapshot){
         const state=this._customExternalSessions?.get(remote);
-        if(state){state.baseline=baseline(await this.sftpSession.stat(remote));state.syncedHash=await hashFile(snapshot);state.blockedHash=null;state.session=this.sftpSession;state.retries=0;state.nextRetry=0;status(this,state,'Synced');persist(this,state);}
+        if(state){state.baseline=baseline(await metadata(this.sftpSession,remote));state.syncedHash=await hashFile(snapshot);state.blockedHash=null;state.session=this.sftpSession;state.retries=0;state.nextRetry=0;status(this,state,'Synced');persist(this,state);}
         const folder=path.dirname(snapshot),base=path.resolve(recovery?.root||'');
         if(path.resolve(folder).startsWith(base+path.sep)&&path.basename(folder).startsWith('.sync-')){
             await fsp.unlink(snapshot).catch(()=>{});await fsp.rmdir(folder).catch(()=>{});
@@ -147,7 +148,7 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
         this._safeDetect?.();
         state.opening = (async () => {
             try {
-                const before = baseline(await state.session.stat(entry.fullPath));
+                const before = baseline(await metadata(state.session,entry.fullPath));
                 if(this._customDownloadForEdit){
                     const resumed=this._customResumeLocalForEdit?.(entry.fullPath);
                     const directory=resumed?path.dirname(resumed):path.join(id?recovery.root:require('os').tmpdir(),'edits',crypto.randomUUID());
@@ -155,7 +156,7 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
                     status(this,state,'Downloading');
                     if(!await this._customDownloadForEdit({...entry,size:before.size},state.localPath))throw new Error('Download failed or cancelled; local app was not opened');
                 }else state.localPath = await download(state.session, entry.fullPath, entry.size ?? 0, entry.mode, { requireExactSize: true });
-                state.baseline = baseline(await state.session.stat(entry.fullPath));
+                state.baseline = baseline(await metadata(state.session,entry.fullPath));
                 if (!same(before, state.baseline)) throw new Error('Remote file changed while downloading; open it again');
                 if (id && !this._customDownloadForEdit) {
                     const directory = path.join(recovery.root, 'edits', crypto.randomUUID());
@@ -207,7 +208,7 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
             if (contentHash === state.syncedHash || contentHash === state.blockedHash) return;
             state.pendingHash=contentHash;state.cancelledUpload=false;
             status(this, state, 'Pending');
-            const current = baseline(await state.session.stat(state.remotePath));
+            const current = baseline(await metadata(state.session,state.remotePath));
             if (!same(current, state.baseline)) {
                 const overwrite = window.confirm(`Remote file changed: ${state.remotePath}\nOverwrite with your local edits?\nLocal copy: ${state.localPath}`);
                 if (!overwrite) { state.blockedHash = contentHash; status(this, state, 'Conflict', 'Server file changed; local edits retained'); return; }
@@ -224,7 +225,7 @@ module.exports = function installExternalEdit({ Panel, Settings, download, shell
             state.uploadSnapshot=snapshot;
             const uploaded=this._customUploadForEdit?await this._customUploadForEdit(state.remotePath,snapshot,stat.size,current):await this._doUpload(state.remotePath, snapshot, 'edit-upload');
             if (!uploaded) throw new Error('Upload failed');
-            state.baseline = baseline(await state.session.stat(state.remotePath));
+            state.baseline = baseline(await metadata(state.session,state.remotePath));
             if (state.baseline.size !== stat.size) throw new Error('Uploaded size could not be verified');
             state.syncedHash = contentHash;
             state.blockedHash = null;

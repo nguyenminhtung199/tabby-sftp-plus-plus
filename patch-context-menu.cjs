@@ -2,6 +2,9 @@ const fs=require('fs'),path=require('path'),ts=require('typescript');
 module.exports=function patchContextMenu(source){
  const ast=ts.createSourceFile('bundle.js',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),edits=[];let templates=0,releases=0,doubleClicks=0,orders=0,normalizers=0;
  function visit(node){
+  if(ts.isMethodDeclaration(node)&&node.name?.getText(ast)==='_remoteEntryExists'){
+   edits.push({start:node.getStart(ast),end:node.end,text:`async _remoteEntryExists(folder,name){if(!this.sftpSession)throw Error('SFTP is disconnected');const entry=(await this.sftpSession.readdir(folder)).find(entry=>entry.name===name);return {exists:!!entry,isDirectory:!!entry?.isDirectory};}`});return;
+  }
   if(ts.isFunctionDeclaration(node)&&node.name?.getText(ast)==='Mt'){
    edits.push({start:node.getStart(ast),end:node.end,text:`function Mt(n){const order=Array.isArray(n)&&n.length?n:Dt;const items=[...new Set(order.map(action=>action==='openLocal'?'editFile':action).filter(action=>typeof action==='string'&&Object.prototype.hasOwnProperty.call(Ft,action)))];return items.length?items:Dt;}`});normalizers++;return;
   }
