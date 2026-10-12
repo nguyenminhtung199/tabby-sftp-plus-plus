@@ -99,3 +99,5 @@ Menu Edit dùng cùng luồng mở file với double click, kể cả khi cấu 
 
 
 Menu chuột phải có **Open** (đổi tên từ Edit), **Open with…** (chọn ứng dụng .exe, vẫn tự upload khi lưu file remote), **Open terminal here** (chuyển terminal SSH đến thư mục tương ứng) và **Copy file name** (mỗi tên một dòng). Khởi động lại Tabby sau khi build để nạp menu mới.
+
+Danh sách cấu hình menu chỉ có một mục **Open** dùng chung cho local và remote; thứ tự và trạng thái bật/tắt cũ được gộp khi đọc cấu hình.

@@ -72,3 +72,5 @@ Edit calls the same local or remote double-click opening path, including clearin
 - **Copy file name** copies only selected names, one per line, in both local and remote panes.
 
 These actions also appear when an older custom menu order is saved; disabled actions remain hidden. The local pane has one Open item. Existing menu event isolation and deferred error handling are retained.
+
+The menu settings list has one **Open** row shared by local and remote panes. Legacy openLocal/editFile order entries are deduplicated. If either legacy action was disabled, the unified Open remains disabled until re-enabled.

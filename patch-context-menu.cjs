@@ -1,9 +1,12 @@
 const fs=require('fs'),path=require('path'),ts=require('typescript');
 module.exports=function patchContextMenu(source){
- const ast=ts.createSourceFile('bundle.js',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),edits=[];let templates=0,releases=0,doubleClicks=0,orders=0;
+ const ast=ts.createSourceFile('bundle.js',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),edits=[];let templates=0,releases=0,doubleClicks=0,orders=0,normalizers=0;
  function visit(node){
+  if(ts.isFunctionDeclaration(node)&&node.name?.getText(ast)==='Mt'){
+   edits.push({start:node.getStart(ast),end:node.end,text:`function Mt(n){const order=Array.isArray(n)&&n.length?n:Dt;const items=[...new Set(order.map(action=>action==='openLocal'?'editFile':action).filter(action=>typeof action==='string'&&Object.prototype.hasOwnProperty.call(Ft,action)))];return items.length?items:Dt;}`});normalizers++;return;
+  }
   if(ts.isVariableDeclaration(node)&&node.name.getText(ast)==='Dt'&&ts.isArrayLiteralExpression(node.initializer)){
-   const order=node.initializer.elements.map(e=>e.text);order.splice(order.indexOf('editFile')+1,0,'openWith','openTerminalHere');order.splice(order.indexOf('copyPath')+1,0,'copyFileName');
+   const order=node.initializer.elements.map(e=>e.text).filter(action=>action!=='openLocal');order.splice(order.indexOf('editFile')+1,0,'openWith','openTerminalHere');order.splice(order.indexOf('copyPath')+1,0,'copyFileName');
    edits.push({start:node.initializer.getStart(ast),end:node.initializer.end,text:JSON.stringify(order)});orders++;return;
   }
   // Preserve the existing double-click logic, returning its edit promise so
@@ -32,9 +35,9 @@ module.exports=function patchContextMenu(source){
   }
   ts.forEachChild(node,visit);
  }
- visit(ast);if(orders!==1)throw Error('Menu order anchor changed: '+orders);if(doubleClicks!==2)throw Error('Double click anchors changed: '+doubleClicks);if(releases!==2)throw Error('Rubber-band release anchors changed: '+releases);if(templates!==1)throw Error('Context menu template anchor changed: '+templates);
+ visit(ast);if(normalizers!==1)throw Error('Menu normalization anchor changed: '+normalizers);if(orders!==1)throw Error('Menu order anchor changed: '+orders);if(doubleClicks!==2)throw Error('Double click anchors changed: '+doubleClicks);if(releases!==2)throw Error('Rubber-band release anchors changed: '+releases);if(templates!==1)throw Error('Context menu template anchor changed: '+templates);
  for(const edit of edits.sort((a,b)=>b.start-a.start))source=source.slice(0,edit.start)+edit.text+source.slice(edit.end);
  const anchor='const so=to;';if(source.split(anchor).length!==2)throw Error('Context menu runtime anchor changed');
  const runtime=fs.readFileSync(path.join(__dirname,'context-menu.cjs'),'utf8').trim().replace(/^module\.exports = /,'').replace(/;$/,'');
- return source.replace(anchor,`/* CONTEXT_MENU_EVENTS_V1 */(${runtime})({Panel:Xi,Angular:o,Platform:a.PlatformService,Menu:At,Registry:Ft});${anchor}`);
+ return source.replace(anchor,`/* CONTEXT_MENU_EVENTS_V1 */(${runtime})({Panel:Xi,Angular:o,Platform:a.PlatformService,Menu:At,Registry:Ft,Settings:Wt});${anchor}`);
 };

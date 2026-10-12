@@ -99,7 +99,7 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  menu.menuOrder=['editFile','copyPath'];assert.ok(menu.orderedVisibleActions.includes('openWith'),'new actions appear with a saved old order');
  menu.disabledMenuEntries.add('openWith');assert.equal(menu.orderedVisibleActions.includes('openWith'),false);menu.disabledMenuEntries.clear();
  menu.entry.isDirectory=true;assert.equal(menu.isActionVisible('openWith'),false);assert.equal(menu.isActionVisible('openTerminalHere'),true);
- menu.pane='local';assert.equal(menu.isActionVisible('openTerminalHere'),false);assert.equal(menu.isActionVisible('editFile'),false,'local Open is not duplicated');
+ menu.pane='local';assert.equal(menu.isActionVisible('openTerminalHere'),false);assert.equal(menu.isActionVisible('editFile'),true);assert.equal(menu.isActionVisible('openLocal'),false,'one Open handles both panes');
  const copy=panel();let copied;copy.injector={get:()=>({setClipboard:content=>{copied=content.text;}})};
  copy.selectedRemote=[{name:'first file.py',fullPath:'/a/first file.py'},{fullPath:'/b/second.txt'}];
  assert.equal(await copy.onContextMenuAction('copyFileName'),true);assert.equal(copied,'first file.py\nsecond.txt');
@@ -135,6 +135,15 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  assert.equal(await launcher._customLaunchApplication('C:/Program Files/Editor/editor.exe','C:/local copy/a & b.py'),'');assert.equal(unref,1);
  spawnMock=()=>{const child=new (require('events').EventEmitter)();setTimeout(()=>child.emit('error',Error('app not found')),0);return child;};
  await assert.rejects(launcher._customLaunchApplication('missing.exe','a.py'),/app not found/);spawnMock=null;
+
+
+ const Settings=classes.find(c=>c.prototype._customNormalizeOpenMenu);const settings=Object.create(Settings.prototype);
+ settings.contextMenuOrder=['download','openLocal','editFile','openWith','copyPath'];settings.contextMenuDisabled=['openLocal','editFile'];
+ settings._customNormalizeOpenMenu();assert.deepEqual([...settings.contextMenuOrder],['download','editFile','openWith','copyPath']);assert.deepEqual([...settings.contextMenuDisabled],['editFile']);
+ assert.equal(settings.contextMenuOrder.filter(a=>a==='editFile').length,1,'legacy settings show one Open row');
+ menu.menuOrder=['download','openLocal','editFile','openWith'];menu.entry={fullPath:'/a.py'};menu.pane='local';
+ assert.equal(menu.orderedVisibleActions.filter(a=>a==='editFile').length,1);assert.equal(menu.orderedVisibleActions.includes('openLocal'),false);
+ menu.disabledMenuEntries.add('editFile');assert.equal(menu.orderedVisibleActions.includes('editFile'),false);menu.pane='remote';assert.equal(menu.orderedVisibleActions.includes('editFile'),false);menu.disabledMenuEntries.clear();
 
  class Disposable{onPanelMouseDown(){}onContextMenuAction(){}getContextSelection(){return [];}closeContextMenu(){}ngOnDestroy(){this._destroyed=true;} }
  require('./context-menu.cjs')({Panel:Disposable,Angular:{HostListener:()=>()=>{}}});const d=new Disposable();d.contextMenuPane='remote';d._activateEntry=()=>{throw Error('must not run after destroy');};const cancelled=d.onContextMenuAction('editFile');d.ngOnDestroy();assert.equal(await cancelled,false);assert.equal(d._customContextActions.size,0);

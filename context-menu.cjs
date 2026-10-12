@@ -1,10 +1,11 @@
-module.exports = function installContextMenu({Panel,Angular,Platform,Menu,Registry}) {
+module.exports = function installContextMenu({Panel,Angular,Platform,Menu,Registry,Settings}) {
     if(Menu&&Registry){
         Registry.editFile.labelKey='file.open';
         Object.assign(Registry,{openWith:{labelKey:'Open with…',category:'open'},openTerminalHere:{labelKey:'Open terminal here',category:'open'},copyFileName:{labelKey:'Copy file name',category:'panel'}});
         const visible=Menu.prototype.isActionVisible;
         Menu.prototype.isActionVisible=function(action){
-            if(action==='editFile')return this.pane==='remote'&&this.hasEdit;
+            if(action==='openLocal')return false;
+            if(action==='editFile')return this.pane==='local'?this.hasLocalOpen:this.hasEdit;
             if(action==='openWith')return this.singleSelected&&!!this.entry&&!this.entry.isDirectory;
             if(action==='openTerminalHere')return this.pane==='remote';
             if(action==='copyFileName')return this.hasSelection||!!this.entry;
@@ -15,7 +16,7 @@ module.exports = function installContextMenu({Panel,Angular,Platform,Menu,Regist
         };
         const ordered=Object.getOwnPropertyDescriptor(Menu.prototype,'orderedVisibleActions').get;
         Object.defineProperty(Menu.prototype,'orderedVisibleActions',{configurable:true,get(){
-            const actions=[...ordered.call(this)];
+            const actions=[...ordered.call(this)].filter(action=>action!=='editFile'||!this.disabledMenuEntries.has('openLocal'));
             for(const [action,anchor] of [['openWith','editFile'],['openTerminalHere','openWith'],['copyFileName','copyPath']]){
                 if(!actions.includes(action)&&this.isActionVisible(action)&&!this.disabledMenuEntries.has(action)){
                     const i=actions.indexOf(anchor);actions.splice(i<0?actions.length:i+1,0,action);
@@ -23,6 +24,15 @@ module.exports = function installContextMenu({Panel,Angular,Platform,Menu,Regist
             }
             return actions;
         }});
+    }
+    if(Settings){
+        Settings.prototype._customNormalizeOpenMenu=function(){
+            const normalize=list=>[...new Set(list.map(action=>action==='openLocal'?'editFile':action))];
+            this.contextMenuOrder=normalize(this.contextMenuOrder);
+            this.contextMenuDisabled=normalize(this.contextMenuDisabled);
+        };
+        const read=Settings.prototype._readFromConfig;
+        Settings.prototype._readFromConfig=function(...args){const result=read.apply(this,args);this._customNormalizeOpenMenu();return result;};
     }
     const outside=(panel,fn)=>panel.zone?.runOutsideAngular?panel.zone.runOutsideAngular(fn):fn();
     const isMenu=e=>!!e.target?.closest?.('sftp-context-menu');
