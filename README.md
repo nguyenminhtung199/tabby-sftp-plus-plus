@@ -115,3 +115,5 @@ Chẩn đoán drop trực tiếp: tạo file `recovery/enable-drop-trace` trong 
 Đã xác định lỗi drop qua trace thực tế: gán `_remoteDragOver` trên panel gây TypeError vì đây là getter chỉ đọc. Drop giờ reset trạng thái bằng `_fileDnd.reset()`. Regression dùng class Panel và controller thật từ bundle, không chỉ panel giả.
 
 Paste ảnh được hoãn sang lượt event loop sau; đọc clipboard, encode và staging chạy ngoài callback paste. Task ảnh đang chạy được dedup, bytes PNG được copy sang buffer sở hữu riêng, menu paste trên folder giữ đúng folder đích. Trace riêng image:read/encode/stage/queue ghi từng bước trước khi thực hiện để xác định lần lỗi tiếp theo.
+
+Trace paste ảnh được bổ sung flush trước các bước hàng đợi, tạo entry, paint và pump khi bật chẩn đoán, để giữ bước cuối ngay cả khi renderer thoát. Thay đổi này phục vụ khoanh vùng lỗi, chưa xác nhận đã sửa crash.

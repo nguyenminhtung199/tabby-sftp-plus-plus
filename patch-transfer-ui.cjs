@@ -6,6 +6,12 @@ module.exports = function patchTransferUI(source) {
     const destination='const a=(null==e?void 0:e.trim())||this.remotePath,l=S.posix.join(a,i)';
     if(source.split(destination).length!==2)throw Error('Upload destination anchor changed');
     source=source.replace(destination,'const a=(null==e?void 0:e.trim())||capturedRemoteDir,l=S.posix.join(a,i)');
+    const entry='const a=(null==e?void 0:e.trim())||capturedRemoteDir';
+    if(source.split(entry).length!==2)throw Error('Upload entry trace anchor changed');
+    source=source.replace(entry,'if(this._customTraceClipboard)await this._customTraceClipboard("queue:entry:create");'+entry);
+    const paint='this.transfersMinimized=!1,this.transfersHidden=!1,this._safeDetect(),new Promise(e=>{this._upQueue.push';
+    if(source.split(paint).length!==2)throw Error('Upload paint trace anchor changed');
+    source=source.replace(paint,'this.transfersMinimized=!1,this.transfersHidden=!1,this._customTraceClipboard&&await this._customTraceClipboard("queue:paint"),this._safeDetect(),this._customTraceClipboard&&await this._customTraceClipboard("queue:pump"),new Promise(e=>{this._upQueue.push');
     const premature = '||l.percent>=100';
     if (source.split(premature).length !== 2) throw new Error('Transfer completion anchor changed');
     source = source.replace(premature, '||(!m._customStream&&l.percent>=100)');

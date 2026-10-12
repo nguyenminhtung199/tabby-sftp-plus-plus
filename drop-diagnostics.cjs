@@ -27,6 +27,11 @@ module.exports=function installDropDiagnostics({Panel,root}){
         const original=Panel.prototype[method];if(typeof original!=='function')continue;
         Panel.prototype[method]=function(...args){
             start(this,method);
+            if(cfg.flushBeforeMethods.includes(method))return outside(this,async()=>{
+                await writes;
+                try{const result=await original.apply(this,args);finish(this,method);return result;}
+                catch(error){finish(this,method,error);throw error;}
+            });
             try{
                 const result=original.apply(this,args);
                 if(result?.then)return outside(this,()=>Promise.resolve(result).then(value=>{finish(this,method);return value;},error=>{finish(this,method,error);throw error;}));

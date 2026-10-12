@@ -39,3 +39,7 @@ The captured live reproduction ended at onDrop:error with TypeError after 6 ms, 
 ## Image paste follow-up
 
 The live image attempt produced a staging PNG but had no subsequent queue trace; the image-specific read/encode/stage steps were not previously instrumented. This does not establish a definitive native crash cause. Image handling now defers clipboard reads/PNG encoding and staging through the same outside-Angular scheduled preparation path as Explorer drops. A pending image task is shared by duplicate paste events. PNG bytes are copied to an owned Buffer before asynchronous disk writes. Context-menu image paste captures a selected folder before closing the menu. Image phase records are flushed before native read/encode/stage/queue to retain the last reached step even on failure. Regression tests use the real bundled Panel and native SFTP adapter; the actual Electron NativeImage read/encode still requires the user's live reproduction.
+
+## Latest live image trace
+
+PID 19512 completed image read, encode and staging (594437 bytes), then recorded image:queue:start at 2026-10-12T09:40:14.580Z. No later queue phases were persisted and that renderer PID subsequently disappeared. This localizes the failure to the queue transition, but does not yet identify the exact failing instruction. Diagnostic mode now flushes records before async queue/preflight stages and records queue:entry:create, queue:paint and queue:pump before running them. Normal logging-disabled behavior is preserved. No crash fix is claimed from this instrumentation alone.

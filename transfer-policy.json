@@ -21,6 +21,13 @@
       "_safeDetect",
       "customPasteImage",
       "ctxClipboardPaste"
+    ],
+    "flushBeforeMethods": [
+      "_customUploadLocalPaths",
+      "_streamUploadOne",
+      "_runQueuedUpload",
+      "uploadPathToRemote",
+      "_doUpload"
     ]
   }
 }
