@@ -84,3 +84,15 @@ Giữ thư mục repo ở vị trí cố định vì npm có thể liên kết t
 ## Mã nguồn và giấy phép
 
 Fork từ `tabby-sftp-plus@2.4.1` của DD1024z, giấy phép MIT, giữ tại [LICENSE](LICENSE). `dist/` là bản dùng trực tiếp. `assets/` và các module `.cjs` là source tùy chỉnh. Không đưa `migration-backup/`, `recovery/`, config rõ hoặc khóa giải mã lên Git. Repo private vẫn phù hợp vì snapshot chứa cấu hình cá nhân đã mã hóa.
+
+## Sửa và kiểm thử plugin
+
+Cài dependency phát triển tại thư mục repo rồi build lại bundle đang được Tabby liên kết:
+
+```powershell
+npm.cmd ci --legacy-peer-deps --ignore-scripts
+npm.cmd run build
+node test-context-menu.cjs
+```
+
+Menu Edit dùng cùng luồng mở file với double click, kể cả khi cấu hình single click. Menu Download mở hộp chọn thư mục local; hủy chọn hoặc đổi kết nối trong lúc chọn sẽ không tải file. Các lối gọi menu dùng chung xử lý lỗi và chờ menu đóng trước khi thực hiện. Khởi động lại Tabby để nạp bundle mới.

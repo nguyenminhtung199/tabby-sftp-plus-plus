@@ -1,5 +1,5 @@
 // Remove retired UI and code from the generated fork, keeping the upstream base immutable.
-const ts=require('../plugins/node_modules/typescript');
+const ts=require('typescript');
 const removedKeys=new Set(['hideAuthorInfo','openUnsupportedInSystem','editableFileExtensions','allowViewEditAllFiles','allowEditAllFiles','allowViewAllAsText','showTextLineNumbers','textCaretShape','fileOpenAction','openInNewTabByDefault','singleWorkspaceInstance','rememberSessionFolders']);
 module.exports=function cleanup(source){
  const ast=ts.createSourceFile('bundle.js',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),edits=[];

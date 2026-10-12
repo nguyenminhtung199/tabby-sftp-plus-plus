@@ -34,7 +34,7 @@ Uploads use unique staging files and verified completion before replacement, wit
 
 Run `node sftp-plus-plus/install.cjs` from the Tabby user directory. It builds and installs the independent package, copies the SFTP+ config into `tabby-sftp-plus-plus`, migrates the recovery journal while retaining existing local-file paths, and disables the original `sftp-plus` plugin. The original plugin is retained. Restart Tabby once to activate SFTP++.
 
-Run `node sftp-plus-plus/build.cjs` to rebuild only. `npm pack` inside this directory creates an installable archive. `dist/` is self-contained at runtime; it embeds the original local VS Code Seti font and includes all icon assets. Build tools use the TypeScript package already present in the parent plugin directory.
+Run `node sftp-plus-plus/build.cjs` to rebuild only. `npm pack` inside this directory creates an installable archive. `dist/` is self-contained at runtime; it embeds the original local VS Code Seti font and includes all icon assets. Install development dependencies in this repository with `npm ci --legacy-peer-deps --ignore-scripts`. Build tools use this repository's TypeScript package.
 
 The fork retains the customized sidebar, path-mode Screen support, last folders per session, instant prefix suggestions (hover only highlights; click selects), English UI, yellow folders and Seti Python font. Editing/recovery are integrated into Transfer history. Notifications sit above the bottom edge of the panel.
 
@@ -61,4 +61,4 @@ The rubber-band selection controller receives mouseup during document capture, b
 
 ### Right-click Edit and Download
 
-Edit calls the same local or remote double-click handler, including clearing its pending click timer. Download opens Tabby's native folder picker, then downloads the captured selection into the chosen directory. Cancelling the picker or closing the panel starts no download. Existing conflict checks remain unchanged.
+Edit calls the same local or remote double-click opening path, including clearing its pending click timer. Explicit Edit also works when single-click opening is selected. Both menu dispatch and direct context commands close the menu and defer work outside Angular. Download opens Tabby's native folder picker, then queues the captured selection into the chosen directory in order. Cancelling the picker, closing the panel, disconnecting or switching sessions starts no download against the old connection. Errors are contained even when notification rendering fails. Existing conflict checks remain unchanged.

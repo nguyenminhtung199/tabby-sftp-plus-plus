@@ -1,4 +1,4 @@
-const fs=require('fs'),path=require('path'),ts=require('../plugins/node_modules/typescript');
+const fs=require('fs'),path=require('path'),ts=require('typescript');
 module.exports=function patchContextMenu(source){
  const ast=ts.createSourceFile('bundle.js',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),edits=[];let templates=0,releases=0,doubleClicks=0;
  function visit(node){

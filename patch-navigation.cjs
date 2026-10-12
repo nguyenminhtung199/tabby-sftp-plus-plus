@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const ts = require('../plugins/node_modules/typescript');
+const ts = require('typescript');
 const reporter = require('./screen-reporter.cjs');
 const localIconTheme = require('./assets/vscode-file-icons.json');
 const iconAlignment = '@font-face{font-family:SftpLocalSeti;src:url("data:font/woff;base64,'+fs.readFileSync(path.join(__dirname,'assets/seti.woff')).toString('base64')+'") format("woff");font-weight:normal;font-style:normal;}\n'+fs.readFileSync(path.join(__dirname,'icon-alignment.css'),'utf8');

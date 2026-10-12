@@ -1,5 +1,5 @@
 const assert=require('assert/strict'),fs=require('fs'),path=require('path'),vm=require('vm'),{createRequire}=require('module');
-const pluginRequire=createRequire(path.resolve(__dirname,'../plugins/node_modules/tabby-sftp-plus-plus/package.json'));
+const pluginRequire=createRequire(path.resolve(__dirname,'package.json'));
 const generic=new Proxy({}, {get:(_,key)=>key==='__esModule'?true:class{}});
 const releaseListeners=new Map();
 const document={addEventListener(name,callback,capture=false){if(name==='mouseup')releaseListeners.set(callback,capture);},removeEventListener(name,callback,capture=false){if(name==='mouseup'){assert.equal(releaseListeners.get(callback),capture,'release cleanup matches capture flag');releaseListeners.delete(callback);}},elementFromPoint:()=>null};
@@ -8,7 +8,7 @@ sandbox.global=sandbox;vm.runInNewContext(fs.readFileSync(path.join(__dirname,'d
 const classes=sandbox.module.exports.default.__annotations__[0].declarations;
 const Panel=classes.find(c=>c.prototype._customExternalEdit),Menu=classes.find(c=>c.__annotations__?.[0]?.selector==='sftp-context-menu');
 const template=Menu.__annotations__[0].template;
-const parsed=pluginRequire('@angular/compiler').parseTemplate(template,'context-menu.html');assert.equal(parsed.errors,null);
+const parsed=pluginRequire('@angular/compiler').parseTemplate(template,'context-menu.html');assert.ok(!parsed.errors?.length,JSON.stringify(parsed.errors));
 assert.ok(Panel.__prop__metadata__.customContextMouseUp.some(a=>a.eventName==='mouseup'));
 const actions=[...template.matchAll(/\(click\)="([^"]*\.emit\([^"]*)"/g)].map(m=>m[1]);assert.ok(actions.length>5);
 for(const handler of actions)assert.ok(handler.indexOf('$event.stopPropagation()')<handler.indexOf('.emit('),'stop before any output removes menu');
@@ -69,6 +69,28 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  assert.equal(await double.onRemoteEntryDblClick({},event()),'finished');assert.equal(invoked,1);
  double.connected=false;await double.onRemoteEntryDblClick({},event());assert.equal(invoked,1,'disconnected remote double-click is ignored');
  const failing=panel();failing._activateEntry=async()=>{throw Error('fixture failure');};assert.equal(await failing.onContextMenuAction('editFile'),false);assert.match(failing.toast,/fixture failure/);
+ // Direct context commands share the same deferred, guarded implementation.
+ const single=panel();single._openOnClick='single';let singleOpened=0;
+ single._activateEntry=async(pane,entry)=>{assert.equal(pane,'remote');assert.equal(entry.fullPath,'/chosen.py');singleOpened++;};
+ single.remoteClickTimer=setTimeout(()=>{throw Error('pending click must be cancelled');},1000);
+ await single.ctxEditFile();assert.equal(singleOpened,1);assert.equal(single.remoteClickTimer,null);
+ const direct=panel();let directTransfers=0;
+ direct.injector={get:()=>({pickDirectory:async()=>''})};direct._streamDownloadOne=()=>directTransfers++;
+ assert.equal(await direct.ctxDownload(),false);assert.equal(directTransfers,0,'direct Download also waits for a folder');
+ const switched=panel();let switchedTransfers=0;
+ switched.injector={get:()=>({pickDirectory:async()=>{switched.sftpSession={};return 'C:/picked';}})};
+ switched._streamDownloadOne=()=>switchedTransfers++;
+ assert.equal(await switched.ctxDownload(),false);assert.equal(switchedTransfers,0,'reconnection during folder choice cancels the old selection');
+ const late=panel();late._ensureTransferTargetDir=async()=>{late.connected=false;return 'C:/picked';};
+ late._streamDownloadOne=()=>{throw Error('download must not start after disconnect');};
+ assert.equal(await late.ctxDownload(late.selectedRemote,'C:/picked'),false);
+ const brokenToast=panel();brokenToast._activateEntry=async()=>{throw Error('edit failed');};brokenToast.showToast=()=>{throw Error('view already disposed');};
+ assert.equal(await brokenToast.ctxEditFile(),false,'notification failure cannot reject the deferred timer');
+ const serial=panel();const order=[];let scanning=false;
+ serial._ensureTransferTargetDir=async()=> 'C:/picked';
+ serial._streamDownloadOne=async entry=>{assert.equal(scanning,false,'native entry scans do not overlap');scanning=true;await new Promise(resolve=>setTimeout(resolve,1));order.push(entry.fullPath);scanning=false;};
+ assert.equal(await serial.ctxDownload([{fullPath:'/first'},{fullPath:'/second'}],'C:/picked'),true);
+ assert.deepEqual(order,['/first','/second']);
  class Disposable{onPanelMouseDown(){}onContextMenuAction(){}getContextSelection(){return [];}closeContextMenu(){}ngOnDestroy(){this._destroyed=true;} }
  require('./context-menu.cjs')({Panel:Disposable,Angular:{HostListener:()=>()=>{}}});const d=new Disposable();d.contextMenuPane='remote';d._activateEntry=()=>{throw Error('must not run after destroy');};const cancelled=d.onContextMenuAction('editFile');d.ngOnDestroy();assert.equal(await cancelled,false);assert.equal(d._customContextActions.size,0);
  console.log('PASS: Angular menu parses; right-button isolation and rubber-band cleanup work; menu Edit uses local/remote double-click handlers; Download waits for native folder choice and keeps selected files; cancel, destroy and errors start no transfer.');

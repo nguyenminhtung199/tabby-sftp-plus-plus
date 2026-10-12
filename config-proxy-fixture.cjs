@@ -1,5 +1,5 @@
 // Use the actual installed Tabby implementation (read-only) rather than a plain-object config mock.
-const fs=require('fs'),vm=require('vm'),ts=require('../plugins/node_modules/typescript');
+const fs=require('fs'),vm=require('vm'),ts=require('typescript');
 module.exports=function createConfigProxy(defaults,real={}){
  const file='C:/Program Files/Tabby/resources/builtin-plugins/tabby-core/src/services/config.service.ts';
  const source=fs.readFileSync(file,'utf8'),ast=ts.createSourceFile(file,source,ts.ScriptTarget.Latest,true);

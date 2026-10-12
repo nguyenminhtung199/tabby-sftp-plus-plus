@@ -1,5 +1,5 @@
 const fs = require('fs');
-const ts = require('../plugins/node_modules/typescript');
+const ts = require('typescript');
 module.exports = function patchRecent(source) {
     const ast = ts.createSourceFile('bundle.js', source, ts.ScriptTarget.Latest, true), edits = [];
     function visit(node) {
