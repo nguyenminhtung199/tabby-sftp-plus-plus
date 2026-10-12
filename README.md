@@ -119,3 +119,5 @@ Paste ảnh được hoãn sang lượt event loop sau; đọc clipboard, encode
 Trace paste ảnh được bổ sung flush trước các bước hàng đợi, tạo entry, paint và pump khi bật chẩn đoán, để giữ bước cuối ngay cả khi renderer thoát. Thay đổi này phục vụ khoanh vùng lỗi, chưa xác nhận đã sửa crash.
 
 Log queue/upload/download có operationId/spanId/jobId, duration, trạng thái queue hai chiều, byte/chunk offset và các bước stat/open/read/write/close/verify/chmod/commit/cleanup. Ctrl+V ghi key-route trước khi xử lý; callback phím không gọi native availableFormats. Khi bật chẩn đoán, chỉ record key-route dùng append đồng bộ nhỏ để giữ bằng chứng nếu renderer thoát ngay; các record khác vẫn bất đồng bộ/flush tại điểm đã chọn.
+
+Ctrl+V được bắt ở pha capture của window (fallback document), trước handler ở target/bubble. Log capture và route được lưu ngay; input/textarea vẫn giữ paste bình thường, listener được gỡ khi đóng panel.

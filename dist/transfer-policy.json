@@ -56,6 +56,8 @@
     "heartbeatMaxSpans": 16,
     "chunkTraceLimit": 32,
     "criticalSyncPhases": [
+      "clipboard:key:capture",
+      "clipboard:key:capture-route",
       "clipboard:key-route"
     ]
   }

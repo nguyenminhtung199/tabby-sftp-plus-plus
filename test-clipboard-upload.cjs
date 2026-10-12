@@ -73,6 +73,15 @@ const image={isEmpty:()=>false,toPNG:()=>Buffer.from('png-fixture')};
     p.connected=false;assert.equal(await p.customPasteImage(image),false);await p.onDrop(drop,'remote');assert.equal(uploads.length,count);p.connected=true;
     p.contextMenuPane='remote';currentImage=null;assert.equal(await p.ctxClipboardPaste(),false);assert.equal(nativePaste,0);
     p.ngOnDestroy();assert.equal(p.listeners.size,0);
+
+    const capturePanel=new Panel(),captureListeners=new Map(),routes=[];
+    capturePanel.elRef.nativeElement.ownerDocument={addEventListener(name,fn,capture){assert.equal(capture,true);captureListeners.set(name,fn);},removeEventListener(name,fn,capture){assert.equal(capture,true);assert.equal(captureListeners.get(name),fn);captureListeners.delete(name);}};
+    capturePanel._customTraceClipboard=phase=>routes.push(phase);let capturedPaste=0;
+    capturePanel.customPasteImage=()=>{capturedPaste++;return Promise.resolve(true);};capturePanel.ngAfterViewInit();capturePanel.ngAfterViewInit();assert.equal(captureListeners.size,1);
+    const key=event();captureListeners.get('keydown')(key);assert.equal(capturedPaste,1);assert(key.prevented&&key.stopped);assert(routes.includes('clipboard:key:capture'));
+    const inputKey=event({closest:()=>({})});captureListeners.get('keydown')(inputKey);assert.equal(capturedPaste,1);assert(!inputKey.prevented);
+    capturePanel.ngOnDestroy();assert.equal(captureListeners.size,0);
+
     assert.equal(formatCalls,0,'native clipboard format APIs are never called from key/paste callbacks');
     console.log('PASS: image staging/unique names, scoped Ctrl+V, editable/modal protection, paste listener cleanup, native drop/internal transfers, streaming virtual files, captured destinations, unsafe names and disconnected uploads.');
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(()=>{

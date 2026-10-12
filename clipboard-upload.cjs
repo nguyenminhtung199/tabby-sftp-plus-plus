@@ -122,10 +122,25 @@ module.exports = function installClipboardUpload({Panel, electron, stagingRoot})
             };
             host.addEventListener('paste',this._customImagePasteHandler,true);
         }
+        const doc=host?.ownerDocument||(typeof document!=='undefined'?document:null);
+        const captureTarget=doc?.defaultView||doc;
+        if(captureTarget?.addEventListener&&!this._customClipboardKeyCapture){
+            this._customClipboardDocument=captureTarget;
+            this._customClipboardKeyCapture=event=>{
+                if(!(event.ctrlKey||event.metaKey)||event.altKey||event.shiftKey||event.key?.toLowerCase()!=='v')return;
+                this._customTraceClipboard?.('clipboard:key:capture');
+                const owned=this._isPanelActive&&(host?.contains?.(event.target)||this._panelOwnsClipboardHotkeys);
+                this._customTraceClipboard?.('clipboard:key:capture-route',{owned:!!owned,activePane:this.activePane,editable:editable(event.target),internalFiles:this.clipboardEntries?.length||0});
+                if(owned&&this.activePane==='remote'&&!editable(event.target)&&!this._isPanelTyping?.(event)&&!blocked(this))this.onGlobalKeyDown(event);
+            };
+            captureTarget.addEventListener('keydown',this._customClipboardKeyCapture,true);
+        }
         return result;
     };
     const destroy=Panel.prototype.ngOnDestroy;
     Panel.prototype.ngOnDestroy=function(...args){
+        if(this._customClipboardKeyCapture)this._customClipboardDocument?.removeEventListener?.('keydown',this._customClipboardKeyCapture,true);
+        this._customClipboardKeyCapture=null;this._customClipboardDocument=null;
         if(this._customImagePasteHandler)this.elRef?.nativeElement?.removeEventListener?.('paste',this._customImagePasteHandler,true);
         for(const [timer,resolve]of this._customDropActions||[]){clearTimeout(timer);resolve(false);}
         this._customDropActions?.clear();
