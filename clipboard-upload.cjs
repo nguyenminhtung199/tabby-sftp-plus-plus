@@ -34,7 +34,7 @@ module.exports = function installClipboardUpload({Panel, electron, stagingRoot})
     Panel.prototype.onGlobalKeyDown=function(event){
         const host=this.elRef?.nativeElement;
         const owns=this._isPanelActive&&(host?.contains?.(event.target)||this._panelOwnsClipboardHotkeys);
-        if(owns&&this.activePane==='remote'&&!editable(event.target)&&!this._isPanelTyping?.(event)&&!blocked(this)&&
+        if(owns&&this.activePane==='remote'&&!this.clipboardEntries?.length&&!editable(event.target)&&!this._isPanelTyping?.(event)&&!blocked(this)&&
             (event.ctrlKey||event.metaKey)&&!event.altKey&&!event.shiftKey&&event.key?.toLowerCase()==='v'){
             const value=image();if(value){capture(event);void this.customPasteImage(value,this.remotePath);return;}
         }
@@ -82,7 +82,7 @@ module.exports = function installClipboardUpload({Panel, electron, stagingRoot})
         const result=mounted?.apply(this,args),host=this.elRef?.nativeElement;
         if(host?.addEventListener&&!this._customImagePasteHandler){
             this._customImagePasteHandler=event=>{
-                if(this.activePane!=='remote'||editable(event.target)||blocked(this))return;
+                if(this.activePane!=='remote'||this.clipboardEntries?.length||editable(event.target)||blocked(this))return;
                 const value=image();if(value){capture(event);void this.customPasteImage(value,this.remotePath);}
             };
             host.addEventListener('paste',this._customImagePasteHandler,true);

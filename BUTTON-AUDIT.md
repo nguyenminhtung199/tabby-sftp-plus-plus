@@ -19,3 +19,7 @@ Passed: menu/edit/download handling and creation; permission preservation; plain
 To run environment-specific checks, set `SFTP_TEST_RUSSH_ROOT` to the installed app's unpacked `node_modules/russh` directory and `SFTP_TEST_TABBY_CORE_MAP` to the installed `tabby-core/dist/index.js.map`. The original stat behavior can be inspected with `node test-native-sftp.cjs --probe-original-stat` in this isolated fixture.
 
 The real Tabby window must load the new bundle after a complete restart. Manual live-window verification remains necessary for the reported white-screen symptom.
+
+## Clipboard follow-up
+
+The same-path paste branch previously reached conflict detection and hashing before eventually skipping the identical source. It now exits before those operations. Keyboard/DOM paste also previously preferred a stale Windows clipboard image over files copied inside the plugin; internal files now take priority. Reentrant paste and rejected paste promises are contained. Tests cover repeated same-folder copy/cut, normalized paths, mixed selections, different destinations, retained clipboard, menu dispatch and image priority. The native fixture checks ten self-pastes cause zero adapter calls and leave bytes unchanged. The live white-screen symptom still requires verification in the Tabby window.

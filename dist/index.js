@@ -1909,7 +1909,7 @@ function installSidebar({ Panel, Settings, Decorator }) {
     Panel.prototype.onGlobalKeyDown=function(event){
         const host=this.elRef?.nativeElement;
         const owns=this._isPanelActive&&(host?.contains?.(event.target)||this._panelOwnsClipboardHotkeys);
-        if(owns&&this.activePane==='remote'&&!editable(event.target)&&!this._isPanelTyping?.(event)&&!blocked(this)&&
+        if(owns&&this.activePane==='remote'&&!this.clipboardEntries?.length&&!editable(event.target)&&!this._isPanelTyping?.(event)&&!blocked(this)&&
             (event.ctrlKey||event.metaKey)&&!event.altKey&&!event.shiftKey&&event.key?.toLowerCase()==='v'){
             const value=image();if(value){capture(event);void this.customPasteImage(value,this.remotePath);return;}
         }
@@ -1957,7 +1957,7 @@ function installSidebar({ Panel, Settings, Decorator }) {
         const result=mounted?.apply(this,args),host=this.elRef?.nativeElement;
         if(host?.addEventListener&&!this._customImagePasteHandler){
             this._customImagePasteHandler=event=>{
-                if(this.activePane!=='remote'||editable(event.target)||blocked(this))return;
+                if(this.activePane!=='remote'||this.clipboardEntries?.length||editable(event.target)||blocked(this))return;
                 const value=image();if(value){capture(event);void this.customPasteImage(value,this.remotePath);}
             };
             host.addEventListener('paste',this._customImagePasteHandler,true);
@@ -2157,5 +2157,39 @@ function installSidebar({ Panel, Settings, Decorator }) {
         for(const [timer,resolve] of this._customContextActions||[]){clearTimeout(timer);resolve(false);}
         this._customContextActions?.clear();return destroy?.apply(this,args);
     };
-})({Panel:Xi,Angular:o,Platform:a.PlatformService,Menu:At,Registry:Ft,Settings:Wt});const so=to;module.exports=s})();
+})({Panel:Xi,Angular:o,Platform:a.PlatformService,Menu:At,Registry:Ft,Settings:Wt});/* CLIPBOARD_SAFETY_V1 */(module.exports=function installPasteSafety({Panel}){
+    const path=require('path'),original=Panel.prototype.ctxClipboardPaste;
+    const same=(pane,a,b)=>{
+        const normalize=pane==='local'?path.resolve:path.posix.resolve;
+        const left=normalize(a),right=normalize(b);
+        return pane==='local'&&process.platform==='win32'?left.toLowerCase()===right.toLowerCase():left===right;
+    };
+    Panel.prototype.ctxClipboardPaste=function(...args){
+        if(this._destroyed||this._customPasteBusy)return Promise.resolve(false);
+        const entries=[...(this.clipboardEntries||[])],pane=this.contextMenuPane,source=this.clipboardSource;
+        const destination=pane==='local'?this.localPath:this.remotePath;
+        const remaining=source===pane?entries.filter(entry=>{
+            if(!entry.fullPath||!entry.name)return true;
+            const target=(pane==='local'?path:path.posix).join(destination,entry.name);
+            return !same(pane,entry.fullPath,target);
+        }):entries;
+        // A same-path copy/cut must never reach conflict hashing, SSH exec or I/O.
+        if(entries.length&&!remaining.length){
+            try{this.closeContextMenu?.();this.showToast?.('Source and destination are the same; nothing to paste.',4000);}catch{}
+            return Promise.resolve(false);
+        }
+        this._customPasteBusy=true;
+        const work=async()=>{
+            try{
+                if(remaining.length!==entries.length)this.clipboardEntries=remaining;
+                return await original.apply(this,args);
+            }catch(error){
+                if(entries.length&&!this.clipboardEntries?.length){this.clipboardEntries=entries;this.clipboardSource=source;}
+                try{if(!this._destroyed)this.showToast?.('Paste failed: '+(error?.message||String(error)),7000);}catch{}
+                return false;
+            }finally{this._customPasteBusy=false;}
+        };
+        return this.zone?.runOutsideAngular?this.zone.runOutsideAngular(work):work();
+    };
+})({Panel:Xi});const so=to;module.exports=s})();
 //# sourceMappingURL=index.js.map

@@ -161,6 +161,13 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
   assert.equal(await command.onContextMenuAction(action),false);assert.equal(calls,1);assert.match(command.toast,/fixture/);
  }
 
+
+ const selfCopy=panel();selfCopy.remotePath='/';selfCopy._pasteAdapter={paste:()=>{throw Error('self-paste must not reach conflict/digest/server copy');}};
+ await selfCopy.onContextMenuAction('copy');
+ for(let i=0;i<5;i++)assert.equal(await selfCopy.onContextMenuAction('paste'),false);
+ assert.equal(selfCopy.clipboardEntries.length,1,'self-paste retains the internal selfCopy file and cannot fall back to a stale screenshot');
+ assert.match(selfCopy.toast,/Source and destination are the same/);
+
  class Disposable{onPanelMouseDown(){}onContextMenuAction(){}getContextSelection(){return [];}closeContextMenu(){}ngOnDestroy(){this._destroyed=true;} }
  require('./context-menu.cjs')({Panel:Disposable,Angular:{HostListener:()=>()=>{}}});const d=new Disposable();d.contextMenuPane='remote';d._activateEntry=()=>{throw Error('must not run after destroy');};const cancelled=d.onContextMenuAction('editFile');d.ngOnDestroy();assert.equal(await cancelled,false);assert.equal(d._customContextActions.size,0);
  console.log('PASS: Angular menu parses; right-button isolation and rubber-band cleanup work; menu Open uses local/remote double-click handlers; Open with launches chosen apps and retains auto-sync; terminal paths and clipboard names are preserved; Download waits for native folder choice and keeps selected files; cancel, destroy and errors start no transfer.');

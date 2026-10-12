@@ -105,3 +105,5 @@ Danh sách cấu hình menu chỉ có một mục **Open** dùng chung cho local
 File mới trên server mặc định **0764** (cấu hình `transfer-policy.json`). Khi upload hoặc tự sync, plugin giữ permission hiện tại trên server, xác minh quyền của file tạm trước khi thay file gốc; nếu đặt quyền thất bại thì báo lỗi và giữ file gốc.
 
 Đã rà toàn bộ binding nút/menu và bổ sung test native loopback: xem `BUTTON-AUDIT.md`. New File dùng lại luồng tạo file rỗng trước đây, sau đó đặt/xác minh 0764. Metadata upload/sync lấy từ readdir trên adapter russh để giữ đúng permission; lỗi thao tác menu được bắt và thông báo.
+
+Copy/cut rồi paste cùng đường dẫn được bỏ qua trước khi kiểm tra xung đột/hash/SSH exec. Clipboard file nội bộ được ưu tiên hơn ảnh còn lưu trong clipboard Windows; paste không chạy chồng nhau và lỗi được báo trong panel.

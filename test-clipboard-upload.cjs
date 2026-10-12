@@ -31,6 +31,14 @@ const image={isEmpty:()=>false,toPNG:()=>Buffer.from('png-fixture')};
     p.ngAfterViewInit();p.ngAfterViewInit();assert.equal(p.listeners.size,1);
     const domPaste=event();p.listeners.get('paste')(domPaste);assert(domPaste.prevented);assert.equal(calls,2);
     const textPaste=event({closest:()=>({})});p.listeners.get('paste')(textPaste);assert(!textPaste.prevented);
+
+    // Internal copied files win even when a screenshot remains in Windows clipboard.
+    p.clipboardEntries=[{name:'copied.py',fullPath:'/initial/copied.py'}];
+    const previousKeys=nativeKeys,previousCalls=calls;
+    const fileKey=event();p.onGlobalKeyDown(fileKey);assert.equal(nativeKeys,previousKeys+1);assert.equal(calls,previousCalls);assert(!fileKey.prevented);
+    const filePaste=event();p.listeners.get('paste')(filePaste);assert.equal(calls,previousCalls);assert(!filePaste.prevented);
+    p.clipboardEntries=[];
+
     p.customPasteImage=original;
     const local=path.join(root,'file.bin');fs.writeFileSync(local,'local-content');
     const drop=event();drop.destination='/folder';drop.dataTransfer={files:[{name:'file.bin',nativePath:local,arrayBuffer(){throw Error('must not buffer disk file');}}],getData:()=>''};

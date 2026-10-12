@@ -41,8 +41,9 @@ let ssh,sftp;const deadline=setTimeout(()=>{console.error('native SFTP fixture t
   try{await sftp.stat('/fixture/missing');throw Error('missing stat unexpectedly succeeded');}catch(error){console.log('Original native missing-file stat:',error.message);}
  }
  const adapter={sftp,readdir:async folder=>(await sftp.readDirectory(folder)).map(entry=>({name:entry.name,fullPath:path.posix.join(folder,entry.name),isDirectory:entry.metadata.type===0,isSymlink:entry.metadata.type===2,mode:entry.metadata.permissions,size:entry.metadata.size,modified:new Date(entry.metadata.mtime*1000)})),stat:()=>{throw Error('unsafe native stat must not be called');},open:async(file,mode)=>{const inner=await sftp.open(file,mode);return {read:()=>inner.read(256*1024),write:data=>inner.writeAll(data),close:()=>inner.shutdown()};},chmod:(file,mode)=>sftp.chmod(file,mode),rename:(from,to)=>sftp.rename(from,to),unlink:file=>sftp.removeFile(file)};
- class Panel{constructor(){this.connected=true;this.transfers=[];this.sftpSession=adapter;}_doUpload(){}_doDownload(){}trackTransfer(){}showToast(message){console.error(message);}ngOnDestroy(){}}
+ class Panel{constructor(){this.connected=true;this.transfers=[];this.sftpSession=adapter;}_doUpload(){}_doDownload(){}ctxClipboardPaste(){throw Error('same-path paste reached native backend');}closeContextMenu(){}trackTransfer(){}showToast(message){console.error(message);}ngOnDestroy(){}}
  require('./transfer-engine.cjs')({Panel});
+ require('./clipboard-safety.cjs')({Panel});
  const p=new Panel(),local=path.join(root,'edit.txt');await fs.writeFile(local,'edited content');
  for(let i=0;i<8;i++){
   const remote='/fixture/file'+i;
@@ -51,5 +52,12 @@ let ssh,sftp;const deadline=setTimeout(()=>{console.error('native SFTP fixture t
   await adapter.chmod(remote,0o750);assert.equal(await p._doUpload(remote,local,'edit-upload'),true);assert.equal(files.get(remote).mode,0o750);
   const downloaded=path.join(root,'download'+i);assert.equal(await p._doDownload(remote,downloaded,0o750,14),true);assert.equal(await fs.readFile(downloaded,'utf8'),'edited content');
  }
+ const pastePanel=new Panel();let pasteCalls=0;
+ pastePanel.sftpSession=new Proxy(adapter,{get(target,key){const value=target[key];return typeof value==='function'?function(...args){pasteCalls++;return value.apply(target,args);}:value;}});
+ Object.assign(pastePanel,{contextMenuPane:'remote',remotePath:'/fixture',clipboardSource:'remote',clipboardMode:'copy',clipboardEntries:[{name:'file0',fullPath:'/fixture/file0'}]});
+ pastePanel.showToast=()=>{};const before=Buffer.from(files.get('/fixture/file0').data);
+ for(let i=0;i<10;i++)assert.equal(await pastePanel.ctxClipboardPaste(),false);
+ assert.equal(pasteCalls,0);assert.ok(files.get('/fixture/file0').data.equals(before));assert.equal(pastePanel.clipboardEntries.length,1);
+ console.log('PASS: 10 same-folder pastes with the native adapter invoke no SFTP/exec/hash, preserve source bytes and retain the internal clipboard.');
  assert.equal(files.size,8);console.log('PASS: actual installed russh native adapter survives 8 empty creations + chmod + save-upload + downloads against an isolated loopback SFTP server; exact bytes and permissions preserved.');
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(async()=>{clearTimeout(deadline);try{await sftp?.close();}catch{}try{await ssh?.disconnect();}catch{}for(const client of clients)client.end();server.close();if(path.dirname(root)===path.resolve(__dirname,'test-fixtures'))await fs.rm(root,{recursive:true,force:true});});

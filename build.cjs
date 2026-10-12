@@ -18,6 +18,7 @@ patched=require('./patch-recent.cjs')(patched);
 patched=once(patched,'const so=to;',`/* CLIPBOARD_UPLOAD_V1 */(${runtime('clipboard-upload.cjs')})({Panel:Xi,electron:t(288)});const so=to;`);
 patched=require('./patch-transfer-ui.cjs')(patched);
 patched=require('./patch-context-menu.cjs')(patched);
+patched=once(patched,'const so=to;',`/* CLIPBOARD_SAFETY_V1 */(${runtime('clipboard-safety.cjs')})({Panel:Xi});const so=to;`);
 patched=patched.replaceAll('tabby-sftp-plus','tabby-sftp-plus-plus').replaceAll('sftp-plus-toggle-panel','sftp-plus-plus-toggle-panel').replaceAll('SFTP+','SFTP++');
 new vm.Script(patched,{filename:'SFTP++/dist/index.js'});
 const dist=path.join(__dirname,'dist');fs.mkdirSync(dist,{recursive:true});
