@@ -52,6 +52,13 @@ let ssh,sftp;const deadline=setTimeout(()=>{console.error('native SFTP fixture t
   await adapter.chmod(remote,0o750);assert.equal(await p._doUpload(remote,local,'edit-upload'),true);assert.equal(files.get(remote).mode,0o750);
   const downloaded=path.join(root,'download'+i);assert.equal(await p._doDownload(remote,downloaded,0o750,14),true);assert.equal(await fs.readFile(downloaded,'utf8'),'edited content');
  }
+ require('./clipboard-upload.cjs')({Panel,electron:{webUtils:{getPathForFile:file=>file.nativePath}}});
+ const dropped=new Panel();dropped.remotePath='/fixture';dropped._safeDetect=()=>{};dropped.refreshRemote=async()=>{};
+ dropped._streamUploadOne=(local,destination)=>dropped._doUpload(path.posix.join(destination,path.basename(local)),local);
+ const tiny=path.join(root,'file0');await fs.writeFile(tiny,'x');
+ const event={dataTransfer:{files:[{name:'file0',nativePath:tiny}],getData:()=>''},preventDefault(){},stopImmediatePropagation(){},stopPropagation(){}};
+ assert.equal(await dropped.onDrop(event,'remote'),true);assert.equal(files.get('/fixture/file0').data.toString(),'x');assert.equal(files.get('/fixture/file0').mode,0o750);
+ console.log('PASS: an Explorer-style one-byte file drop finishes through native upload and retains existing server permissions.');
  const pastePanel=new Panel();let pasteCalls=0;
  pastePanel.sftpSession=new Proxy(adapter,{get(target,key){const value=target[key];return typeof value==='function'?function(...args){pasteCalls++;return value.apply(target,args);}:value;}});
  Object.assign(pastePanel,{contextMenuPane:'remote',remotePath:'/fixture',clipboardSource:'remote',clipboardMode:'copy',clipboardEntries:[{name:'file0',fullPath:'/fixture/file0'}]});

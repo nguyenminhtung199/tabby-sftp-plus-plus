@@ -23,3 +23,7 @@ The real Tabby window must load the new bundle after a complete restart. Manual 
 ## Clipboard follow-up
 
 The same-path paste branch previously reached conflict detection and hashing before eventually skipping the identical source. It now exits before those operations. Keyboard/DOM paste also previously preferred a stale Windows clipboard image over files copied inside the plugin; internal files now take priority. Reentrant paste and rejected paste promises are contained. Tests cover repeated same-folder copy/cut, normalized paths, mixed selections, different destinations, retained clipboard, menu dispatch and image priority. The native fixture checks ten self-pastes cause zero adapter calls and leave bytes unchanged. The live white-screen symptom still requires verification in the Tabby window.
+
+## Explorer drop follow-up
+
+Drop processing previously started preparing/queuing uploads during the native Explorer drop callback, and _streamUploadOne used statSync on the local file. The callback now captures File/path/destination, then defers staging/upload preparation outside Angular. Queue metadata is asynchronous and validates the captured session. Pending drop tasks are cancelled on panel destruction. Regression checks verify no upload starts inside the drop callback, UI event-loop progress while stat is pending, fixed destinations during navigation, and a one-byte Explorer-style drop through the actual native adapter. Live-window responsiveness still needs manual verification.

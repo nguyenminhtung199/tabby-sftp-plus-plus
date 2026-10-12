@@ -7,13 +7,28 @@ module.exports = function installClipboardUpload({Panel, electron, stagingRoot})
     const notice=(p,error)=>p.showToast?.('Upload failed: '+error.message);
     const capture=event=>{event.preventDefault?.();event.stopImmediatePropagation?.();event.stopPropagation?.();};
     const image=()=>{try{const value=electron?.clipboard?.readImage();return value&&!value.isEmpty()?value:null;}catch{return null;}};
+    const outside=(panel,fn)=>panel.zone?.runOutsideAngular?panel.zone.runOutsideAngular(fn):fn();
     const nativeDrop=Panel.prototype.onDrop;
+    Panel.prototype._customDeferDrop=function(work){
+        return outside(this,()=>new Promise(resolve=>{
+            const pending=this._customDropActions ||= new Map();
+            const timer=setTimeout(async()=>{
+                pending.delete(timer);
+                if(this._destroyed){resolve(false);return;}
+                try{resolve(await work());}catch(error){try{notice(this,error);}catch{}resolve(false);}
+            },0);
+            pending.set(timer,resolve);
+        }));
+    };
     Panel.prototype._customUploadLocalPaths=async function(paths,destination){
         if(blocked(this))throw new Error('Connect SFTP before uploading.');
         const session=this.sftpSession;
         const unique=[...new Set(paths)];
         // Capture destination once, so navigation during staging never redirects an upload.
-        await Promise.all(unique.map(local=>this._streamUploadOne(local,destination)));
+        await Promise.all(unique.map(local=>{
+            if(blocked(this)||this.sftpSession!==session)throw Error('Connection changed before upload started.');
+            return this._streamUploadOne(local,destination);
+        }));
         if(!this._destroyed&&this.connected&&this.sftpSession===session){await this.refreshRemote();this._safeDetect?.();}
     };
     Panel.prototype.customPasteImage=async function(value=image(),destination=this.remotePath){
@@ -66,16 +81,16 @@ module.exports = function installClipboardUpload({Panel, electron, stagingRoot})
         capture(event);this._remoteDragOver=false;this._safeDetect?.();
         if(blocked(this)){this.showToast?.('Connect SFTP before uploading.');return;}
         const destination=this._resolveDropDestDir?.(event,'remote')||this.remotePath,session=this.sftpSession;
-        try{
+        // Read native paths and DataTransfer while the drop event is valid.
+        const sources=files.map(file=>{let local;try{local=electron?.webUtils?.getPathForFile?.(file);}catch{}return {file,local:local||file.path};});
+        return this._customDeferDrop(async()=>{
+            if(blocked(this)||this.sftpSession!==session)throw Error('Connection changed before preparing files.');
             const paths=[];
-            for(const file of files){
-                let local;try{local=electron?.webUtils?.getPathForFile?.(file);}catch{}
-                local ||= file.path;
-                paths.push(local||await this._customStageDropFile(file));
-            }
-            if(blocked(this)||this.sftpSession!==session)throw new Error('Connection changed while preparing files.');
+            for(const source of sources)paths.push(source.local||await this._customStageDropFile(source.file));
+            if(blocked(this)||this.sftpSession!==session)throw Error('Connection changed while preparing files.');
             await this._customUploadLocalPaths(paths,destination);
-        }catch(error){notice(this,error);}
+            return true;
+        });
     };
     const mounted=Panel.prototype.ngAfterViewInit;
     Panel.prototype.ngAfterViewInit=function(...args){
@@ -92,6 +107,8 @@ module.exports = function installClipboardUpload({Panel, electron, stagingRoot})
     const destroy=Panel.prototype.ngOnDestroy;
     Panel.prototype.ngOnDestroy=function(...args){
         if(this._customImagePasteHandler)this.elRef?.nativeElement?.removeEventListener?.('paste',this._customImagePasteHandler,true);
+        for(const [timer,resolve]of this._customDropActions||[]){clearTimeout(timer);resolve(false);}
+        this._customDropActions?.clear();
         this._customImagePasteHandler=null;return destroy?.apply(this,args);
     };
 };

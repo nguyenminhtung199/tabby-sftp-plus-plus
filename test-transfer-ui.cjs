@@ -26,5 +26,16 @@ const panel=sandbox.module.exports.default.__annotations__[0].declarations.find(
     await p._runQueuedDownload(job);assert.equal(downloadOutside,true);
     p.sftpSession={stat:()=>{editOutside=outside>0;throw Error('test stop before file access');}};
     await p._customExternalEdit({fullPath:'/file.txt',name:'file.txt',size:100});assert.equal(editOutside,true);
+
+    // Local metadata must not block the renderer, even for an immediately small file.
+    const fsp=fs.promises,root=await fsp.mkdtemp(path.join(require('os').tmpdir(),'sftp-drop-')),tiny=path.join(root,'tiny.py');await fsp.writeFile(tiny,'x');
+    const originalStat=fsp.stat,originalSync=fs.statSync;let releaseStat,queued=false;
+    fsp.stat=(file,...args)=>file===tiny?new Promise(resolve=>{releaseStat=resolve;}):originalStat(file,...args);
+    fs.statSync=(file,...args)=>{if(file===tiny)throw Error('sync stat blocks UI');return originalSync(file,...args);};
+    try{
+      const q=Object.create(panel.prototype);Object.assign(q,{connected:true,sftpSession:{},remotePath:'/before',transfers:[],_upQueue:[],_safeDetect(){},transferLog:{add:row=>({id:1,...row})},_pumpUploadQueue(){queued=true;const job=this._upQueue.shift();assert.equal(job.remoteDir,'/before');assert.equal(job.entry.bytesTotal,1);job.entry.queued=false;job.finish();}});
+      const work=q._streamUploadOne(tiny);q.remotePath='/after';await new Promise(resolve=>setImmediate(resolve));assert.equal(queued,false,'event loop keeps running while metadata is pending');releaseStat(await originalStat(tiny));await work;assert.equal(queued,true);
+    }finally{fsp.stat=originalStat;fs.statSync=originalSync;await fsp.unlink(tiny);await fsp.rmdir(root);}
+
     console.log('PASS: real bundle Download/Edit and progress timer execute outside Angular; 100% waits for verification; final failures remain failures.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

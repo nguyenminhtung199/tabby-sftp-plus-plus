@@ -107,3 +107,5 @@ File mới trên server mặc định **0764** (cấu hình `transfer-policy.jso
 Đã rà toàn bộ binding nút/menu và bổ sung test native loopback: xem `BUTTON-AUDIT.md`. New File dùng lại luồng tạo file rỗng trước đây, sau đó đặt/xác minh 0764. Metadata upload/sync lấy từ readdir trên adapter russh để giữ đúng permission; lỗi thao tác menu được bắt và thông báo.
 
 Copy/cut rồi paste cùng đường dẫn được bỏ qua trước khi kiểm tra xung đột/hash/SSH exec. Clipboard file nội bộ được ưu tiên hơn ảnh còn lưu trong clipboard Windows; paste không chạy chồng nhau và lỗi được báo trong panel.
+
+Kéo file từ File Explorer: callback drop chỉ chụp đường dẫn/đích, việc chuẩn bị được hoãn sang lượt event loop sau và chạy ngoài Angular. Hàng đợi đọc metadata local bằng stat bất đồng bộ, vẫn dùng giới hạn concurrency hiện có; đóng panel hoặc đổi kết nối sẽ hủy chuẩn bị.

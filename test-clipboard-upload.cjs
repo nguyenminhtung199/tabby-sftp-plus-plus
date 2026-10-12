@@ -43,6 +43,15 @@ const image={isEmpty:()=>false,toPNG:()=>Buffer.from('png-fixture')};
     const local=path.join(root,'file.bin');fs.writeFileSync(local,'local-content');
     const drop=event();drop.destination='/folder';drop.dataTransfer={files:[{name:'file.bin',nativePath:local,arrayBuffer(){throw Error('must not buffer disk file');}}],getData:()=>''};
     await p.onDrop(drop,'remote');assert(drop.prevented&&drop.stopped);assert.equal(uploads.at(-1).local,local);assert.equal(uploads.at(-1).dir,'/folder');
+
+    // No upload or native I/O may start while the Explorer drop callback runs.
+    const deferred=new Panel();let insideDrop=true,deferredCalls=0;
+    deferred._streamUploadOne=async()=>{assert.equal(insideDrop,false);deferredCalls++;};
+    const delayedEvent=event();delayedEvent.dataTransfer={files:[{name:'tiny.py',nativePath:local}],getData:()=>''};
+    const dropWork=deferred.onDrop(delayedEvent,'remote');assert.equal(deferredCalls,0);insideDrop=false;await dropWork;assert.equal(deferredCalls,1);
+    const closed=new Panel();let closedCalls=0;closed._streamUploadOne=()=>closedCalls++;
+    const closeWork=closed.onDrop(delayedEvent,'remote');closed.ngOnDestroy();assert.equal(await closeWork,false);assert.equal(closedCalls,0);assert.equal(closed._customDropActions.size,0);
+
     const internal=event();internal.dataTransfer={getData:()=>'{"kind":"remote-paths","paths":["/x"]}'};await p.onDrop(internal,'remote');assert.equal(nativeDrops,1);
     await p.onDrop(drop,'local');assert.equal(nativeDrops,2);
     const virtual={name:'virtual.dat',stream(){let chunks=0;return new ReadableStream({pull(controller){if(chunks++<32)controller.enqueue(new Uint8Array(65536).fill(7));else controller.close();p.remotePath='/changed';}});},arrayBuffer(){throw Error('must stream');}};
