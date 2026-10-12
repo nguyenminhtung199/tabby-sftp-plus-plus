@@ -31,3 +31,7 @@ Drop processing previously started preparing/queuing uploads during the native E
 ## Live reproduction instrumentation
 
 Because isolated tests did not reproduce the user's live freeze and Computer Use cannot initialize in the current Windows sandbox, private opt-in diagnostic logging was added for the drop preparation, queue, upload and repaint path. It is activated only with recovery/enable-drop-trace and writes bounded asynchronous records plus heartbeat lag to recovery/drop-trace.jsonl. This is instrumentation to capture an actual failing interaction, not another claimed freeze fix. The next reproduction requires a complete Tabby restart, one Explorer drop, then inspecting the last completed/started phase and heartbeat. No credentials, file contents, source paths or server addresses are recorded.
+
+## Confirmed live drop TypeError
+
+The captured live reproduction ended at onDrop:error with TypeError after 6 ms, before _safeDetect, deferred preparation or upload started. The handler assigned panel._remoteDragOver=false, but the actual Panel exposes that field through a getter without a setter. Strict-mode assignment to this accessor reproduces TypeError. The fix calls the existing file-DnD controller reset() instead. A bundle regression uses the actual Panel prototype and Jt controller, proves the old assignment throws, and verifies the fixed Explorer drop completes and clears hover state. Bundle tests now isolate APPDATA so tracing does not write test events into the live user log.

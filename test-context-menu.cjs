@@ -4,8 +4,8 @@ const generic=new Proxy({}, {get:(_,key)=>key==='__esModule'?true:class{}});
 const releaseListeners=new Map();
 const document={addEventListener(name,callback,capture=false){if(name==='mouseup')releaseListeners.set(callback,capture);},removeEventListener(name,callback,capture=false){if(name==='mouseup'){assert.equal(releaseListeners.get(callback),capture,'release cleanup matches capture flag');releaseListeners.delete(callback);}},elementFromPoint:()=>null};
 let spawnMock;
-const sandbox={module:{exports:{}},exports:{},console,Buffer,process,setTimeout,clearTimeout,setInterval,clearInterval,CompositionEvent:class{},FocusEvent:class{},ClipboardEvent:class{},Event:class{},KeyboardEvent:class{},MouseEvent:class{},WheelEvent:class{},DragEvent:class{},HTMLElement:class{},Element:class{},window:{},document,localStorage:{getItem:()=>null,setItem(){}},require(name){if(name==='child_process'&&spawnMock)return {spawn:spawnMock};if(name==='@angular/core')return pluginRequire(name);if(name.startsWith('tabby-')||['@angular/common','@angular/forms'].includes(name))return generic;if(name==='electron')return {shell:{openPath:async()=>''}};return pluginRequire(name);}};
-sandbox.global=sandbox;vm.runInNewContext(fs.readFileSync(path.join(__dirname,'dist/index.js'),'utf8').replace('const so=to;','globalThis.__testRubberBand=qt;const so=to;'),sandbox);
+const sandbox={module:{exports:{}},exports:{},console,Buffer,process:{...process,env:{...process.env,APPDATA:path.join(__dirname,'test-fixtures','context-ui-unused')}},setTimeout,clearTimeout,setInterval,clearInterval,CompositionEvent:class{},FocusEvent:class{},ClipboardEvent:class{},Event:class{},KeyboardEvent:class{},MouseEvent:class{},WheelEvent:class{},DragEvent:class{},HTMLElement:class{},Element:class{},window:{},document,localStorage:{getItem:()=>null,setItem(){}},require(name){if(name==='child_process'&&spawnMock)return {spawn:spawnMock};if(name==='@angular/core')return pluginRequire(name);if(name.startsWith('tabby-')||['@angular/common','@angular/forms'].includes(name))return generic;if(name==='electron')return {shell:{openPath:async()=>''}};return pluginRequire(name);}};
+sandbox.global=sandbox;vm.runInNewContext(fs.readFileSync(path.join(__dirname,'dist/index.js'),'utf8').replace('const so=to;','globalThis.__testRubberBand=qt;globalThis.__testFileDnd=Jt;const so=to;'),sandbox);
 const classes=sandbox.module.exports.default.__annotations__[0].declarations;
 const Panel=classes.find(c=>c.prototype._customExternalEdit),Menu=classes.find(c=>c.__annotations__?.[0]?.selector==='sftp-context-menu');
 const template=Menu.__annotations__[0].template;
@@ -167,6 +167,17 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  for(let i=0;i<5;i++)assert.equal(await selfCopy.onContextMenuAction('paste'),false);
  assert.equal(selfCopy.clipboardEntries.length,1,'self-paste retains the internal selfCopy file and cannot fall back to a stale screenshot');
  assert.match(selfCopy.toast,/Source and destination are the same/);
+
+
+ // Reproduce the live error against the actual Panel accessor, not a plain mock.
+ const explorer=panel();explorer.remotePath='/drop';explorer.refreshRemote=async()=>{};
+ explorer._fileDnd=new sandbox.__testFileDnd(explorer);explorer._fileDnd._remoteDragOver=true;
+ assert.equal(explorer._remoteDragOver,true);
+ assert.throws(()=>new Function('panel',"'use strict'; panel._remoteDragOver=false;")(explorer),/getter|read only|readonly/i,'the previous assignment throws on the real panel');
+ let fileDrops=0;explorer._streamUploadOne=async(local,dir)=>{assert.equal(local,'C:/tiny.py');assert.equal(dir,'/drop');fileDrops++;};
+ const explorerEvent=event();explorerEvent.dataTransfer={files:[{name:'tiny.py',path:'C:/tiny.py'}],getData:()=>''};
+ assert.equal(await explorer.onDrop(explorerEvent,'remote'),true);
+ assert.equal(fileDrops,1);assert.equal(explorer._remoteDragOver,false,'controller.reset clears the actual read-only view');
 
  class Disposable{onPanelMouseDown(){}onContextMenuAction(){}getContextSelection(){return [];}closeContextMenu(){}ngOnDestroy(){this._destroyed=true;} }
  require('./context-menu.cjs')({Panel:Disposable,Angular:{HostListener:()=>()=>{}}});const d=new Disposable();d.contextMenuPane='remote';d._activateEntry=()=>{throw Error('must not run after destroy');};const cancelled=d.onContextMenuAction('editFile');d.ngOnDestroy();assert.equal(await cancelled,false);assert.equal(d._customContextActions.size,0);

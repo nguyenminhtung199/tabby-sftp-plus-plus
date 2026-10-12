@@ -1953,7 +1953,7 @@ function installSidebar({ Panel, Settings, Decorator }) {
         let files=Array.from(data.files||[]);
         if(!files.length)files=Array.from(data.items||[]).filter(item=>item.kind==='file').map(item=>item.getAsFile()).filter(Boolean);
         if(!files.length)return nativeDrop?.call(this,event,pane);
-        capture(event);this._remoteDragOver=false;this._safeDetect?.();
+        capture(event);this._fileDnd?.reset?.();this._safeDetect?.();
         if(blocked(this)){this.showToast?.('Connect SFTP before uploading.');return;}
         const destination=this._resolveDropDestDir?.(event,'remote')||this.remotePath,session=this.sftpSession;
         // Read native paths and DataTransfer while the drop event is valid.
