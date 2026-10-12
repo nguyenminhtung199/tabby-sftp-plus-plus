@@ -84,5 +84,17 @@
       "sidebar:pin:end",
       "sidebar:pin:error"
     ]
+  },
+  "tabbyDiagnostics": {
+    "enabledMarker": "enable-tabby-trace",
+    "file": "tabby-runtime.jsonl",
+    "backupFile": "tabby-runtime.previous.jsonl",
+    "channel": "sftp-plus-plus:diagnostic-heartbeat",
+    "heartbeatMs": 2000,
+    "rendererHeartbeatMs": 1000,
+    "maxBytes": 2097152,
+    "maxRecords": 20000,
+    "maxMetrics": 16,
+    "maxErrorFrames": 8
   }
 }

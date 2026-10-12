@@ -2264,5 +2264,5 @@ function installSidebar({ Panel, Settings, Decorator }) {
         };
         return this.zone?.runOutsideAngular?this.zone.runOutsideAngular(work):work();
     };
-})({Panel:Xi});/* DROP_DIAGNOSTICS_V1 */require('./drop-diagnostics.cjs')({Panel:Xi,root:customSftpRecovery.root});const so=to;module.exports=s})();
+})({Panel:Xi});/* DROP_DIAGNOSTICS_V1 */require('./drop-diagnostics.cjs')({Panel:Xi,root:customSftpRecovery.root});/* TEMP_TABBY_DIAGNOSTICS_V1 */require('./tabby-diagnostics-loader.cjs')({root:customSftpRecovery.root});const so=to;module.exports=s})();
 //# sourceMappingURL=index.js.map

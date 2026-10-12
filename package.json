@@ -11,7 +11,9 @@
   ],
   "main": "dist/index.js",
   "scripts": {
-    "build": "node build.cjs"
+    "build": "node build.cjs",
+    "diagnostics:on": "node diagnostics-control.cjs on",
+    "diagnostics:off": "node diagnostics-control.cjs off"
   },
   "files": [
     "dist"

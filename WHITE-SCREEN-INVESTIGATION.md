@@ -22,3 +22,7 @@ The UI detection path is shared. ConfigService.save emits config changes, which 
 Opt-in existing private recovery/drop-trace.jsonl now captures pin config dispatch/return, layout, detection and terminal resize boundaries synchronously. Window error, unhandled promise rejection and NgZone error observers persist error type/code and stripped stack frames. Observers do not cancel events, replace application error handlers, suppress thrown pin errors, or log file contents/credentials. Additional existing prototype diagnostics cover pin/mode/full, layout refresh, close context menu and new file.
 
 Node fixture tests validate diagnostic behavior, real sidebar pin function order and thrown-error propagation. These are not live Tabby UI tests. Computer use remains unavailable due Windows sandbox runtime initialization failure. The built junction installation requires a full Tabby restart to load this instrumentation.
+
+## Temporary Tabby-level observer
+
+See DIAGNOSTICS-CLEANUP.md for all new hooks, local outputs and removal steps. The observer separates main heartbeats from renderer heartbeat age and records native renderer/GPU lifecycle events. Readiness is not confirmed until main:diagnostics:ready appears after a full restart.
