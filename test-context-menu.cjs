@@ -145,6 +145,13 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  assert.equal(menu.orderedVisibleActions.filter(a=>a==='editFile').length,1);assert.equal(menu.orderedVisibleActions.includes('openLocal'),false);
  menu.disabledMenuEntries.add('editFile');assert.equal(menu.orderedVisibleActions.includes('editFile'),false);menu.pane='remote';assert.equal(menu.orderedVisibleActions.includes('editFile'),false);menu.disabledMenuEntries.clear();
 
+
+ const created=panel();Object.assign(created,{inputDialogVisible:true,inputDialogMode:'remote-touch',inputDialogValue:'new.txt',inputDialogTargetPath:'/folder',inputDialogRemotePath:''});
+ created._remoteEntryExists=async()=>({exists:false,isDirectory:false});created.cancelInputDialog=()=>{created.inputDialogVisible=false;};created.refreshRemote=async()=>{created.remoteRefreshed=true;};
+ let createdUpload=0;
+ created._doUpload=async(remote,local,operation)=>{assert.equal(remote,'/folder/new.txt');assert.equal(operation,'create-file');assert.equal(fs.statSync(local).size,0);createdUpload++;return true;};
+ await created.confirmInputDialog();assert.equal(createdUpload,1);assert.equal(created.inputDialogVisible,false);assert.equal(created.remoteRefreshed,true,'New File uses the permission-preserving upload engine');
+
  class Disposable{onPanelMouseDown(){}onContextMenuAction(){}getContextSelection(){return [];}closeContextMenu(){}ngOnDestroy(){this._destroyed=true;} }
  require('./context-menu.cjs')({Panel:Disposable,Angular:{HostListener:()=>()=>{}}});const d=new Disposable();d.contextMenuPane='remote';d._activateEntry=()=>{throw Error('must not run after destroy');};const cancelled=d.onContextMenuAction('editFile');d.ngOnDestroy();assert.equal(await cancelled,false);assert.equal(d._customContextActions.size,0);
  console.log('PASS: Angular menu parses; right-button isolation and rubber-band cleanup work; menu Open uses local/remote double-click handlers; Open with launches chosen apps and retains auto-sync; terminal paths and clipboard names are preserved; Download waits for native folder choice and keeps selected files; cancel, destroy and errors start no transfer.');

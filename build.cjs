@@ -2,7 +2,8 @@ const fs=require('fs'),path=require('path'),vm=require('vm');
 const original=fs.readFileSync(path.join(__dirname,'index.original.js'),'utf8');
 const once=(source,old,replacement)=>{if(source.split(old).length!==2)throw new Error('Build anchor mismatch: '+old.slice(0,70));return source.replace(old,replacement);};
 const runtime=name=>fs.readFileSync(path.join(__dirname,name),'utf8').replace(/^\uFEFF/,'').trim().replace(/^module\.exports = /,'').replace(/;$/,'');
-let patched=once(original,'openOnClick:"double",openUnsupportedInSystem:','openOnClick:"double",fileOpenAction:"external-edit",openUnsupportedInSystem:');
+let patched=once(original,'const r=new O(s);try{await this.sftpSession.upload(n,r)}',"try{if(!await this._doUpload(n,s,'create-file'))throw new Error('Remote file creation failed')}");
+patched=once(patched,'openOnClick:"double",openUnsupportedInSystem:','openOnClick:"double",fileOpenAction:"external-edit",openUnsupportedInSystem:');
 const next='          <div class="ss-toggle-row ss-pathmode-row">\\n            <span class="ss-toggle-label">{{ i18n.t(\\\'settings.defaultPathMode\\\') }}</span>';
 const template=`          <label class="ss-toggle-row" title="Download the complete file, open it in your local app, and upload on save. Progress appears in Transfer history.">
             <span class="ss-toggle-label">Open files in default app + auto sync</span>
@@ -21,5 +22,6 @@ patched=patched.replaceAll('tabby-sftp-plus','tabby-sftp-plus-plus').replaceAll(
 new vm.Script(patched,{filename:'SFTP++/dist/index.js'});
 const dist=path.join(__dirname,'dist');fs.mkdirSync(dist,{recursive:true});
 fs.cpSync(path.join(__dirname,'assets'),path.join(dist,'assets'),{recursive:true});
+for(const file of ['file-permissions.cjs','transfer-policy.json'])fs.copyFileSync(path.join(__dirname,file),path.join(dist,file));
 fs.writeFileSync(path.join(dist,'index.js'),patched);
 console.log('Built independent tabby-sftp-plus-plus 1.0.0 (SFTP++).');

@@ -74,3 +74,5 @@ Edit calls the same local or remote double-click opening path, including clearin
 These actions also appear when an older custom menu order is saved; disabled actions remain hidden. The local pane has one Open item. Existing menu event isolation and deferred error handling are retained.
 
 The menu settings list has one **Open** row shared by local and remote panes. Legacy openLocal/editFile order entries are deduplicated. If either legacy action was disabled, the unified Open remains disabled until re-enabled.
+
+New remote files (New File and new upload destinations) use **0764**, configured in `transfer-policy.json`. Upload/save-sync takes the current destination permission bits immediately before commit, including special bits, sets and verifies them on the staging file before replacement. Missing permission metadata or failed/unsupported/ignored chmod aborts replacement and retains the original. Permission changes made since opening the editor are preserved. Run `node test-file-permissions.cjs` for these regression checks.

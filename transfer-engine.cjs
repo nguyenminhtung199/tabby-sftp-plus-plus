@@ -3,6 +3,7 @@ module.exports = function installTransferEngine({Panel,resume}) {
     // Downloads copy native memory and finish the disk write before the next read.
     // Uploads overlap one owned disk buffer with one network write (512 KiB bound).
     // Cursor-based russh handles must never receive concurrent read/write calls.
+    const permissions=require('./file-permissions.cjs');
     const CHUNK=256*1024;
     const original={upload:Panel.prototype._doUpload,download:Panel.prototype._doDownload};
     const stamp=s=>[s.size,s.mtimeMs,s.ctimeMs,s.ino].join(':');
@@ -84,6 +85,10 @@ module.exports = function installTransferEngine({Panel,resume}) {
                 const uploaded=await session.stat(temp);if(Number(uploaded.size)!==size)throw new Error('Uploaded size could not be verified');
                 let current;try{current=await session.stat(remote);}catch(e){if(!missing(e))throw e;}
                 if((!!current)!=(!!remoteBefore)||(current&&remoteStamp(current)!==remoteStamp(remoteBefore)))throw new Error('Remote file changed during upload; local copy retained');
+                // Preserve permissions in effect at commit, including special bits.
+                // A fresh upload uses the configured new-file mode, not Windows local mode.
+                const targetMode=current?permissions.mode(current):permissions.newFileMode;
+                await permissions.apply(session,temp,targetMode);
                 await transfer.gate(panel,session);await replaceRemote(session,temp,remote);temp=null;
             }
             if(state)resume.finish(state);transfer.complete=true;return true;
