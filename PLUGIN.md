@@ -92,3 +92,7 @@ Rename, New file and New folder now use an input directly in the file list, for 
 Verify with node test-inline-edit.cjs and node test-ui-actions.cjs. These execute the built handlers and parse templates; live focus/appearance on Tabby still needs verification.
 
 Native dialog regressions: node test-native-dialog-actions.cjs covers prefilled Save As, exact chosen name, overwrite routing, cancelled dialogs, session changes and safe helper argv. windows-open-with.ps1 -CompileOnly verifies the Windows P/Invoke declaration without showing a dialog. Actual Windows dialog appearance remains a live UI check. API: https://learn.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shopenwithdialog .
+
+## Terminal typing performance
+
+Global SFTP keyboard/composition handlers and CWD polling are registered outside Angular. Ordinary terminal input no longer schedules SFTP Angular checks through these listeners; panel hotkeys, composition and clipboard behavior remain. Run node test-keyboard-events.cjs for event registration, repeated typing, shortcuts and teardown checks.

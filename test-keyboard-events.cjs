@@ -1,0 +1,12 @@
+const assert=require('assert/strict'),fs=require('fs'),path=require('path'),Module=require('module');
+const header=fs.readFileSync('test-context-menu.cjs','utf8').split('(async()=>{')[0];const harness=new Module(path.join(__dirname,'keyboard-harness.cjs'),module);harness.filename=path.join(__dirname,'keyboard-harness.cjs');harness.paths=module.paths;harness._compile(header+'\nmodule.exports={Panel};',harness.filename);const RealPanel=harness.exports.Panel;
+for(const method of ['onWindowKeyDown','onGlobalKeyDown','onTypeAheadCompositionEnd'])assert.ok(!(RealPanel.__prop__metadata__[method]||[]).some(a=>a.eventName),'global key events must not be registered through Angular');
+let outside=false,render=0,commands=0,composition=0,syncOutside=false;
+const registry=new Map();function surface(name){return {addEventListener(type,fn){assert.equal(outside,true);registry.set(name+':'+type,fn);},removeEventListener(type,fn){assert.equal(registry.get(name+':'+type),fn);registry.delete(name+':'+type);}};}
+const win=surface('window'),doc=surface('document');doc.defaultView=win;
+class Panel{constructor(){this.elRef={nativeElement:{ownerDocument:doc}};this.zone={runOutsideAngular(fn){const prev=outside;outside=true;try{return fn();}finally{outside=prev;}}};}ngOnInit(){}ngOnDestroy(){this._destroyed=true;}onWindowKeyDown(e){if(e.key==='F2'){commands++;e.preventDefault();}}onGlobalKeyDown(){}onTypeAheadCompositionEnd(){composition++;}_safeDetect(){render++;}_startCwdSync(){syncOutside=outside;}}
+require('./keyboard-events.cjs')({Panel});const p=new Panel();p.ngOnInit();p.ngOnInit();assert.equal(registry.size,3,'one listener per event, even after repeated init');
+for(let i=0;i<10000;i++){const e={key:'a',defaultPrevented:false};registry.get('window:keydown')(e);registry.get('document:keydown')(e);}assert.equal(render,0,'typing in the terminal must not schedule plugin renders');
+const e={key:'F2',defaultPrevented:false,preventDefault(){this.defaultPrevented=true;}};registry.get('window:keydown')(e);assert.equal(commands,1);assert.equal(render,1,'handled panel shortcuts can update the view');registry.get('window:compositionend')({data:'test'});assert.equal(composition,1);p._startCwdSync();assert.ok(syncOutside);
+p.ngOnDestroy();assert.equal(registry.size,0,'destroy removes native global handlers');
+console.log('PASS: real bundle has no Angular global keyboard listeners; 10,000 typing events trigger no plugin renders; shortcuts/composition preserved; CWD timer starts outside Angular; listeners deduplicate and clean up.');

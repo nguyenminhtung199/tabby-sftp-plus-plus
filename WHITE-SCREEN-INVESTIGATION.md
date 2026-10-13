@@ -34,3 +34,9 @@ The 09:05:25 (UTC+7) Crashpad dump records renderer process, exception 0xc000000
 Removed AsyncLocalStorage from activity.cjs and drop-diagnostics.cjs. New sync-context.cjs supports only synchronous nesting; folder ownership after await is resolved from running job server/direction and both source/destination paths. Diagnostic correlations across native await are best-effort; explicit saved queue context is retained. No global async busy flag absorbs unrelated jobs. Tests cover delayed folder children and a concurrent independent file. Full Tabby restart/live reproduction remains required to confirm the observed crashes stop.
 
 The Tabby main diagnostics loader failed at startup with TypeError and has no main:diagnostics:ready entry. This is a separate diagnostic limitation. Added installation stage and stripped frames to locate that failure; do not treat main heartbeats as available until readiness is recorded.
+
+## Terminal typing lag investigation — 2026-10-13
+
+Reported while typing after Open terminal here. No app-picker helper or active transfers were running, and no newer dump followed the native-context fix. CPU samples fell from startup activity (main 13.5%, renderer 23.4% of one core over three seconds) to main 0%, renderer 6.2% over five seconds. This is not a runaway-loop diagnosis.
+
+Three SFTP panel HostListeners for window/document keyboard and composition events were registered in Angular, so ordinary terminal typing woke Angular even when their own guards rejected the input. Replaced their registrations with the same handlers registered outside Angular, with teardown, deduplication and a view refresh when a command newly prevents the event. The existing panel-local input listeners and clipboard capture remain. CWD polling registration now also runs outside Angular, retaining its behavior and interval. No terminal input is logged. Fixture event tests do not substitute for live latency measurement after restart.

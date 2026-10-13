@@ -19,6 +19,7 @@ patched=once(patched,'const so=to;',`/* CLIPBOARD_UPLOAD_V1 */(${runtime('clipbo
 patched=require('./patch-transfer-ui.cjs')(patched);
 patched=require('./patch-context-menu.cjs')(patched);
 patched=require('./patch-inline-edit.cjs')(patched);
+patched=require('./patch-keyboard-events.cjs')(patched);
 patched=once(patched,'const so=to;',`/* CLIPBOARD_SAFETY_V1 */(${runtime('clipboard-safety.cjs')})({Panel:Xi});const so=to;`);
 patched=once(patched,'const so=to;',"/* DROP_DIAGNOSTICS_V1 */require('./drop-diagnostics.cjs')({Panel:Xi,root:customSftpRecovery.root});/* TEMP_TABBY_DIAGNOSTICS_V1 */require('./tabby-diagnostics-loader.cjs')({root:customSftpRecovery.root});const so=to;");
 patched=patched.replaceAll('tabby-sftp-plus','tabby-sftp-plus-plus').replaceAll('sftp-plus-toggle-panel','sftp-plus-plus-toggle-panel').replaceAll('SFTP+','SFTP++');
