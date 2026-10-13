@@ -51,14 +51,14 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  p.contextMenuPane='local';p.contextMenuEntry={fullPath:'/wrong'};await pending;assert.equal(edit,1);assert.equal(nativeMenu,0);
  // Double-click still calls the same local-edit implementation directly.
  await p._activateEntry('remote',{fullPath:'/chosen.py',mode:420},{});assert.equal(edit,2);
- const q=panel();const files=[];let target,pickerOpened=0,acceptPicker;
+ const q=panel();q.selectedRemote[0].isDirectory=true;const files=[];let target,pickerOpened=0,acceptPicker;
  q.injector={get:()=>({pickDirectory:()=>{assert.equal(q.contextMenuVisible,false);pickerOpened++;return new Promise(resolve=>{acceptPicker=resolve;});}})};
  q._ensureTransferTargetDir=async(direction,dir)=>{assert.equal(direction,'download');target=dir;return dir;};q._streamDownloadOne=async(entry,dir)=>{assert.equal(q.contextMenuVisible,false);files.push(entry.fullPath);assert.equal(dir,'C:/picked');};q._showConflictDialog=()=>{q.conflictShown=true;};q._conflictQueue.push({});
  const download=q.onContextMenuAction('download');q.selectedRemote=[];q.localPath='C:/different';q.contextMenuPane='local';
  await new Promise(resolve=>setTimeout(resolve,10));assert.equal(pickerOpened,1);assert.equal(files.length,0,'no download until folder selected');acceptPicker('C:/picked');
  await download;assert.deepEqual(files,['/chosen.py']);assert.equal(target,'C:/picked');assert.equal(q.refreshed,true);assert.equal(q.conflictShown,true);
  for(const outcome of ['cancel','destroy','error']){
-  const cancelled=panel();let transfers=0;cancelled._streamDownloadOne=()=>transfers++;
+  const cancelled=panel();cancelled.selectedRemote[0].isDirectory=true;let transfers=0;cancelled._streamDownloadOne=()=>transfers++;
   cancelled.injector={get:()=>({pickDirectory:async()=>{if(outcome==='error')throw Error('picker failed');if(outcome==='destroy'){cancelled._destroyed=true;return 'C:/picked';}return '';}})};
   assert.equal(await cancelled.onContextMenuAction('download'),false);assert.equal(transfers,0);
   if(outcome==='error')assert.match(cancelled.toast,/picker failed/);
@@ -75,10 +75,10 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  single._activateEntry=async(pane,entry)=>{assert.equal(pane,'remote');assert.equal(entry.fullPath,'/chosen.py');singleOpened++;};
  single.remoteClickTimer=setTimeout(()=>{throw Error('pending click must be cancelled');},1000);
  await single.ctxEditFile();assert.equal(singleOpened,1);assert.equal(single.remoteClickTimer,null);
- const direct=panel();let directTransfers=0;
+ const direct=panel();direct.selectedRemote[0].isDirectory=true;let directTransfers=0;
  direct.injector={get:()=>({pickDirectory:async()=>''})};direct._streamDownloadOne=()=>directTransfers++;
  assert.equal(await direct.ctxDownload(),false);assert.equal(directTransfers,0,'direct Download also waits for a folder');
- const switched=panel();let switchedTransfers=0;
+ const switched=panel();switched.selectedRemote[0].isDirectory=true;let switchedTransfers=0;
  switched.injector={get:()=>({pickDirectory:async()=>{switched.sftpSession={};return 'C:/picked';}})};
  switched._streamDownloadOne=()=>switchedTransfers++;
  assert.equal(await switched.ctxDownload(),false);assert.equal(switchedTransfers,0,'reconnection during folder choice cancels the old selection');
@@ -112,16 +112,13 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  terminalPanel.contextMenuEntry=null;terminalPanel.remotePath='/current';await terminalPanel.onContextMenuAction('openTerminalHere');assert.equal(commands[2],"cd -- '/current'\n");
  terminalPanel.contextMenuEntry={fullPath:'/bad\ncommand',isDirectory:true};assert.equal(await terminalPanel.onContextMenuAction('openTerminalHere'),false);assert.equal(commands.length,3);
  const choose=panel();let appOpens=0,editDownloads=0;
- choose._customPickApplication=async()=> 'C:/Program Files/Editor/editor.exe';
- choose._customLaunchApplication=async(app,file)=>{assert.equal(app,'C:/Program Files/Editor/editor.exe');assert.equal(file,'C:/copy/chosen.py');appOpens++;return '';};
+ choose._customOpenWithFile=async(file)=>{assert.equal(file,'C:/copy/chosen.py');appOpens++;return '';};
  choose._customExternalEdit=async(entry,open)=>{assert.equal(entry.fullPath,'/chosen.py');editDownloads++;return open('C:/copy/chosen.py');};
  await choose.onContextMenuAction('openWith');assert.equal(appOpens,1);assert.equal(editDownloads,1);
  choose.contextMenuPane='local';choose.contextMenuEntry={fullPath:'C:/copy/chosen.py'};await choose.onContextMenuAction('openWith');assert.equal(appOpens,2);assert.equal(editDownloads,1);
- for(const outcome of ['cancel','disconnect','error']){
-  const cancelled=panel();cancelled._customExternalEdit=()=>{throw Error('must not download');};
-  cancelled._customPickApplication=async()=>{if(outcome==='error')throw Error('app picker failed');if(outcome==='disconnect')cancelled.sftpSession={};return outcome==='cancel'?null:'editor.exe';};
-  assert.equal(await cancelled.onContextMenuAction('openWith'),false);
- }
+ const cancelledOpen=panel();cancelledOpen._customOpenWithFile=async()=>{throw Error('picker failed');};cancelledOpen._customExternalEdit=async(entry,open)=>open('C:/copy/chosen.py');assert.equal(await cancelledOpen.onContextMenuAction('openWith'),false);
+ const disconnectedOpen=panel();disconnectedOpen.connected=false;disconnectedOpen._customExternalEdit=()=>{throw Error('must not download');};assert.equal(await disconnectedOpen.onContextMenuAction('openWith'),false);
+
 
 
  const picker=panel();let dialogOptions;
@@ -190,5 +187,5 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
 
  class Disposable{onPanelMouseDown(){}onContextMenuAction(){}getContextSelection(){return [];}closeContextMenu(){}ngOnDestroy(){this._destroyed=true;} }
  require('./context-menu.cjs')({Panel:Disposable,Angular:{HostListener:()=>()=>{}}});const d=new Disposable();d.contextMenuPane='remote';d._activateEntry=()=>{throw Error('must not run after destroy');};const cancelled=d.onContextMenuAction('editFile');d.ngOnDestroy();assert.equal(await cancelled,false);assert.equal(d._customContextActions.size,0);
- console.log('PASS: Angular menu parses; right-button isolation and rubber-band cleanup work; menu Open uses local/remote double-click handlers; Open with launches chosen apps and retains auto-sync; terminal paths and clipboard names are preserved; Download waits for native folder choice and keeps selected files; cancel, destroy and errors start no transfer.');
+ console.log('PASS: Angular menu parses; right-button isolation and rubber-band cleanup work; menu Open uses local/remote double-click handlers; Open with uses the native app chooser and retains auto-sync; terminal paths and clipboard names are preserved; Download waits for native folder choice and keeps selected files; cancel, destroy and errors start no transfer.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

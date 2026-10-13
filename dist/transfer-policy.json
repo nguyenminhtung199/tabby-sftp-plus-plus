@@ -96,5 +96,20 @@
     "maxRecords": 20000,
     "maxMetrics": 16,
     "maxErrorFrames": 8
+  },
+  "windowsOpenWith": {
+    "executable": "System32/WindowsPowerShell/v1.0/powershell.exe",
+    "script": "windows-open-with.ps1",
+    "arguments": [
+      "-NoProfile",
+      "-NonInteractive",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-WindowStyle",
+      "Hidden",
+      "-File"
+    ],
+    "flags": 4,
+    "cancelExitCode": 2
   }
 }

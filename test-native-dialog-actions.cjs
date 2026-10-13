@@ -1,0 +1,19 @@
+const assert=require('assert/strict'),fs=require('fs'),path=require('path'),Module=require('module'),{EventEmitter}=require('events');
+const header=fs.readFileSync('test-context-menu.cjs','utf8').split('(async()=>{')[0];const harness=new Module(path.join(__dirname,'dialog-harness.cjs'),module);harness.filename=path.join(__dirname,'dialog-harness.cjs');harness.paths=module.paths;harness._compile(header+'\nmodule.exports={Panel,panel,sandbox};',harness.filename);const {Panel,panel,sandbox}=harness.exports;
+(async()=>{
+ const p=panel(),source=p.selectedRemote[0];let opts,selected;
+ p.injector={get:()=>({hostWindow:{getWindow:()=> 'parent'},electron:{dialog:{showSaveDialog:async(parent,options)=>{assert.equal(parent,'parent');opts=options;return {canceled:false,filePath:'C:/downloads/new name.py'};}}},pickDirectory(){throw Error('single file must use Save As');}})};
+ p._customDownloadToDirectory=async(entries,destination,session)=>{selected={entries,destination,session};return true;};
+ assert.equal(await p.onContextMenuAction('download'),true);assert.equal(path.basename(opts.defaultPath),'chosen.py');assert.equal(opts.buttonLabel,'Download');assert.equal(selected.entries[0].name,'new name.py');assert.equal(selected.entries[0].fullPath,source.fullPath);assert.equal(selected.entries[0]._customSaveAs,true);assert.equal(selected.destination,path.dirname('C:/downloads/new name.py'));assert.equal(source.name,'chosen.py','original remote entry stays unchanged');
+ for(const mode of ['cancel','disconnect','destroy','error']){const p=panel();let queued=0;p._customDownloadToDirectory=async()=>queued++;p.injector={get:()=>({hostWindow:{getWindow:()=> 'parent'},electron:{dialog:{showSaveDialog:async()=>{if(mode==='error')throw Error('fixture');if(mode==='disconnect')p.sftpSession={};if(mode==='destroy')p._destroyed=true;return {canceled:mode==='cancel',filePath:'C:/downloads/name.py'};}}}})};assert.equal(await p.onContextMenuAction('download'),false);assert.equal(queued,0);}
+ // Execute the real patched use case to verify the accepted Save As target bypasses a second conflict prompt.
+ const ts=require('typescript'),src=fs.readFileSync('dist/index.js','utf8'),ast=ts.createSourceFile('bundle.js',src,99,true);let useCase;
+ function walk(n){if(ts.isMethodDeclaration(n)&&n.name?.getText(ast)==='execute'&&n.getText(ast).includes('n._customSaveAs'))useCase=n.getText(ast);ts.forEachChild(n,walk);}walk(ast);assert.ok(useCase);
+ let saved;const run=require('vm').runInNewContext('({'+useCase+'}).execute',{S:path,os:name=>name,k(){throw Error('invalid');}});
+ const owner={downloadOne:{getLocalPath:()=> 'C:/downloads'},ports:{conflictDetection:{checkLocalConflict(){throw Error('must not ask twice');}},execution:{downloadTopLevel:async(...args)=>{saved=args;return true;}}}};
+ assert.equal(await run.call(owner,{name:'new name.py',fullPath:'/chosen.py',mode:420,size:8,_customSaveAs:true},'C:/downloads'),true);assert.equal(saved[0],'/chosen.py');assert.equal(saved[1],path.join('C:/downloads','new name.py'));
+ const originalLoad=Module._load,cfg=require('./transfer-policy.json').windowsOpenWith;let launch;
+ Module._load=function(name,...rest){if(name==='child_process')return {spawn(exe,args,options){launch={exe,args,options};const child=new EventEmitter();setImmediate(()=>child.emit('close',0));return child;}};return originalLoad.call(this,name,...rest);};
+ try{assert.equal(await require('./windows-open-with.cjs')('C:/copy/a & b.py'),'');assert.ok(launch.exe.endsWith('powershell.exe'));assert.equal(launch.args.at(-1),'C:/copy/a & b.py');assert.equal(launch.options.shell,false);assert.equal(launch.options.windowsHide,true);}finally{Module._load=originalLoad;}
+ console.log('PASS: Save As prefilled filename, chosen rename and exact target; no second overwrite prompt; cancel/session guards; native app chooser uses separate argv and a hidden helper.');
+})().catch(error=>{console.error(error);process.exitCode=1;});

@@ -93,7 +93,14 @@ module.exports = function installContextMenu({Panel,Angular,Platform,Menu,Regist
         if(!this.connected||!this.sftpSession){this.showToast(this.i18n.t('notify.notConnectedDownload'));return false;}
         // Use Tabby's own native folder picker. Cancelling never starts a transfer.
         const session=this.sftpSession;
-        const directory=await this.injector.get(Platform).pickDirectory();
+        const platform=this.injector.get(Platform);
+        if(entries.length===1&&!entries[0].isDirectory&&!this.isDirByMode(entries[0].mode)){
+            const path=require('path'),entry=entries[0];
+            const result=await platform.electron.dialog.showSaveDialog(platform.hostWindow.getWindow(),{title:'Download file',buttonLabel:'Download',defaultPath:path.join(this._defaultDownloadPath||this.localPath,path.basename(entry.name))});
+            if(result.canceled||!result.filePath||this._destroyed||!this.connected||this.sftpSession!==session)return false;
+            return this._customDownloadToDirectory([{...entry,name:path.basename(result.filePath),_customSaveAs:true}],path.dirname(result.filePath),session);
+        }
+        const directory=await platform.pickDirectory();
         if(!directory||this._destroyed||!this.connected||this.sftpSession!==session)return false;
         return this._customDownloadToDirectory(entries,directory,session);
     };
@@ -119,6 +126,7 @@ module.exports = function installContextMenu({Panel,Angular,Platform,Menu,Regist
         if(this._conflictQueue.length)this._showConflictDialog();
         await this.refreshLocal();this._safeDetect();return true;
     };
+    Panel.prototype._customOpenWithFile=function(file){return require('./windows-open-with.cjs')(file);};
     Panel.prototype._customPickApplication=async function(){
         const platform=this.injector.get(Platform);
         const result=await platform.electron.dialog.showOpenDialog(platform.hostWindow.getWindow(),{
@@ -140,9 +148,10 @@ module.exports = function installContextMenu({Panel,Angular,Platform,Menu,Regist
             if(!entry||entry.isDirectory||this.isDirByMode(entry.mode))return false;
             if(pane==='remote'&&(!this.connected||this.sftpSession!==session))return false;
             if(pane==='remote'&&entry.isSymlink&&await this._resolveRemoteSymlinkIsDir(entry.fullPath))return false;
-            const application=await this._customPickApplication();
-            if(!application||this._destroyed||(pane==='remote'&&(!this.connected||this.sftpSession!==session)))return false;
-            const open=file=>this._customLaunchApplication(application,file);
+            let open;
+            if(process.platform==='win32')open=file=>this._customOpenWithFile(file);
+            else{const application=await this._customPickApplication();if(!application)return false;open=file=>this._customLaunchApplication(application,file);}
+            if(this._destroyed||(pane==='remote'&&(!this.connected||this.sftpSession!==session)))return false;
             if(pane==='local')return open(entry.linkTarget||entry.fullPath);
             return this._customExternalEdit(entry,open);
         });

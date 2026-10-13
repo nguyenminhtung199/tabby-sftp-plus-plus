@@ -25,6 +25,6 @@ patched=patched.replaceAll('tabby-sftp-plus','tabby-sftp-plus-plus').replaceAll(
 new vm.Script(patched,{filename:'SFTP++/dist/index.js'});
 const dist=path.join(__dirname,'dist');fs.mkdirSync(dist,{recursive:true});
 fs.cpSync(path.join(__dirname,'assets'),path.join(dist,'assets'),{recursive:true});
-for(const file of ['file-permissions.cjs','transfer-policy.json','remote-metadata.cjs','drop-diagnostics.cjs','tabby-main-diagnostics.cjs','tabby-diagnostics-loader.cjs','sync-context.cjs'])fs.copyFileSync(path.join(__dirname,file),path.join(dist,file));
+for(const file of ['file-permissions.cjs','transfer-policy.json','remote-metadata.cjs','drop-diagnostics.cjs','tabby-main-diagnostics.cjs','tabby-diagnostics-loader.cjs','sync-context.cjs','windows-open-with.cjs','windows-open-with.ps1'])fs.copyFileSync(path.join(__dirname,file),path.join(dist,file));
 fs.writeFileSync(path.join(dist,'index.js'),patched);
 console.log('Built independent tabby-sftp-plus-plus 1.0.0 (SFTP++).');

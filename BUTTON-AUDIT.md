@@ -1,6 +1,6 @@
 # Button and action audit
 
-The audit covers the templates of all 16 declared components, including the main panel, settings, context menus, bookmarks, file panes, create/delete/permission/conflict dialogs, transfer queue and Transfer history. `test-ui-actions.cjs` parses these templates with Angular, verifies all referenced method/callback handlers exist, and records 619 event bindings in `ui-action-inventory.json`. This is a code/binding audit, not a claim that every gesture was manually exercised in a live Tabby window.
+The audit covers the templates of all 16 declared components, including the main panel, settings, context menus, bookmarks, file panes, create/delete/permission/conflict dialogs, transfer queue and Transfer history. `test-ui-actions.cjs` parses these templates with Angular, verifies all referenced method/callback handlers exist, and records 640 event bindings in `ui-action-inventory.json`. This is a code/binding audit, not a claim that every gesture was manually exercised in a live Tabby window.
 
 ## Findings and fixes
 
@@ -55,3 +55,5 @@ The latest live reproduction (PID 2192) loaded the detailed operationId format b
 PID 30768 loaded the detailed diagnostics but still produced no clipboard:key-route or customPasteImage entry before the renderer disappeared. Prototype shadowing and duplicate clipboard installation were checked and were not found. The Angular HostListener uses document keydown bubbling, which can be prevented by an earlier target handler; this is a routing hypothesis, not a confirmed native crash cause. A window-capture listener (document fallback) now records the event before target/bubble handling and invokes the existing image handler only for owned, non-editable remote-pane input. Tests cover a target that stops bubbling, editable-field exclusion, one-time registration and cleanup. Live verification of the event routing remains necessary.
 
 Inline naming update: Rename/New file/New folder reuse the existing confirmation operations through an in-list editor; local and remote, grouped and flat templates covered. Other input dialogs, including chmod, retain their current UI. See test-inline-edit.cjs for duplicate/cancel/navigation/session regressions.
+
+Download now uses prefilled Save As for one file (the chosen name is preserved); multi-file/directory downloads keep the folder picker. Windows Open with now calls the native app chooser after preparing the local copy, rather than picking an executable path. Native binding compilation and test-native-dialog-actions.cjs passed; dialogs have not been manually exercised in a live Tabby window.

@@ -1,7 +1,11 @@
 const fs=require('fs'),path=require('path'),ts=require('typescript');
 module.exports=function patchContextMenu(source){
- const ast=ts.createSourceFile('bundle.js',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),edits=[];let templates=0,releases=0,doubleClicks=0,orders=0,normalizers=0;
+ const ast=ts.createSourceFile('bundle.js',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),edits=[];let templates=0,releases=0,doubleClicks=0,orders=0,normalizers=0,saveAs=0;
  function visit(node){
+  if(ts.isMethodDeclaration(node)&&node.name?.getText(ast)==='execute'&&node.getText(ast).includes('this.ports.execution.downloadTopLevel')&&node.getText(ast).includes('this.ports.conflictDetection.checkLocalConflict')){
+   const text=node.getText(ast),anchor='const g=os(n.name);';if(text.split(anchor).length!==2)throw Error('Save As execute anchor');
+   edits.push({start:node.getStart(ast),end:node.end,text:text.replace(anchor,'if(n._customSaveAs&&!n.isDirectory){const name=os(n.name);if(!name||name!==n.name)throw Error("Invalid download filename");return await this.ports.execution.downloadTopLevel(n.fullPath,S.join(l,name),n.mode,n.size)}'+anchor)});saveAs++;return;
+  }
   if(ts.isMethodDeclaration(node)&&node.name?.getText(ast)==='_remoteEntryExists'){
    edits.push({start:node.getStart(ast),end:node.end,text:`async _remoteEntryExists(folder,name){if(!this.sftpSession)throw Error('SFTP is disconnected');const entry=(await this.sftpSession.readdir(folder)).find(entry=>entry.name===name);return {exists:!!entry,isDirectory:!!entry?.isDirectory};}`});return;
   }
@@ -38,7 +42,7 @@ module.exports=function patchContextMenu(source){
   }
   ts.forEachChild(node,visit);
  }
- visit(ast);if(normalizers!==1)throw Error('Menu normalization anchor changed: '+normalizers);if(orders!==1)throw Error('Menu order anchor changed: '+orders);if(doubleClicks!==2)throw Error('Double click anchors changed: '+doubleClicks);if(releases!==2)throw Error('Rubber-band release anchors changed: '+releases);if(templates!==1)throw Error('Context menu template anchor changed: '+templates);
+ visit(ast);if(saveAs!==1)throw Error('Save As use case anchor changed: '+saveAs);if(normalizers!==1)throw Error('Menu normalization anchor changed: '+normalizers);if(orders!==1)throw Error('Menu order anchor changed: '+orders);if(doubleClicks!==2)throw Error('Double click anchors changed: '+doubleClicks);if(releases!==2)throw Error('Rubber-band release anchors changed: '+releases);if(templates!==1)throw Error('Context menu template anchor changed: '+templates);
  for(const edit of edits.sort((a,b)=>b.start-a.start))source=source.slice(0,edit.start)+edit.text+source.slice(edit.end);
  const anchor='const so=to;';if(source.split(anchor).length!==2)throw Error('Context menu runtime anchor changed');
  const runtime=fs.readFileSync(path.join(__dirname,'context-menu.cjs'),'utf8').trim().replace(/^module\.exports = /,'').replace(/;$/,'');

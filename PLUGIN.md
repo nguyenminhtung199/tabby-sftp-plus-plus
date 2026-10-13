@@ -61,13 +61,13 @@ The rubber-band selection controller receives mouseup during document capture, b
 
 ### Right-click Edit and Download
 
-Edit calls the same local or remote double-click opening path, including clearing its pending click timer. Explicit Edit also works when single-click opening is selected. Both menu dispatch and direct context commands close the menu and defer work outside Angular. Download opens Tabby's native folder picker, then queues the captured selection into the chosen directory in order. Cancelling the picker, closing the panel, disconnecting or switching sessions starts no download against the old connection. Errors are contained even when notification rendering fails. Existing conflict checks remain unchanged.
+Edit calls the same local or remote double-click opening path, including clearing its pending click timer. Explicit Edit also works when single-click opening is selected. Both menu dispatch and direct context commands close the menu and defer work outside Angular. Download of one file opens Save As with its filename prefilled and queues the exact chosen name and directory. Multiple files or a directory use the native folder picker. Save As confirms any replacement, so this explicitly selected target does not open a second conflict dialog. Cancelling the picker, closing the panel, disconnecting or switching sessions starts no download against the old connection. Errors are contained even when notification rendering fails. Other batch and folder downloads retain their existing conflict checks.
 
 
 ### Additional right-click actions
 
 - **Open** replaces the former **Edit** label and opens the file through the same path as double click.
-- **Open with…** opens a local application picker (choose the application's .exe on Windows). Remote files use the existing verified local download and upload-on-save session. Reopening an already edited file reuses its local copy. Cancelling the picker starts no transfer; app launch errors are shown in the panel.
+- **Open with…** uses the Windows app selection dialog through SHOpenWithDialog (OAIF_EXEC). It lists available applications for the file extension, without requiring an executable path. Remote files first use the existing verified local download and upload-on-save session; reopening an already edited file reuses its local copy. Cancelling the app dialog keeps that local copy. Non-Windows platforms retain the application file picker. Launch errors are shown in the panel.
 - **Open terminal here** is available in the remote pane. It sends a quoted cd command to the current SSH terminal: the selected folder, the parent of a selected file, or the current folder when right-clicking empty space. Use it at a shell prompt. Symlinks to folders are resolved, and terminal control characters are rejected.
 - **Copy file name** copies only selected names, one per line, in both local and remote panes.
 
@@ -90,3 +90,5 @@ Opt-in live drop diagnostics are configured in transfer-policy.json.dropDiagnost
 Rename, New file and New folder now use an input directly in the file list, for local and remote panes and grouped/flat lists. Enter or leaving the field confirms; Escape cancels. Rename selects the basename while retaining the extension. Empty/duplicate names keep the editor available and do not overwrite existing entries. A changed folder or SSH session cancels submission. Existing name validation, create permissions and rename operations are retained.
 
 Verify with node test-inline-edit.cjs and node test-ui-actions.cjs. These execute the built handlers and parse templates; live focus/appearance on Tabby still needs verification.
+
+Native dialog regressions: node test-native-dialog-actions.cjs covers prefilled Save As, exact chosen name, overwrite routing, cancelled dialogs, session changes and safe helper argv. windows-open-with.ps1 -CompileOnly verifies the Windows P/Invoke declaration without showing a dialog. Actual Windows dialog appearance remains a live UI check. API: https://learn.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shopenwithdialog .
