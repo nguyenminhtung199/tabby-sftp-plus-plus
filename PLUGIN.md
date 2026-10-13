@@ -84,3 +84,9 @@ Clipboard self-paste is a no-op before conflict detection, digest or SSH exec, f
 Explorer drop preparation is deferred until after the native drop event returns and runs outside Angular. Native file paths and destination are captured during the event. Upload queue metadata uses asynchronous stat, preserves the captured destination and checks the session before enqueueing. Existing queue concurrency is retained. Pending preparation timers resolve without uploading when the panel is destroyed. Tests include a one-byte file and an event-loop heartbeat while filesystem stat is pending.
 
 Opt-in live drop diagnostics are configured in transfer-policy.json.dropDiagnostics. A private recovery/enable-drop-trace marker enables phase start/end/error records, upload queue counters and heartbeat lag in recovery/drop-trace.jsonl after restart. Logging uses bounded asynchronous writes outside Angular and records no source paths/content/credentials/host addresses. Remove the marker and restart to disable. test-drop-diagnostics.cjs verifies opt-in behavior, preserved results/errors and pending-queue heartbeat.
+
+## Inline names
+
+Rename, New file and New folder now use an input directly in the file list, for local and remote panes and grouped/flat lists. Enter or leaving the field confirms; Escape cancels. Rename selects the basename while retaining the extension. Empty/duplicate names keep the editor available and do not overwrite existing entries. A changed folder or SSH session cancels submission. Existing name validation, create permissions and rename operations are retained.
+
+Verify with node test-inline-edit.cjs and node test-ui-actions.cjs. These execute the built handlers and parse templates; live focus/appearance on Tabby still needs verification.
