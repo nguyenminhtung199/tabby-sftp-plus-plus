@@ -1,0 +1,59 @@
+
+    .overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+    }
+    .dialog {
+      background: var(--_bg);
+      border: 1px solid var(--_border);
+      border-radius: 10px; padding: 16px;
+      min-width: min(480px, 94vw); max-width: 94vw;
+      max-height: min(88vh, 640px);
+      overflow: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    }
+    .dialog-title {
+      font-weight: 700; margin-bottom: 10px; color: var(--_primary); font-size: 14px;
+    }
+    .dialog-body {
+      font-size: 12px; color: var(--_text); line-height: 1.5; margin-bottom: 14px;
+    }
+    .dialog-body > p { margin: 0 0 10px; }
+    .cmd-block { margin-bottom: 12px; }
+    .cmd-label { font-weight: 600; margin-bottom: 4px; }
+    .cmd-sub {
+      font-size: 11px; opacity: 0.7; margin: 6px 0 3px;
+      font-family: ui-monospace, Consolas, monospace;
+    }
+    .cmd-code {
+      margin: 0;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--_border);
+      background: var(--_content);
+      color: var(--_text);
+      font-size: 11px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-family: ui-monospace, Consolas, "Courier New", monospace;
+      user-select: text;
+    }
+    .dialog-note {
+      opacity: 0.72; font-size: 11px; margin: 0 !important;
+    }
+    .dialog-buttons {
+      display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px;
+    }
+    .dialog-buttons button {
+      padding: 5px 12px; border-radius: 6px;
+      border: 1px solid var(--_border);
+      background: var(--_content);
+      color: var(--_text); cursor: pointer; font-size: 12px;
+    }
+    .dialog-buttons .btn-primary {
+      border-color: var(--_primary);
+      background: rgba(59,130,246,0.14);
+      color: var(--_primary);
+    }

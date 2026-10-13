@@ -4,7 +4,7 @@ class Panel{
  ctxClipboardPaste(){this.calls++;assert.equal(this.outside,true);this.pasted=this.clipboardEntries.slice();this.clipboardEntries=[];return this.work?this.work():Promise.resolve(true);}
  closeContextMenu(){}showToast(message){this.toast=message;}
 }
-require('./clipboard-safety.cjs')({Panel});
+require('./tests/helpers/feature-fixture.cjs')(require('./src/features/clipboard-safety.cjs'))({Panel});
 (async()=>{
  for(const pane of ['remote','local'])for(const mode of ['copy','cut']){
   const p=new Panel(pane);p.clipboardMode=mode;for(let i=0;i<10;i++)assert.equal(await p.ctxClipboardPaste(),false);assert.equal(p.calls,0);assert.equal(p.clipboardEntries.length,1);

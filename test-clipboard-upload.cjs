@@ -1,5 +1,5 @@
 const assert=require('assert'),fs=require('fs'),path=require('path');
-const install=require('./clipboard-upload.cjs');
+const install=require('./tests/helpers/feature-fixture.cjs')(require('./src/features/clipboard-upload.cjs'));
 const root=path.join(__dirname,'test-fixtures','clipboard-'+process.pid);
 let currentImage=null,nativeKeys=0,nativeDrops=0,nativePaste=0,formatCalls=0;
 const uploads=[];

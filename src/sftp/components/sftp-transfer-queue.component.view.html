@@ -1,0 +1,56 @@
+
+    <div class="sftp-transfers" *ngIf="transfers.length && !hidden && !minimized"
+      (mousedown)="$event.stopPropagation()"
+      (wheel)="$event.stopPropagation()">
+      <div class="transfer-header">
+        <span>{{ i18n.t('transfer.inProgress') }} <span class="transfer-count" *ngIf="transfers.length">({{ transfers.length }})</span></span>
+        <div class="transfer-header-btns">
+          <button class="btn-link" (click)="minimizeChange.emit(true)" title="{{ i18n.t('transfer.minimizePanel') }}">─</button>
+          <button class="btn-link" (click)="hiddenChange.emit(true)" title="{{ i18n.t('transfer.hidePanel') || 'Hide' }}">✕</button>
+        </div>
+      </div>
+      <div class="transfer" *ngFor="let t of transfers; trackBy: trackByTransfer">
+        <div class="transfer-main">
+          <div class="transfer-title">
+            <!-- ★ 2026-09-20：彩色方向徽章（对齐冲突框），替代弱对比度的纯 ↑↓ -->
+            <span class="dir-badge"
+              [class.dir-upload]="t.direction === 'upload'"
+              [class.dir-download]="t.direction === 'download'"
+              [title]="directionTitle(t)">{{ directionBadge(t) }}</span>
+            <span *ngIf="t.isFolder">📁</span>
+            <span class="transfer-name" [title]="t.name">{{ t.name }}</span>
+            <span class="transfer-size" *ngIf="t.bytesTotal > 0">{{ formatSize(t.bytesTotal) }}</span>
+            <span class="transfer-size" *ngIf="!(t.bytesTotal > 0) && t.bytesDone > 0">{{ formatSize(t.bytesDone) }}</span>
+            <!-- ★ 2026-09-20：当前传输方式（与传输记录对话框标签一致） -->
+            <span *ngIf="modeOf(t) === 'tar'" class="mode-tag tag-tar" [title]="i18n.t('log.modeTar')">📦 {{ i18n.t('log.modeTar') }}</span>
+            <span *ngIf="modeOf(t) === 'sftp'" class="mode-tag tag-sftp" [title]="i18n.t('log.modeSftp')">⇄ {{ i18n.t('log.modeSftp') }}</span>
+            <span class="paused-tag" *ngIf="t.paused">{{ i18n.t('transfer.paused') }}</span>
+            <span class="queued-tag" *ngIf="t.queued" title="{{ i18n.t('transfer.queued') }}">⏳</span>
+            <!-- ★ 2026-09-07 issue #15+：自动跳过（内容相同），用灰色 tag + 不显示速度/百分比区分于常规成功 -->
+            <span class="skipped-tag" *ngIf="t.skippedAsDuplicate" title="issue #15: content identical, transfer not executed">↪ {{ i18n.t('transfer.skippedAsDuplicate') }}</span>
+          </div>
+          <div class="transfer-sub" *ngIf="t.isFolder && t.currentItem">
+            {{ t.currentItem }}<span *ngIf="t.currentItemSize != null">  {{ formatSize(t.currentItemSize) }}</span> ({{ t.itemDone }}{{ t.itemCount > 0 ? '/' + t.itemCount : '' }})
+          </div>
+        </div>
+        <div class="transfer-stats">
+          <!-- ★ issue #15+：已跳过不显示速度（实际未传），仅显示「跳过」结束态 -->
+          <span>{{ (t.queued || t.skippedAsDuplicate) ? '--' : (t.speed || '--') }}</span>
+          <span *ngIf="!t.skippedAsDuplicate">{{ t.bytesTotal > 0 ? formatPercent(t.percent) + '%' : '--' }}</span>
+          <!-- ★ 2026-09-26：预估剩余时间。空串时整段不渲染（*ngIf）—— 只留空 span 不隐藏，
+               它作为 flex item 仍会吃掉左右各一个 gap，白送约 12px 空隙 -->
+          <span class="transfer-eta" *ngIf="etaText(t) as eta">{{ eta }}</span>
+          <button *ngIf="!t.paused && !t.queued && !t.skippedAsDuplicate" class="btn-pause" (click)="pause.emit(t)" title="{{ i18n.t('transfer.pause') }}">⏸</button>
+          <button *ngIf="t.paused" class="btn-resume" (click)="resume.emit(t)" title="{{ i18n.t('transfer.resume') }}">▶</button>
+          <button *ngIf="t.isFolder && !t.queued && !t.skippedAsDuplicate" class="btn-cancel-current" (click)="cancelCurrent.emit(t)" title="{{ i18n.t('transfer.cancelCurrent') }}">⏹</button>
+          <button *ngIf="!t.isFolder && !t.skippedAsDuplicate" class="btn-cancel" (click)="cancel.emit(t)" title="{{ i18n.t('transfer.cancel') }}">⏹</button>
+          <button *ngIf="t.isFolder && !t.skippedAsDuplicate" class="btn-cancel" (click)="cancel.emit(t)" title="{{ i18n.t('transfer.cancelAll') }}">✕</button>
+        </div>
+        <!-- ★ 2026-09-26：进度条移到 .transfer 直属、跨两列铺满整行（见文件头注释） -->
+        <div class="bar" *ngIf="!t.skippedAsDuplicate"><div class="fill" [style.width.%]="t.percent"></div></div>
+      </div>
+    </div>
+    <div class="sftp-transfers-mini" *ngIf="transfers.length && !hidden && minimized"
+      (click)="minimizeChange.emit(false)" (mousedown)="$event.stopPropagation()">
+      <span>📦 {{ i18n.t('transfer.inProgress') }} ({{ transfers.length }})</span>
+    </div>

@@ -1,0 +1,1550 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: bg_BG\n"
+
+msgid "app.title"
+msgstr "SFTP+ Управление на Файлове"
+
+msgid "app.openSettings"
+msgstr "Отвори Настройки"
+
+msgid "app.open"
+msgstr "Отвори SFTP"
+
+msgid "app.close"
+msgstr "Затвори"
+
+msgid "app.maximize"
+msgstr "Максимизирай"
+
+msgid "app.restore"
+msgstr "Възстанови"
+
+msgid "app.confirm"
+msgstr "Потвърди"
+
+msgid "app.cancel"
+msgstr "Отмени"
+
+msgid "app.delete"
+msgstr "Изтрий"
+
+msgid "app.deleteFile"
+msgstr "Изтрий File"
+
+msgid "app.deleteFolder"
+msgstr "Изтрий Folder"
+
+msgid "app.deleteMultiple"
+msgstr "Изтрий Multiple Items"
+
+msgid "conflict.title"
+msgstr "Конфликт на файлове"
+msgid "conflict.sourceFile"
+msgstr "Изходен файл"
+msgid "conflict.localFile"
+msgstr "Локален файл"
+msgid "conflict.remoteFile"
+msgstr "Отдалечен файл"
+msgid "conflict.size"
+msgstr "Размер"
+msgid "conflict.modified"
+msgstr "Променено"
+msgid "conflict.path"
+msgstr "Път"
+msgid "conflict.cancel"
+msgstr "Отмени"
+
+msgid "conflict.skip"
+msgstr "Пропусни"
+msgid "conflict.rename"
+msgstr "Преименувай"
+msgid "conflict.overwrite"
+msgstr "Презапиши"
+msgid "conflict.batch"
+msgstr "Групово:"
+msgid "conflict.skipAll"
+msgstr "Skip Всички"
+
+msgid "conflict.renameAll"
+msgstr "Rename Всички"
+
+msgid "conflict.overwriteAll"
+msgstr "Overwrite Всички"
+
+msgid "conflict.existsLocal"
+msgstr "Вече съществува локално"
+msgid "conflict.existsRemote"
+msgstr "Вече съществува отдалечено"
+msgid "log.onlySuccess"
+msgstr "Само успешни"
+msgid "log.success"
+msgstr "Успех"
+msgid "log.failed"
+msgstr "Неуспешно"
+msgid "fileType.txt"
+msgstr "Текстов файл"
+msgid "fileType.log"
+msgstr "Файл с дневник"
+msgid "fileType.md"
+msgstr "Markdown файл"
+msgid "fileType.json"
+msgstr "JSON файл"
+msgid "fileType.xml"
+msgstr "XML файл"
+msgid "fileType.html"
+msgstr "HTML файл"
+msgid "fileType.css"
+msgstr "CSS файл"
+msgid "fileType.js"
+msgstr "JavaScript файл"
+msgid "fileType.ts"
+msgstr "TypeScript файл"
+msgid "fileType.image"
+msgstr "Файл с изображение"
+msgid "fileType.video"
+msgstr "Видео файл"
+msgid "fileType.audio"
+msgstr "Аудио файл"
+msgid "fileType.archive"
+msgstr "Архивен файл"
+msgid "fileType.doc"
+msgstr "Документен файл"
+msgid "fileType.code"
+msgstr "Кодов файл"
+msgid "fileType.data"
+msgstr "Файл с данни"
+msgid "fileType.config"
+msgstr "Конфигурационен файл"
+msgid "fileType.cert"
+msgstr "Сертификатен файл"
+msgid "fileType.executable"
+msgstr "Изпълним файл"
+msgid "fileType.unknown"
+msgstr "Файл"
+msgid "app.deleteConfirmFile"
+msgstr "Сигурни ли сте, че искате да изтриете този файл?"
+msgid "app.deleteConfirmFolder"
+msgstr "Сигурни ли сте, че искате да изтриете тази папка?"
+msgid "app.deleteConfirmMultiple"
+msgstr "Сигурни ли сте, че искате да изтриете тези {count} елемента?"
+msgid "app.rename"
+msgstr "Преименуване"
+msgid "app.refresh"
+msgstr "Обнови"
+
+msgid "app.upload"
+msgstr "Качи"
+
+msgid "app.download"
+msgstr "Изтегли"
+
+msgid "app.newFolder"
+msgstr "Нова Папка"
+
+msgid "app.newFile"
+msgstr "Нов Файл"
+
+msgid "app.loading"
+msgstr "Зареждане..."
+
+msgid "app.error"
+msgstr "Грешка"
+
+msgid "app.success"
+msgstr "Успех"
+msgid "app.yes"
+msgstr "Да"
+
+msgid "app.no"
+msgstr "Не"
+
+msgid "app.all"
+msgstr "Всички"
+
+msgid "app.export"
+msgstr "Експортирай"
+
+msgid "app.clear"
+msgstr "Изчисти"
+
+msgid "app.optional"
+msgstr "Незадължително"
+
+msgid "app.settings"
+msgstr "Настройки"
+
+msgid "app.modeSwitchSsh"
+msgstr "SSH"
+msgid "app.modeSwitchSftp"
+msgstr "SFTP"
+msgid "app.backToTerminal"
+msgstr "Обратно към терминала"
+msgid "filter.allOps"
+msgstr "Всички Operations"
+
+msgid "filter.allStatus"
+msgstr "Всички Status"
+
+msgid "filter.allTime"
+msgstr "Всички Time"
+
+msgid "filter.today"
+msgstr "Днес"
+msgid "filter.last7Days"
+msgstr "Последните 7 дни"
+msgid "filter.last30Days"
+msgstr "Последните 30 дни"
+msgid "filter.customRange"
+msgstr "Потребителски"
+msgid "filter.dateFrom"
+msgstr "От"
+msgid "filter.dateTo"
+msgstr "До"
+msgid "pane.local"
+msgstr "Локално"
+msgid "pane.remote"
+msgstr "Отдалечено"
+msgid "pane.path"
+msgstr "Път"
+msgid "pane.up"
+msgstr "Нагоре"
+msgid "pane.home"
+msgstr "Начало"
+msgid "pane.go"
+msgstr "Отиди"
+msgid "pane.refresh"
+msgstr "Обнови"
+
+msgid "pane.filter"
+msgstr "Филтър…"
+msgid "pane.filterBtn"
+msgstr "File Филтър"
+
+msgid "pane.showHidden"
+msgstr "Покажи скритите файлове"
+msgid "pane.pinFolders"
+msgstr "Закачи папките отгоре"
+msgid "view.panelBorder"
+msgstr "Рамка на панела"
+msgid "view.colBorder"
+msgstr "Покажи рамка"
+msgid "view.zebra"
+msgstr "Покажи зебрасти ленти"
+msgid "pane.hideHidden"
+msgstr "Скрий скритите файлове"
+msgid "pane.sortByName"
+msgstr "Сортирай по име"
+msgid "pane.sortBySize"
+msgstr "Сортирай по размер"
+msgid "pane.sortByModified"
+msgstr "Сортирай по промяна"
+msgid "pane.selectAll"
+msgstr "Select Всички"
+
+msgid "pane.selectInvert"
+msgstr "Обърни избора"
+msgid "pane.clearSelection"
+msgstr "Изчисти Selection"
+
+msgid "pane.items"
+msgstr "{count} елемента"
+msgid "pane.copyPath"
+msgstr "Копирай Path"
+
+msgid "pane.splitterHintHorizontal"
+msgstr "Влачете за преоразмеряване на ляв/десен панел. Двоен клик за нулиране."
+msgid "pane.splitterHintVertical"
+msgstr "Влачете за преоразмеряване на горен/долен панел. Двоен клик за нулиране."
+msgid "notify.pathCopied"
+msgstr "{n} път(ища) копирани"
+msgid "pane.openFolder"
+msgstr "Отвори папка"
+msgid "pane.noMatch"
+msgstr "Не matching files"
+
+msgid "pane.empty"
+msgstr "Празна папка"
+msgid "pane.errorAccess"
+msgstr "Няма достъп (отказано право или пътят не е намерен)"
+msgid "pane.loading"
+msgstr "Зареждане…"
+msgid "path.modeOff"
+msgstr "Режим на път: Изкл (кликни за смяна: Запомни, Синхронизирай)"
+msgid "path.modeRemember"
+msgstr "Режим на път: Запомни (възстанови следващия път)"
+msgid "path.modeSync"
+msgstr "Режим на път: Синхронизирай с терминала (отдалеченото следва cwd)"
+msgid "path.syncNoCwd"
+msgstr "Терминалният cwd не е докладван. Превключете на Синхронизирай отново за настройка"
+msgid "path.cwdSetupTitle"
+msgstr "Активирай синхронизация на директорията на терминала"
+msgid "path.cwdSetupIntro"
+msgstr "Tabby се нуждае от обвивката, за да докладва cwd чрез OSC 1337, преди SFTP+ да може да синхронизира. Изберете как да го активирате:"
+msgid "path.cwdSetupSessionHint"
+msgstr "Само тази сесия: изпълнете временната команда по-долу в текущия терминал (губи се след рестарт на обвивката)"
+msgid "path.cwdSetupPermanentHint"
+msgstr "Постоянно: добавете фрагмента по-долу към отдалечения профил, след това го заредете (според откритата обвивка)"
+msgid "path.cwdSetupNote"
+msgstr "Отмени turns path mode Off. Nothing is executed or written."
+
+msgid "path.cwdSetupSession"
+msgstr "Само тази сесия"
+msgid "path.cwdSetupPermanent"
+msgstr "Запиши постоянно"
+msgid "path.cwdSetupDone"
+msgstr "Докладването на директорията е активирано, синхронизиране…"
+msgid "path.cwdSetupFailed"
+msgstr "Неуспешно активиране. Проверете отдалечените права или типа обвивка"
+msgid "file.name"
+msgstr "Име"
+msgid "file.type"
+msgstr "Тип"
+msgid "file.size"
+msgstr "Размер"
+msgid "file.modified"
+msgstr "Променено"
+msgid "file.created"
+msgstr "Създаден"
+msgid "file.accessed"
+msgstr "Достъпено"
+msgid "file.permissions"
+msgstr "Права"
+msgid "file.owner"
+msgstr "Собственик"
+msgid "file.group"
+msgstr "Група"
+msgid "file.mode"
+msgstr "Режим"
+msgid "file.path"
+msgstr "Път"
+msgid "file.ext"
+msgstr "Разш"
+msgid "file.columns"
+msgstr "Колони"
+msgid "file.inaccessible"
+msgstr "Недостъпно"
+msgid "file.open"
+msgstr "Отвори"
+msgid "file.view"
+msgstr "Преглед"
+
+msgid "file.edit"
+msgstr "Редактирай"
+
+msgid "file.copy"
+msgstr "Копирай"
+
+msgid "file.cut"
+msgstr "Изрежи"
+
+msgid "file.paste"
+msgstr "Постави"
+
+msgid "file.delete"
+msgstr "Изтрий"
+
+msgid "file.rename"
+msgstr "Преименувай"
+msgid "file.newFolder"
+msgstr "Нова Папка"
+
+msgid "file.newFile"
+msgstr "Нов Файл"
+
+msgid "file.properties"
+msgstr "Свойства"
+
+msgid "file.openWith"
+msgstr "Отвори с"
+msgid "file.showInFolder"
+msgstr "Покажи в Explorer"
+msgid "file.openInSystem"
+msgstr "Отвори в системата"
+msgid "file.editInSystem"
+msgstr "Редактирай in System"
+
+msgid "viewer.loading"
+msgstr "Зареждане…"
+msgid "viewer.loadFailed"
+msgstr "Неуспешно зареждане на файл"
+msgid "viewer.binaryNotSupported"
+msgstr "Двоичният файл не може да се преглежда или редактира като текст"
+msgid "viewer.tooLarge"
+msgstr "Файлът е твърде голям за отваряне"
+msgid "viewer.tooLargeView"
+msgstr "Файлът е твърде голям (над {limit}) и не може да се преглежда"
+msgid "viewer.typeNotSupported"
+msgstr "Този тип файл не може да се преглежда"
+msgid "editor.save"
+msgstr "Запази"
+
+msgid "editor.saving"
+msgstr "Запазване…"
+msgid "editor.saveSuccess"
+msgstr "Запазено на сървъра"
+msgid "editor.saveFailed"
+msgstr "Запази failed"
+
+msgid "editor.unsaved"
+msgstr "Имате незапазени промени. Да се отхвърлят ли?"
+msgid "editor.tooLarge"
+msgstr "Файлът е твърде голям (над {limit}) и не може да се редактира"
+msgid "editor.typeNotSupported"
+msgstr "Този тип файл не може да се редактира"
+msgid "file.adjustCol"
+msgstr "Съвпадаща ширина на колона"
+msgid "file.adjustAllCols"
+msgstr "Fit Всички Columns"
+
+msgid "transfer.upload"
+msgstr "Качи"
+
+msgid "transfer.download"
+msgstr "Изтегли"
+
+msgid "transfer.edit-upload"
+msgstr "Редактирай Запази"
+
+msgid "transfer.edit-download"
+msgstr "Редактирай Load"
+
+msgid "transfer.progress"
+msgstr "Прогрес"
+msgid "transfer.speed"
+msgstr "Скорост"
+msgid "transfer.remaining"
+msgstr "Оставащо"
+msgid "transfer.cancel"
+msgstr "Отмени"
+
+msgid "transfer.closePanel"
+msgstr "Затвори transfer panel"
+
+msgid "transfer.pause"
+msgstr "Пауза"
+msgid "transfer.resume"
+msgstr "Продължи"
+msgid "transfer.cancelAll"
+msgstr "Отмени folder"
+
+msgid "transfer.cancelCurrent"
+msgstr "Отмени current"
+
+msgid "transfer.paused"
+msgstr "На пауза"
+msgid "transfer.inProgress"
+msgstr "В ход"
+msgid "transfer.minimizePanel"
+msgstr "Минимизирай"
+msgid "transfer.hidePanel"
+msgstr "Скрий"
+msgid "transfer.noActiveTransfers"
+msgstr "Не active transfers"
+
+msgid "transfer.clearCompleted"
+msgstr "Изчисти Completed"
+
+msgid "transfer.queue"
+msgstr "Опашка за прехвърляне"
+msgid "transfer.log"
+msgstr "История на прехвърляния"
+msgid "transfer.logEmpty"
+msgstr "Не transfer records yet"
+
+msgid "transfer.logNoMatch"
+msgstr "Не matching records"
+
+msgid "transfer.logCount"
+msgstr "{total} записа"
+msgid "transfer.logCountFiltered"
+msgstr "Показани {filtered} от {total}"
+msgid "transfer.noTransfers"
+msgstr "Не active transfers"
+
+msgid "transfer.clearConfirm"
+msgstr "Изчистване на записите за завършени трансфери? Записите за текущи трансфери се запазват."
+
+msgid "transfer.clearTitle"
+msgstr "Потвърди Изчисти"
+
+msgid "transfer.replaceConfirm"
+msgstr "Файлът вече съществува. Да се замени ли?"
+msgid "transfer.replaceTitle"
+msgstr "Потвърди Replace"
+
+msgid "transfer.deleteConfirm"
+msgstr "Изтрий {count} selected items?"
+
+msgid "transfer.deleteTitle"
+msgstr "Потвърди Изтрий"
+
+msgid "bookmark.title"
+msgstr "Отметки"
+msgid "bookmark.add"
+msgstr "Добави отметка"
+msgid "bookmark.addLocal"
+msgstr "Добави локална"
+msgid "bookmark.addGlobal"
+msgstr "Добави глобална"
+msgid "bookmark.addCurrentShort"
+msgstr "+Локална"
+msgid "bookmark.addGlobalShort"
+msgstr "+Глобална"
+msgid "bookmark.remove"
+msgstr "Премахни отметка"
+msgid "bookmark.edit"
+msgstr "Редактирай Bookmark"
+
+msgid "bookmark.noBookmarks"
+msgstr "Не bookmarks yet"
+
+msgid "bookmark.name"
+msgstr "Име на отметка"
+msgid "bookmark.path"
+msgstr "Път"
+msgid "bookmark.save"
+msgstr "Запази Bookmark"
+
+msgid "bookmark.global"
+msgstr "Глобални отметки"
+msgid "bookmark.forConnection"
+msgstr "Текущи отметки"
+msgid "permission.title"
+msgstr "Редактирай Permissions"
+
+msgid "permission.owner"
+msgstr "Собственик"
+msgid "permission.group"
+msgstr "Група"
+msgid "permission.others"
+msgstr "Други"
+msgid "permission.read"
+msgstr "Четене"
+msgid "permission.write"
+msgstr "Запис"
+msgid "permission.execute"
+msgstr "Изпълнение"
+msgid "permission.mode"
+msgstr "Режим (Осмичен)"
+msgid "notify.sftpOpened"
+msgstr "SFTP отворен"
+msgid "notify.noSSHSession"
+msgstr "Не SSH session on current tab"
+
+msgid "notify.transferComplete"
+msgstr "Предаването завърши"
+msgid "notify.transferFailed"
+msgstr "Предаването неуспешно"
+msgid "notify.connectionLost"
+msgstr "Връзката прекъсна"
+msgid "notify.connected"
+msgstr "Свързан с"
+msgid "notify.connecting"
+msgstr "Свързване с"
+msgid "notify.sftpConnectFailed"
+msgstr "SFTP връзката неуспешна. Уверете се, че SSH е свързан и сървърът поддържа SFTP."
+msgid "notify.reconnectNoTerminal"
+msgstr "Терминалът е прекъснат. Щракнете или натиснете клавиш в терминала, за да се свържете отново."
+msgid "notify.reconnectFailed"
+msgstr "Повторното свързване неуспешно. Щракнете или натиснете клавиш в терминала, за да опитате пак."
+msgid "settings.desc"
+msgstr "Красив SFTP файлов мениджър: влачене и пускане, отметки, сортиране, история на прехвърляния и многоезичност."
+msgid "settings.language"
+msgstr "Език"
+
+msgid "settings.followTabby"
+msgstr "Следвай Tabby"
+msgid "settings.theme"
+msgstr "Тема"
+
+msgid "settings.primary"
+msgstr "Основен"
+msgid "settings.bg"
+msgstr "Фон"
+msgid "settings.text"
+msgstr "Текст"
+msgid "settings.border"
+msgstr "Рамка"
+msgid "settings.layout"
+msgstr "Оформление"
+msgid "settings.layoutAdaptive"
+msgstr "Адаптивно"
+msgid "settings.layoutAdaptiveSub"
+msgstr "Автоматично превключване по ширина"
+msgid "settings.layoutHorizontal"
+msgstr "Хоризонтално"
+msgid "settings.layoutHorizontalSub"
+msgstr "Панели един до друг"
+msgid "settings.layoutVertical"
+msgstr "Вертикално"
+msgid "settings.layoutVerticalSub"
+msgstr "Панели един върху друг"
+msgid "settings.layoutSingle"
+msgstr "Единичен панел"
+msgid "settings.layoutSingleSub"
+msgstr "Само отдалечен панел"
+msgid "settings.toolbarLayout"
+msgstr "Персонализирай лентата"
+msgid "settings.customToolbar"
+msgstr "Персонализирай лентата"
+msgid "settings.toolbarLayoutHint"
+msgstr "Влачете за пренареждане и се прилага веднага върху заглавието на панела"
+msgid "settings.paneLabel"
+msgstr "Етикет на терминала"
+msgid "settings.addressBar"
+msgstr "Адресен лент"
+msgid "settings.toolbar"
+msgstr "Лента с инструменти"
+msgid "settings.toolbarItem.back"
+msgstr "Назад"
+msgid "settings.toolbarItem.forward"
+msgstr "Напред"
+msgid "settings.toolbarItem.up"
+msgstr "Нагоре"
+msgid "settings.toolbarItem.refresh"
+msgstr "Обнови"
+
+msgid "settings.toolbarItem.home"
+msgstr "Начало"
+msgid "settings.toolbarItem.filter"
+msgstr "Филтър"
+
+msgid "settings.toolbarItem.bookmark"
+msgstr "Отметка"
+msgid "settings.resetLayout"
+msgstr "Нулирай"
+msgid "settings.tableStyle"
+msgstr "Стил на таблица"
+msgid "settings.tableStyleHint"
+msgstr "Съвет: Управлявайте чрез десен клик върху заглавката на списъка с файлове"
+msgid "settings.hideNativeBtn"
+msgstr "Скрий вградения SFTP бутон"
+msgid "settings.openInNewTab"
+msgstr "Отваряй панела в нов раздел по подразбиране"
+msgid "settings.singleWorkspaceInstance"
+msgstr "Само една инстанция"
+msgid "settings.hotkey"
+msgstr "Бърз клавиш за панел"
+msgid "settings.hotkeyUnbound"
+msgstr "Задай бърз клавиш"
+msgid "settings.hotkeyClear"
+msgstr "Изчисти"
+
+msgid "settings.hotkeyRecording"
+msgstr "Натиснете комбинация…"
+msgid "settings.hotkeyClickToSet"
+msgstr "Кликни за задаване на бърз клавиш"
+msgid "settings.hotkeyConflict"
+msgstr "Конфликт с: {names}"
+msgid "settings.hotkeyConflictConfirm"
+msgstr "Shortcut {keys} is already used by: {names}\nBind it to SFTP+ anyway? (Both may fire.)"
+msgid "settings.hotkeySaved"
+msgstr "Запазено и синхронизирано към Tabby: {keys}"
+msgid "settings.hotkeyCleared"
+msgstr "Обвързването на бърз клавиш е изчистено"
+msgid "settings.hotkeySaveFailed"
+msgstr "Неуспешен запис на бърз клавиш"
+msgid "settings.hotkeyRecordTimeout"
+msgstr "Записът изтече, опитайте отново"
+msgid "settings.other"
+msgstr "Функционалност"
+msgid "settings.data"
+msgstr "Данни"
+msgid "settings.export"
+msgstr "Експортирай"
+
+msgid "settings.import"
+msgstr "Внасяне"
+msgid "settings.clearAll"
+msgstr "Изчисти Всички"
+
+msgid "settings.about"
+msgstr "За"
+
+msgid "settings.version"
+msgstr "Версия"
+
+msgid "settings.buildTime"
+msgstr "Време на изграждане"
+msgid "settings.author"
+msgstr "Автор"
+
+msgid "settings.githubSource"
+msgstr "GitHub изходен код"
+
+msgid "settings.npmSource"
+msgstr "NPM изходен код"
+msgid "settings.giveStar"
+msgstr "Дай звезда"
+msgid "settings.feedback"
+msgstr "Обратна връзка"
+msgid "settings.modifyColors"
+msgstr "⚠️ Промени цветовете"
+msgid "settings.overwriteConfirm"
+msgstr "Вие сте в режим Авто/Предварителен. Промените ще презапишат потребителската цветова схема. Продължаване?"
+msgid "settings.overwrite"
+msgstr "Презапиши"
+msgid "settings.clearAllTitle"
+msgstr "⚠️ Изчисти Всички Data"
+
+msgid "settings.clearAllConfirm"
+msgstr "Това ще изтрие всички отметки, история на прехвърляния и настройки. Не може да се отмени!"
+msgid "settings.clearAllPrompt"
+msgstr "Въведете DELETE за потвърждение:"
+msgid "settings.clear"
+msgstr "Изчисти"
+
+msgid "settings.dark"
+msgstr "Тъмна"
+
+msgid "settings.light"
+msgstr "Светла"
+
+msgid "settings.invalidFormat"
+msgstr "Невалиден формат на данни."
+msgid "settings.importComplete"
+msgstr "Внасянето завърши."
+msgid "settings.importUnavailable"
+msgstr "Не може да се внесе: ConfigService не е наличен."
+msgid "settings.importFailed"
+msgstr "Неуспешно внасяне: невалиден или повреден файл."
+msgid "settings.dataCleared"
+msgstr "Всички data cleared"
+
+msgid "conflict.sourceFile"
+msgstr "Изходен файл"
+
+msgid "conflict.targetFileExists"
+msgstr "Целеви файл (съществува)"
+
+msgid "transfer.success"
+msgstr "Успех"
+
+msgid "settings.closeBookmarkPanel"
+msgstr "Затваряне на панела с отметки след избор"
+
+msgid "layout.mode.auto"
+msgstr "Автоматичен изглед"
+
+msgid "layout.mode.horizontal"
+msgstr "Хоризонтален изглед"
+
+msgid "layout.mode.vertical"
+msgstr "Вертикален изглед"
+
+msgid "layout.mode.single"
+msgstr "Единичен панел (само отдалечен)"
+
+msgid "notify.closeWithTransfers"
+msgstr "{count} прехвърляне(я) в ход. Затварянето на панела ще прекъсне всички прехвърляния. Продължить?"
+
+msgid "type.folder"
+msgstr "Папка"
+
+msgid "type.file"
+msgstr "Файл"
+
+msgid "pane.exclFolders"
+msgstr ", без папки"
+
+msgid "pane.selectedInfo"
+msgstr " — Избрани {n} елемента ({size})"
+
+msgid "fail.cancelled"
+msgstr "Отменено"
+
+msgid "fail.interrupted"
+msgstr "Прекъснато"
+
+msgid "fail.unknown"
+msgstr "Неуспешно"
+
+msgid "notify.uploadFailed"
+msgstr "Качването неуспешно: {name}"
+
+msgid "notify.downloadFailed"
+msgstr "Свалянето неуспешно: {name}"
+
+msgid "op.renameFailed"
+msgstr "Преименуването неуспешно: {reason}"
+
+msgid "op.mkdirFailed"
+msgstr "Създаването на папка неуспешно: {reason}"
+
+msgid "op.touchFailed"
+msgstr "Създаването на файл неуспешно: {reason}"
+
+msgid "op.chmodFailed"
+msgstr "Chmod неуспешно: {reason}"
+
+msgid "op.failed"
+msgstr "Операцията неуспешна: {reason}"
+
+msgid "notify.deleteFailed"
+msgstr "{n} елемента(а) не можаха да се изтрият (може би се използват или няма разрешение)"
+
+msgid "input.dirExists"
+msgstr "Папката вече съществува: {val}"
+
+msgid "input.fileExists"
+msgstr "Файлът вече съществува: {val}"
+
+msgid "input.fileWhenMkdir"
+msgstr "Файл с име \"{val}\" вече съществува, папката не може да се създаде"
+
+msgid "input.dirWhenTouch"
+msgstr "Папка с име \"{val}\" вече съществува, файлът не може да се създаде"
+
+msgid "notify.notConnectedUpload"
+msgstr "Няма връзка, качването невъзможно"
+
+msgid "notify.notConnectedDownload"
+msgstr "Няма връзка, свалянето невъзможно"
+
+msgid "notify.copied"
+msgstr "Копирани {n} елемента"
+
+msgid "notify.cut"
+msgstr "Изрязани {n} елемента"
+
+msgid "status.disconnected"
+msgstr "Прекъснато"
+
+msgid "status.reconnecting"
+msgstr "Повторно свързване…"
+
+msgid "status.reconnect"
+msgstr "Повторно свързване"
+
+msgid "app.restoreDefaultSize"
+msgstr "Възстанови стандартния размер на панела"
+
+msgid "notify.pasteFailed"
+msgstr "Поставянето неуспешно"
+
+msgid "notify.copyFailed"
+msgstr "Копирането неуспешно: {name}"
+
+msgid "theme.auto"
+msgstr "Авто"
+
+msgid "theme.dark"
+msgstr "Тъмна"
+
+msgid "theme.light"
+msgstr "Светла"
+
+msgid "theme.blue"
+msgstr "Синя"
+
+msgid "theme.green"
+msgstr "Зелена"
+
+msgid "theme.purple"
+msgstr "Лилава"
+
+msgid "theme.red"
+msgstr "Червена"
+
+msgid "theme.custom"
+msgstr "Потребителска"
+
+msgid "pane.back"
+msgstr "Назад"
+
+msgid "pane.forward"
+msgstr "Напред"
+
+msgid "filter.apply"
+msgstr "Приложи"
+
+msgid "filter.clear"
+msgstr "Изчисти"
+
+msgid "hotkey.togglePanel"
+msgstr "Отвори SFTP+ панел"
+
+
+msgid "conflict.existsSamePane"
+msgstr "Файл със същото име вече съществува в целевото местоположение"
+
+msgid "settings.dateFormat"
+msgstr "Персонализиран формат на часа"
+
+msgid "settings.dateFormatHint"
+msgstr "Токени: YYYY / YY / MM / DD / HH / hh / mm / ss / A (празно = по подразбиране)"
+
+msgid "settings.dateFormatPreview"
+msgstr "Преглед"
+
+msgid "settings.dateFormatReset"
+msgstr "Възстанови по подразбиране"
+
+msgid "settings.defaultPathMode"
+msgstr "Режим на пътя по подразбиране"
+
+msgid "settings.pathModeOff"
+msgstr "Изкл."
+
+msgid "settings.pathModeRemember"
+msgstr "Запомняне на пътя"
+
+msgid "settings.pathModeSync"
+msgstr "Синхронизиране с терминала"
+
+msgid "settings.defaultShowHidden"
+msgstr "Показване на скритите файлове по подразбиране"
+
+msgid "settings.uploadConcurrency"
+msgstr "Едновременни качвания"
+
+msgid "settings.downloadConcurrency"
+msgstr "Едновременни изтегляния"
+
+msgid "transfer.queued"
+msgstr "На опашка"
+
+
+msgid "settings.fastMode"
+msgstr "Бърз режим на пренос"
+
+msgid "settings.fastModeDesc"
+msgstr "Започва преноса на папки веднага без предварително сканиране: по-бързо стартиране, но общият размер и процентът на напредък не могат да се покажат по време на преноса (само пренесените байтове)"
+
+msgid "file.sizeCalculate"
+msgstr "Изчисли"
+
+msgid "file.sizeCalculating"
+msgstr "Изчисляване…"
+
+msgid "file.sizeCalcFailed"
+msgstr "Изчислението е неуспешно"
+
+msgid "file.folderSizeDetail"
+msgstr "{size} ({count} файла)"
+
+msgid "file.fileProperties"
+msgstr "Свойства на файла"
+
+msgid "file.folderProperties"
+msgstr "Свойства на папката"
+
+msgid "settings.hideAuthorInfo"
+msgstr "Скрий информацията за автора на плъгина"
+
+msgid "settings.hideAuthorConfirmText"
+msgstr "Преди да скриете информацията за автора, моля, дайте звезда на хранилището на плъгина. Страницата на хранилището е отворена в браузъра. Вашата звезда е моята мотивация да разработвам — благодаря за подкрепата! 🙏"
+
+msgid "settings.starredConfirm"
+msgstr "Дадох звезда"
+
+msgid "file.location"
+msgstr "Местоположение"
+
+msgid "app.trashHint"
+msgstr "Премести в кошчето"
+
+msgid "app.permDeleteHint"
+msgstr "Окончателно изтриване (не може да се отмени)"
+
+msgid "file.viewAsText"
+msgstr "Преглед като текст"
+
+msgid "file.copied"
+msgstr "Копирано"
+
+msgid "file.copySelection"
+msgstr "Копирай селекцията"
+
+msgid "viewer.binaryShownAsText"
+msgstr "Двоично съдържание, показано като текст (може да не се изобрази правилно)"
+
+msgid "viewer.prevImage"
+msgstr "Предишно изображение"
+
+msgid "viewer.nextImage"
+msgstr "Следващо изображение"
+
+msgid "editor.saveSuccessLocal"
+msgstr "Запазено"
+
+msgid "settings.interaction"
+msgstr "Взаимодействие"
+msgid "settings.viewerEditor"
+msgstr "Преглед и редактор"
+
+msgid "settings.openOnClick"
+msgstr "Отваряне на файл/папка с"
+
+msgid "settings.clickDouble"
+msgstr "Двоен клик"
+
+msgid "settings.clickSingle"
+msgstr "Единичен клик"
+
+msgid "settings.openOnClickHint"
+msgstr "Единичният клик отваря файловете/папките директно; двойният клик продължава да работи в режим на единичен клик."
+
+msgid "settings.openUnsupportedInSystem"
+msgstr "Отваряй неподдържани файлове с системно приложение"
+
+msgid "settings.openUnsupportedInSystemDesc"
+msgstr "Файлове, които прегледвачът не може да обработи (напр. .pdf/.docx), ще се отворят с приложението по подразбиране на системата вместо вместо съобщение, че не се поддържат."
+
+msgid "settings.transferSection"
+msgstr "Трансфер"
+
+msgid "settings.hotkeys"
+msgstr "Клавишни комбинации"
+
+msgid "settings.resetPanelHotkeys"
+msgstr "Възстанови по подразбиране"
+
+msgid "settings.phk.delete"
+msgstr "Изтриване"
+
+msgid "settings.phk.rename"
+msgstr "Преименуване"
+
+msgid "settings.phk.refresh"
+msgstr "Опресняване"
+
+msgid "settings.phk.up"
+msgstr "Нагоре (родителска папка)"
+
+msgid "settings.phk.back"
+msgstr "Назад (история)"
+
+msgid "settings.panelHotkeyConflict"
+msgstr "Клавишната комбинация {keys} вече се използва от друго действие"
+
+msgid "settings.customContextMenu"
+msgstr "Персонализирай контекстното меню"
+
+msgid "settings.resetMenu"
+msgstr "Възстанови реда на менюто"
+
+msgid "notify.trashFailed"
+msgstr "{n} елемент(а) не можаха да бъдат преместени в кошчето (не са изтрити; опитайте Shift+Delete за окончателно изтриване)"
+
+
+msgid "settings.iconLocked"
+msgstr "Заключено (системна икона)"
+
+msgid "settings.phk.forward"
+msgstr "Напред"
+
+msgid "settings.mouseBack"
+msgstr "Бутон „Назад“ на мишката"
+
+msgid "settings.mouseForward"
+msgstr "Бутон „Напред“ на мишката"
+
+msgid "settings.hotkeyAdd"
+msgstr "Добавяне на комбинация"
+
+msgid "settings.hotkeyDuplicate"
+msgstr "Тази комбинация вече е назначена на това действие"
+
+msgid "settings.hotkeyMouseHint"
+msgstr "Присвояване на страничен бутон на мишката, щракнете за повторен запис"
+
+msgid "settings.occupied.title"
+msgstr "Заети комбинации"
+
+msgid "settings.occupied.hint"
+msgstr "Тези клавиши са запазени от SFTP+ и не могат да се променят. Избягвайте ги при задаване на комбинации по-горе, иначе и двете могат да се задействат."
+
+msgid "settings.occupied.groupPanel"
+msgstr "Панел"
+
+msgid "settings.occupied.groupViewer"
+msgstr "Преглед"
+
+msgid "settings.occupied.groupDialog"
+msgstr "Диалогови прозорци"
+
+msgid "settings.occupied.moveSelection"
+msgstr "Преместване на избора нагоре / надолу"
+
+msgid "settings.occupied.multiSelect"
+msgstr "Множествен избор с щракване"
+
+msgid "settings.occupied.prevNextImage"
+msgstr "Предишно / следващо изображение"
+
+msgid "settings.occupied.closeDialog"
+msgstr "Затваряне на диалог / преглед / панел"
+
+msgid "settings.occupied.confirmDelete"
+msgstr "Потвърждаване на изтриването"
+
+msgid "log.modeFast"
+msgstr "Бърз режим"
+
+msgid "log.modeTar"
+msgstr "tar-опаковка"
+
+msgid "log.fileCount"
+msgstr "{n} файла"
+
+msgid "settings.editableExtensions"
+msgstr "Допълнителни редактируеми разширения"
+
+msgid "settings.editableExtensionsHint"
+msgstr "Разделяйте с интервали. Приема .conf, *.conf или conf. Бял списък, когато „преглед и редакция на всички“ е изключено."
+msgid "settings.allowViewEditAllFiles"
+msgstr "Разреши преглед и редактиране на всички типове файлове"
+
+msgid "settings.allowViewEditAllFilesHint"
+msgstr "Игнорира ограниченията за разширения. Всеки файл може да се преглежда; при редакция двоичното съдържание остава защитено."
+msgid "settings.showTextLineNumbers"
+msgstr "Номера на редове (преглед/редактор)"
+msgid "settings.showTextLineNumbersHint"
+msgstr "Показване на номера на редове във вградения преглед и редактор."
+
+msgid "conflict.digest"
+msgstr "Дайджест"
+
+msgid "conflict.contentIdentical"
+msgstr "Съдържанието е идентично — безопасно е да се пропусне"
+
+msgid "file.symlink"
+msgstr "Символна връзка"
+
+msgid "file.shortcut"
+msgstr "Пряк път"
+
+msgid "file.copyAll"
+msgstr "Копирай всички"
+
+msgid "file.copyImage"
+msgstr "Копирай изображение"
+
+msgid "file.copyImageAddress"
+msgstr "Копирай адрес на изображението"
+
+msgid "transfer.skippedAsDuplicate"
+msgstr "Пропуснато · идентично съдържание"
+
+msgid "settings.font"
+msgstr "Шрифт"
+
+msgid "settings.fontSize"
+msgstr "Размер на шрифта"
+
+msgid "settings.resetFont"
+msgstr "Нулирай размера на шрифта"
+
+msgid "settings.fontHint"
+msgstr "Настройте размера на текста в панела SFTP+ (11–18px)"
+
+msgid "settings.defaultUploadPath"
+msgstr "Път за качване по подразбиране"
+
+msgid "settings.defaultUploadPathPh"
+msgstr "Отдалечена директория, напр. /home/user/uploads (празно = текущата отдалечена)"
+
+msgid "settings.defaultDownloadPath"
+msgstr "Път за изтегляне по подразбиране"
+
+msgid "settings.defaultDownloadPathPh"
+msgstr "Локална директория, напр. C:\\Downloads (празно = текущата локална)"
+
+msgid "settings.iconSettings"
+msgstr "Икони за типове файлове"
+
+msgid "settings.iconResourceDir"
+msgstr "Директория за икони"
+
+msgid "settings.iconResourceDirPh"
+msgstr "Локална директория със svg файлове, напр. C:\\icons"
+
+msgid "settings.iconSvgFile"
+msgstr "SVG файл"
+
+msgid "settings.iconPreview"
+msgstr "Преглед"
+
+msgid "settings.iconAdd"
+msgstr "Добави правило"
+
+msgid "settings.iconDelete"
+msgstr "Изтрий"
+
+msgid "settings.iconDeleteConfirm"
+msgstr "Изтриване на правило „{name}“? Това не може да се отмени."
+
+msgid "settings.iconRuleHint"
+msgstr "Свържете разширенията с SVG файловете."
+
+msgid "settings.builtinIcons"
+msgstr "Вградени икони"
+
+msgid "settings.builtinIconDir"
+msgstr "Директория на вградените икони"
+
+msgid "settings.builtinIconDesc"
+msgstr "Следните SVG икони са включени в приставката. Добавете свои svg тук, за да ги разширите."
+
+msgid "settings.iconEdit"
+msgstr "Редактирай"
+
+msgid "settings.iconDisable"
+msgstr "Деактивирай"
+
+msgid "settings.iconEnable"
+msgstr "Възстанови"
+
+msgid "settings.iconAddRule"
+msgstr "Добави правило"
+
+msgid "settings.iconFolderHint"
+msgstr "Папка (по подразбиране)"
+
+msgid "settings.iconFileHint"
+msgstr "Файл (по подразбиране)"
+
+msgid "settings.iconExtLockedHint"
+msgstr "Файловете по подразбиране не могат да променят разширения"
+
+msgid "settings.iconSvgNameHint"
+msgstr "Име на файл"
+
+msgid "settings.iconRuleName"
+msgstr "Име на правило"
+
+msgid "settings.iconRuleNamePh"
+msgstr "напр. Scripts, Documents"
+
+msgid "settings.iconExtLabel"
+msgstr "Разширения"
+
+msgid "settings.iconErrorExtConflict"
+msgstr "Разширението „{ext}“ вече се използва от икона {svg}"
+
+msgid "settings.iconErrorEmpty"
+msgstr "Името на правилото, разширението и името на svg не могат да са празни"
+
+msgid "settings.iconErrorEmptyName"
+msgstr "Името на правилото не може да е празно"
+
+msgid "settings.iconErrorNameConflict"
+msgstr "Името на правило „{name}“ вече съществува"
+
+msgid "settings.iconErrorNameSvgMismatch"
+msgstr "Правилото „{name}“ вече е свързано с икона {svg}; използвайте същия файл или друго име"
+
+msgid "settings.iconErrorMissingSvg"
+msgstr "SVG файлът не е намерен в директорията за икони"
+
+msgid "settings.iconErrorInvalidExt"
+msgstr "Невалиден формат на разширение: „{ext}“. Използвайте .txt или txt; разделете с интервали/запетаи"
+
+msgid "settings.resetIcons"
+msgstr "Нулирай настройките на иконите"
+
+msgid "op.cannotCopyIntoSelf"
+msgstr "Не може да копирате папка в себе си или подпапка: {name}"
+
+msgid "settings.tarAcceleration"
+msgstr "Ускоряване на TAR прехвърляне"
+
+msgid "settings.tarAccelerationDesc"
+msgstr "Автоматично пакетира прехвърляния на папки с tar за ускоряване на малки файлове; при грешка се връща към нормално прехвърляне"
+
+msgid "settings.conflictDigest"
+msgstr "Дайджест на съдържанието при конфликт"
+
+msgid "settings.conflictDigestDesc"
+msgstr "Когато размерът съвпада, но времето на промяна се различава, изчислява дайджест дали файлът наистина е променен (напр. след смяна на Git клон). Изисква shell на отдалечения хост; иначе предишното поведение"
+
+msgid "settings.conflictAutoSkip"
+msgstr "Автоматично пропускай идентично съдържание"
+
+msgid "settings.conflictAutoSkipDesc"
+msgstr "Ако и двата дайджеста са налични и равни, считай за без конфликт и пропусни безпитане"
+
+msgid "settings.conflictDigestMaxSize"
+msgstr "Лимит на размера на дайджеста (MB)"
+
+msgid "settings.conflictDigestMaxSizeDesc"
+msgstr "По-големите файлове не се дайджестват и винаги се третират като конфликт, за да не се забави откриването"
+
+msgid "settings.customBookmarkPanel"
+msgstr "Персонализиране на панела с отметки"
+
+msgid "settings.resetBookmarkPanel"
+msgstr "Нулирай панела с отметки"
+
+msgid "settings.bookmarkGroupByScope"
+msgstr "Групиране на отметки"
+msgid "settings.bookmarkGroupByScopeHint"
+msgstr "Вкл.: блокове текущи / глобални. Изкл.: смесен списък с пренареждане между обхвати."
+msgid "settings.bookmarkGroupOrderHint"
+msgstr "Плъзнете, за да зададете реда на групите връзка / глобални"
+
+msgid "settings.bookmarkFlatHint"
+msgstr "Без групиране глобалните отметки показват етикет „Глобални“ вдясно от името и могат свободно да се смесват с текущите."
+msgid "bookmark.globalBadge"
+msgstr "Глобални"
+
+msgid "bookmark.locate"
+msgstr "Отиди до текущата отметка"
+
+msgid "bookmark.locateNone"
+msgstr "Няма отметка за текущия път"
+
+msgid "settings.reportBug"
+msgstr "Report a Bug"
+
+msgid "settings.featureRequest"
+msgstr "Feature Request"
+
+msgid "notify.duplicateTransfer"
+msgstr "{name} вече е в опашката за трансфер — дублираната заявка е игнорирана"
+
+msgid "transfer.etaRemaining"
+msgstr "остават {time}"
+
+msgid "app.dirMissingTitle"
+msgstr "Целевата директория не съществува"
+
+msgid "app.dirMissingText"
+msgstr "Директорията за прехвърляне не съществува. Да я създам ли?"
+
+msgid "app.dirMissingCreate"
+msgstr "Създай и прехвърли"
+
+msgid "app.dirMissingFallback"
+msgstr "Използвай текущата директория"
+
+msgid "app.dirMissingCancel"
+msgstr "Отказ"
+
+msgid "app.dirCreated"
+msgstr "Директорията е създадена: {dir}"
+
+msgid "app.mkdirpFailed"
+msgstr "Неуспешно създаване на директория: {reason}"
+
+msgid "app.targetNotDir"
+msgstr "Целевият път не е директория: {dir}"
+
+msgid "pane.groupBy"
+msgstr "Групиране по"
+
+msgid "group.none"
+msgstr "Няма"
+
+msgid "group.name"
+msgstr "Име"
+
+msgid "group.modified"
+msgstr "Дата на промяна"
+
+msgid "group.type"
+msgstr "Тип"
+
+msgid "group.size"
+msgstr "Размер"
+
+msgid "group.expand"
+msgstr "Разгъване"
+
+msgid "group.collapse"
+msgstr "Свиване"
+
+msgid "group.today"
+msgstr "Днес"
+
+msgid "group.yesterday"
+msgstr "Вчера"
+
+msgid "group.thisWeek"
+msgstr "По-рано тази седмица"
+
+msgid "group.thisMonth"
+msgstr "По-рано този месец"
+
+msgid "group.earlierThisYear"
+msgstr "По-рано тази година"
+
+msgid "group.longAgo"
+msgstr "Отдавна"
+
+msgid "group.folder"
+msgstr "Папка"
+
+msgid "group.noExt"
+msgstr "Други файлове"
+
+msgid "group.typeFiles"
+msgstr "файлове"
+
+msgid "group.sizeTiny"
+msgstr "Много малък (0-16 KB)"
+
+msgid "group.sizeSmall"
+msgstr "Малък (16 KB - 1 MB)"
+
+msgid "group.sizeMedium"
+msgstr "Среден (1-128 MB)"
+
+msgid "group.sizeLarge"
+msgstr "Голям (128 MB - 1 GB)"
+
+msgid "group.sizeHuge"
+msgstr "Огромен (1-4 GB)"
+
+msgid "group.sizeSuper"
+msgstr "Гигантски (>4 GB)"
+
+msgid "group.digit"
+msgstr "0-9"
+
+msgid "group.a2h"
+msgstr "A-H"
+
+msgid "group.i2p"
+msgstr "I-P"
+
+msgid "group.q2z"
+msgstr "Q-Z"
+
+msgid "group.pyAF"
+msgstr "Пинин A-F"
+
+msgid "group.pyGL"
+msgstr "Пинин G-L"
+
+msgid "group.pyMS"
+msgstr "Пинин M-S"
+
+msgid "group.pyTZ"
+msgstr "Пинин T-Z"
+
+msgid "group.other"
+msgstr "Други"
+
+msgid "group.toggleAll"
+msgstr "Разгъни/свий всички групи"
+
+msgid "group.expandAll"
+msgstr "Разгъни всички"
+
+msgid "group.collapseAll"
+msgstr "Свий всички"
+
+msgid "settings.enableItem"
+msgstr "Активирай елемент"
+
+msgid "settings.channelMode"
+msgstr "Transfer channel mode"
+
+msgid "settings.channelModeDesc"
+msgstr "Choose how folder transfers use tar packaging (TAR) vs file-by-file (SFTP)"
+
+msgid "settings.channelMode.smart"
+msgstr "Smart"
+
+msgid "settings.channelMode.sftpOnly"
+msgstr "SFTP only"
+
+msgid "settings.channelMode.tarOnly"
+msgstr "TAR only"
+
+msgid "settings.channelMode.preferSftp"
+msgstr "Prefer SFTP"
+
+msgid "settings.channelMode.preferTar"
+msgstr "Prefer TAR"
+
+msgid "settings.channelMode.smartDesc"
+msgstr "Auto-pick best channel by folder size and file count"
+
+msgid "settings.channelMode.sftpOnlyDesc"
+msgstr "Always transfer file by file; never use tar packing and no size-based routing"
+
+msgid "settings.channelMode.tarOnlyDesc"
+msgstr "Always use tar packing with no size-based routing; when packing is unavailable or fails, report the error instead of falling back to file-by-file. When the destination already exists the first attempt still goes file-by-file so conflicts can be detected; choosing Overwrite or Rename in the conflict prompt then continues with tar packing. A single file is always transferred file by file"
+
+msgid "settings.channelMode.preferSftpDesc"
+msgstr "Use tar only when clearly beneficial (requires many more files)"
+
+msgid "settings.channelMode.preferTarDesc"
+msgstr "Pack unless clearly worse (huge files); loose threshold"
+
+msgid "notify.tarOnlyFailed"
+msgstr "TAR-only mode: cannot transfer {name} - {reason}. Change Transfer channel mode to Smart / Prefer TAR in Settings, or fix the environment and retry"
+
+msgid "tarchan.reason.localTarMissing"
+msgstr "no usable tar command on this computer"
+
+msgid "tarchan.reason.remoteTarMissing"
+msgstr "no usable tar command on the remote server"
+
+msgid "tarchan.reason.symlinkUnsupported"
+msgstr "the folder contains symbolic links, which the packing channel does not support"
+
+msgid "tarchan.reason.packFailed"
+msgstr "packing or extracting the archive failed"
+
+msgid "tarchan.reason.tarballFailed"
+msgstr "transferring the archive file failed"
+
+msgid "tarchan.reason.other"
+msgstr "the packing channel is unavailable, see the log for details"
+
+msgid "notify.tarOnlyInapplicable"
+msgstr "TAR-only mode: {name} is not using the packed channel - {reason}. To send it as one archive, choose Overwrite in the directory conflict prompt, or delete the destination first and retry"
+
+msgid "tarchan.reason.targetExists"
+msgstr "the destination already exists, and an incremental transfer can only go through the per-file channel"
+
+msgid "tarchan.reason.localPackFailed"
+msgstr "packing the folder on this computer failed, possibly due to disk space or permissions"
+
+msgid "tarchan.reason.remotePackFailed"
+msgstr "packing or extracting on the remote server failed, possibly due to disk space or permissions"
+
+msgid "tarchan.reason.localExtractFailed"
+msgstr "extracting the archive on this computer failed, see the log for details"
+
+msgid "tarchan.reason.nameEncodingUnsupported"
+msgstr "the file names on the remote server cannot be decoded on this computer; switch to Smart or Prefer SFTP mode, or upgrade the tar command on the server"
+
+msgid "transfer.batchUpload"
+msgstr "{n} items from {dir}"
+
+msgid "settings.exportPickHint"
+msgstr "Изберете какво да се включи във файла за експорт."
+
+msgid "settings.exportSelectAll"
+msgstr "Избери всички"
+
+msgid "settings.exportDeselectAll"
+msgstr "Изчисти избора"
+
+msgid "settings.exportCatBookmarkData"
+msgstr "Данни за отметки"
+
+msgid "settings.hotkeyWheelHint"
+msgstr "Обвързване с колелцето, щракнете за ново записване (списъкът вече не може да се превърта с колелцето)"
+
+msgid "settings.panelHotkeyWheelBareWarning"
+msgstr "Обвързано с {keys}; списъкът вече не може да се превърта с колелцето (добавете Alt)"
+
+msgid "settings.textCaretShape"
+msgstr "Форма на курсора (преглед/редактор)"
+msgid "settings.textCaretShapeHint"
+msgstr "Форма на курсора, рисуван в прегледа. Трите опции отговарят на курсора в терминала на Tabby. Редакторът използва системния курсор."
+msgid "settings.caretShapeBlock"
+msgstr "Блок"
+msgid "settings.caretShapeBeam"
+msgstr "Вертикална линия"
+msgid "settings.caretShapeUnderline"
+msgstr "Подчертаване"

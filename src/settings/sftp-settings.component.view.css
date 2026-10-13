@@ -1,0 +1,657 @@
+
+    .sftp-settings-page { padding:20px; max-width:600px; }
+    .ss-title { color:var(--primary-color,#3b82f6); font-size:18px; margin-bottom:6px; }
+    .ss-desc { opacity:.7; font-size:13px; line-height:1.6; margin-bottom:24px; }
+    .ss-section { border-top:1px solid rgba(128,128,128,0.2); padding-top:16px; margin-bottom:16px; }
+    .ss-label { display:block; font-size:16px; font-weight:600; margin-bottom:10px; }
+    .ss-sub-label { font-size:14px; font-weight:600; margin-top:16px; margin-bottom:8px; opacity:.85; }
+    .ss-select {
+      width:100%; max-width:280px;
+      padding:7px 10px; border-radius:6px;
+      background: rgba(128,128,128,0.1);
+      border:1px solid rgba(128,128,128,0.25);
+      font-size:13px; cursor:pointer; outline:none;
+      color: inherit;
+      color-scheme: inherit;
+    }
+    .ss-select option { color: initial; }
+    .ss-pathmode-row { display:flex; align-items:center; justify-content:space-between; }
+    .ss-segmented {
+      display:inline-flex; align-items:center;
+      border:1px solid rgba(128,128,128,0.25); border-radius:6px;
+      overflow:hidden; background:rgba(128,128,128,0.08);
+    }
+    .ss-segment {
+      appearance:none; border:none; background:transparent;
+      padding:5px 14px; font-size:13px; color:inherit;
+      cursor:pointer; outline:none; line-height:1.4;
+      transition: background .12s, color .12s;
+    }
+    .ss-segment + .ss-segment { border-left:1px solid rgba(128,128,128,0.2); }
+    .ss-segment:hover { background:rgba(128,128,128,0.12); }
+    .ss-segment.active { background:rgba(128,128,128,0.35); }
+    .ss-select:focus { border-color: var(--primary-color, #3b82f6); }
+    /* ★ 2026-09-29：传输通道模式下拉——靠右并与数字输入框/开关的右边缘对齐。
+       默认 .ss-select 是 width:100%/max-width:280px，在两端对齐行里会被撑满、观感与其它控件不一致，故收敛为固定宽；
+       flex:0 0 auto 防止被 flex 压缩（语言切换后选项文案变长时仍完整显示）。 */
+    .ss-channel-select { width: 220px; max-width: 220px; flex: 0 0 auto; }
+    .ss-auto-badge { opacity:.85; color: var(--primary-color, #3b82f6); font-size:11px; }
+
+    .ss-color-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+    .ss-color-swatch {
+      display:inline-flex; flex-direction:column; align-items:center; gap:4px;
+      padding:8px; border-radius:10px; border:2px solid transparent;
+      font-size:12px; font-weight:500; cursor:pointer; transition:border-color .15s;
+      min-width:80px;
+    }
+    .ss-color-swatch:hover { opacity:.85; }
+    .ss-color-active { border-color: var(--primary-color,#3b82f6) !important; box-shadow:0 0 0 1px rgba(59,130,246,.3); }
+    .ss-color-swatch-name { font-size:11px; font-weight:600; }
+    .ss-color-swatch-preview {
+      display:flex; flex-direction:column; border-radius:6px; overflow:hidden;
+      width:86px; border:1px solid rgba(128,128,128,.2);
+    }
+    /* 迷你面板预览 */
+    .ss-cp-pane { display:flex; flex-direction:column; flex:1; }
+    .ss-cp-header { display:flex; align-items:center; gap:3px; padding:4px 6px; }
+    .ss-cp-hdot { width:5px; height:5px; border-radius:50%; opacity:0.5; flex-shrink:0; }
+    .ss-cp-hpath { flex:1; height:3px; border-radius:2px; opacity:0.25; min-width:0; }
+    .ss-cp-rows { display:flex; flex-direction:column; gap:2px; padding:3px 4px; border-top:1px solid transparent; }
+    .ss-cp-row { display:flex; align-items:center; gap:3px; }
+    .ss-cp-icon { width:8px; height:8px; border-radius:2px; opacity:0.7; flex-shrink:0; }
+    .ss-cp-fname { flex:1; height:3px; border-radius:2px; opacity:0.5; min-width:0; }
+    .ss-cp-fsize { width:18px; height:3px; border-radius:2px; opacity:0.3; flex-shrink:0; }
+
+    .ss-scheme-preview { margin-top:8px; }
+    .ss-color-fields { display:flex; gap:16px; flex-wrap:wrap; align-items:flex-start; }
+    .ss-color-field { display:flex; flex-direction:column; gap:3px; }
+    .ss-color-field label { font-size:12px; font-weight:500; }
+    .ss-color-input { width:44px; height:30px; border:none; border-radius:6px; cursor:pointer; }
+    .ss-color-val { font-size:11px; font-family:monospace; opacity:.6; }
+
+    .ss-col-list { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
+    .ss-col-item {
+      display:flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:6px;
+      font-size:13px; cursor:pointer; flex:1;
+    }
+    .ss-col-item input { margin:0; }
+    .ss-col-item:hover { background: rgba(128,128,128,0.08); }
+
+    /* 表格样式 - Tabby 风格开关 */
+    .ss-toggle-wrap { display:flex; flex-direction:column; gap:4px; margin-top:8px; }
+    .ss-toggle-row {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:8px 10px; border-radius:6px;
+      font-size:13px; cursor:pointer; user-select:none;
+    }
+    .ss-toggle-row:hover { background:rgba(128,128,128,0.06); }
+    .ss-toggle-label { font-size:13px; line-height:1.4; }
+    .ss-toggle-track {
+      position:relative; flex-shrink:0;
+      width:36px; height:20px; border-radius:10px;
+      background:rgba(128,128,128,0.25);
+      transition:background .2s; cursor:pointer;
+    }
+    .ss-toggle-track.active { background:var(--primary-color,#3b82f6); }
+    .ss-toggle-thumb {
+      position:absolute; top:2px; left:2px;
+      width:16px; height:16px; border-radius:50%;
+      background:#fff; transition:transform .2s;
+    }
+    .ss-toggle-track.active .ss-toggle-thumb { transform:translateX(16px); }
+    .ss-toggle-sub { padding-left: 18px; }
+    .ss-toggle-sub.disabled { opacity: .45; pointer-events: none; }
+
+    /* 设置面板提示文字 */
+    .ss-hint { font-size:11px; opacity:.5; margin-top:6px; }
+    .ss-font-row {
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin-top:4px; flex-wrap:wrap;
+      /* ★ 2026-09-29：右侧留 10px —— 与 .ss-toggle-row 的水平内距一致。
+         否则控件贴到行尾(0)，而开关/下拉行是行尾-10px ⇒ 数值文字会比其它行的控件右探 4px
+         （实测：无内距时文字右边缘 594、按钮组右边缘 590）。 */
+      padding-right:10px;
+    }
+    /* ★ 2026-09-29：控件块整体靠右（justify-content:flex-end）—— 对齐 Tabby「窗口」页滑块的
+       靠右显示（Tabby 用 .form-line .header{margin-right:auto} 把控件顶到行尾）。
+       滑块宽度保持不动；靠右后「13px」落在行尾最右，与其它行的开关/下拉右边缘对齐。
+       注：轨道 #111 / 圆点 #aaa 由宿主全局 input[type=range] 样式提供，与 Tabby 滑块逐字相同。 */
+    .ss-font-control { display:flex; align-items:center; justify-content:flex-end; gap:10px; flex:1; min-width:180px; }
+    .ss-range {
+      flex:1; min-width:120px; max-width:280px; height:4px; cursor:pointer;
+      accent-color: var(--primary-color, #3b82f6);
+    }
+    .ss-font-val {
+      font-size:13px; min-width:36px; opacity:.65; font-variant-numeric:tabular-nums;
+      /* ★ 2026-09-29：盒内文字右对齐 —— 盒宽 36px 比文字「13px」(30px) 宽，
+         左对齐会让文字右边缘比盒右边缘内缩 6px、与其它行控件错开；右对齐后两条右边缘重合。
+         （该 span 是 flex 项 ⇒ 会被块级化，text-align 生效。） */
+      text-align:right;
+    }
+    /* ★ 2026-09-29：查看编辑器光标宽度按钮组 —— 形制对齐 Tabby 外观页「光标形状」
+       （等宽方块字形按钮：▏▎▍▌ 表示 1–4px；行本身是 .ss-toggle-row，故按钮组天然靠右） */
+    .ss-caret-seg .ss-segment {
+      width:34px; padding:5px 0; text-align:center;
+      font-family:monospace; font-size:13px;
+    }
+    .ss-datefmt-row { gap: 12px; cursor: default; }
+    .ss-datefmt-field {
+      position: relative; display: inline-flex; align-items: center;
+      flex-shrink: 0; min-width: 140px; max-width: 240px;
+    }
+    .ss-datefmt-input {
+      flex: 1; min-width: 0; width: 100%;
+      padding: 6px 28px 6px 10px; border-radius: 6px;
+      border: 1px solid rgba(128,128,128,0.28);
+      background: rgba(128,128,128,0.06);
+      color: inherit; font-size: 12px; outline: none;
+      font-family: monospace; box-sizing: border-box;
+      /* 覆盖 .ss-toggle-row 继承的 user-select:none —— 否则输入框在 Electron 下无法编辑 */
+      user-select: text; -webkit-user-select: text; cursor: text;
+    }
+    .ss-datefmt-input:focus { border-color: var(--primary-color, #3b82f6); }
+    .ss-datefmt-input::placeholder { color: inherit; opacity: .4; }
+    .ss-datefmt-clear {
+      position: absolute; right: 2px; top: 50%; transform: translateY(-50%);
+      width: 20px; height: 20px; padding: 0; line-height: 1;
+      border: none; border-radius: 4px;
+      background: transparent; color: inherit; opacity: .45; cursor: pointer;
+      font-size: 15px;
+    }
+    .ss-datefmt-clear:hover { opacity: .9; background: rgba(128,128,128,0.14); }
+    .ss-datefmt-hint { margin-top: 2px; line-height: 1.6; }
+    .ss-concurrency-row { gap: 12px; cursor: default; }
+    .ss-concurrency-input {
+      width: 64px; padding: 6px 8px; border-radius: 6px;
+      border: 1px solid rgba(128,128,128,0.28);
+      background: rgba(128,128,128,0.06);
+      color: inherit; font-size: 13px; outline: none;
+      text-align: center; box-sizing: border-box;
+    }
+    .ss-concurrency-input:focus { border-color: var(--primary-color, #3b82f6); }
+    .ss-path-row { gap: 12px; cursor: default; }
+    .ss-path-input {
+      flex: 1; min-width: 0; padding: 6px 8px; border-radius: 6px;
+      border: 1px solid rgba(128,128,128,0.28);
+      background: rgba(128,128,128,0.06);
+      color: inherit; font-size: 13px; outline: none;
+      box-sizing: border-box;
+      user-select: text; -webkit-user-select: text; cursor: text;
+    }
+    .ss-path-input:focus { border-color: var(--primary-color, #3b82f6); }
+    .ss-icon-rules { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+    .ss-icon-rule-head, .ss-icon-rule {
+      display: grid; grid-template-columns: 90px 1fr 36px 28px; gap: 8px; align-items: center;
+    }
+    .ss-icon-rule-head { font-size: 11px; opacity: .65; padding: 0 2px; }
+    .ss-icon-rule { }
+    .ss-icon-ext-input, .ss-icon-svg-input {
+      width: 100%; padding: 5px 8px; border-radius: 6px;
+      border: 1px solid rgba(128,128,128,0.28);
+      background: rgba(128,128,128,0.06);
+      color: inherit; font-size: 12px; outline: none; box-sizing: border-box;
+    }
+    .ss-icon-ext-input:focus, .ss-icon-svg-input:focus { border-color: var(--primary-color, #3b82f6); }
+    .ss-icon-prev { display: flex; align-items: center; justify-content: center; }
+    .ss-icon-prev img { width: 18px; height: 18px; object-fit: contain; }
+    .ss-icon-del {
+      width: 24px; height: 24px; border-radius: 6px; border: 1px solid rgba(128,128,128,0.28);
+      background: rgba(128,128,128,0.06); color: inherit; cursor: pointer; font-size: 14px; line-height: 1;
+    }
+    .ss-icon-del:hover { background: rgba(226,75,74,0.14); border-color: rgba(226,75,74,0.4); }
+    .ss-icon-add { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
+    .ss-icon-hint { font-size: 11px; opacity: .6; }
+
+    /* ── 图标网格（2026-08-24 重构）── */
+    .ss-builtin { margin-top: 6px; }
+    .ss-icon-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;
+    }
+    .ss-icon-cell {
+      position:relative; display:flex; flex-direction:column; align-items:center; gap:3px;
+      padding:10px 6px; border-radius:10px; border:1px solid rgba(128,128,128,0.18);
+      background:rgba(128,128,128,0.05); text-align:center; cursor:default;
+      transition:border-color .15s, box-shadow .15s, opacity .2s;
+    }
+    .ss-icon-cell:hover {
+      border-color: var(--primary-color, #3b82f6); box-shadow: 0 0 0 1px rgba(59,130,246,.12);
+    }
+    .ss-icon-cell--disabled { opacity:.4; }
+    .ss-icon-cell--editing {
+      border-color: var(--primary-color, #3b82f6); box-shadow: 0 0 0 2px rgba(59,130,246,.18);
+    }
+    .ss-icon-cell--add {
+      border-style:dashed; cursor:pointer; justify-content:center; min-height:90px;
+    }
+    .ss-icon-cell--add:hover { border-color: var(--primary-color, #3b82f6); background:rgba(59,130,246,.06); }
+    .ss-icon-cell-img { width:28px; height:28px; object-fit:contain; transition:opacity .2s; }
+    .ss-icon-cell-img--dim { opacity:.35; }
+    .ss-icon-cell-name { font-size:11px; opacity:.85; word-break:break-all; line-height:1.2; }
+    .ss-icon-cell-exts { font-size:9.5px; opacity:.5; word-break:break-all; line-height:1.3; max-height:36px; overflow:hidden; }
+    /* hover 操作浮层：纯 CSS :hover 驱动（不依赖 JS 状态，避免 *ngFor 重建 DOM 后 mouseleave 丢失导致按钮常驻） */
+    .ss-icon-cell-actions {
+      position:absolute; bottom:4px; right:4px; z-index:2; display:flex; gap:4px;
+      opacity:0; pointer-events:none; transition:opacity .15s;
+    }
+    .ss-icon-cell:hover .ss-icon-cell-actions,
+    .ss-icon-cell-actions:hover { opacity:1; pointer-events:auto; }
+    .ss-icon-cell-btn {
+      height:20px; padding:0 7px; border-radius:5px; border:1px solid rgba(128,128,128,.3);
+      background:rgba(48,52,60,.94); color:#fff; cursor:pointer;
+      font-size:10px; line-height:1; display:flex; align-items:center; justify-content:center; white-space:nowrap;
+      transition:background .12s, border-color .12s;
+    }
+    .ss-icon-cell-btn:hover { background:rgba(128,128,128,.2); }
+    .ss-icon-cell-btn--edit:hover { background:rgba(59,130,246,.14); border-color:rgba(59,130,246,.4); }
+    .ss-icon-cell-btn--del:hover { background:rgba(220,53,69,.12); border-color:rgba(220,53,69,.35); }
+    .ss-icon-cell-btn--ok:hover { background:rgba(40,167,69,.14); border-color:rgba(40,167,69,.4); }
+    .ss-icon-cell-btn--cancel:hover { background:rgba(220,53,69,.12); border-color:rgba(220,53,69,.35); }
+    /* 编辑态 inline input */
+    .ss-icon-cell-ext-input {
+      width:100%; padding:3px 5px; border-radius:5px; border:1px solid rgba(128,128,128,.25);
+      background:rgba(128,128,128,.08); color:inherit; font-size:11px; outline:none;
+      text-align:center; box-sizing:border-box;
+    }
+    .ss-icon-cell-ext-input:focus { border-color:var(--primary-color,#3b82f6); }
+    .ss-icon-cell-edit-actions { display:flex; gap:4px; margin-top:2px; }
+    .ss-icon-cell-plus { font-size:22px; line-height:1; opacity:.55; }
+    .ss-icon-cell-add-form {
+      display:flex; flex-direction:column; align-items:center; gap:4px; width:100%;
+    }
+    .ss-icon-cell-edit-form {
+      display:flex; flex-direction:column; align-items:center; gap:4px; width:100%;
+    }
+    .ss-icon-cell-ext-input[readonly] {
+      opacity:.6; cursor:not-allowed; background:rgba(128,128,128,.04);
+    }
+    .ss-icon-rule-error {
+      display:flex; align-items:center; justify-content:center; gap:4px;
+      font-size:10.5px; color:#fff; background:rgba(226,91,74,.9);
+      padding:3px 6px; border-radius:4px; line-height:1.3; text-align:center; word-break:break-all;
+      font-weight:500;
+    }
+    .ss-icon-rule-error::before { content:'⚠'; }
+    .ss-icon-cell--folder { background:rgba(227,179,65,.06); border-color:rgba(227,179,65,.25); }
+    /* 卡片式表单（编辑/新增/编辑文件夹）：每字段独占一行，Extension输入框给足宽度 */
+    .ss-icon-form-card {
+      display:flex; flex-direction:column; gap:10px; margin-top:12px;
+      padding:14px 16px; border-radius:10px; border:1px dashed rgba(59,130,246,.4);
+      background:rgba(59,130,246,.04);
+    }
+    .ss-icon-form-header {
+      font-size:12.5px; font-weight:600; opacity:.9; border-bottom:1px solid rgba(128,128,128,.15);
+      padding-bottom:8px; margin-bottom:2px;
+    }
+    .ss-icon-form-field {
+      display:flex; align-items:center; gap:10px;
+    }
+    .ss-icon-form-flabel {
+      font-size:11px; opacity:.65; flex:0 0 auto; min-width:42px;
+    }
+    .ss-icon-form-input {
+      flex:1 1 auto; padding:6px 10px; border-radius:6px; border:1px solid rgba(128,128,128,.25);
+      background:rgba(128,128,128,.08); color:inherit; font-size:12px; outline:none;
+      box-sizing:border-box; min-width:0;
+    }
+    .ss-icon-form-input:focus { border-color:var(--primary-color,#3b82f6); }
+    .ss-icon-form-input[readonly],
+    .ss-icon-form-input--locked { opacity:.55; cursor:not-allowed; background:rgba(128,128,128,.04); pointer-events:none; }
+    .ss-icon-form-input--wide { min-height:32px; }
+    .ss-icon-form-actions {
+      display:flex; justify-content:flex-end; gap:8px; margin-top:4px;
+    }
+    .ss-hotkey-row {
+      display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px;
+    }
+    .ss-hotkey-toggle-row {
+      gap: 12px;
+    }
+    .ss-hotkey-field {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+      min-width: 140px;
+      max-width: 240px;
+      border-radius: 6px;
+      border: 1px solid rgba(128,128,128,0.28);
+      background: rgba(128,128,128,0.06);
+    }
+    .ss-hotkey-field.has-value {
+      border-color: rgba(128,128,128,0.35);
+    }
+    .ss-hotkey-field.recording {
+      border-color: var(--primary-color,#3b82f6);
+      box-shadow: 0 0 0 1px var(--primary-color,#3b82f6);
+      animation: ss-hotkey-pulse 1.2s ease-in-out infinite;
+    }
+    .ss-hotkey-display {
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+      padding: 4px 28px 4px 10px;
+      border: none;
+      background: transparent;
+      color: inherit;
+      font-size: 12px;
+      font-family: ui-monospace, Consolas, monospace;
+      cursor: pointer;
+      opacity: .85;
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ss-hotkey-field.has-value .ss-hotkey-display,
+    .ss-hotkey-field.recording .ss-hotkey-display {
+      opacity: 1;
+    }
+    .ss-hotkey-display:disabled { opacity:.45; cursor:not-allowed; }
+    .ss-hotkey-clear {
+      position: absolute;
+      right: 2px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px; height: 20px; padding: 0;
+      border: none; border-radius: 4px;
+      background: transparent; color: inherit; opacity: .45; cursor: pointer;
+      font-size: 14px; line-height: 1;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .ss-hotkey-clear:hover { opacity: .9; background: rgba(128,128,128,0.14); }
+    @keyframes ss-hotkey-pulse {
+      0%,100% { background: rgba(59,130,246,0.06); }
+      50% { background: rgba(59,130,246,0.14); }
+    }
+    .ss-hotkey-conflict { color:#e24b4a; opacity:.9; }
+    .ss-hotkey-ok { color:#22a06b; opacity:.9; }
+
+    /* 面板快捷键行（作为子分类，不使用分隔线条）—— 与 ss-toggle-row 左对齐 */
+    .ss-phk-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 10px; border-radius: 6px;
+    }
+    /* ★ 2026-08-24：与 .ss-toggle-row 保持一致的 hover 反馈（视觉对称，整行非点击区但需反馈） */
+    .ss-phk-row:hover { background: rgba(128,128,128,0.06); }
+    .ss-phk-label { flex: 1; font-size: 12.5px; }
+    .ss-hotkey-field.unbound { border-style: dashed; opacity: .65; }
+
+    /* ★ 2026-08-31：多绑定 chip 列表（一动作可绑多个键，鼠标侧键以不同配色区分） */
+    .ss-hotkey-multi {
+      min-width: 0; max-width: none; flex-wrap: wrap;
+      gap: 4px; padding: 3px 4px;
+      align-items: center;
+    }
+    .ss-hotkey-chip {
+      display: inline-flex; align-items: center; gap: 2px;
+      padding: 2px 4px 2px 7px; border-radius: 4px;
+      border: 1px solid rgba(128,128,128,0.3);
+      background: rgba(128,128,128,0.1);
+      font-size: 11.5px; line-height: 1.5; white-space: nowrap;
+      font-family: ui-monospace, Consolas, monospace;
+      cursor: pointer;
+    }
+    /* 鼠标侧键绑定：用主题主色弱填充，与键盘键区分 */
+    .ss-hotkey-chip.is-mouse {
+      border-color: var(--primary-color,#3b82f6);
+      color: var(--primary-color,#3b82f6);
+      background: rgba(59,130,246,0.1);
+    }
+    .ss-chip-remove {
+      width: 15px; height: 15px; padding: 0; margin-left: 1px;
+      border: none; border-radius: 3px;
+      background: transparent; color: inherit; opacity: .5;
+      cursor: pointer; font-size: 12px; line-height: 1;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .ss-chip-remove:hover { opacity: 1; background: rgba(128,128,128,0.2); }
+    .ss-hotkey-add {
+      width: 22px; height: 20px; padding: 0; flex-shrink: 0;
+      border: 1px dashed rgba(128,128,128,0.45); border-radius: 4px;
+      background: transparent; color: inherit; opacity: .55;
+      cursor: pointer; font-size: 13px; line-height: 1;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .ss-hotkey-add:hover { opacity: 1; border-color: var(--primary-color,#3b82f6); color: var(--primary-color,#3b82f6); }
+    .ss-hotkey-recording {
+      flex: 1; min-width: 90px; text-align: center;
+      padding: 3px 8px; font-size: 12px; cursor: pointer;
+      font-family: ui-monospace, Consolas, monospace;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* ★ 2026-08-31：已占用快捷键清单（只读，可折叠） */
+    .ss-occupied { margin: 6px 0 2px; }
+    .ss-occupied-head {
+      display: flex; align-items: center; gap: 6px;
+      width: 100%; padding: 4px 10px; border: none; border-radius: 6px;
+      background: transparent; color: inherit; cursor: pointer;
+      font-size: 12.5px; text-align: left;
+    }
+    .ss-occupied-head:hover { background: rgba(128,128,128,0.06); }
+    .ss-occupied-caret { width: 10px; font-size: 10px; opacity: .6; }
+    .ss-occupied-body { padding: 2px 10px 6px 26px; }
+    .ss-occupied-hint { margin-bottom: 6px; opacity: .75; }
+    .ss-occupied-group + .ss-occupied-group { margin-top: 6px; }
+    .ss-occupied-group-title { font-size: 11.5px; opacity: .55; margin-bottom: 2px; }
+    .ss-occupied-row { display: flex; align-items: center; gap: 10px; padding: 1px 0; font-size: 12px; }
+    .ss-occupied-keys {
+      flex-shrink: 0; min-width: 74px;
+      font-family: ui-monospace, Consolas, monospace;
+      opacity: .9;
+    }
+    .ss-occupied-desc { opacity: .8; }
+
+    .ss-backup-row {
+      display:flex; gap:10px; flex-wrap:wrap; margin-top:4px;
+    }
+    .ss-btn {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:8px 20px; border-radius:8px;
+      border:1px solid rgba(128,128,128,0.25);
+      background: rgba(128,128,128,0.08);
+      font-size:13px; cursor:pointer; transition:background .15s;
+      color: inherit;
+    }
+    .ss-btn:hover { background: rgba(128,128,128,0.15); }
+    .ss-btn-import { cursor:pointer; }
+    .ss-btn-danger { color: #e24b4a; border-color: rgba(226,75,74,0.3); }
+    .ss-btn-danger:hover { background: rgba(226,75,74,0.12); }
+    /* ★ 2026-09-29 导出勾选弹窗：主按钮 + 小号按钮 + 类别行。
+       顺序/特异性要点：.ss-btn-primary 与 .ss-btn 同为 (0,1,0) → 必须排在其后；
+       .ss-btn 的 :hover 是 (0,1,1) 会盖掉主色 → 需自带 :hover 版本；
+       类别行必须带 .ss-edit-modal 前缀（(0,2,0)），否则会被 .ss-edit-modal label 的
+       display/opacity/margin 压掉（(0,1,1)），只写 .ss-export-item 会失效。 */
+    .ss-btn-primary { background: rgba(59,130,246,0.16); border-color: rgba(59,130,246,0.45); color: var(--primary-color,#3b82f6); }
+    .ss-btn-primary:hover { background: rgba(59,130,246,0.26); }
+    .ss-btn-xs {
+      padding:2px 10px; border-radius:5px; border:1px solid rgba(128,128,128,0.2);
+      background: rgba(128,128,128,0.06); font-size:11px; line-height:1.5; cursor:pointer; color:inherit;
+    }
+    .ss-btn-xs:hover { background: rgba(128,128,128,0.15); }
+    .ss-export-modal { max-width: 480px; }
+    /* ★ 2026-09-29：类别增至 9 项 → 列表内滚，弹窗高度封顶，不把底部按钮顶出屏幕。
+       阈值取 58vh / 520px：常规窗口下 9 行（约 460px）能完整显示不滚动，
+       只有小窗口才回退成滚动，避免最后一项「传输记录」被默认藏起来。 */
+    .ss-export-list { max-height: min(58vh, 520px); overflow-y: auto; overscroll-behavior: contain; padding-right: 2px; }
+    /* ★ 2026-09-29：滚动条对齐 SFTP++ 面板（.sftp-root .pane-list）的视觉规格 —— 8px 宽、4px 圆角、
+       轨道/滑块/悬停三档灰度。⚠ 数值取面板变量链的**实际生效值**
+       （styles.ts 的 :host 里 --_scroll-track / --_scroll-thumb / --_scroll-thumb-hover = 0.06 / 0.28 / 0.45），
+       不是面板 CSS 里那个「var(--_scroll-thumb, rgba(...,0.35))」式兜底值 —— 变量在面板里始终有定义，兜底永远轮不到。
+       面板用的是 --_scroll-* 私有变量（面板 :host 作用域），设置页取不到 ⇒ 直接写字面值；
+       主色沿用设置页的 --primary-color（面板 --_primary 的链尾也是它，等价）。
+       Firefox/新版 Chromium 走 scrollbar-width/color 那一对，写法与面板逐字一致；
+       旧 Chromium 才吃下面这组 ::-webkit-* 规则 —— 两种路径都与面板同款。 */
+    .ss-export-list { scrollbar-width: thin; scrollbar-color: rgba(128,128,128,0.28) rgba(128,128,128,0.06); }
+    .ss-export-list::-webkit-scrollbar { width: 8px; height: 8px; }
+    .ss-export-list::-webkit-scrollbar-track { background: rgba(128,128,128,0.06); border-radius: 4px; }
+    .ss-export-list::-webkit-scrollbar-thumb {
+      background: rgba(128,128,128,0.28); border-radius: 4px;
+      min-height: 30px; min-width: 30px; transition: background 0.2s;
+    }
+    .ss-export-list::-webkit-scrollbar-thumb:hover { background: rgba(128,128,128,0.45); }
+    .ss-export-list::-webkit-scrollbar-thumb:active { background: var(--primary-color,#3b82f6); }
+    .ss-export-list::-webkit-scrollbar-corner { background: rgba(128,128,128,0.06); }
+    .ss-edit-modal .ss-export-hint { font-size:12px; opacity:.75; line-height:1.6; margin:0 0 12px 0; }
+    .ss-edit-modal .ss-export-item {
+      display:flex; align-items:center; gap:10px;
+      padding:8px 10px; margin-bottom:6px;
+      border:1px solid rgba(128,128,128,0.22); border-radius:8px;
+      cursor:pointer; opacity:1; font-size:13px;
+    }
+    .ss-edit-modal .ss-export-item:hover { background: rgba(128,128,128,0.08); }
+    .ss-export-check { width:15px; height:15px; flex-shrink:0; margin:0; cursor:pointer; accent-color: var(--primary-color,#3b82f6); }
+    .ss-export-text { display:flex; flex-direction:column; gap:2px; flex:1; min-width:0; }
+    .ss-export-name { font-size:13px; font-weight:500; }
+    .ss-export-sub { font-size:11px; opacity:.6; line-height:1.4; }
+    .ss-export-foot { display:flex; justify-content:flex-end; margin-top:8px; }
+    .ss-btn:disabled { opacity:.45; cursor:not-allowed; }
+
+    /* 关于 */
+    .ss-about-row { display:flex; gap:16px; flex-wrap:wrap; align-items:center; font-size:13px; }
+    .ss-about-links { margin-top:8px; }
+    .ss-about-item { opacity:.75; }
+    .ss-about-link {
+      display:inline-flex; align-items:center; gap:4px;
+      cursor:pointer; opacity:.7; transition:opacity .15s;
+    }
+    .ss-about-link:hover { opacity:1; }
+    .ss-about-link:hover .ss-about-label { text-decoration:underline; }
+    .ss-about-link svg,
+    .ss-about-link .ss-about-icon {
+      width:12px; height:12px; vertical-align:middle; flex-shrink:0;
+    }
+    /* 官方 npm 方形 Logo 使用 14px 显示，与其他源码图标保持协调 */
+    .ss-about-link .ss-about-icon { width:14px; height:14px; }
+
+    /* 确认弹窗 - 统一使用 ss-edit-* 类名（与 QC+ 同步） */
+    .ss-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.5);
+      display:flex; align-items:center; justify-content:center; z-index:9999;
+    }
+    .ss-edit-modal {
+      background:var(--body-bg,#1a1d23); color:var(--text-color,#e8edf5);
+      border:1px solid rgba(128,128,128,0.25); border-radius:12px;
+      padding:24px; max-width:400px; width:90%;
+    }
+    .ss-edit-modal.ss-dark { color:#fff; }
+    .ss-edit-modal.ss-light { color:#222; }
+    .ss-edit-modal p, .ss-edit-modal label { color:inherit; font-size:13px; line-height:1.6; }
+    .ss-edit-modal p { margin:0 0 12px 0; }
+    .ss-edit-modal label { font-size:12px; opacity:.8; display:block; margin-bottom:6px; }
+    .ss-edit-title { font-size:16px; font-weight:700; margin-bottom:16px; color:inherit; }
+    .ss-edit-field { margin-bottom:16px; }
+    .ss-edit-input {
+      width:100%; padding:8px 12px; border-radius:6px;
+      border:1px solid rgba(128,128,128,0.3);
+      background:rgba(0,0,0,0.2); color:inherit; font-size:13px; outline:none;
+      box-sizing:border-box;
+    }
+    .ss-edit-input::placeholder {
+      color: inherit;
+      opacity: .45;
+    }
+    .ss-edit-input::-webkit-input-placeholder {
+      color: inherit;
+      opacity: .45;
+    }
+    .ss-edit-input:focus { border-color:var(--primary-color,#3b82f6); }
+    .ss-edit-footer { display:flex; gap:8px; justify-content:flex-end; margin-top:10px; }
+
+    /* 布局卡片选择器 */
+    .ss-layout-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .ss-layout-card {
+      display:flex; flex-direction:column; align-items:center; gap:4px;
+      flex:1; min-width:100px; padding:10px 8px;
+      border-radius:8px; border:2px solid rgba(128,128,128,0.2);
+      background: rgba(128,128,128,0.04);
+      cursor:pointer; transition:border-color .15s, background .15s;
+      text-align:center;
+    }
+    .ss-layout-card:hover {
+      border-color: rgba(128,128,128,0.35);
+      background: rgba(128,128,128,0.08);
+    }
+    .ss-layout-active {
+      border-color: var(--primary-color, #3b82f6) !important;
+      background: rgba(59,130,246,0.08);
+    }
+    .ss-layout-icon {
+      display:flex; align-items:center; justify-content:center;
+      width:32px; height:32px; border-radius:6px;
+      background: rgba(128,128,128,0.08);
+      color: inherit; opacity:.85;
+    }
+    .ss-layout-active .ss-layout-icon {
+      background: rgba(59,130,246,0.15);
+      color: var(--primary-color, #3b82f6); opacity:1;
+    }
+    .ss-layout-text { font-size:13px; font-weight:600; line-height:1.2; }
+    .ss-layout-sub { font-size:10px; opacity:.5; line-height:1.3; }
+    .ss-sub-head { display:flex; align-items:center; justify-content:flex-start; gap:8px; }
+    .ss-reset-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+    }
+    .ss-reset-icon-btn svg { width: 13px; height: 13px; }
+    .ss-reset-icon-btn:hover { background: rgba(128,128,128,0.1); }
+    .ss-layout-preview {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .ss-layout-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      /* 垂直内距与「定制右键菜单」.ss-menu-row 同步（同为 4px）⇒ 两块行高精确相等；
+         两侧内容盒同高（同字号、同 14px 复选框），故只要垂直内距相同就必然等高，
+         与宿主 line-height 取值无关（改前 7px 使 chip 高出菜单行 6px）。 */
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px dashed rgba(128,128,128,0.35);
+      background: rgba(128,128,128,0.06);
+      font-size: 12px;
+      cursor: grab;
+      user-select: none;
+    }
+    .ss-layout-chip.dragging { opacity: 0.5; }
+    .ss-layout-chip.hidden { opacity: 0.45; border-style: dotted; }
+    .ss-layout-chip.hidden .ss-layout-chip-handle { opacity: .3; }
+    .ss-chip-check { width: 14px; height: 14px; margin: 0; cursor: pointer; }
+    .ss-layout-chip-handle { opacity: .5; letter-spacing: -1px; }
+    .ss-btn-ghost { padding: 6px 12px; font-size: 12px; }
+    .ss-menu-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-top: 6px;
+    }
+    .ss-menu-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px dashed rgba(128,128,128,0.35);
+      background: rgba(128,128,128,0.05);
+      font-size: 12px;
+      cursor: grab;
+      user-select: none;
+    }
+    .ss-menu-row.dragging { opacity: 0.5; }
+    .ss-menu-handle { opacity: .5; letter-spacing: -1px; cursor: grab; }
+    .ss-menu-check { width: 14px; height: 14px; margin: 0; cursor: pointer; flex: none; }
+    .ss-menu-label { flex: 1; }
+    .ss-menu-label.disabled { opacity: 0.4; text-decoration: line-through; }

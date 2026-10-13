@@ -1,14 +1,14 @@
 const assert = require('assert/strict');
 const fs = require('fs/promises');
 const path = require('path');
-const install = require('./external-edit.cjs');
+const install = require('./tests/helpers/feature-fixture.cjs')(require('./src/features/external-edit.cjs'));
 const root = path.join(__dirname, 'test-fixtures');
 let counter = 0, opened = [], confirmations = 0, originalCalls = 0;
 global.window = { confirm: () => { confirmations++; return false; } };
 class Settings {}
 class Panel {
     constructor() {
-        this.connected = true; this.configService = { store: { 'tabby-sftp-plus': { fileOpenAction: 'external-edit' } } };
+        this.connected = true; this.configService = { store: { 'tabby-sftp-plus-plus': { fileOpenAction: 'external-edit' } } };
         this.zone = { run: fn => fn() }; this.messages = []; this.uploads = []; this.remote = new Map();
         this.sftpSession = { stat: async name => ({ ...this.remote.get(name) }) };
     }
@@ -65,9 +65,9 @@ const save = async (state, bytes) => { await fs.writeFile(state.localPath, bytes
     assert.equal(p.uploads.length, 6, 'reopening retries a failed upload');
     await p._activateEntry('remote', { isDirectory: true, fullPath: '/dir' });
     await p._activateEntry('remote', { isSymlink: true, fullPath: '/link' }); assert.equal(originalCalls, 2, 'directory and directory symlink keep navigation');
-    const s = new Settings(); s.configService = { store: { 'tabby-sftp-plus': { fileOpenAction: 'external-edit' } }, save() {} }; s.notifyPanels = () => {};
+    const s = new Settings(); s.configService = { store: { 'tabby-sftp-plus-plus': { fileOpenAction: 'external-edit' } }, save() {} }; s.notifyPanels = () => {};
     assert.equal(s.toggleExternalEditOnOpen, undefined, 'local app editing is fixed, without a config toggle');
-    p.configService.store['tabby-sftp-plus'].fileOpenAction = 'preview'; await p._activateEntry('remote', { fullPath: '/a.conf' }); assert.equal(originalCalls, 2, 'legacy preview preference cannot activate internal viewer');
+    p.configService.store['tabby-sftp-plus-plus'].fileOpenAction = 'preview'; await p._activateEntry('remote', { fullPath: '/a.conf' }); assert.equal(originalCalls, 2, 'legacy preview preference cannot activate internal viewer');
     p.connected = false; await save(a, Buffer.from('disconnected')); await p._customSyncExternal(a);
     assert.equal(a.stopped, true); assert.equal(p.uploads.length, 6);
     p.ngOnDestroy(); assert.equal(b.stopped, true); assert.ok(await fs.stat(b.localPath));

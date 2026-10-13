@@ -5,7 +5,8 @@ const sandbox={module:{exports:{}},exports:{},console,Buffer,process:{env:{...pr
     CompositionEvent:class{},FocusEvent:class{},ClipboardEvent:class{},Event:class{},KeyboardEvent:class{},MouseEvent:class{},WheelEvent:class{},DragEvent:class{},HTMLElement:class{},Element:class{},window:{},document:{},localStorage:{getItem:()=>null,setItem(){}},
     require(name){if(name==='@angular/core')return pluginRequire(name);if(name.startsWith('tabby-')||['@angular/common','@angular/forms'].includes(name))return generic;if(name==='electron')return {shell:{openPath:async()=>''}};return pluginRequire(name);}};
 sandbox.global=sandbox;
-vm.runInNewContext(fs.readFileSync(path.join(__dirname,'dist/index.js'),'utf8').replace('const so=to;','globalThis.testProgress=pi;const so=to;'),sandbox);
+vm.runInNewContext(fs.readFileSync(process.env.SFTP_TEST_BUNDLE_PATH||path.join(__dirname,'dist/index.js'),'utf8').replace('const so=to;','globalThis.testProgress=pi;const so=to;'),sandbox);
+if(sandbox.module.exports.testing)sandbox.testProgress=sandbox.module.exports.testing.PanelTransferRuntime;
 const panel=sandbox.module.exports.default.__annotations__[0].declarations.find(c=>c.prototype._customExternalEdit);
 (async()=>{
     let outside=0,starts=0;

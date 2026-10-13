@@ -1,0 +1,1776 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: en_US\n"
+
+msgid "app.title"
+msgstr "SFTP+ File Manager"
+
+msgid "app.openSettings"
+msgstr "Open Settings"
+
+msgid "app.open"
+msgstr "Open SFTP"
+
+msgid "app.close"
+msgstr "Close"
+
+msgid "app.maximize"
+msgstr "Maximize"
+
+msgid "app.restore"
+msgstr "Restore"
+
+msgid "app.confirm"
+msgstr "Confirm"
+
+msgid "app.cancel"
+msgstr "Cancel"
+
+msgid "app.delete"
+msgstr "Delete"
+
+msgid "app.deleteFile"
+msgstr "Delete File"
+
+msgid "app.deleteFolder"
+msgstr "Delete Folder"
+
+msgid "app.deleteMultiple"
+msgstr "Delete Multiple Items"
+
+msgid "conflict.title"
+msgstr "File Conflict"
+
+msgid "conflict.sourceFile"
+msgstr "Source File"
+
+msgid "conflict.localFile"
+msgstr "Local File"
+
+msgid "conflict.remoteFile"
+msgstr "Remote File"
+
+msgid "conflict.size"
+msgstr "Size"
+
+msgid "conflict.modified"
+msgstr "Modified"
+
+msgid "conflict.path"
+msgstr "Path"
+
+# ★ 2026-09-07 issue #15：内容摘要（用于识别「mtime 变了但内容没变」）
+msgid "conflict.digest"
+msgstr "Digest"
+
+msgid "conflict.contentIdentical"
+msgstr "Content is identical — safe to skip"
+
+# ★ 2026-09-18 issue #15+：Content differs hint
+msgid "conflict.contentDiffers"
+msgstr "Content is different — consider overwriting"
+
+msgid "conflict.cancel"
+msgstr "Cancel"
+
+msgid "conflict.skip"
+msgstr "Skip"
+
+msgid "conflict.rename"
+msgstr "Rename"
+
+msgid "conflict.overwrite"
+msgstr "Overwrite"
+
+msgid "conflict.batch"
+msgstr "Batch:"
+
+msgid "conflict.skipAll"
+msgstr "Skip All"
+
+msgid "conflict.renameAll"
+msgstr "Rename All"
+
+msgid "conflict.overwriteAll"
+msgstr "Overwrite All"
+
+msgid "conflict.existsLocal"
+msgstr "Already exists locally"
+
+msgid "conflict.existsRemote"
+msgstr "Already exists remotely"
+
+msgid "log.onlySuccess"
+msgstr "Only Success"
+
+msgid "log.success"
+msgstr "Success"
+
+msgid "log.failed"
+msgstr "Failed"
+
+msgid "fileType.txt"
+msgstr "Text File"
+
+msgid "fileType.log"
+msgstr "Log File"
+
+msgid "fileType.md"
+msgstr "Markdown File"
+
+msgid "fileType.json"
+msgstr "JSON File"
+
+msgid "fileType.xml"
+msgstr "XML File"
+
+msgid "fileType.html"
+msgstr "HTML File"
+
+msgid "fileType.css"
+msgstr "CSS File"
+
+msgid "fileType.js"
+msgstr "JavaScript File"
+
+msgid "fileType.ts"
+msgstr "TypeScript File"
+
+msgid "fileType.image"
+msgstr "Image File"
+
+msgid "fileType.video"
+msgstr "Video File"
+
+msgid "fileType.audio"
+msgstr "Audio File"
+
+msgid "fileType.archive"
+msgstr "Archive File"
+
+msgid "fileType.doc"
+msgstr "Document File"
+
+msgid "fileType.code"
+msgstr "Code File"
+
+msgid "fileType.data"
+msgstr "Data File"
+
+msgid "fileType.config"
+msgstr "Config File"
+
+msgid "fileType.cert"
+msgstr "Certificate File"
+
+msgid "fileType.executable"
+msgstr "Executable File"
+
+msgid "fileType.unknown"
+msgstr "File"
+
+msgid "app.deleteConfirmFile"
+msgstr "Are you sure you want to delete this file?"
+
+msgid "app.deleteConfirmFolder"
+msgstr "Are you sure you want to delete this folder?"
+
+msgid "app.deleteConfirmMultiple"
+msgstr "Are you sure you want to delete these {count} items?"
+
+# ★ 本地删除回收站/永久删除提示
+msgid "app.trashHint"
+msgstr "Move to Recycle Bin"
+
+msgid "app.permDeleteHint"
+msgstr "Permanently delete (cannot be undone)"
+
+msgid "app.rename"
+msgstr "Rename"
+
+msgid "app.refresh"
+msgstr "Refresh"
+
+msgid "app.upload"
+msgstr "Upload"
+
+msgid "app.download"
+msgstr "Download"
+
+msgid "app.newFolder"
+msgstr "New Folder"
+
+msgid "app.newFile"
+msgstr "New File"
+
+msgid "app.loading"
+msgstr "Loading..."
+
+msgid "app.error"
+msgstr "Error"
+
+msgid "app.success"
+msgstr "Success"
+
+msgid "app.yes"
+msgstr "Yes"
+
+msgid "app.no"
+msgstr "No"
+
+msgid "app.all"
+msgstr "All"
+
+msgid "app.export"
+msgstr "Export"
+
+msgid "app.clear"
+msgstr "Clear"
+
+msgid "app.optional"
+msgstr "Optional"
+
+msgid "app.settings"
+msgstr "Settings"
+
+msgid "app.modeSwitchSsh"
+msgstr "SSH"
+
+msgid "app.modeSwitchSftp"
+msgstr "SFTP"
+
+msgid "app.backToTerminal"
+msgstr "Back to Terminal"
+
+msgid "filter.allOps"
+msgstr "All Operations"
+
+msgid "filter.allStatus"
+msgstr "All Status"
+
+msgid "filter.allTime"
+msgstr "All Time"
+
+msgid "filter.today"
+msgstr "Today"
+
+msgid "filter.last7Days"
+msgstr "Last 7 Days"
+
+msgid "filter.last30Days"
+msgstr "Last 30 Days"
+
+msgid "filter.customRange"
+msgstr "Custom"
+
+msgid "filter.dateFrom"
+msgstr "From"
+
+msgid "filter.dateTo"
+msgstr "To"
+
+msgid "pane.local"
+msgstr "Local"
+
+msgid "pane.remote"
+msgstr "Remote"
+
+msgid "pane.path"
+msgstr "Path"
+
+msgid "pane.up"
+msgstr "Go Up"
+
+msgid "pane.home"
+msgstr "Home"
+
+msgid "pane.go"
+msgstr "Go"
+
+msgid "pane.refresh"
+msgstr "Refresh"
+
+msgid "pane.filter"
+msgstr "Filter..."
+
+msgid "pane.filterBtn"
+msgstr "File Filter"
+
+msgid "pane.showHidden"
+msgstr "Show Hidden Files"
+
+msgid "pane.pinFolders"
+msgstr "Pin Folders to Top"
+
+msgid "view.panelBorder"
+msgstr "Panel border"
+
+msgid "view.colBorder"
+msgstr "Show border"
+
+msgid "view.zebra"
+msgstr "Show zebra stripes"
+
+msgid "pane.hideHidden"
+msgstr "Hide Hidden Files"
+
+msgid "pane.sortByName"
+msgstr "Sort by Name"
+
+msgid "pane.sortBySize"
+msgstr "Sort by Size"
+
+msgid "pane.sortByModified"
+msgstr "Sort by Modified"
+
+msgid "pane.selectAll"
+msgstr "Select All"
+
+msgid "pane.selectInvert"
+msgstr "Invert Selection"
+
+msgid "pane.clearSelection"
+msgstr "Clear Selection"
+
+msgid "pane.items"
+msgstr "{count} items"
+
+msgid "pane.copyPath"
+msgstr "Copy Path"
+
+msgid "pane.splitterHintHorizontal"
+msgstr "Drag to resize left/right panes. Double-click to reset."
+
+msgid "pane.splitterHintVertical"
+msgstr "Drag to resize top/bottom panes. Double-click to reset."
+
+msgid "notify.pathCopied"
+msgstr "Copied {n} path(s)"
+
+msgid "pane.openFolder"
+msgstr "Open Folder"
+
+msgid "pane.noMatch"
+msgstr "No matching files"
+
+msgid "pane.empty"
+msgstr "Empty folder"
+
+msgid "pane.errorAccess"
+msgstr "Cannot access (permission denied or path not found)"
+
+msgid "pane.loading"
+msgstr "Loading…"
+
+msgid "path.modeOff"
+msgstr "Path mode: Off (click to switch: Remember, Sync)"
+
+msgid "path.modeRemember"
+msgstr "Path mode: Remember (restore next time)"
+
+msgid "path.modeSync"
+msgstr "Path mode: Sync with terminal (remote follows cwd)"
+
+msgid "path.syncNoCwd"
+msgstr "Terminal cwd not reported. Switch to Sync again to configure"
+
+msgid "path.cwdSetupTitle"
+msgstr "Enable terminal directory sync"
+
+msgid "path.cwdSetupIntro"
+msgstr "Tabby needs the shell to report cwd via OSC 1337 before SFTP+ can sync. Choose how to enable it:"
+
+msgid "path.cwdSetupSessionHint"
+msgstr "This session only: run the temporary command below in the current terminal (lost after shell restart)"
+
+msgid "path.cwdSetupPermanentHint"
+msgstr "Permanent: append the snippet below to the remote profile, then source it (based on detected shell)"
+
+msgid "path.cwdSetupNote"
+msgstr "Cancel turns path mode Off. Nothing is executed or written."
+
+msgid "path.cwdSetupSession"
+msgstr "This session only"
+
+msgid "path.cwdSetupPermanent"
+msgstr "Write permanently"
+
+msgid "path.cwdSetupDone"
+msgstr "Directory reporting enabled, syncing…"
+
+msgid "path.cwdSetupFailed"
+msgstr "Failed to enable. Check remote permissions or shell type"
+
+msgid "file.symlink"
+msgstr "Symbolic link"
+
+msgid "file.shortcut"
+msgstr "Shortcut"
+
+msgid "file.name"
+msgstr "Name"
+
+msgid "file.type"
+msgstr "Type"
+
+msgid "file.size"
+msgstr "Size"
+
+msgid "file.modified"
+msgstr "Modified"
+
+msgid "file.created"
+msgstr "Created"
+
+msgid "file.accessed"
+msgstr "Accessed"
+
+msgid "file.permissions"
+msgstr "Permissions"
+
+msgid "file.owner"
+msgstr "Owner"
+
+msgid "file.group"
+msgstr "Group"
+
+msgid "file.mode"
+msgstr "Mode"
+
+msgid "file.path"
+msgstr "Path"
+
+msgid "file.ext"
+msgstr "Ext"
+
+msgid "file.columns"
+msgstr "Columns"
+
+msgid "file.inaccessible"
+msgstr "Inaccessible"
+
+msgid "file.open"
+msgstr "Open"
+
+msgid "file.view"
+msgstr "View"
+
+msgid "file.viewAsText"
+msgstr "View as Text"
+
+msgid "file.edit"
+msgstr "Edit"
+
+msgid "file.copy"
+msgstr "Copy"
+
+msgid "file.copied"
+msgstr "Copied"
+
+msgid "file.copySelection"
+msgstr "Copy Selection"
+
+msgid "file.cut"
+msgstr "Cut"
+
+msgid "file.paste"
+msgstr "Paste"
+
+msgid "file.copyAll"
+msgstr "Copy All"
+
+msgid "file.copyImage"
+msgstr "Copy Image"
+
+msgid "file.copyImageAddress"
+msgstr "Copy Image Address"
+
+msgid "file.delete"
+msgstr "Delete"
+
+msgid "file.rename"
+msgstr "Rename"
+
+msgid "file.newFolder"
+msgstr "New Folder"
+
+msgid "file.newFile"
+msgstr "New File"
+
+msgid "file.properties"
+msgstr "Properties"
+
+msgid "file.openWith"
+msgstr "Open With"
+
+msgid "file.showInFolder"
+msgstr "Show in Explorer"
+
+msgid "file.openInSystem"
+msgstr "Open in System"
+
+msgid "file.editInSystem"
+msgstr "Edit in System"
+
+msgid "viewer.loading"
+msgstr "Loading…"
+
+msgid "viewer.loadFailed"
+msgstr "Failed to load file"
+
+msgid "viewer.binaryNotSupported"
+msgstr "Binary file cannot be viewed or edited as text"
+
+msgid "viewer.binaryShownAsText"
+msgstr "Binary content shown as text (may not display correctly)"
+
+msgid "viewer.tooLarge"
+msgstr "File is too large to open"
+
+msgid "viewer.tooLargeView"
+msgstr "File is too large (over {limit}) and cannot be viewed"
+
+msgid "viewer.truncatedPreview"
+msgstr "File is large; showing the first {limit}. Use “Open in System” for the full file."
+
+msgid "viewer.typeNotSupported"
+msgstr "This file type cannot be viewed"
+
+msgid "viewer.prevImage"
+msgstr "Previous image"
+
+msgid "viewer.nextImage"
+msgstr "Next image"
+
+msgid "editor.save"
+msgstr "Save"
+
+msgid "editor.saving"
+msgstr "Saving…"
+
+msgid "editor.saveSuccess"
+msgstr "Saved to server"
+
+msgid "editor.saveSuccessLocal"
+msgstr "Saved"
+
+msgid "editor.saveFailed"
+msgstr "Save failed"
+
+msgid "editor.unsaved"
+msgstr "You have unsaved changes. Discard them?"
+
+msgid "editor.tooLarge"
+msgstr "File is too large (over {limit}) and cannot be edited"
+
+msgid "editor.typeNotSupported"
+msgstr "This file type cannot be edited"
+
+msgid "file.adjustCol"
+msgstr "Fit Column Width"
+
+msgid "file.adjustAllCols"
+msgstr "Fit All Columns"
+
+msgid "transfer.upload"
+msgstr "Upload"
+
+msgid "transfer.download"
+msgstr "Download"
+
+msgid "transfer.edit-upload"
+msgstr "Edit Save"
+
+msgid "transfer.edit-download"
+msgstr "Edit Load"
+
+msgid "transfer.progress"
+msgstr "Progress"
+
+msgid "transfer.speed"
+msgstr "Speed"
+
+msgid "transfer.remaining"
+msgstr "Remaining"
+
+msgid "transfer.cancel"
+msgstr "Cancel"
+
+msgid "transfer.closePanel"
+msgstr "Close transfer panel"
+
+msgid "transfer.pause"
+msgstr "Pause"
+
+msgid "transfer.resume"
+msgstr "Resume"
+
+msgid "transfer.cancelAll"
+msgstr "Cancel folder"
+
+msgid "transfer.cancelCurrent"
+msgstr "Cancel current"
+
+msgid "transfer.paused"
+msgstr "Paused"
+
+msgid "transfer.skippedAsDuplicate"
+msgstr "Skipped · content identical"
+
+msgid "transfer.inProgress"
+msgstr "In Progress"
+
+msgid "transfer.minimizePanel"
+msgstr "Minimize"
+
+msgid "transfer.hidePanel"
+msgstr "Hide"
+
+msgid "transfer.noActiveTransfers"
+msgstr "No active transfers"
+
+msgid "transfer.clearCompleted"
+msgstr "Clear Completed"
+
+msgid "transfer.queue"
+msgstr "Transfer Queue"
+
+msgid "transfer.log"
+msgstr "Transfer History"
+
+msgid "transfer.logEmpty"
+msgstr "No transfer records yet"
+
+msgid "transfer.logNoMatch"
+msgstr "No matching records"
+
+msgid "transfer.logCount"
+msgstr "{total} records"
+
+msgid "transfer.logCountFiltered"
+msgstr "Showing {filtered} of {total}"
+
+msgid "transfer.noTransfers"
+msgstr "No active transfers"
+
+msgid "transfer.clearConfirm"
+msgstr "Clear finished transfer records? Records of transfers still in progress are kept."
+
+msgid "transfer.clearTitle"
+msgstr "Confirm Clear"
+
+msgid "transfer.replaceConfirm"
+msgstr "File already exists. Replace?"
+
+msgid "transfer.replaceTitle"
+msgstr "Confirm Replace"
+
+msgid "transfer.deleteConfirm"
+msgstr "Delete {count} selected items?"
+
+msgid "transfer.deleteTitle"
+msgstr "Confirm Delete"
+
+msgid "bookmark.title"
+msgstr "Bookmarks"
+
+msgid "bookmark.add"
+msgstr "Add Bookmark"
+
+msgid "bookmark.addLocal"
+msgstr "Add Local"
+
+msgid "bookmark.addGlobal"
+msgstr "Add Global"
+
+msgid "bookmark.addCurrentShort"
+msgstr "+Local"
+
+msgid "bookmark.addGlobalShort"
+msgstr "+Global"
+
+msgid "bookmark.remove"
+msgstr "Remove Bookmark"
+
+msgid "bookmark.edit"
+msgstr "Edit Bookmark"
+
+msgid "bookmark.noBookmarks"
+msgstr "No bookmarks yet"
+
+msgid "bookmark.name"
+msgstr "Bookmark Name"
+
+msgid "bookmark.path"
+msgstr "Path"
+
+msgid "bookmark.save"
+msgstr "Save Bookmark"
+
+msgid "bookmark.global"
+msgstr "Global Bookmarks"
+
+msgid "bookmark.forConnection"
+msgstr "Current Bookmarks"
+msgid "permission.title"
+msgstr "Edit Permissions"
+
+msgid "permission.owner"
+msgstr "Owner"
+
+msgid "permission.group"
+msgstr "Group"
+
+msgid "permission.others"
+msgstr "Others"
+
+msgid "permission.read"
+msgstr "Read"
+
+msgid "permission.write"
+msgstr "Write"
+
+msgid "permission.execute"
+msgstr "Execute"
+
+msgid "permission.mode"
+msgstr "Mode (Octal)"
+
+msgid "notify.sftpOpened"
+msgstr "SFTP Opened"
+
+msgid "notify.noSSHSession"
+msgstr "No SSH session on current tab"
+
+msgid "notify.transferComplete"
+msgstr "Transfer Complete"
+
+msgid "notify.transferFailed"
+msgstr "Transfer Failed"
+
+msgid "notify.connectionLost"
+msgstr "Connection Lost"
+
+msgid "notify.connected"
+msgstr "Connected to"
+
+msgid "notify.connecting"
+msgstr "Connecting to"
+
+msgid "notify.sftpConnectFailed"
+msgstr "SFTP connection failed. Ensure SSH is connected and the server supports SFTP."
+
+msgid "notify.reconnectNoTerminal"
+msgstr "Terminal disconnected. Please click or press any key in the terminal to reconnect."
+
+msgid "notify.reconnectFailed"
+msgstr "Reconnect failed. Please click or press any key in the terminal to reconnect."
+
+msgid "settings.desc"
+msgstr "Beautiful SFTP file manager: drag-drop, bookmarks, sort, transfer logs & multilingual."
+
+msgid "settings.language"
+msgstr "Language"
+
+msgid "settings.followTabby"
+msgstr "Follow Tabby"
+
+msgid "settings.theme"
+msgstr "Theme"
+
+msgid "settings.primary"
+msgstr "Primary"
+
+msgid "settings.bg"
+msgstr "Bg"
+
+msgid "settings.text"
+msgstr "Text"
+
+msgid "settings.border"
+msgstr "Border"
+
+msgid "settings.layout"
+msgstr "Layout"
+
+msgid "settings.font"
+msgstr "Font"
+
+msgid "settings.fontSize"
+msgstr "Font size"
+
+msgid "settings.resetFont"
+msgstr "Reset font size"
+
+msgid "settings.fontHint"
+msgstr "Adjust text size inside the SFTP+ panel (11–18px)"
+
+msgid "settings.layoutAdaptive"
+msgstr "Adaptive"
+
+msgid "settings.layoutAdaptiveSub"
+msgstr "Auto switch by width"
+
+msgid "settings.layoutHorizontal"
+msgstr "Horizontal"
+
+msgid "settings.layoutHorizontalSub"
+msgstr "Panes side by side"
+
+msgid "settings.layoutVertical"
+msgstr "Vertical"
+
+msgid "settings.layoutVerticalSub"
+msgstr "Panes stacked"
+
+msgid "settings.layoutSingle"
+msgstr "Single Pane"
+
+msgid "settings.layoutSingleSub"
+msgstr "Remote panel only"
+
+msgid "settings.toolbarLayout"
+msgstr "Customize Toolbar"
+
+msgid "settings.customToolbar"
+msgstr "Customize Toolbar"
+
+msgid "settings.toolbarLayoutHint"
+msgstr "Drag to reorder and apply immediately to pane header"
+
+msgid "settings.paneLabel"
+msgstr "Terminal Label"
+
+msgid "settings.addressBar"
+msgstr "Address Bar"
+
+msgid "settings.toolbar"
+msgstr "Toolbar"
+
+msgid "settings.toolbarItem.back"
+msgstr "Back"
+
+msgid "settings.toolbarItem.forward"
+msgstr "Forward"
+
+msgid "settings.toolbarItem.up"
+msgstr "Up"
+
+msgid "settings.toolbarItem.refresh"
+msgstr "Refresh"
+
+msgid "settings.toolbarItem.home"
+msgstr "Home"
+
+msgid "settings.toolbarItem.filter"
+msgstr "Filter"
+
+msgid "settings.toolbarItem.bookmark"
+msgstr "Bookmark"
+
+msgid "settings.resetLayout"
+msgstr "Reset"
+
+msgid "settings.tableStyle"
+msgstr "Table Style"
+
+msgid "settings.tableStyleHint"
+msgstr "Tip: Control via file list header right-click menu"
+
+msgid "settings.hideNativeBtn"
+msgstr "Hide native SFTP button"
+
+msgid "settings.openInNewTab"
+msgstr "Open panel in new tab by default"
+
+msgid "settings.singleWorkspaceInstance"
+msgstr "Single instance only"
+
+msgid "settings.closeBookmarkPanel"
+msgstr "Close bookmark panel after selecting"
+
+msgid "settings.hotkey"
+msgstr "Open/Close Panel"
+
+msgid "settings.hotkeyUnbound"
+msgstr "Set shortcut"
+
+msgid "settings.hotkeyClear"
+msgstr "Clear"
+
+msgid "settings.hotkeyRecording"
+msgstr "Press a key combination…"
+
+msgid "settings.hotkeyClickToSet"
+msgstr "Click to set hotkey"
+
+msgid "settings.hotkeyConflict"
+msgstr "Conflicts with: {names}"
+
+msgid "settings.hotkeyConflictConfirm"
+msgstr "Shortcut {keys} is already used by: {names}\nBind it to SFTP+ anyway? (Both may fire.)"
+
+msgid "settings.hotkeySaved"
+msgstr "Saved and synced to Tabby: {keys}"
+
+msgid "settings.hotkeyCleared"
+msgstr "Shortcut binding cleared"
+
+msgid "settings.hotkeySaveFailed"
+msgstr "Failed to save hotkey"
+
+msgid "settings.hotkeyRecordTimeout"
+msgstr "Recording timed out, please try again"
+
+msgid "settings.other"
+msgstr "Functionality"
+
+msgid "settings.interaction"
+msgstr "Interaction"
+msgid "settings.viewerEditor"
+msgstr "Viewer & editor"
+
+msgid "settings.openOnClick"
+msgstr "Open file/folder on"
+
+msgid "settings.clickDouble"
+msgstr "Double click"
+
+msgid "settings.clickSingle"
+msgstr "Single click"
+
+msgid "settings.openOnClickHint"
+msgstr "Single click opens files/folders directly; double click still works in single-click mode."
+
+msgid "settings.openUnsupportedInSystem"
+msgstr "Open unsupported files with system app"
+
+msgid "settings.openUnsupportedInSystemDesc"
+msgstr "Files the viewer cannot handle (e.g. .pdf/.docx) will be opened with the OS default app instead of showing an \"unsupported\" message."
+
+msgid "settings.editableExtensions"
+msgstr "Viewable & editable extensions"
+
+msgid "settings.editableExtensionsHint"
+msgstr "Space-separated. Accepts .conf, *.conf, or conf. Used as the whitelist when \"view & edit all\" is off."
+msgid "settings.allowViewEditAllFiles"
+msgstr "Allow viewing and editing all file types"
+msgid "settings.allowViewEditAllFilesHint"
+msgstr "Ignore extension restrictions. Any file can be viewed; binary content remains protected when editing."
+msgid "settings.showTextLineNumbers"
+msgstr "Viewer/editor line numbers"
+msgid "settings.showTextLineNumbersHint"
+msgstr "Show line numbers in the built-in viewer and editor."
+msgid "settings.transferSection"
+msgstr "Transfer"
+
+msgid "settings.defaultUploadPath"
+msgstr "Default upload path"
+msgid "settings.defaultUploadPathPh"
+msgstr "Remote dir, e.g. /home/user/uploads (empty = current remote dir)"
+msgid "settings.defaultDownloadPath"
+msgstr "Default download path"
+msgid "settings.defaultDownloadPathPh"
+msgstr "Local dir, e.g. C:\\Downloads (empty = current local dir)"
+msgid "settings.iconSettings"
+msgstr "File type icons"
+msgid "settings.iconResourceDir"
+msgstr "Icon directory"
+msgid "settings.iconResourceDirPh"
+msgstr "Local dir containing the svg files, e.g. C:\\icons"
+msgid "settings.iconSvgFile"
+msgstr "SVG file"
+msgid "settings.iconPreview"
+msgstr "Preview"
+msgid "settings.iconAdd"
+msgstr "Add rule"
+msgid "settings.iconDelete"
+msgstr "Delete"
+msgid "settings.iconDeleteConfirm"
+msgstr "Delete rule \"{name}\"? This cannot be undone."
+
+msgid "settings.iconLocked"
+msgstr "Locked (system default rule, cannot be deleted)"
+msgid "settings.iconRuleHint"
+msgstr "Map extensions to their SVG files."
+msgid "settings.builtinIcons"
+msgstr "Built-in icons"
+msgid "settings.builtinIconDir"
+msgstr "Built-in icon directory"
+msgid "settings.builtinIconDesc"
+msgstr "The following SVG icons are bundled with the plugin. Drop your own svgs here to extend them."
+msgid "settings.iconEdit"
+msgstr "Edit"
+msgid "settings.iconDisable"
+msgstr "Disable"
+msgid "settings.iconEnable"
+msgstr "Restore"
+msgid "settings.iconAddRule"
+msgstr "Add rule"
+msgid "settings.iconFolderHint"
+msgstr "Folder (default)"
+msgid "settings.iconFileHint"
+msgstr "File (default)"
+msgid "settings.iconExtLockedHint"
+msgstr "Default files cannot change extensions"
+msgid "settings.iconSvgNameHint"
+msgstr "File name"
+msgid "settings.iconRuleName"
+msgstr "Rule name"
+msgid "settings.iconRuleNamePh"
+msgstr "e.g. Scripts, Documents"
+msgid "settings.iconExtLabel"
+msgstr "Extensions"
+msgid "settings.iconErrorExtConflict"
+msgstr "Extension \"{ext}\" is already used by icon {svg}"
+msgid "settings.iconErrorEmpty"
+msgstr "Rule name, extension and svg file name must not be empty"
+msgid "settings.iconErrorEmptyName"
+msgstr "Rule name must not be empty"
+msgid "settings.iconErrorNameConflict"
+msgstr "Rule name \"{name}\" already exists"
+msgid "settings.iconErrorNameSvgMismatch"
+msgstr "Rule \"{name}\" is already bound to icon {svg}; use the same file or choose another rule name"
+msgid "settings.iconErrorMissingSvg"
+msgstr "The svg file was not found in the icon directory"
+msgid "settings.iconErrorInvalidExt"
+msgstr "Invalid extension format: \"{ext}\". Use forms like .txt or txt; separate multiple with spaces/commas"
+
+msgid "settings.resetIcons"
+msgstr "Reset icon settings"
+
+msgid "settings.hotkeys"
+msgstr "Shortcuts"
+
+msgid "settings.resetPanelHotkeys"
+msgstr "Reset to defaults"
+
+msgid "settings.phk.delete"
+msgstr "Delete"
+
+msgid "settings.phk.rename"
+msgstr "Rename"
+
+msgid "settings.phk.refresh"
+msgstr "Refresh"
+
+msgid "settings.phk.up"
+msgstr "Go up (parent dir)"
+
+msgid "settings.phk.back"
+msgstr "Back"
+
+msgid "settings.panelHotkeyConflict"
+msgstr "Shortcut {keys} is already used by another action"
+
+msgid "settings.customContextMenu"
+msgstr "Customize right-click menu"
+
+msgid "settings.resetMenu"
+msgstr "Reset menu order"
+
+msgid "settings.data"
+msgstr "Data"
+
+msgid "settings.export"
+msgstr "Export"
+
+msgid "settings.import"
+msgstr "Import"
+
+msgid "settings.clearAll"
+msgstr "Clear All"
+
+msgid "settings.about"
+msgstr "About"
+
+msgid "settings.version"
+msgstr "Version"
+
+msgid "settings.buildTime"
+msgstr "Build time"
+
+msgid "settings.author"
+msgstr "Author"
+
+msgid "settings.githubSource"
+msgstr "GitHub Source"
+
+msgid "settings.npmSource"
+msgstr "NPM Source"
+
+msgid "settings.giveStar"
+msgstr "Give a Star"
+
+msgid "settings.feedback"
+msgstr "Feedback"
+
+msgid "settings.modifyColors"
+msgstr "⚠️ Modify Colors"
+
+msgid "settings.overwriteConfirm"
+msgstr "You are in Auto/Preset mode. Changes will overwrite the custom color scheme. Continue?"
+
+msgid "settings.overwrite"
+msgstr "Overwrite"
+
+msgid "settings.clearAllTitle"
+msgstr "⚠️ Clear All Data"
+
+msgid "settings.clearAllConfirm"
+msgstr "This will delete all bookmarks, transfer logs, and settings. Cannot be undone!"
+
+msgid "settings.clearAllPrompt"
+msgstr "Please type DELETE to confirm:"
+
+msgid "settings.clear"
+msgstr "Clear"
+
+msgid "settings.dark"
+msgstr "Dark"
+
+msgid "settings.light"
+msgstr "Light"
+
+msgid "settings.invalidFormat"
+msgstr "Invalid data format."
+
+msgid "settings.importComplete"
+msgstr "Import complete."
+
+msgid "settings.importUnavailable"
+msgstr "Cannot import: ConfigService not available."
+
+msgid "settings.importFailed"
+msgstr "Import failed: invalid or corrupted file."
+
+msgid "settings.dataCleared"
+msgstr "All data cleared"
+
+msgid "layout.mode.auto"
+msgstr "Auto Layout"
+
+msgid "layout.mode.horizontal"
+msgstr "Horizontal Layout"
+
+msgid "layout.mode.vertical"
+msgstr "Vertical Layout"
+
+msgid "layout.mode.single"
+msgstr "Single Pane (Remote Only)"
+
+msgid "layout.override.tooNarrow"
+msgstr "Panel too narrow for side-by-side; temporarily using top-bottom layout"
+
+msgid "layout.override.tooShort"
+msgstr "Panel too short for top-bottom; temporarily using side-by-side layout"
+
+msgid "layout.override.tooCramped"
+msgstr "Panel too small for dual panes; temporarily using single pane"
+
+msgid "layout.override.reasonNarrow"
+msgstr "too narrow"
+
+msgid "layout.override.reasonShort"
+msgstr "too short"
+
+msgid "layout.override.reasonCramped"
+msgstr "too small"
+
+msgid "layout.override.title"
+msgstr "{preferred} → {actual} ({reason})"
+
+msgid "notify.closeWithTransfers"
+msgstr "{count} transfer(s) in progress. Closing the panel will interrupt all transfers. Continue?"
+
+msgid "type.folder"
+msgstr "Folder"
+
+msgid "type.file"
+msgstr "File"
+
+msgid "pane.exclFolders"
+msgstr ", excl. folders"
+
+msgid "pane.selectedInfo"
+msgstr " — Selected {n} items ({size})"
+
+msgid "fail.cancelled"
+msgstr "Cancelled"
+
+msgid "fail.interrupted"
+msgstr "Disconnected"
+
+msgid "fail.unknown"
+msgstr "Failed"
+
+msgid "notify.uploadFailed"
+msgstr "Upload failed: {name}"
+
+msgid "notify.downloadFailed"
+msgstr "Download failed: {name}"
+
+msgid "op.renameFailed"
+msgstr "Rename failed: {reason}"
+
+msgid "op.mkdirFailed"
+msgstr "Create dir failed: {reason}"
+
+msgid "op.touchFailed"
+msgstr "Create file failed: {reason}"
+
+msgid "op.chmodFailed"
+msgstr "Chmod failed: {reason}"
+
+msgid "op.failed"
+msgstr "Operation failed: {reason}"
+
+msgid "op.cannotCopyIntoSelf"
+msgstr "Cannot copy a folder into itself or its subfolder: {name}"
+
+msgid "notify.deleteFailed"
+msgstr "{n} item(s) failed to delete (maybe in use or no permission)"
+
+msgid "notify.trashFailed"
+msgstr "{n} item(s) failed to move to Recycle Bin (not deleted; try Shift+Delete for permanent)"
+
+msgid "input.dirExists"
+msgstr "Directory already exists: {val}"
+
+msgid "input.fileExists"
+msgstr "File already exists: {val}"
+
+msgid "input.fileWhenMkdir"
+msgstr "A file named \"{val}\" already exists, cannot create directory"
+
+msgid "input.dirWhenTouch"
+msgstr "A directory named \"{val}\" already exists, cannot create file"
+
+msgid "notify.notConnectedUpload"
+msgstr "Not connected, cannot upload"
+
+msgid "notify.notConnectedDownload"
+msgstr "Not connected, cannot download"
+
+msgid "notify.copied"
+msgstr "Copied {n} item(s)"
+
+msgid "notify.cut"
+msgstr "Cut {n} item(s)"
+
+msgid "status.disconnected"
+msgstr "Disconnected"
+
+msgid "status.reconnecting"
+msgstr "Reconnecting…"
+
+msgid "status.reconnect"
+msgstr "Reconnect"
+
+msgid "app.restoreDefaultSize"
+msgstr "Restore default panel size"
+
+msgid "notify.pasteFailed"
+msgstr "Paste failed"
+
+msgid "notify.copyFailed"
+msgstr "Copy failed: {name}"
+
+msgid "theme.auto"
+msgstr "Auto"
+
+msgid "theme.dark"
+msgstr "Dark"
+
+msgid "theme.light"
+msgstr "Light"
+
+msgid "theme.blue"
+msgstr "Blue"
+
+msgid "theme.green"
+msgstr "Green"
+
+msgid "theme.purple"
+msgstr "Purple"
+
+msgid "theme.red"
+msgstr "Red"
+
+msgid "theme.custom"
+msgstr "Custom"
+
+msgid "pane.back"
+msgstr "Back"
+
+msgid "pane.forward"
+msgstr "Forward"
+
+msgid "filter.apply"
+msgstr "Apply"
+
+msgid "filter.clear"
+msgstr "Clear"
+
+msgid "hotkey.togglePanel"
+msgstr "Open SFTP+ panel"
+
+msgid "conflict.targetFileExists"
+msgstr "Target file (exists)"
+
+msgid "transfer.success"
+msgstr "Success"
+
+
+msgid "conflict.existsSamePane"
+msgstr "A file with the same name already exists at the target location"
+
+msgid "settings.dateFormat"
+msgstr "Custom time format"
+
+msgid "settings.dateFormatHint"
+msgstr "Tokens: YYYY / YY / MM / DD / HH / hh / mm / ss / A (empty = default)"
+
+msgid "settings.dateFormatPreview"
+msgstr "Preview"
+
+msgid "settings.dateFormatReset"
+msgstr "Reset to default"
+
+msgid "settings.defaultPathMode"
+msgstr "Default path mode"
+
+msgid "settings.pathModeOff"
+msgstr "Off"
+
+msgid "settings.pathModeRemember"
+msgstr "Remember path"
+
+msgid "settings.pathModeSync"
+msgstr "Sync with terminal"
+
+msgid "settings.defaultShowHidden"
+msgstr "Show hidden files by default"
+
+msgid "settings.uploadConcurrency"
+msgstr "Concurrent uploads"
+
+msgid "settings.downloadConcurrency"
+msgstr "Concurrent downloads"
+
+msgid "transfer.queued"
+msgstr "Queued"
+
+
+msgid "settings.fastMode"
+msgstr "Fast Transfer Mode"
+
+msgid "settings.fastModeDesc"
+msgstr "Skip the size pre-scan and start directory transfers immediately: faster start, but total size and percentage progress cannot be calculated during the transfer (only transferred bytes are shown)"
+
+msgid "settings.tarAcceleration"
+msgstr "TAR Transfer Acceleration"
+
+msgid "settings.tarAccelerationDesc"
+msgstr "Automatically package folder transfers with tar to dramatically speed up small files; falls back smoothly to normal transfer if unsupported or failed"
+
+# ★ 2026-09-07 issue #15：冲突内容摘要设置
+msgid "settings.conflictDigest"
+msgstr "Content Digest on Conflict"
+
+msgid "settings.conflictDigestDesc"
+msgstr "When size matches but modification time differs, compute a content digest to tell whether the file really changed (e.g. after switching Git branches). Requires shell access on the remote host; falls back to the old behavior when unavailable"
+
+msgid "settings.conflictAutoSkip"
+msgstr "Auto-skip Identical Content"
+
+msgid "settings.conflictAutoSkipDesc"
+msgstr "If both digests are available and equal, treat it as no conflict and skip silently instead of prompting"
+
+msgid "settings.conflictDigestMaxSize"
+msgstr "Digest Size Limit (MB)"
+
+msgid "settings.conflictDigestMaxSizeDesc"
+msgstr "Files larger than this are not digested and are always treated as conflicts, to avoid slowing down conflict detection"
+
+msgid "file.sizeCalculate"
+msgstr "Calculate"
+
+msgid "file.sizeCalculating"
+msgstr "Calculating…"
+
+msgid "file.sizeCalcFailed"
+msgstr "Calculation failed"
+
+msgid "file.folderSizeDetail"
+msgstr "{size} ({count} files)"
+
+msgid "file.fileProperties"
+msgstr "File properties"
+
+msgid "file.folderProperties"
+msgstr "Folder properties"
+
+msgid "settings.hideAuthorInfo"
+msgstr "Hide plugin author info"
+
+msgid "settings.hideAuthorConfirmText"
+msgstr "Before hiding the author info, please star the plugin repository to show your support. The repository page has been opened in your browser. Your star is what keeps me developing — thank you for your support! 🙏"
+
+msgid "settings.starredConfirm"
+msgstr "I've starred it"
+
+msgid "file.location"
+msgstr "Location"
+
+msgid "settings.phk.forward"
+msgstr "Forward"
+
+msgid "settings.mouseBack"
+msgstr "Mouse back button"
+
+msgid "settings.mouseForward"
+msgstr "Mouse forward button"
+
+msgid "settings.hotkeyAdd"
+msgstr "Add shortcut"
+
+msgid "settings.hotkeyDuplicate"
+msgstr "This shortcut is already bound to this action"
+
+msgid "settings.hotkeyMouseHint"
+msgstr "Mouse side-button binding, click to re-record"
+
+msgid "settings.occupied.title"
+msgstr "Occupied shortcuts"
+
+msgid "settings.occupied.hint"
+msgstr "These keys are reserved by SFTP+ and cannot be changed. Avoid them when assigning shortcuts above. Conflicts with Tabby global hotkeys (e.g. Alt+Enter = fullscreen) will prompt for confirmation when binding."
+
+msgid "settings.occupied.groupPanel"
+msgstr "Panel"
+
+msgid "settings.occupied.groupViewer"
+msgstr "Viewer"
+
+msgid "settings.occupied.groupDialog"
+msgstr "Dialogs"
+
+msgid "settings.occupied.moveSelection"
+msgstr "Move selection up / down"
+
+msgid "settings.occupied.multiSelect"
+msgstr "Multi-select with click"
+
+msgid "settings.occupied.typeAhead"
+msgstr "Type a name prefix to jump to the match"
+
+msgid "settings.occupied.prevNextImage"
+msgstr "Previous / next image"
+
+msgid "settings.occupied.closeDialog"
+msgstr "Close dialog / viewer / panel"
+
+msgid "settings.occupied.confirmDelete"
+msgstr "Confirm deletion"
+
+msgid "log.modeFast"
+msgstr "Fast mode"
+
+msgid "log.modeTar"
+msgstr "Tar packing"
+
+msgid "log.modeSftp"
+msgstr "SFTP"
+
+msgid "log.fileCount"
+msgstr "{n} files"
+
+msgid "settings.customBookmarkPanel"
+msgstr "Customize bookmark panel"
+
+msgid "settings.resetBookmarkPanel"
+msgstr "Reset bookmark panel"
+
+msgid "settings.bookmarkGroupByScope"
+msgstr "Bookmark grouping"
+msgid "settings.bookmarkGroupByScopeHint"
+msgstr "When on, bookmarks are shown in Current / Global sections. When off, they mix freely and can be reordered across scopes."
+msgid "settings.bookmarkGroupOrderHint"
+msgstr "Drag to set which group appears first: connection or global"
+
+msgid "settings.bookmarkFlatHint"
+msgstr "With grouping off, global bookmarks show a Global badge next to the name and can be freely mixed with current bookmarks."
+msgid "bookmark.globalBadge"
+msgstr "Global"
+
+msgid "bookmark.locate"
+msgstr "Locate current bookmark"
+
+msgid "bookmark.locateNone"
+msgstr "No bookmark for current path"
+
+msgid "editor.remoteChanged"
+msgstr "The remote file has been modified. Overwrite the version on the server?"
+
+msgid "notify.sftpRecovered"
+msgstr "SFTP session recovered; please retry interrupted transfers"
+
+msgid "perm.modeUnknown"
+msgstr "Cannot read permissions; cancelled"
+
+msgid "permission.chmodFailed"
+msgstr "Failed to change permissions"
+
+msgid "settings.reportBug"
+msgstr "Report a Bug"
+
+msgid "settings.featureRequest"
+msgstr "Feature Request"
+
+msgid "notify.duplicateTransfer"
+msgstr "{name} is already in the transfer queue — duplicate request ignored"
+
+msgid "transfer.etaRemaining"
+msgstr "{time} left"
+
+msgid "app.dirMissingTitle"
+msgstr "Target directory does not exist"
+
+msgid "app.dirMissingText"
+msgstr "The target directory for this transfer does not exist. Create it?"
+
+msgid "app.dirMissingCreate"
+msgstr "Create and transfer"
+
+msgid "app.dirMissingFallback"
+msgstr "Use current directory"
+
+msgid "app.dirMissingCancel"
+msgstr "Cancel"
+
+msgid "app.dirCreated"
+msgstr "Directory created: {dir}"
+
+msgid "app.mkdirpFailed"
+msgstr "Failed to create directory: {reason}"
+
+msgid "app.targetNotDir"
+msgstr "Target path is not a directory: {dir}"
+
+msgid "pane.groupBy"
+msgstr "Group by"
+
+msgid "group.none"
+msgstr "None"
+
+msgid "group.name"
+msgstr "Name"
+
+msgid "group.modified"
+msgstr "Date modified"
+
+msgid "group.type"
+msgstr "Type"
+
+msgid "group.size"
+msgstr "Size"
+
+msgid "group.expand"
+msgstr "Expand"
+
+msgid "group.collapse"
+msgstr "Collapse"
+
+msgid "group.today"
+msgstr "Today"
+
+msgid "group.yesterday"
+msgstr "Yesterday"
+
+msgid "group.thisWeek"
+msgstr "Earlier this week"
+
+msgid "group.thisMonth"
+msgstr "Earlier this month"
+
+msgid "group.earlierThisYear"
+msgstr "Earlier this year"
+
+msgid "group.longAgo"
+msgstr "A long time ago"
+
+msgid "group.folder"
+msgstr "Folder"
+
+msgid "group.noExt"
+msgstr "Other files"
+
+msgid "group.typeFiles"
+msgstr "files"
+
+msgid "group.sizeTiny"
+msgstr "Tiny (0-16 KB)"
+
+msgid "group.sizeSmall"
+msgstr "Small (16 KB - 1 MB)"
+
+msgid "group.sizeMedium"
+msgstr "Medium (1-128 MB)"
+
+msgid "group.sizeLarge"
+msgstr "Large (128 MB - 1 GB)"
+
+msgid "group.sizeHuge"
+msgstr "Huge (1-4 GB)"
+
+msgid "group.sizeSuper"
+msgstr "Enormous (>4 GB)"
+
+msgid "group.digit"
+msgstr "0-9"
+
+msgid "group.a2h"
+msgstr "A-H"
+
+msgid "group.i2p"
+msgstr "I-P"
+
+msgid "group.q2z"
+msgstr "Q-Z"
+
+msgid "group.pyAF"
+msgstr "Pinyin A-F"
+
+msgid "group.pyGL"
+msgstr "Pinyin G-L"
+
+msgid "group.pyMS"
+msgstr "Pinyin M-S"
+
+msgid "group.pyTZ"
+msgstr "Pinyin T-Z"
+
+msgid "group.other"
+msgstr "Other"
+
+msgid "group.toggleAll"
+msgstr "Expand/collapse all groups"
+
+msgid "group.expandAll"
+msgstr "Expand all"
+
+msgid "group.collapseAll"
+msgstr "Collapse all"
+
+msgid "settings.enableItem"
+msgstr "Enable item"
+
+msgid "settings.channelMode"
+msgstr "Transfer channel mode"
+
+msgid "settings.channelModeDesc"
+msgstr "Choose how folder transfers use tar packaging (TAR) vs file-by-file (SFTP)"
+
+msgid "settings.channelMode.smart"
+msgstr "Smart"
+
+msgid "settings.channelMode.sftpOnly"
+msgstr "SFTP only"
+
+msgid "settings.channelMode.tarOnly"
+msgstr "TAR only"
+
+msgid "settings.channelMode.preferSftp"
+msgstr "Prefer SFTP"
+
+msgid "settings.channelMode.preferTar"
+msgstr "Prefer TAR"
+
+msgid "settings.channelMode.smartDesc"
+msgstr "Auto-pick best channel by folder size and file count"
+
+msgid "settings.channelMode.sftpOnlyDesc"
+msgstr "Always transfer file by file; never use tar packing and no size-based routing"
+
+msgid "settings.channelMode.tarOnlyDesc"
+msgstr "Always use tar packing with no size-based routing; when packing is unavailable or fails, report the error instead of falling back to file-by-file. When the destination already exists the first attempt still goes file-by-file so conflicts can be detected; choosing Overwrite or Rename in the conflict prompt then continues with tar packing. A single file is always transferred file by file"
+
+msgid "settings.channelMode.preferSftpDesc"
+msgstr "Use tar only when clearly beneficial (requires many more files)"
+
+msgid "settings.channelMode.preferTarDesc"
+msgstr "Pack unless clearly worse (huge files); loose threshold"
+
+msgid "notify.tarOnlyFailed"
+msgstr "TAR-only mode: cannot transfer {name} - {reason}. Change Transfer channel mode to Smart / Prefer TAR in Settings, or fix the environment and retry"
+
+msgid "tarchan.reason.localTarMissing"
+msgstr "no usable tar command on this computer"
+
+msgid "tarchan.reason.remoteTarMissing"
+msgstr "no usable tar command on the remote server"
+
+msgid "tarchan.reason.symlinkUnsupported"
+msgstr "the folder contains symbolic links, which the packing channel does not support"
+
+msgid "tarchan.reason.packFailed"
+msgstr "packing or extracting the archive failed"
+
+msgid "tarchan.reason.tarballFailed"
+msgstr "transferring the archive file failed"
+
+msgid "tarchan.reason.other"
+msgstr "the packing channel is unavailable, see the log for details"
+
+msgid "notify.tarOnlyInapplicable"
+msgstr "TAR-only mode: {name} is not using the packed channel - {reason}. To send it as one archive, choose Overwrite in the directory conflict prompt, or delete the destination first and retry"
+
+msgid "tarchan.reason.targetExists"
+msgstr "the destination already exists, and an incremental transfer can only go through the per-file channel"
+
+msgid "tarchan.reason.localPackFailed"
+msgstr "packing the folder on this computer failed, possibly due to disk space or permissions"
+
+msgid "tarchan.reason.remotePackFailed"
+msgstr "packing or extracting on the remote server failed, possibly due to disk space or permissions"
+
+msgid "tarchan.reason.localExtractFailed"
+msgstr "extracting the archive on this computer failed, see the log for details"
+
+msgid "tarchan.reason.nameEncodingUnsupported"
+msgstr "the file names on the remote server cannot be decoded on this computer; switch to Smart or Prefer SFTP mode, or upgrade the tar command on the server"
+
+msgid "transfer.batchUpload"
+msgstr "{n} items from {dir}"
+
+msgid "settings.exportPickHint"
+msgstr "Choose what to include in the export file."
+
+msgid "settings.exportSelectAll"
+msgstr "Select All"
+
+msgid "settings.exportDeselectAll"
+msgstr "Clear Selection"
+
+msgid "settings.exportCatBookmarkData"
+msgstr "Bookmark data"
+
+msgid "settings.hotkeyWheelHint"
+msgstr "Wheel binding, click to re-record (the list can no longer be scrolled with the wheel)"
+
+msgid "settings.panelHotkeyWheelBareWarning"
+msgstr "Bound to {keys}; the file list can no longer be scrolled with the wheel (add Alt)"
+
+msgid "settings.textCaretShape"
+msgstr "Viewer/editor caret shape"
+msgid "settings.textCaretShapeHint"
+msgstr "Shape of the caret drawn in the viewer. The three options mirror the cursor of the Tabby terminal. The editor uses the system caret."
+msgid "settings.caretShapeBlock"
+msgstr "Block"
+msgid "settings.caretShapeBeam"
+msgstr "Vertical bar"
+msgid "settings.caretShapeUnderline"
+msgstr "Underline"

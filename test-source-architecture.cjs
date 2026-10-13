@@ -1,0 +1,9 @@
+const assert=require('assert/strict'),fs=require('fs'),path=require('path'),Module=require('module');
+const header=fs.readFileSync('test-context-menu.cjs','utf8').split('(async()=>{')[0],h=new Module(path.join(__dirname,'architecture-harness.cjs'),module);h.filename=path.join(__dirname,'architecture-harness.cjs');h.paths=module.paths;h._compile(header+'\nmodule.exports={sandbox};',h.filename);const plugin=h.exports.sandbox.module.exports;
+const surface=require('./src/features/surface.json');for(const [role,keys] of Object.entries(surface))for(const key of keys)if(!key.startsWith('_customTrace'))assert.ok(Object.getOwnPropertyDescriptor(plugin.testing.featureApis[role],key),'registered '+role+'.'+key);
+for(const file of fs.readdirSync('src/features').filter(f=>f.endsWith('.cjs'))){const s=fs.readFileSync(path.join('src/features',file),'utf8');assert.ok(!/\b(?:Panel|Settings|FilePane|Decorator|Menu|I18n|CwdDialog|Bookmark|ProgressRuntime)\.prototype/.test(s),'no Angular prototype mutation in '+file);}
+assert.ok(!fs.readFileSync('scripts/build.cjs','utf8').includes('index.original'),'build must not read a minified legacy bundle');
+const provider=plugin.default.__annotations__[0].providers.find(p=>p.useClass?.toString().includes('this.defaults'));assert.ok(provider);const defaults=new provider.useClass().defaults;
+const createProxy=require('./tests/helpers/config-proxy-fixture.cjs'),fixture=createProxy(defaults),config=fixture.proxy['tabby-sftp-plus-plus'];for(const field of ['sidebarSessions','pathModes','cwdSetupServers']){config[field].fixture={saved:true};assert.equal(fixture.backing['tabby-sftp-plus-plus'][field].fixture.saved,true,field+' mutations must persist through ConfigProxy');}
+assert.equal(plugin.default.__annotations__[0].declarations.length,16);
+console.log('PASS: complete controller facade, source-only build, no Angular prototype mutation, mutable ConfigProxy maps and 16 component declarations.');

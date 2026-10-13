@@ -1,0 +1,33 @@
+{
+  "unitScripts": [
+    "test-activity.cjs",
+    "test-clipboard-safety.cjs",
+    "test-clipboard-upload.cjs",
+    "test-context-menu.cjs",
+    "test-data-safety.cjs",
+    "test-drop-diagnostics.cjs",
+    "test-external-edit.cjs",
+    "test-file-permissions.cjs",
+    "test-inline-edit.cjs",
+    "test-keyboard-events.cjs",
+    "test-native-buffer.cjs",
+    "test-native-dialog-actions.cjs",
+    "test-recent-folders.cjs",
+    "test-remote-metadata.cjs",
+    "test-renderer-context.cjs",
+    "test-shared-ui-diagnostics.cjs",
+    "test-transfer-ui.cjs",
+    "test-ui-actions.cjs",
+    "test-source-architecture.cjs"
+  ],
+  "renderer": {
+    "timeoutMs": 30000,
+    "settleMs": 30,
+    "focusMs": 15,
+    "width": 1100,
+    "height": 740
+  },
+  "sdkMapRelative": "node_modules/tabby-core/dist/index.js.map",
+  "nativeRootRelative": "Programs/Tabby/resources/app.asar.unpacked/node_modules/russh",
+  "nativeCoreMapRelative": "Programs/Tabby/resources/builtin-plugins/tabby-core/dist/index.js.map"
+}

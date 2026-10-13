@@ -121,3 +121,7 @@ Trace paste ảnh được bổ sung flush trước các bước hàng đợi, t
 Log queue/upload/download có operationId/spanId/jobId, duration, trạng thái queue hai chiều, byte/chunk offset và các bước stat/open/read/write/close/verify/chmod/commit/cleanup. Ctrl+V ghi key-route trước khi xử lý; callback phím không gọi native availableFormats. Khi bật chẩn đoán, chỉ record key-route dùng append đồng bộ nhỏ để giữ bằng chứng nếu renderer thoát ngay; các record khác vẫn bất đồng bộ/flush tại điểm đã chọn.
 
 Ctrl+V được bắt ở pha capture của window (fallback document), trước handler ở target/bubble. Log capture và route được lưu ngay; input/textarea vẫn giữ paste bình thường, listener được gỡ khi đóng panel.
+
+## Source build 2.0
+
+The plugin now builds from named TypeScript source and feature controllers. See [architecture](docs/ARCHITECTURE.md) and [acceptance/rollback](docs/REWRITE-ACCEPTANCE.md). Run npm ci, npm run typecheck, npm run build, npm test and npm run test:renderer. The optional npm run test:native uses the installed Tabby russh addon. The build verifies a staged candidate before publishing dist.

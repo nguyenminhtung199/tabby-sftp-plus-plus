@@ -111,5 +111,6 @@
     ],
     "flags": 4,
     "cancelExitCode": 2
-  }
+  },
+  "newFileOpenFlags": 42
 }

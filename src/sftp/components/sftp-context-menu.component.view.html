@@ -1,0 +1,82 @@
+
+    <div class="context-menu" (mousedown)="$event.stopPropagation()" (mouseup)="$event.stopPropagation()" (click)="$event.stopPropagation()" (contextmenu)="$event.preventDefault(); $event.stopPropagation()" #menuEl *ngIf="menuVisible"
+      [style.left]="menuX + 'px'" [style.top]="menuY + 'px'">
+
+      <ng-container *ngFor="let a of orderedVisibleActions; let i = index">
+        <div class="ctx-sep" *ngIf="i > 0 && needsSep(a, i)"></div>
+        <div class="ctx-item" [class.ctx-danger]="!!MENU_REGISTRY[a].danger"
+          (click)="$event.preventDefault(); $event.stopPropagation(); menuAction.emit(a)">
+          {{ contextActionLabel(a) }}
+          <span class="ctx-shortcut" *ngIf="effectiveShortcut(a)">{{ effectiveShortcut(a) }}</span>
+        </div>
+      </ng-container>
+
+      <!-- ★ 2026-09-28：分组依据（仅空白区域右键时显示，entry=null）——侧边子菜单（Windows 风格），悬停展开、✓ 勾选当前模式 -->
+      <ng-container *ngIf="groupByPane && !disabledMenuEntries.has('groupBy')">
+        <div class="ctx-sep"></div>
+        <div class="ctx-item ctx-submenu-trigger" (mouseenter)="positionGroupBySubmenu()">
+          {{ i18n.t('pane.groupBy') }}
+          <span class="ctx-submenu-arrow">▸</span>
+          <div class="ctx-submenu" #groupBySubEl>
+            <div class="ctx-item" *ngIf="!disabledMenuEntries.has('groupToggleAll')" (click)="$event.preventDefault(); $event.stopPropagation(); groupToggleAll.emit()">
+              <span class="ctx-check"></span> {{ groupAllCollapsed ? i18n.t('group.expandAll') : i18n.t('group.collapseAll') }}
+            </div>
+            <div class="ctx-sep" *ngIf="!disabledMenuEntries.has('groupToggleAll')"></div>
+            <div class="ctx-item" *ngFor="let m of GROUP_BY_MODES" (click)="$event.preventDefault(); $event.stopPropagation(); groupByAction.emit(m)">
+              <span class="ctx-check">{{ groupBy === m ? '✓' : '' }}</span> {{ i18n.t('group.' + m) }}
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <div class="context-menu" (mousedown)="$event.stopPropagation()" (mouseup)="$event.stopPropagation()" (click)="$event.stopPropagation()" (contextmenu)="$event.preventDefault(); $event.stopPropagation()" #headerMenuEl *ngIf="headerVisible"
+      [style.left]="headerX + 'px'" [style.top]="headerY + 'px'">
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('adjustCol')" *ngIf="headerCol"><span class="ctx-check"></span> {{ i18n.t('file.adjustCol') }}</div>
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('adjustAllCols')"><span class="ctx-check"></span> {{ i18n.t('file.adjustAllCols') }}</div>
+      <div class="ctx-sep"></div>
+      <div class="ctx-item ctx-disabled"><span class="ctx-check">✓</span> {{ i18n.t('file.name') }}</div>
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('toggleCol:size')">
+        <span class="ctx-check" *ngIf="cols.size">✓</span><span class="ctx-check" *ngIf="!cols.size"></span> {{ i18n.t('file.size') }}
+      </div>
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('toggleCol:date')">
+        <span class="ctx-check" *ngIf="cols.date">✓</span><span class="ctx-check" *ngIf="!cols.date"></span> {{ i18n.t('file.modified') }}
+      </div>
+      <div class="ctx-item" *ngIf="pane === 'local'" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('toggleCol:created')">
+        <span class="ctx-check" *ngIf="cols.created">✓</span><span class="ctx-check" *ngIf="!cols.created"></span> {{ i18n.t('file.created') }}
+      </div>
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('toggleCol:access')">
+        <span class="ctx-check" *ngIf="cols.access">✓</span><span class="ctx-check" *ngIf="!cols.access"></span> {{ i18n.t('file.accessed') }}
+      </div>
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('toggleCol:owner')">
+        <span class="ctx-check" *ngIf="cols.owner">✓</span><span class="ctx-check" *ngIf="!cols.owner"></span> {{ i18n.t('file.owner') }}
+      </div>
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('toggleCol:group')">
+        <span class="ctx-check" *ngIf="cols.group">✓</span><span class="ctx-check" *ngIf="!cols.group"></span> {{ i18n.t('file.group') }}
+      </div>
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('toggleCol:perms')">
+        <span class="ctx-check" *ngIf="cols.perms">✓</span><span class="ctx-check" *ngIf="!cols.perms"></span> {{ i18n.t('file.permissions') }}
+      </div>
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('toggleCol:mode')">
+        <span class="ctx-check" *ngIf="cols.mode">✓</span><span class="ctx-check" *ngIf="!cols.mode"></span> {{ i18n.t('file.mode') }}
+      </div>
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('toggleCol:path')">
+        <span class="ctx-check" *ngIf="cols.path">✓</span><span class="ctx-check" *ngIf="!cols.path"></span> {{ i18n.t('file.path') }}
+      </div>
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('toggleCol:ext')">
+        <span class="ctx-check" *ngIf="cols.ext">✓</span><span class="ctx-check" *ngIf="!cols.ext"></span> {{ i18n.t('file.ext') }}
+      </div>
+      <div class="ctx-sep"></div>
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('togglePinFolders')">
+        <span class="ctx-check" *ngIf="pinFolders">✓</span><span class="ctx-check" *ngIf="!pinFolders"></span> {{ i18n.t('pane.pinFolders') }}
+      </div>
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('toggleHidden')">
+        <span class="ctx-check" *ngIf="showHidden">✓</span><span class="ctx-check" *ngIf="!showHidden"></span> {{ i18n.t('pane.showHidden') }}
+      </div>
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('toggleColBorders')">
+        <span class="ctx-check" *ngIf="showColBorders">✓</span><span class="ctx-check" *ngIf="!showColBorders"></span> {{ i18n.t('view.colBorder') }}
+      </div>
+      <div class="ctx-item" (click)="$event.preventDefault(); $event.stopPropagation(); headerAction.emit('toggleZebra')">
+        <span class="ctx-check" *ngIf="showZebra">✓</span><span class="ctx-check" *ngIf="!showZebra"></span> {{ i18n.t('view.zebra') }}
+      </div>
+    </div>

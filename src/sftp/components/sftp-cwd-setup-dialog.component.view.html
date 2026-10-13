@@ -1,0 +1,34 @@
+
+    <div class="overlay" *ngIf="visible" (click)="onBackdrop($event)">
+      <div class="dialog" (click)="$event.stopPropagation()">
+        <div class="dialog-title">{{ i18n.t('path.cwdSetupTitle') }}</div>
+        <div class="dialog-body">
+          <p>{{ i18n.t('path.cwdSetupIntro') }}</p>
+          <p>Supports Bash/Zsh inside GNU Screen. Run setup at an idle shell prompt in the active Screen window. Use Permanent to enable it in future shells.</p>
+
+          <div class="cmd-block">
+            <div class="cmd-label">{{ i18n.t('path.cwdSetupSessionHint') }}</div>
+            <pre class="cmd-code">{{ sessionCmd }}</pre>
+          </div>
+
+          <div class="cmd-block">
+            <div class="cmd-label">{{ i18n.t('path.cwdSetupPermanentHint') }}</div>
+            <div class="cmd-sub">~/.bashrc</div>
+            <pre class="cmd-code">{{ bashSnippet }}</pre>
+            <div class="cmd-sub">~/.zshrc</div>
+            <pre class="cmd-code">{{ zshSnippet }}</pre>
+          </div>
+
+          <p class="dialog-note">{{ i18n.t('path.cwdSetupNote') }}</p>
+        </div>
+        <div class="dialog-buttons">
+          <button type="button" class="btn-primary" (click)="choose.emit('session')">
+            {{ i18n.t('path.cwdSetupSession') }}
+          </button>
+          <button type="button" class="btn-primary" (click)="choose.emit('permanent')">
+            {{ i18n.t('path.cwdSetupPermanent') }}
+          </button>
+          <button type="button" (click)="choose.emit('cancel')">{{ i18n.t('app.cancel') }}</button>
+        </div>
+      </div>
+    </div>

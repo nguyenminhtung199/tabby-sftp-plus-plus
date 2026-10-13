@@ -1,0 +1,108 @@
+
+    <div class="overlay" *ngIf="visible" (wheel)="onOverlayWheel($event)">
+      <div class="dialog log-dialog" (wheel)="onScrollableWheel($event)">
+        <div class="dialog-title">
+          <span>{{ i18n.t('transfer.log') }}</span>
+          <button class="btn-link dialog-close" (click)="close.emit()">×</button>
+        </div>
+        <div class="log-toolbar">
+          <select [(ngModel)]="filterOp" (ngModelChange)="filterOpChange.emit($event)">
+            <option value="">{{ i18n.t('filter.allOps') }}</option>
+            <option value="upload">{{ i18n.t('transfer.upload') }}</option>
+            <option value="download">{{ i18n.t('transfer.download') }}</option>
+            <option value="edit-upload">{{ i18n.t('transfer.edit-upload') }}</option>
+            <option value="edit-download">{{ i18n.t('transfer.edit-download') }}</option>
+          </select>
+          <select [(ngModel)]="filterStatus" (ngModelChange)="filterStatusChange.emit($event)">
+            <option value="">{{ i18n.t('filter.allStatus') }}</option>
+            <option value="success">{{ i18n.t('log.success') }}</option>
+            <option value="failed">{{ i18n.t('log.failed') }}</option>
+          </select>
+          <select [(ngModel)]="filterTimeRange" (ngModelChange)="filterTimeRangeChange.emit($event)">
+            <option value="">{{ i18n.t('filter.allTime') }}</option>
+            <option value="today">{{ i18n.t('filter.today') }}</option>
+            <option value="7d">{{ i18n.t('filter.last7Days') }}</option>
+            <option value="30d">{{ i18n.t('filter.last30Days') }}</option>
+            <option value="custom">{{ i18n.t('filter.customRange') }}</option>
+          </select>
+          <ng-container *ngIf="filterTimeRange === 'custom'">
+            <label class="log-date-field">
+              <span>{{ i18n.t('filter.dateFrom') }}</span>
+              <input type="date" [ngModel]="filterDateFrom" (ngModelChange)="filterDateFromChange.emit($event)" />
+            </label>
+            <label class="log-date-field">
+              <span>{{ i18n.t('filter.dateTo') }}</span>
+              <input type="date" [ngModel]="filterDateTo" (ngModelChange)="filterDateToChange.emit($event)" />
+            </label>
+          </ng-container>
+          <button (click)="export.emit()">{{ i18n.t('app.export') }}</button>
+          <!-- ★ 2026-09-26：没有「可清除记录」时禁用（无记录 / 只剩下正在传输中的） -->
+          <button (click)="clear.emit()" class="danger" [disabled]="!clearableCount">{{ i18n.t('app.clear') }}</button>
+          <button *ngIf="activeTransferCount" (click)="showTransfers.emit()" class="btn-transfers-toggle">
+            {{ (transfersHidden || transfersMinimized) ? '▸' : '▾' }} {{ i18n.t('transfer.inProgress') }} ({{ activeTransferCount }})
+          </button>
+        </div>
+        <div class="log-list" (wheel)="onScrollableWheel($event)"><ng-content></ng-content>
+          <div class="log-empty" *ngIf="!entries.length && !customHistoryOwner?.customEditRows.length && !customHistoryOwner?.customHistoryRecoveryRows.length">
+            <span>{{ emptyLabel }}</span>
+          </div>
+          <div class="log-entry" *ngFor="let entry of entries; trackBy: trackById">
+            <div class="log-row-main">
+              <span class="log-op-badge"
+                    [class.op-upload]="entry.operation === 'upload'"
+                    [class.op-download]="entry.operation === 'download'"
+                    [class.op-edit]="entry.operation === 'edit-upload' || entry.operation === 'edit-download'"
+                    [class.op-other]="entry.operation !== 'upload' && entry.operation !== 'download' && entry.operation !== 'edit-upload' && entry.operation !== 'edit-download'">
+                {{ i18n.t('transfer.' + entry.operation) || entry.operation }}
+              </span>
+              <span class="log-filename" [title]="isUploadLike(entry) ? entry.localPath + ' → ' + entry.remotePath : entry.remotePath + ' → ' + entry.localPath">
+                {{ getLogFileName(entry) }}
+              </span>
+              <span class="log-meta">
+                <!-- ★ 2026-09-03 / 2026-09-20：目录/文件传输方式标签（SFTP / 快速 / tar） -->
+                <span *ngIf="entry.transferMode === 'sftp'" class="log-mode-tag tag-sftp" [title]="i18n.t('log.modeSftp')">⇄ {{ i18n.t('log.modeSftp') }}</span>
+                <span *ngIf="entry.transferMode === 'tar'" class="log-mode-tag tag-tar" [title]="i18n.t('log.modeTar')">📦 {{ i18n.t('log.modeTar') }}</span>
+                <span *ngIf="!entry.transferMode && entry.fileCount > 0" class="log-mode-tag tag-count">{{ i18n.t('log.fileCount', { n: entry.fileCount }) }}</span>
+                <span *ngIf="entry.size != null" class="log-size">{{ formatSize(entry.size) }}</span>
+                <!-- ★ 修复：传输进行中不显示速度/耗时（duration=0 算出 Infinity/NaN） -->
+                <span *ngIf="!customLogPending(entry) && entry.size && entry.duration" class="log-speed">{{ formatSpeedFromSize(entry.size, entry.duration) }}</span>
+                <span *ngIf="!customLogPending(entry) && entry.duration != null" class="log-duration">{{ formatDuration(entry.duration) }}</span>
+                <span *ngIf="customLogPending(entry)" class="log-pending-tag">{{ i18n.t('transfer.inProgress') }}</span>
+                <!-- ★ 2026-09-07 issue #15+：内容已确认相同 → 自动跳过；与 success ✓ 区分，避免「重复拖同文件看不到任何反馈」 -->
+                <span *ngIf="entry.skippedAsDuplicate" class="log-skipped-tag" [title]="i18n.t('transfer.skippedAsDuplicate')">⏭ {{ i18n.t('transfer.skippedAsDuplicate') }}</span>
+              </span>
+              <span class="log-status-icon"
+                    [class.success]="!customLogPending(entry) && !entry.skippedAsDuplicate && entry.success"
+                    [class.failed]="!customLogPending(entry) && !entry.success"
+                    [class.pending]="customLogPending(entry)"
+                    [class.skipped]="!!entry.skippedAsDuplicate"
+                    [title]="customLogPending(entry) ? i18n.t('transfer.inProgress') : (entry.skippedAsDuplicate ? i18n.t('transfer.skippedAsDuplicate') : (entry.success ? i18n.t('transfer.success') : formatFailReason(entry)))">
+                {{ customLogPending(entry) ? '⏳' : (entry.skippedAsDuplicate ? '⏭' : (entry.success ? '✓' : '✗')) }}
+              </span>
+            </div>
+            <div class="log-recovery-actions" *ngIf="customHistoryOwner?.customLogTransfer(entry) as t">
+                  <span>{{ customHistoryOwner.customTransferDetails(t) }}</span>
+                  <button class="btn-link" *ngIf="customHistoryOwner.customCanRetryTransfer(t)" [disabled]="!customHistoryOwner.connected || t._retryBusy" (click)="customHistoryOwner.customRetryTransfer(t)" title="Retry or resume transfer"><i class="fas fa-play"></i></button>
+                  <button class="btn-link" *ngIf="t.status !== 'Completed' && t.status !== 'Cancelled'" (click)="customHistoryOwner.customCancelTransfer(t)" title="Cancel transfer"><i class="fas fa-times"></i></button>
+                </div><div class="log-row-paths">
+              <ng-container *ngIf="isUploadLike(entry); else downloadPaths">
+                <span class="log-path-line" [title]="entry.localPath">🖥 {{ entry.localPath }}</span>
+                <!-- ★ 2026-09-20：仅加粗加大 →，不加彩色标签底（用户反馈标签形态更难看） -->
+                <span class="log-path-arrow" aria-hidden="true">→</span>
+                <span class="log-path-line" [title]="entry.remotePath">🌐 {{ entry.remotePath }}</span>
+              </ng-container>
+              <ng-template #downloadPaths>
+                <span class="log-path-line" [title]="entry.remotePath">🌐 {{ entry.remotePath }}</span>
+                <span class="log-path-arrow" aria-hidden="true">→</span>
+                <span class="log-path-line" [title]="entry.localPath">🖥 {{ entry.localPath }}</span>
+              </ng-template>
+              <span class="log-time" *ngIf="entry.startTime">{{ formatLogTime(entry.timestamp) }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="dialog-buttons">
+          <span class="log-count">{{ countLabel }}</span>
+          <button (click)="close.emit()">{{ i18n.t('app.close') }}</button>
+        </div>
+      </div>
+    </div>

@@ -1,6 +1,6 @@
 const assert=require('assert/strict'),fs=require('fs'),fsp=fs.promises,path=require('path'),crypto=require('crypto'),cp=require('child_process');
-const engine=require('./transfer-engine.cjs'),makeResume=require('./resume-transfer.cjs'),activity=require('./activity.cjs'),makeStore=require('./recovery-store.cjs');
-const installEdit=require('./external-edit.cjs');let opened=[];
+const engine=require('./tests/helpers/feature-fixture.cjs')(require('./src/features/transfer-engine.cjs')),makeResume=require('./tests/helpers/feature-fixture.cjs')(require('./src/features/resume-transfer.cjs')),activity=require('./tests/helpers/feature-fixture.cjs')(require('./src/features/activity.cjs')),makeStore=require('./src/runtime/recovery-store.cjs');
+const installEdit=require('./tests/helpers/feature-fixture.cjs')(require('./src/features/external-edit.cjs'));let opened=[];
 const root=path.join(__dirname,'test-fixtures','resume-'+process.pid),CHUNK=256*1024;
 const python=process.env.SFTP_TEST_PYTHON||'python3';
 const panels=[],children=[];let wireRead=0,wireWrite=0,execCount=0,confirmations=0;

@@ -1,0 +1,55 @@
+
+    .overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+      transition: none !important; animation: none !important;
+      outline: none;
+    }
+    /* 自动聚焦到 overlay 时不显示浏览器默认焦点轮廓（模态遮罩本身已足够明显） */
+    .overlay:focus { outline: none; }
+    .delete-dialog {
+      background: var(--_bg);
+      border: 1px solid var(--_border);
+      border-radius: 12px; padding: 20px; min-width: 340px; max-width: 420px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .delete-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .delete-header-icon { flex-shrink: 0; width: 16px !important; height: 16px !important; }
+    .delete-icon-folder { color: #f0c040; }
+    .delete-icon-file { color: #8ab4f8; opacity: 0.95; }
+    .delete-warn-icon { flex-shrink: 0; width: 18px !important; height: 18px !important; }
+    .delete-title { font-size: 15px; font-weight: 600; color: var(--_text); }
+    .delete-text { font-size: 13px; color: var(--_text); margin-bottom: 12px; opacity: 0.85; }
+    .delete-preview {
+      border: 1px solid var(--_border);
+      border-radius: 8px; padding: 12px; margin-bottom: 16px;
+      background: var(--_content);
+    }
+    .delete-preview-row {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; padding: 2px 0;
+    }
+    .delete-preview-row + .delete-preview-row { margin-top: 3px; }
+    .delete-preview-icon { flex-shrink: 0; display: flex; align-items: center; }
+    .delete-preview-icon.is-folder { color: #f0c040; opacity: 0.95; }
+    .delete-preview-icon.is-file { color: #8ab4f8; opacity: 0.9; }
+    .delete-preview-name { font-weight: 500; color: var(--_text); }
+    .delete-preview-label { color: var(--_text); opacity: 0.5; min-width: 60px; }
+    .delete-preview-value { color: var(--_text); }
+    /* 长路径折行显示，不挤压对话框宽度 */
+    .delete-preview-path { word-break: break-all; }
+    .dialog-buttons { display: flex; justify-content: flex-end; gap: 8px; padding-top: 10px; }
+    .dialog-buttons button {
+      padding: 4px 12px; border-radius: 6px;
+      border: 1px solid var(--_border);
+      background: var(--_content);
+      color: var(--_text); cursor: pointer;
+    }
+    .danger { background: #d32f2f !important; border-color: #ef5350 !important; color: #fff; }
+    /* 回收站/永久删除操作提示（单文件与批量共用） */
+    .delete-action-hint {
+      font-size: 12px; margin: 0 0 12px 0; padding: 0;
+      color: #4caf50; font-weight: 500;
+    }
+    .delete-action-perm { color: #f44336; }

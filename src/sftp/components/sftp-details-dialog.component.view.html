@@ -1,0 +1,56 @@
+
+    <div class="overlay" *ngIf="visible" (click)="cancel.emit()">
+      <div class="dialog details-dialog" (click)="$event.stopPropagation()">
+        <div class="dialog-title">{{ display?.isFolder ? i18n.t('file.folderProperties') : i18n.t('file.fileProperties') }}</div>
+        <div class="details-body" *ngIf="display">
+          <div class="details-head">
+            <span class="details-head-icon" [class.is-folder]="display.isFolder" [class.is-file]="!display.isFolder">
+              <img *ngIf="display.iconUrl" class="details-head-icon-img" [src]="display.iconUrl" [alt]="display.name" draggable="false" />
+              <svg *ngIf="!display.iconUrl" width="26" height="26" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">
+                <path *ngIf="display.isFolder" d="M1.5 5.5C1.5 4.67 2.17 4 3 4h2.67L7 6h6c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5H3c-.83 0-1.5-.67-1.5-1.5v-6z"/>
+                <ng-container *ngIf="!display.isFolder">
+                  <path d="M5 1.5h4.5L13 5v9.5H5c-.55 0-1-.45-1-1V2.5c0-.55.45-1 1-1z"/>
+                  <path d="M9.5 1.5V5H13"/>
+                  <line x1="6.5" y1="8" x2="11.5" y2="8"/>
+                  <line x1="6.5" y1="10" x2="11.5" y2="10"/>
+                  <line x1="6.5" y1="12" x2="9.5" y2="12"/>
+                </ng-container>
+              </svg>
+            </span>
+            <div class="details-head-info">
+              <div class="details-head-name">{{ display.name }}</div>
+            </div>
+          </div>
+          <table class="details-table">
+            <tr><td class="dt-label">{{ i18n.t('file.type') }}</td><td class="dt-value">{{ display.type }}</td></tr>
+            <tr><td class="dt-label">{{ i18n.t('file.location') }}</td><td class="dt-value dt-location">{{ display.location }}</td></tr>
+            <tr><td class="dt-label">{{ i18n.t('file.path') }}</td><td class="dt-value dt-path">{{ display.path }}</td></tr>
+            <tr *ngIf="display.size || display.sizeCalculable">
+              <td class="dt-label">{{ i18n.t('file.size') }}</td>
+              <td class="dt-value">
+                <ng-container *ngIf="display.size">{{ display.size }}</ng-container>
+                <ng-container *ngIf="!display.size && display.sizeCalculable">
+                  <span *ngIf="display.sizeCalcState === 'calculating'" class="dt-calc-ing">{{ i18n.t('file.sizeCalculating') }}</span>
+                  <span *ngIf="display.sizeCalcState === 'error'" class="dt-calc-err">{{ i18n.t('file.sizeCalcFailed') }}</span>
+                  <button
+                    *ngIf="display.sizeCalcState !== 'calculating'"
+                    class="dt-calc-btn"
+                    (click)="$event.stopPropagation(); calcSize.emit()">
+                    {{ i18n.t('file.sizeCalculate') }}
+                  </button>
+                </ng-container>
+              </td>
+            </tr>
+            <tr><td class="dt-label">{{ i18n.t('file.modified') }}</td><td class="dt-value">{{ display.modified }}</td></tr>
+            <tr *ngIf="display.created"><td class="dt-label">{{ i18n.t('file.created') }}</td><td class="dt-value">{{ display.created }}</td></tr>
+            <tr *ngIf="display.accessed"><td class="dt-label">{{ i18n.t('file.accessed') }}</td><td class="dt-value">{{ display.accessed }}</td></tr>
+            <tr *ngIf="display.perms"><td class="dt-label">{{ i18n.t('file.permissions') }}</td><td class="dt-value">{{ display.perms }}</td></tr>
+            <tr *ngIf="display.owner"><td class="dt-label">{{ i18n.t('file.owner') }}</td><td class="dt-value">{{ display.owner }}</td></tr>
+            <tr *ngIf="display.group"><td class="dt-label">{{ i18n.t('file.group') }}</td><td class="dt-value">{{ display.group }}</td></tr>
+          </table>
+        </div>
+        <div class="dialog-buttons">
+          <button (click)="confirm.emit()">{{ i18n.t('app.confirm') }}</button>
+        </div>
+      </div>
+    </div>

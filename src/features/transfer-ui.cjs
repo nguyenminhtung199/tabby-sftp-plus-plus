@@ -1,0 +1,12 @@
+module.exports = function installTransferUI({apis, Panel, ProgressRuntime }) {
+    const outside = (owner, fn) => owner.zone?.runOutsideAngular ? owner.zone.runOutsideAngular(fn) : fn();
+    // Native network callbacks, filesystem work and checksum continuations must not
+    // trigger a global Angular pass for every chunk. Progress still detects its view.
+    for (const method of ['onDrop', '_customUploadLocalPaths', '_customStageDropFile', '_streamUploadOne', '_doUpload', '_doDownload', '_doUploadRaw', '_doDownloadRaw', '_customExternalEdit', '_runQueuedUpload', '_runQueuedDownload']) {
+        const original = apis.Panel[method];
+        if (!original) continue;
+        apis.Panel[method] = function (...args) { return outside(this, () => original.apply(this, args)); };
+    }
+    const start = apis.ProgressRuntime._startTransferTimer;
+    apis.ProgressRuntime._startTransferTimer = function (...args) { return outside(this.host, () => start.apply(this, args)); };
+};

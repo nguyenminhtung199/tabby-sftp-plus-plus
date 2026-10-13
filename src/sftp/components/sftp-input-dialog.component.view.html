@@ -1,0 +1,15 @@
+
+    <div class="overlay" #overlayEl *ngIf="visible" tabindex="-1" (keydown)="onKeyDown($event)">
+      <div class="dialog">
+        <div class="dialog-title">{{ title }}</div>
+        <input #inputEl class="dialog-input" [class.no-focus-highlight]="!focusHighlight"
+          [ngModel]="value"
+          (ngModelChange)="valueChange.emit($event)"
+          [placeholder]="placeholder"
+          (keyup.enter)="onEnter()" />
+        <div class="dialog-buttons">
+          <button (click)="confirm.emit()" [disabled]="!value.trim()">{{ i18n.t('app.confirm') }}</button>
+          <button (click)="cancel.emit()">{{ i18n.t('app.cancel') }}</button>
+        </div>
+      </div>
+    </div>

@@ -1,0 +1,30 @@
+
+    <div class="overlay" *ngIf="visible">
+      <div class="dialog perm-dialog">
+        <div class="dialog-title">{{ i18n.t('permission.title') }}</div>
+        <div class="perm-target-name">{{ targetName }}</div>
+        <div class="perm-grid">
+          <div class="perm-header"></div>
+          <div class="perm-header">{{ i18n.t('permission.read') }}</div>
+          <div class="perm-header">{{ i18n.t('permission.write') }}</div>
+          <div class="perm-header">{{ i18n.t('permission.execute') }}</div>
+          <div class="perm-label">{{ i18n.t('permission.owner') }}</div>
+          <input type="checkbox" [ngModel]="ownerRead" (ngModelChange)="onPermChange('ownerRead', $event)" />
+          <input type="checkbox" [ngModel]="ownerWrite" (ngModelChange)="onPermChange('ownerWrite', $event)" />
+          <input type="checkbox" [ngModel]="ownerExec" (ngModelChange)="onPermChange('ownerExec', $event)" />
+          <div class="perm-label">{{ i18n.t('permission.group') }}</div>
+          <input type="checkbox" [ngModel]="groupRead" (ngModelChange)="onPermChange('groupRead', $event)" />
+          <input type="checkbox" [ngModel]="groupWrite" (ngModelChange)="onPermChange('groupWrite', $event)" />
+          <input type="checkbox" [ngModel]="groupExec" (ngModelChange)="onPermChange('groupExec', $event)" />
+          <div class="perm-label">{{ i18n.t('permission.others') }}</div>
+          <input type="checkbox" [ngModel]="otherRead" (ngModelChange)="onPermChange('otherRead', $event)" />
+          <input type="checkbox" [ngModel]="otherWrite" (ngModelChange)="onPermChange('otherWrite', $event)" />
+          <input type="checkbox" [ngModel]="otherExec" (ngModelChange)="onPermChange('otherExec', $event)" />
+        </div>
+        <div class="perm-preview">{{ i18n.t('permission.mode') }}: {{ modePreview }}</div>
+        <div class="dialog-buttons">
+          <button (click)="confirm.emit()" [disabled]="!targetPath">{{ i18n.t('app.confirm') }}</button>
+          <button (click)="cancel.emit()">{{ i18n.t('app.cancel') }}</button>
+        </div>
+      </div>
+    </div>

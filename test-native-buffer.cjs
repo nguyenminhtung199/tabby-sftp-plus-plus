@@ -19,7 +19,7 @@ class Panel{
     }};}
     _doDownload(){return false;}_doUpload(){return false;}trackTransfer(){}showToast(message){throw Error(message);}ngOnDestroy(){}
 }
-require('./transfer-engine.cjs')({Panel});
+require('./tests/helpers/feature-fixture.cjs')(require('./src/features/transfer-engine.cjs'))({Panel});
 (async()=>{
     await fsp.mkdir(root,{recursive:true});const file=path.join(root,'out.bin');
     assert.equal(await new Panel()._doDownload('/file.bin',file,420,data.length),true);

@@ -96,3 +96,7 @@ Native dialog regressions: node test-native-dialog-actions.cjs covers prefilled 
 ## Terminal typing performance
 
 Global SFTP keyboard/composition handlers and CWD polling are registered outside Angular. Ordinary terminal input no longer schedules SFTP Angular checks through these listeners; panel hotkeys, composition and clipboard behavior remain. Run node test-keyboard-events.cjs for event registration, repeated typing, shortcuts and teardown checks.
+
+## Source migration 2.0
+
+The build now uses source modules and an explicit controller composition root. New file uses exclusive create, and a download refuses a destination changed during transfer. The failed main-process observer is retired. See docs/ARCHITECTURE.md for current commands, coverage and remaining compatibility limitations.

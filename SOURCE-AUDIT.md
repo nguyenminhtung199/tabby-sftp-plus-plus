@@ -94,3 +94,7 @@ Cách xử lý trước đã quá tập trung từng nút/queue trước khi đ�
 5. Gom lifecycle/disposables; bỏ implementation bị ghi đè và diagnostics tạm sau khi acceptance pass.
 
 Đây là audit và kế hoạch sửa; chưa thực hiện refactor hoặc sửa các lỗi dữ liệu được ghi trong báo cáo này.
+
+## Follow-up: source migration 2.0
+
+The old bundle-patch inputs were retired. Current source/build/test structure and remaining compatibility debt are documented in docs/ARCHITECTURE.md. The two reproduced data races now have regression checks; New file uses exclusive creation and download commit rechecks local changes. Angular/SDK dependencies were aligned, real Electron renderer smoke tests added, and empty ConfigProxy map persistence fixed. The failed main diagnostics loader was removed. The report above describes the pre-migration snapshot, not an assertion that every item remains unchanged.

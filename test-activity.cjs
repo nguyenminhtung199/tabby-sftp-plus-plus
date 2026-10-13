@@ -1,16 +1,16 @@
 const assert = require('assert/strict');
 const fs = require('fs'), fsp = fs.promises, path = require('path');
 const root = path.join(__dirname,'test-activity-fixture');
-const createStore = require('./recovery-store.cjs');
-const installEdit = require('./external-edit.cjs');
-const installActivity = require('./activity.cjs');
+const createStore = require('./src/runtime/recovery-store.cjs');
+const installEdit = require('./tests/helpers/feature-fixture.cjs')(require('./src/features/external-edit.cjs'));
+const installActivity = require('./tests/helpers/feature-fixture.cjs')(require('./src/features/activity.cjs'));
 const delay = ms => new Promise(r => setTimeout(r,ms));
 let downloads=0, uploads=0, confirmations=0, opened=[];
 global.window = { confirm: () => { confirmations++; return false; } };
 class Panel {
     constructor(host='fixture', user='alice') {
         this.profile={options:{host,username:user,port:22}};
-        this.configService={store:{'tabby-sftp-plus':{fileOpenAction:'external-edit'}},save(){}};
+        this.configService={store:{'tabby-sftp-plus-plus':{fileOpenAction:'external-edit'}},save(){}};
         this.connected=true;this.transfers=[];this.messages=[];this.remote=new Map();this.zone={run:f=>f()};
         this.sftpSession={stat:async p=>{const st=this.remote.get(p);if(!st){const e=new Error('No such file');e.code='ENOENT';throw e;}return {...st};}};
         this.transferLog={getAll:()=>this.logs || []};

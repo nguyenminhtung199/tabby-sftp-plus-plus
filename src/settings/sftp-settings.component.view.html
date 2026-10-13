@@ -1,0 +1,778 @@
+
+    <div class="sftp-settings-page">
+      <h3 class="ss-title">SFTP++</h3>
+      <p class="ss-desc">{{ i18n.t('settings.desc') }}</p>
+
+      <!-- 语言 -->
+      <div class="ss-section">
+        <label class="ss-label">{{ i18n.t('settings.language') }}</label>
+        <select [(ngModel)]="lang" (ngModelChange)="saveLang()" class="ss-select">
+          <option value="">{{ i18n.t('settings.followTabby') }}</option>
+          <option *ngFor="let l of locales" [value]="l.code">{{ l.name }}</option>
+        </select>
+      </div>
+
+      <!-- 主题 -->
+      <div class="ss-section">
+        <label class="ss-label">{{ i18n.t('settings.theme') }}</label>
+        <div class="ss-color-row">
+          <label *ngFor="let c of colorThemes"
+            [class.ss-color-active]="theme === c.value"
+            class="ss-color-swatch"
+            (click)="setTheme(c.value)">
+            <span class="ss-color-swatch-name">{{ themeLabel(c) }}</span>
+            <span class="ss-color-swatch-preview" [style.background]="swatchPreviewBg(c)">
+              <span class="ss-cp-pane">
+                <span class="ss-cp-header" [style.background]="swatchCustomSurface(c)" [style.color]="swatchCustomText(c)">
+                  <span class="ss-cp-hdot" [style.background]="swatchCustomText(c)"></span>
+                  <span class="ss-cp-hdot" [style.background]="swatchCustomText(c)"></span>
+                  <span class="ss-cp-hdot" [style.background]="swatchCustomText(c)"></span>
+                  <span class="ss-cp-hpath" [style.background]="swatchCustomBorder ? swatchCustomBorder(c) : ''"></span>
+                </span>
+                <span class="ss-cp-rows" [style.borderColor]="swatchCustomBorder ? swatchCustomBorder(c) : ''">
+                  <span class="ss-cp-row">
+                    <span class="ss-cp-icon" [style.background]="swatchCustomPrimary(c)"></span>
+                    <span class="ss-cp-fname" [style.background]="swatchCustomText(c)"></span>
+                    <span class="ss-cp-fsize" [style.background]="swatchCustomMuted(c)"></span>
+                  </span>
+                  <span class="ss-cp-row">
+                    <span class="ss-cp-icon" [style.background]="swatchCustomPrimary(c)"></span>
+                    <span class="ss-cp-fname" [style.background]="swatchCustomText(c)"></span>
+                    <span class="ss-cp-fsize" [style.background]="swatchCustomMuted(c)"></span>
+                  </span>
+                  <span class="ss-cp-row">
+                    <span class="ss-cp-icon" [style.background]="swatchCustomPrimary(c)"></span>
+                    <span class="ss-cp-fname" [style.background]="swatchCustomText(c)"></span>
+                    <span class="ss-cp-fsize" [style.background]="swatchCustomMuted(c)"></span>
+                  </span>
+                </span>
+              </span>
+            </span>
+          </label>
+        </div>
+
+        <!-- 配色方案详情 -->
+        <div class="ss-scheme-preview" *ngFor="let c of colorThemes" [hidden]="theme !== c.value">
+          <div class="ss-color-fields">
+            <div class="ss-color-field">
+              <label>{{ i18n.t('settings.primary') }}</label>
+              <input type="color" [ngModel]="themePrimary" (change)="onColorChange('primary', $event.target.value)" class="ss-color-input" />
+              <span class="ss-color-val">{{ themePrimary }}</span>
+            </div>
+            <div class="ss-color-field">
+              <label>{{ i18n.t('settings.bg') }}</label>
+              <input type="color" [ngModel]="themeBg" (change)="onColorChange('bg', $event.target.value)" class="ss-color-input" />
+              <span class="ss-color-val">{{ themeBg }}</span>
+            </div>
+            <div class="ss-color-field">
+              <label>{{ i18n.t('settings.text') }}</label>
+              <input type="color" [ngModel]="themeText" (change)="onColorChange('text', $event.target.value)" class="ss-color-input" />
+              <span class="ss-color-val">{{ themeText }}</span>
+            </div>
+            <div class="ss-color-field">
+              <label>{{ i18n.t('settings.border') }}</label>
+              <input type="color" [ngModel]="themeBorder" (change)="onColorChange('border', $event.target.value)" class="ss-color-input" />
+              <span class="ss-color-val">{{ themeBorder }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 布局 -->
+      <div class="ss-section">
+        <label class="ss-label">{{ i18n.t('settings.layout') }}</label>
+        <!-- 面板布局 -->
+        <div class="ss-layout-row">
+          <!-- 自适应 -->
+          <div class="ss-layout-card" [class.ss-layout-active]="layoutMode === 'auto'" (click)="setLayoutMode('auto')">
+            <div class="ss-layout-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="2" width="9" height="9" rx="1.5"/>
+                <rect x="13" y="2" width="9" height="9" rx="1.5"/>
+                <rect x="2" y="13" width="9" height="9" rx="1.5"/>
+                <rect x="13" y="13" width="9" height="9" rx="1.5"/>
+              </svg>
+            </div>
+            <span class="ss-layout-text">{{ i18n.t('settings.layoutAdaptive') }}</span>
+            <span class="ss-layout-sub">{{ i18n.t('settings.layoutAdaptiveSub') }}</span>
+          </div>
+          <!-- 左右布局 -->
+          <div class="ss-layout-card" [class.ss-layout-active]="layoutMode === 'horizontal'" (click)="setLayoutMode('horizontal')">
+            <div class="ss-layout-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="2" width="9" height="20" rx="1.5"/>
+                <rect x="13" y="2" width="9" height="20" rx="1.5"/>
+              </svg>
+            </div>
+            <span class="ss-layout-text">{{ i18n.t('settings.layoutHorizontal') }}</span>
+            <span class="ss-layout-sub">{{ i18n.t('settings.layoutHorizontalSub') }}</span>
+          </div>
+          <!-- 上下布局 -->
+          <div class="ss-layout-card" [class.ss-layout-active]="layoutMode === 'vertical'" (click)="setLayoutMode('vertical')">
+            <div class="ss-layout-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="2" width="20" height="9" rx="1.5"/>
+                <rect x="2" y="13" width="20" height="9" rx="1.5"/>
+              </svg>
+            </div>
+            <span class="ss-layout-text">{{ i18n.t('settings.layoutVertical') }}</span>
+            <span class="ss-layout-sub">{{ i18n.t('settings.layoutVerticalSub') }}</span>
+          </div>
+          <!-- 单栏布局 -->
+          <div class="ss-layout-card" [class.ss-layout-active]="layoutMode === 'single'" (click)="setLayoutMode('single')">
+            <div class="ss-layout-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="2" width="20" height="20" rx="1.5"/>
+                <circle cx="16" cy="12" r="2.5" fill="currentColor" stroke="none"/>
+              </svg>
+            </div>
+            <span class="ss-layout-text">{{ i18n.t('settings.layoutSingle') }}</span>
+            <span class="ss-layout-sub">{{ i18n.t('settings.layoutSingleSub') }}</span>
+          </div>
+        </div>
+
+
+        <div class="ss-sub-head" style="margin-top:16px;">
+          <div class="ss-sub-label" style="margin:0;">{{ i18n.t('settings.customToolbar') }}</div>
+          <button class="ss-reset-icon-btn" (click)="resetPaneLayout()" [title]="i18n.t('settings.resetLayout')">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 8a5 5 0 1 1-1.8-3.85"/>
+              <path d="M13 3.5v2.9h-2.9"/>
+            </svg>
+          </button>
+        </div>
+        <div class="ss-layout-preview">
+          <div class="ss-layout-chip"
+            *ngFor="let item of paneCustomOrder"
+            draggable="true"
+            [class.dragging]="draggingCustomItem === item"
+            [class.hidden]="isPaneItemHidden(item)"
+            (dragstart)="onCustomDragStart(item, $event)"
+            (dragover)="onCustomDragOver(item, $event)"
+            (drop)="onCustomDrop(item, $event)"
+            (dragend)="onCustomDragEnd()">
+            <input type="checkbox" class="ss-chip-check" [checked]="!isPaneItemHidden(item)"
+              (mousedown)="$event.stopPropagation()" (dragstart)="$event.stopPropagation()"
+              (change)="togglePaneItemHidden(item)" />
+            <span class="ss-layout-chip-handle">⋮⋮</span>
+            <span>{{ paneCustomItemLabel(item) }}</span>
+          </div>
+        </div>
+        <!-- 定制右键菜单（2026-08-22 挪到定制工具栏下方，改为每行一项） -->
+        <div class="ss-sub-head" style="margin-top:16px;">
+          <div class="ss-sub-label" style="margin:0;">{{ i18n.t('settings.customContextMenu') }}</div>
+          <button class="ss-reset-icon-btn" (click)="resetMenuOrder()" [title]="i18n.t('settings.resetMenu')">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 8a5 5 0 1 1-1.8-3.85"/>
+              <path d="M13 3.5v2.9h-2.9"/>
+            </svg>
+          </button>
+        </div>
+        <div class="ss-menu-preview">
+          <div class="ss-menu-row"
+            *ngFor="let a of contextMenuOrder"
+            draggable="true"
+            [class.dragging]="draggingMenuItem === a"
+            (dragstart)="onMenuDragStart(a, $event)"
+            (dragover)="onMenuDragOver(a, $event)"
+            (drop)="onMenuDrop(a, $event)"
+            (dragend)="onMenuDragEnd()">
+            <span class="ss-menu-handle">⋮⋮</span>
+            <input class="ss-menu-check" type="checkbox"
+              [checked]="isMenuEnabled(a)"
+              (change)="toggleMenuEnabled(a)"
+              (mousedown)="$event.stopPropagation()"
+              [title]="i18n.t('settings.enableItem')" />
+            <span class="ss-menu-label" [class.disabled]="!isMenuEnabled(a)">{{ contextMenuItemLabel(a) }}</span>
+          </div>
+        </div>
+        <!-- 定制书签面板（2026-09-29 移到「表格样式」之前，与工具栏/右键菜单同为面板内容定制） -->
+        <div class="ss-sub-head" style="margin-top:16px;">
+          <div class="ss-sub-label" style="margin:0;">{{ i18n.t('settings.customBookmarkPanel') }}</div>
+          <button class="ss-reset-icon-btn" (click)="resetBookmarkPanel()" [title]="i18n.t('settings.resetBookmarkPanel')">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 8a5 5 0 1 1-1.8-3.85"/>
+              <path d="M13 3.5v2.9h-2.9"/>
+            </svg>
+          </button>
+        </div>
+        <div class="ss-toggle-wrap">
+          <label class="ss-toggle-row" title="{{ i18n.t('settings.bookmarkGroupByScopeHint') }}">
+            <span class="ss-toggle-label">{{ i18n.t('settings.bookmarkGroupByScope') }}</span>
+            <span class="ss-toggle-track" [class.active]="bookmarkPanelGroupByScope" (click)="toggleBookmarkPanelGroupByScope()">
+              <span class="ss-toggle-thumb"></span>
+            </span>
+          </label>
+        </div>
+        <div class="ss-layout-preview" *ngIf="bookmarkPanelGroupByScope" style="margin-top:8px;">
+          <div class="ss-layout-chip"
+            *ngFor="let g of bookmarkPanelGroupOrder"
+            draggable="true"
+            [class.dragging]="draggingBookmarkGroup === g"
+            (dragstart)="onBookmarkGroupDragStart(g, $event)"
+            (dragover)="onBookmarkGroupDragOver(g, $event)"
+            (drop)="onBookmarkGroupDrop(g, $event)"
+            (dragend)="onBookmarkGroupDragEnd()">
+            <span class="ss-layout-chip-handle">⋮⋮</span>
+            <span>{{ bookmarkGroupLabel(g) }}</span>
+          </div>
+        </div>
+        <!-- 表格样式（属于布局的子选项） -->
+        <div class="ss-sub-label" style="margin-top:16px;">{{ i18n.t('settings.tableStyle') }}</div>
+        <div class="ss-toggle-wrap">
+          <label class="ss-toggle-row">
+            <span class="ss-toggle-label">{{ i18n.t('view.colBorder') }}</span>
+            <span class="ss-toggle-track" [class.active]="showColBorders" (click)="showColBorders=!showColBorders; saveTableSettings()">
+              <span class="ss-toggle-thumb"></span>
+            </span>
+          </label>
+          <label class="ss-toggle-row">
+            <span class="ss-toggle-label">{{ i18n.t('view.zebra') }}</span>
+            <span class="ss-toggle-track" [class.active]="showZebra" (click)="showZebra=!showZebra; saveTableSettings()">
+              <span class="ss-toggle-thumb"></span>
+            </span>
+          </label>
+        </div>
+        <div class="ss-hint">{{ i18n.t('settings.tableStyleHint') }}</div>
+        <!-- ★ 2026-09-17：字体小分栏（2026-09-29 由「定制工具栏」上方移到「表格样式」之下，保持整节收尾） -->
+        <div class="ss-sub-head" style="margin-top:16px;">
+          <div class="ss-sub-label" style="margin:0;">{{ i18n.t('settings.font') }}</div>
+          <button class="ss-reset-icon-btn" (click)="resetFontSize()" [title]="i18n.t('settings.resetFont')">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 8a5 5 0 1 1-1.8-3.85"/>
+              <path d="M13 3.5v2.9h-2.9"/>
+            </svg>
+          </button>
+        </div>
+        <!-- ★ 2026-09-29：滑块与数值整块靠右 —— 对齐 Tabby「窗口」页滑块的靠右显示（见 .ss-font-control） -->
+        <div class="ss-font-row ss-toggle-sub">
+          <span class="ss-toggle-label">{{ i18n.t('settings.fontSize') }}</span>
+          <div class="ss-font-control">
+            <input type="range" min="11" max="18" step="1" class="ss-range"
+              [value]="fontSize" (input)="onFontSizeChange(+$any($event.target).value)" />
+            <span class="ss-font-val">{{ fontSize }}px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ★ 2026-09-20：对象图标升为独立大节（原挂在「布局」下，语义不符） -->
+      <div class="ss-section">
+        <div class="ss-sub-head">
+          <label class="ss-label" style="margin:0;">{{ i18n.t('settings.iconSettings') }}</label>
+          <button class="ss-reset-icon-btn" (click)="resetIconSettings()" [title]="i18n.t('settings.resetIcons')">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 8a5 5 0 1 1-1.8-3.85"/>
+              <path d="M13 3.5v2.9h-2.9"/>
+            </svg>
+          </button>
+        </div>
+        <!-- 图标目录：标签与输入框同行。默认直接显示内置图标目录实际路径（非占位符） -->
+        <div class="ss-toggle-row ss-path-row">
+          <span class="ss-toggle-label">{{ i18n.t('settings.iconResourceDir') }}</span>
+          <input class="ss-path-input" type="text" [(ngModel)]="iconDirDisplay"
+            (change)="_saveToConfig()" spellcheck="false" />
+        </div>
+
+        <!-- 图标网格：文件夹 + 内置 + 自定义，hover 可编辑/删除 -->
+        <div class="ss-builtin">
+          <div class="ss-icon-grid">
+            <!-- ① 文件夹单元格（仅显示 + hover 操作；编辑/校验在下方独立行） -->
+            <div class="ss-icon-cell ss-icon-cell--folder"
+              [class.ss-icon-cell--editing]="_editingFolderIcon"
+              [class.ss-icon-cell--disabled]="!folderIconSvg">
+              <img class="ss-icon-cell-img" [src]="'file://' + bundledIconPreviewPath(folderIconSvg || 'folder.svg')" alt="folder" draggable="false" />
+              <span class="ss-icon-cell-name">folder</span>
+              <span class="ss-icon-cell-exts">{{ i18n.t('settings.iconFolderHint') }}</span>
+              <!-- hover 操作浮层：文件夹为系统默认规则，可编辑但不可删除/回退 emoji；禁用/Restore在左、编辑在右 -->
+              <div class="ss-icon-cell-actions">
+                <button type="button" class="ss-icon-cell-btn ss-icon-cell-btn--del"
+                  *ngIf="!folderIconSvg"
+                  (click)="restoreFolderIcon()">
+                  {{ i18n.t('settings.iconEnable') }}
+                </button>
+                <button type="button" class="ss-icon-cell-btn ss-icon-cell-btn--edit"
+                  (click)="startEditFolderIcon()">{{ i18n.t('settings.iconEdit') }}</button>
+              </div>
+            </div>
+
+            <!-- ② 内置 / 自定义图标单元格（folder 已在 BUILTIN_ICON_FILES 中排除） -->
+            <div class="ss-icon-cell"
+              *ngFor="let item of iconGridItems; trackBy: trackByIcon"
+              [class.ss-icon-cell--disabled]="isIconDisabled(item.svg)"
+              [class.ss-icon-cell--editing]="_editingRuleKey === item.key">
+              <img class="ss-icon-cell-img" [src]="'file://' + bundledIconPreviewPath(item.svg)" [alt]="item.name" draggable="false"
+                [class.ss-icon-cell-img--dim]="isIconDisabled(item.svg)" />
+              <span class="ss-icon-cell-name">{{ item.name }}</span>
+              <span class="ss-icon-cell-exts">{{ item.svg === 'default.svg' ? i18n.t('settings.iconFileHint') : item.exts.join(' ') }}</span>
+              <!-- hover 操作浮层：default.svg 为系统兜底图标（未匹配文件统一回退），可编辑但不可删除/禁用；禁用/删除在左、编辑在右 -->
+              <div class="ss-icon-cell-actions">
+                <button type="button" class="ss-icon-cell-btn ss-icon-cell-btn--del"
+                  *ngIf="!isLockedIcon(item.svg)"
+                  (click)="deleteIcon(item)">
+                  {{ item.isBuiltin ? (isIconDisabled(item.svg) ? i18n.t('settings.iconEnable') : i18n.t('settings.iconDisable')) : i18n.t('settings.iconDelete') }}
+                </button>
+                <button type="button" class="ss-icon-cell-btn ss-icon-cell-btn--edit"
+                  (click)="startEditIcon(item)">{{ i18n.t('settings.iconEdit') }}</button>
+              </div>
+            </div>
+
+            <!-- ③ 新增自定义规则单元格（+ 号，简化：仅切换状态，表单在下方独立行） -->
+            <div class="ss-icon-cell ss-icon-cell--add" (click)="toggleAddCustomRule()">
+              <ng-container *ngIf="!_addingCustomRule">
+                <span class="ss-icon-cell-plus">+</span>
+                <span class="ss-icon-cell-name">{{ i18n.t('settings.iconAddRule') }}</span>
+              </ng-container>
+              <ng-container *ngIf="_addingCustomRule">
+                <span class="ss-icon-cell-name" style="font-size:10px;opacity:.7">FORM ↓</span>
+                <span class="ss-icon-cell-name" style="font-size:9px;opacity:.55">Expanded</span>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- ④ 编辑图标行：卡片式多行布局 -->
+          <div *ngIf="_editingRuleKey !== null" class="ss-icon-form-card">
+            <div class="ss-icon-form-header">{{ i18n.t('settings.iconEdit') }}: <b>{{ _editingRuleKey }}</b></div>
+            <div class="ss-icon-form-field">
+              <span class="ss-icon-form-flabel">{{ i18n.t('settings.iconRuleName') }}</span>
+              <input class="ss-icon-form-input" type="text" [(ngModel)]="_editingRuleName"
+                spellcheck="false" [placeholder]="i18n.t('settings.iconRuleNamePh')"
+                [readonly]="isSystemRuleName(_editingRuleKey)"
+                [attr.aria-readonly]="isSystemRuleName(_editingRuleKey) ? 'true' : null"
+                [class.ss-icon-form-input--locked]="isSystemRuleName(_editingRuleKey)"
+                (keydown.enter)="confirmEditIcon()" (keydown.escape)="cancelEditIcon()" />
+            </div>
+            <div class="ss-icon-form-field">
+              <span class="ss-icon-form-flabel">{{ i18n.t('settings.iconSvgNameHint') || 'Filename' }}</span>
+              <!-- 内置/自定义图标的Filename均可编辑（默认文件允许改图标Filename） -->
+              <input class="ss-icon-form-input" type="text" [(ngModel)]="_editingIconSvgName"
+                spellcheck="false" placeholder="name.svg" (keydown.enter)="confirmEditIcon()" (keydown.escape)="cancelEditIcon()" />
+            </div>
+            <div *ngIf="_editingIconSvgName !== 'default.svg'" class="ss-icon-form-field">
+              <span class="ss-icon-form-flabel">{{ i18n.t('settings.iconExtLabel') || 'Extension' }}</span>
+              <input class="ss-icon-form-input ss-icon-form-input--wide" type="text" [(ngModel)]="_editingIconExts"
+                spellcheck="false" (keydown.enter)="confirmEditIcon()" (keydown.escape)="cancelEditIcon()" />
+            </div>
+            <div *ngIf="_iconRuleError" class="ss-icon-rule-error">{{ _iconRuleError }}</div>
+            <div class="ss-icon-form-actions">
+              <button type="button" class="ss-icon-cell-btn ss-icon-cell-btn--ok" (click)="confirmEditIcon()">✓ {{ i18n.t('app.confirm') }}</button>
+              <button type="button" class="ss-icon-cell-btn ss-icon-cell-btn--cancel" (click)="cancelEditIcon()">✕ {{ i18n.t('app.cancel') }}</button>
+            </div>
+          </div>
+
+          <!-- ⑤ 编辑文件夹图标行：卡片式多行布局（规则名只读，与默认 file 一致） -->
+          <div *ngIf="_editingFolderIcon" class="ss-icon-form-card">
+            <div class="ss-icon-form-header">{{ i18n.t('settings.iconEdit') }}: <b>folder</b></div>
+            <div class="ss-icon-form-field">
+              <span class="ss-icon-form-flabel">{{ i18n.t('settings.iconRuleName') }}</span>
+              <input class="ss-icon-form-input ss-icon-form-input--locked" type="text" value="folder"
+                readonly aria-readonly="true" spellcheck="false" tabindex="-1" />
+            </div>
+            <div class="ss-icon-form-field">
+              <span class="ss-icon-form-flabel">{{ i18n.t('settings.iconSvgNameHint') || 'Filename' }}</span>
+              <input class="ss-icon-form-input" type="text" [(ngModel)]="_folderIconDraft"
+                spellcheck="false" placeholder="name.svg" (keydown.enter)="confirmEditFolderIcon()" (keydown.escape)="cancelEditFolderIcon()" />
+            </div>
+            <div *ngIf="_folderIconError" class="ss-icon-rule-error">{{ _folderIconError }}</div>
+            <div class="ss-icon-form-actions">
+              <button type="button" class="ss-icon-cell-btn ss-icon-cell-btn--ok" (click)="confirmEditFolderIcon()">✓ {{ i18n.t('app.confirm') }}</button>
+              <button type="button" class="ss-icon-cell-btn ss-icon-cell-btn--cancel" (click)="cancelEditFolderIcon()">✕ {{ i18n.t('app.cancel') }}</button>
+            </div>
+          </div>
+
+          <!-- ⑥ 新增自定义规则表单：卡片式多行布局 -->
+          <div *ngIf="_addingCustomRule" class="ss-icon-form-card">
+            <div class="ss-icon-form-header">{{ i18n.t('settings.iconAddRule') }}</div>
+            <div class="ss-icon-form-field">
+              <span class="ss-icon-form-flabel">{{ i18n.t('settings.iconRuleName') }}</span>
+              <input class="ss-icon-form-input" type="text" [(ngModel)]="_newRuleName" spellcheck="false"
+                [placeholder]="i18n.t('settings.iconRuleNamePh')"
+                (keydown.enter)="confirmAddCustomRule()" (keydown.escape)="cancelAddCustomRule()" />
+            </div>
+            <div class="ss-icon-form-field">
+              <span class="ss-icon-form-flabel">{{ i18n.t('settings.iconSvgNameHint') || 'Filename' }}</span>
+              <input class="ss-icon-form-input" type="text" [(ngModel)]="_newRuleSvg" spellcheck="false"
+                placeholder="name.svg" (keydown.enter)="confirmAddCustomRule()" (keydown.escape)="cancelAddCustomRule()" />
+            </div>
+            <div class="ss-icon-form-field">
+              <span class="ss-icon-form-flabel">{{ i18n.t('settings.iconExtLabel') || 'Extension' }}</span>
+              <input class="ss-icon-form-input ss-icon-form-input--wide" type="text" [(ngModel)]="_newRuleExt" spellcheck="false"
+                placeholder=".ext" (keydown.enter)="confirmAddCustomRule()" (keydown.escape)="cancelAddCustomRule()" />
+            </div>
+            <div *ngIf="_iconRuleError" class="ss-icon-rule-error">{{ _iconRuleError }}</div>
+            <div class="ss-icon-form-actions">
+              <button type="button" class="ss-icon-cell-btn ss-icon-cell-btn--ok" (click)="confirmAddCustomRule()">✓ {{ i18n.t('app.confirm') }}</button>
+              <button type="button" class="ss-icon-cell-btn ss-icon-cell-btn--cancel" (click)="cancelAddCustomRule()">✕ {{ i18n.t('app.cancel') }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ★ 2026-09-20：功能性瘦身——交互 / 查看与编辑；传输与快捷键升为独立大节 -->
+      <div class="ss-section">
+        <label class="ss-label">{{ i18n.t('settings.other') }}</label>
+        <div class="ss-toggle-wrap">
+
+          <label class="ss-toggle-row">
+            <span class="ss-toggle-label">{{ i18n.t('settings.hideNativeBtn') }}</span>
+            <span class="ss-toggle-track" [class.active]="hideNativeBtn" (click)="toggleHideNativeBtn()">
+              <span class="ss-toggle-thumb"></span>
+            </span>
+          </label>
+
+          <div class="ss-sub-label" style="margin-top:16px;">{{ i18n.t('settings.interaction') }}</div>
+          <label class="ss-toggle-row">
+            <span class="ss-toggle-label">{{ i18n.t('settings.closeBookmarkPanel') }}</span>
+            <span class="ss-toggle-track" [class.active]="closeBookmarkPanelOnSelect" (click)="toggleCloseBookmarkPanelOnSelect()">
+              <span class="ss-toggle-thumb"></span>
+            </span>
+          </label>
+
+
+          <label class="ss-toggle-row">
+            <span class="ss-toggle-label">{{ i18n.t('settings.defaultShowHidden') }}</span>
+            <span class="ss-toggle-track" [class.active]="defaultShowHidden" (click)="toggleDefaultShowHidden()">
+              <span class="ss-toggle-thumb"></span>
+            </span>
+          </label>
+          <div class="ss-toggle-row ss-pathmode-row">
+            <span class="ss-toggle-label">{{ i18n.t('settings.openOnClick') }}</span>
+            <div class="ss-segmented">
+              <button type="button" class="ss-segment"
+                [class.active]="openOnClick === 'double'"
+                (click)="openOnClick = 'double'; saveInteraction()">
+                {{ i18n.t('settings.clickDouble') }}
+              </button>
+              <button type="button" class="ss-segment"
+                [class.active]="openOnClick === 'single'"
+                (click)="openOnClick = 'single'; saveInteraction()">
+                {{ i18n.t('settings.clickSingle') }}
+              </button>
+            </div>
+          </div>
+          <div class="ss-toggle-row"><span class="ss-toggle-label">Recent folders (1–10)</span><input class="ss-concurrency-input" type="number" min="1" max="10" step="1" [ngModel]="customRecentFolderLimit" (ngModelChange)="setCustomRecentFolderLimit($event)" /></div>
+          <div class="ss-toggle-row" title="A file operation adds the folder immediately."><span class="ss-toggle-label">Recent folder dwell time (seconds)</span><input class="ss-concurrency-input" type="number" min="1" max="86400" step="1" [ngModel]="customRecentFolderDwellSeconds" (ngModelChange)="setCustomRecentFolderDwellSeconds($event)" /></div>
+          <label class="ss-toggle-row" title="A sidebar for each SSH pane. Collapsing keeps editing and transfers running.">
+            <span class="ss-toggle-label">Use SFTP sidebar</span>
+            <span class="ss-toggle-track" [class.active]="customSidebarEnabled" (click)="toggleCustomSidebar()"><span class="ss-toggle-thumb"></span></span>
+          </label>
+          <div class="ss-toggle-row ss-pathmode-row"><span class="ss-toggle-label">Sidebar edge</span><div class="ss-segmented"><button type="button" class="ss-segment" [class.active]="customSidebarSide === 'left'" (click)="setCustomSidebarSide('left')">Left</button><button type="button" class="ss-segment" [class.active]="customSidebarSide === 'right'" (click)="setCustomSidebarSide('right')">Right</button></div></div>
+
+          <label class="ss-toggle-row">
+            <span class="ss-toggle-label">Suggest folders while typing paths</span>
+            <span class="ss-toggle-track" [class.active]="customFolderAutocomplete" (click)="toggleCustomFolderAutocomplete()"><span class="ss-toggle-thumb"></span></span>
+          </label>
+
+          <div class="ss-toggle-row ss-pathmode-row">
+            <span class="ss-toggle-label">{{ i18n.t('settings.defaultPathMode') }}</span>
+            <div class="ss-segmented">
+              <button type="button" class="ss-segment"
+                [class.active]="defaultPathMode === 'off'"
+                (click)="defaultPathMode = 'off'; saveDefaultPathMode()">
+                Manual
+              </button>
+              <button type="button" class="ss-segment"
+                [class.active]="defaultPathMode === 'remember'"
+                (click)="defaultPathMode = 'remember'; saveDefaultPathMode()">
+                {{ i18n.t('settings.pathModeRemember') }}
+              </button>
+
+            </div>
+          </div>
+          <div class="ss-toggle-row ss-datefmt-row">
+            <span class="ss-toggle-label">{{ i18n.t('settings.dateFormat') }}</span>
+            <div class="ss-datefmt-field">
+              <input class="ss-datefmt-input" type="text" [(ngModel)]="dateFormat"
+                (change)="saveDateFormat()" spellcheck="false" />
+              <button type="button" class="ss-datefmt-clear" *ngIf="dateFormat !== defaultDateFormat"
+                (click)="resetDateFormat(); $event.stopPropagation()"
+                [title]="i18n.t('settings.dateFormatReset')">&times;</button>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+
+      <!-- ★ 2026-09-20：传输设置独立大节 -->
+      <div class="ss-section">
+        <label class="ss-label">{{ i18n.t('settings.transferSection') }}</label>
+        <div class="ss-toggle-wrap">
+            <div class="ss-toggle-row ss-concurrency-row">
+          <span class="ss-toggle-label">{{ i18n.t('settings.uploadConcurrency') }}</span>
+          <input class="ss-concurrency-input" type="number" min="1" max="10" step="1"
+          [(ngModel)]="uploadConcurrency" (change)="saveConcurrency()" />
+          </div>
+          <div class="ss-toggle-row ss-concurrency-row">
+          <span class="ss-toggle-label">{{ i18n.t('settings.downloadConcurrency') }}</span>
+          <input class="ss-concurrency-input" type="number" min="1" max="10" step="1"
+          [(ngModel)]="downloadConcurrency" (change)="saveConcurrency()" />
+          </div>
+          <!-- ★ 2026-09-28：传输通道模式（原「TAR 打包加速」开关升级为五选一下拉）
+               ★ 2026-09-29：补 ss-toggle-row → 与其它行同为 flex 两端对齐，下拉框靠右；说明文案下移到各 option 的 title -->
+          <div class="ss-toggle-row ss-concurrency-row" title="{{ i18n.t('settings.channelModeDesc') }}">
+          <span class="ss-toggle-label">{{ i18n.t('settings.channelMode') }}</span>
+          <select class="ss-select ss-channel-select" [(ngModel)]="transferChannelMode" (change)="saveChannelMode()">
+          <option value="smart" title="{{ i18n.t('settings.channelMode.smartDesc') }}">{{ i18n.t('settings.channelMode.smart') }}</option>
+          <option value="preferTar" title="{{ i18n.t('settings.channelMode.preferTarDesc') }}">{{ i18n.t('settings.channelMode.preferTar') }}</option>
+          <option value="preferSftp" title="{{ i18n.t('settings.channelMode.preferSftpDesc') }}">{{ i18n.t('settings.channelMode.preferSftp') }}</option>
+          <option value="tarOnly" title="{{ i18n.t('settings.channelMode.tarOnlyDesc') }}">{{ i18n.t('settings.channelMode.tarOnly') }}</option>
+          <option value="sftpOnly" title="{{ i18n.t('settings.channelMode.sftpOnlyDesc') }}">{{ i18n.t('settings.channelMode.sftpOnly') }}</option>
+          </select>
+          </div>
+          <!-- ★ 2026-09-07 issue #15：冲突时计算内容摘要，识别「mtime 变了但内容没变」 -->
+          <label class="ss-toggle-row" title="{{ i18n.t('settings.conflictDigestDesc') }}">
+          <span class="ss-toggle-label">{{ i18n.t('settings.conflictDigest') }}</span>
+          <span class="ss-toggle-track" [class.active]="conflictDigestEnabled" (click)="toggleConflictDigest()">
+          <span class="ss-toggle-thumb"></span>
+          </span>
+          </label>
+          <label class="ss-toggle-row" *ngIf="conflictDigestEnabled" title="{{ i18n.t('settings.conflictAutoSkipDesc') }}">
+          <span class="ss-toggle-label">{{ i18n.t('settings.conflictAutoSkip') }}</span>
+          <span class="ss-toggle-track" [class.active]="conflictAutoSkipSameContent" (click)="toggleConflictAutoSkip()">
+          <span class="ss-toggle-thumb"></span>
+          </span>
+          </label>
+          <div class="ss-toggle-row ss-concurrency-row" *ngIf="conflictDigestEnabled"
+          title="{{ i18n.t('settings.conflictDigestMaxSizeDesc') }}">
+          <span class="ss-toggle-label">{{ i18n.t('settings.conflictDigestMaxSize') }}</span>
+          <input class="ss-concurrency-input" type="number" min="1" max="4096" step="1"
+          [(ngModel)]="conflictDigestMaxSizeMB" (change)="saveConflictDigestMaxSize()" />
+          </div>
+          <!-- 默认上传/下载路径 -->
+          <div class="ss-toggle-row ss-path-row">
+          <span class="ss-toggle-label">{{ i18n.t('settings.defaultUploadPath') }}</span>
+          <input class="ss-path-input" type="text" [(ngModel)]="defaultUploadPath"
+          (change)="_saveToConfig()" [placeholder]="i18n.t('settings.defaultUploadPathPh')" spellcheck="false" />
+          </div>
+          <div class="ss-toggle-row ss-path-row">
+          <span class="ss-toggle-label">{{ i18n.t('settings.defaultDownloadPath') }}</span>
+          <input class="ss-path-input" type="text" [(ngModel)]="defaultDownloadPath"
+          (change)="_saveToConfig()" [placeholder]="i18n.t('settings.defaultDownloadPathPh')" spellcheck="false" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ★ 2026-09-20：快捷键独立大节 -->
+      <div class="ss-section">
+        <div class="ss-sub-head">
+          <label class="ss-label" style="margin:0;">{{ i18n.t('settings.hotkeys') }}</label>
+          <button class="ss-reset-icon-btn" (click)="resetPanelHotkeys()" [title]="i18n.t('settings.resetPanelHotkeys')">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 8a5 5 0 1 1-1.8-3.85"/><path d="M13 3.5v2.9h-2.9"/>
+            </svg>
+          </button>
+        </div>
+            <!-- 面板 Toggle 快捷键（Tabby 全局）—— 置于第一位 -->
+            <div class="ss-phk-row"><span class="ss-phk-label">{{ i18n.t('settings.hotkey') }}</span><div class="ss-hotkey-field ss-hotkey-multi" [class.recording]="hotkeyRecording" [class.has-value]="customPanelToggleBindings.length && !hotkeyRecording"><ng-container *ngIf="hotkeyRecording; else toggleChips"><span class="ss-hotkey-recording" (click)="startHotkeyRecording()">{{ customToggleBindingLabel(hotkeyRecordingPreview) || i18n.t('settings.hotkeyRecording') }}</span><button type="button" class="ss-chip-remove" (click)="cancelHotkeyRecording(); $event.stopPropagation()" [title]="i18n.t('app.cancel')">×</button></ng-container><ng-template #toggleChips><span class="ss-hotkey-chip" *ngFor="let k of customPanelToggleBindings; let i = index" (click)="customStartToggleRecording(i)" [title]="i18n.t('settings.hotkeyClickToSet')">{{ customToggleBindingLabel(k) }}<button type="button" class="ss-chip-remove" (click)="customRemoveToggleBinding(i); $event.stopPropagation()" [title]="i18n.t('settings.hotkeyClear')">×</button></span><button type="button" class="ss-hotkey-add" (click)="customStartToggleRecording()" [disabled]="!configService" [title]="i18n.t('settings.hotkeyAdd')">+</button></ng-template></div></div>
+            <!-- 面板操作快捷键（多绑定：每个绑定一个 chip，末尾 + 追加） -->
+            <div class="ss-phk-row" *ngFor="let a of panelHotkeyActions">
+              <span class="ss-phk-label">{{ i18n.t(panelHotkeyLabelKey(a)) }}</span>
+              <div class="ss-hotkey-field ss-hotkey-multi"
+                [class.recording]="panelHotkeyRecording === a"
+                [class.has-value]="isPanelHotkeyBound(a) && panelHotkeyRecording !== a">
+                <ng-container *ngIf="panelHotkeyRecording === a; else phkChips">
+                  <span class="ss-hotkey-recording"
+                    (click)="startPanelHotkeyRecording(a)"
+                    [title]="i18n.t('settings.hotkeyClickToSet')">
+                    {{ panelHotkeyRecordingPreview || i18n.t('settings.hotkeyRecording') }}
+                  </span>
+                </ng-container>
+                <ng-template #phkChips>
+                  <span class="ss-hotkey-chip" *ngFor="let k of panelHotkeyKeys(a); let i = index"
+                    [class.is-mouse]="isPanelPointerHotkey(k)"
+                    [title]="hotkeyChipHint(k)"
+                    (click)="startPanelHotkeyRecording(a)">
+                    {{ panelHotkeyLabel(k) }}
+                    <button type="button" class="ss-chip-remove"
+                      (click)="removePanelHotkeyAt(a, i); $event.stopPropagation()"
+                      [title]="i18n.t('settings.hotkeyClear')">×</button>
+                  </span>
+                  <button type="button" class="ss-hotkey-add"
+                    (click)="startPanelHotkeyRecording(a)"
+                    [title]="i18n.t('settings.hotkeyAdd')">+</button>
+                </ng-template>
+              </div>
+            </div>
+            <!-- ★ 2026-08-31：已占用快捷键（只读，默认收起）——列出固定占用的键位，便于排查冲突 -->
+            <div class="ss-occupied">
+              <button type="button" class="ss-occupied-head" (click)="toggleOccupiedHotkeys()"
+                [attr.aria-expanded]="occupiedHotkeysExpanded">
+                <span class="ss-occupied-caret">{{ occupiedHotkeysExpanded ? '▾' : '▸' }}</span>
+                <span>{{ i18n.t('settings.occupied.title') }}</span>
+              </button>
+              <div class="ss-occupied-body" *ngIf="occupiedHotkeysExpanded">
+                <div class="ss-hint ss-occupied-hint">{{ i18n.t('settings.occupied.hint') }}</div>
+                <div class="ss-occupied-group" *ngFor="let g of occupiedHotkeyGroups">
+                  <div class="ss-occupied-group-title">{{ i18n.t(g.titleKey) }}</div>
+                  <div class="ss-occupied-row" *ngFor="let it of g.items">
+                    <span class="ss-occupied-keys">{{ formatOccupiedKeys(it.keys) }}</span>
+                    <span class="ss-occupied-desc">{{ i18n.t(it.descKey) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+        <div class="ss-hint ss-hotkey-conflict" *ngIf="hotkeyConflictNames">
+          {{ i18n.t('settings.hotkeyConflict', { names: hotkeyConflictNames }) }}
+        </div>
+        <div class="ss-hint ss-hotkey-ok" *ngIf="hotkeySaveMessage">{{ hotkeySaveMessage }}</div>
+      </div>
+      <!-- 数据 -->
+      <div class="ss-section">
+        <label class="ss-label">{{ i18n.t('settings.data') }}</label>
+
+        <!-- 数据导入导出 -->
+        <div class="ss-backup-row">
+          <button class="ss-btn" (click)="openExportDialog()">[&darr;] {{ i18n.t('settings.export') }}</button>
+          <label class="ss-btn ss-btn-import">[&uarr;] {{ i18n.t('settings.import') }}
+            <input type="file" accept=".json" (change)="importData($event)" style="display:none" />
+          </label>
+          <button class="ss-btn ss-btn-danger" (click)="openClearConfirm()">[&times;] {{ i18n.t('settings.clearAll') }}</button>
+        </div>
+      </div>
+
+      <!-- 关于 -->
+
+
+      <!-- 主题颜色修改确认弹窗 -->
+      <div class="ss-overlay" *ngIf="showThemeColorConfirm" (click)="cancelThemeColorOverwrite()"
+        [style.background]="isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(128,128,128,0.2)'">
+        <div class="ss-edit-modal" [class.ss-dark]="isDarkMode" [class.ss-light]="!isDarkMode" (click)="$event.stopPropagation()">
+          <div class="ss-edit-title">{{ i18n.t('settings.modifyColors') }}</div>
+          <div class="ss-edit-field">
+            <p>{{ i18n.t('settings.overwriteConfirm') }}</p>
+          </div>
+          <div class="ss-edit-footer">
+            <button class="ss-btn ss-btn-danger" (click)="confirmThemeColorOverwrite()">{{ i18n.t('settings.overwrite') }}</button>
+            <button class="ss-btn" (click)="cancelThemeColorOverwrite()">{{ i18n.t('app.cancel') }}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ★ 2026-09-29：导出内容勾选弹窗（按配置类别选择要写入备份文件的内容）。
+           未勾选的类别完全不写入 JSON —— 导入侧是「字段不存在 = 不覆盖」语义，
+           故「只导外观」的备份导入时不会动到书签、路径记忆等数据。 -->
+      <div class="ss-overlay" *ngIf="showExportDialog" (click)="closeExportDialog()"
+        [style.background]="isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(128,128,128,0.2)'">
+        <div class="ss-edit-modal ss-export-modal" [class.ss-dark]="isDarkMode" [class.ss-light]="!isDarkMode"
+          (click)="$event.stopPropagation()">
+          <div class="ss-edit-title">{{ i18n.t('settings.export') }}</div>
+          <div class="ss-edit-field">
+            <p class="ss-export-hint">{{ i18n.t('settings.exportPickHint') }}</p>
+
+            <!-- ★ 2026-09-29：九类逐项对齐设置页分区标题；.ss-export-list 内滚，避免弹窗超高 -->
+            <div class="ss-export-list">
+              <label class="ss-export-item">
+                <input type="checkbox" [(ngModel)]="exportPickLang" class="ss-export-check" />
+                <span class="ss-export-text">
+                  <span class="ss-export-name">{{ i18n.t('settings.language') }}</span>
+                  <span class="ss-export-sub">{{ i18n.t('settings.followTabby') }}</span>
+                </span>
+              </label>
+
+              <label class="ss-export-item">
+                <input type="checkbox" [(ngModel)]="exportPickTheme" class="ss-export-check" />
+                <span class="ss-export-text">
+                  <span class="ss-export-name">{{ i18n.t('settings.theme') }}</span>
+                  <span class="ss-export-sub">{{ i18n.t('settings.primary') }} · {{ i18n.t('settings.bg') }} · {{ i18n.t('settings.text') }} · {{ i18n.t('settings.border') }}</span>
+                </span>
+              </label>
+
+              <label class="ss-export-item">
+                <input type="checkbox" [(ngModel)]="exportPickLayout" class="ss-export-check" />
+                <span class="ss-export-text">
+                  <span class="ss-export-name">{{ i18n.t('settings.layout') }}</span>
+                  <span class="ss-export-sub">{{ i18n.t('settings.font') }} · {{ i18n.t('settings.customToolbar') }} · {{ i18n.t('settings.customContextMenu') }} · {{ i18n.t('settings.customBookmarkPanel') }}</span>
+                </span>
+              </label>
+
+              <label class="ss-export-item">
+                <input type="checkbox" [(ngModel)]="exportPickIcons" class="ss-export-check" />
+                <span class="ss-export-text">
+                  <span class="ss-export-name">{{ i18n.t('settings.iconSettings') }}</span>
+                  <span class="ss-export-sub">{{ i18n.t('settings.iconResourceDir') }}</span>
+                </span>
+              </label>
+
+              <label class="ss-export-item">
+                <input type="checkbox" [(ngModel)]="exportPickOther" class="ss-export-check" />
+                <span class="ss-export-text">
+                  <span class="ss-export-name">{{ i18n.t('settings.other') }}</span>
+                  <span class="ss-export-sub">{{ i18n.t('settings.interaction') }} · {{ i18n.t('settings.dateFormat') }}</span>
+                </span>
+              </label>
+
+              <label class="ss-export-item">
+                <input type="checkbox" [(ngModel)]="exportPickTransfer" class="ss-export-check" />
+                <span class="ss-export-text">
+                  <span class="ss-export-name">{{ i18n.t('settings.transferSection') }}</span>
+                  <span class="ss-export-sub">{{ i18n.t('settings.uploadConcurrency') }} · {{ i18n.t('settings.channelMode') }} · {{ i18n.t('settings.conflictDigest') }}</span>
+                </span>
+              </label>
+
+              <!-- 快捷键 / 书签数据：只有一项内容，子描述纯属冗余（用户 2026-09-29 提出删掉） -->
+              <label class="ss-export-item">
+                <input type="checkbox" [(ngModel)]="exportPickHotkeys" class="ss-export-check" />
+                <span class="ss-export-text">
+                  <span class="ss-export-name">{{ i18n.t('settings.hotkeys') }}</span>
+                </span>
+              </label>
+
+              <label class="ss-export-item">
+                <input type="checkbox" [(ngModel)]="exportPickData" class="ss-export-check" />
+                <span class="ss-export-text">
+                  <span class="ss-export-name">{{ i18n.t('settings.exportCatBookmarkData') }}</span>
+                </span>
+              </label>
+
+              <label class="ss-export-item">
+                <input type="checkbox" [(ngModel)]="exportPickLogs" class="ss-export-check" />
+                <span class="ss-export-text">
+                  <!-- 传输记录无更贴切的现成子描述 key（settings.clearCompleted 并不存在），故只留标题 -->
+                  <span class="ss-export-name">{{ i18n.t('transfer.log') }}</span>
+                </span>
+              </label>
+            </div>
+
+            <div class="ss-export-foot">
+              <button type="button" class="ss-btn-xs" (click)="toggleExportAll()">
+                {{ exportAllPicked ? i18n.t('settings.exportDeselectAll') : i18n.t('settings.exportSelectAll') }}
+              </button>
+            </div>
+          </div>
+          <!-- 底部顺序：主操作在左、Cancel在右（★ 2026-09-29：用户一度要求换序，随后自行确认「Cancel就是在右边」，
+               故维持原序，与面板内对话框及设置页其余三个确认弹窗一致） -->
+          <div class="ss-edit-footer">
+            <button class="ss-btn ss-btn-primary" (click)="exportData()"
+              [disabled]="!exportPickCount">{{ i18n.t('settings.export') }}</button>
+            <button class="ss-btn" (click)="closeExportDialog()">{{ i18n.t('app.cancel') }}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 清空数据确认弹窗 -->
+      <div class="ss-overlay" *ngIf="showClearConfirm" (click)="closeClearConfirm()"
+        [style.background]="isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(128,128,128,0.2)'">
+        <div class="ss-edit-modal" [class.ss-dark]="isDarkMode" [class.ss-light]="!isDarkMode" (click)="$event.stopPropagation()">
+          <div class="ss-edit-title" style="color:var(--primary-color,#e24b4a);">{{ i18n.t('settings.clearAllTitle') }}</div>
+          <div class="ss-edit-field">
+            <p>
+              {{ i18n.t('settings.clearAllConfirm') }}
+            </p>
+            <label>{{ i18n.t('settings.clearAllPrompt') }}</label>
+            <input class="ss-edit-input" type="text" [(ngModel)]="clearConfirmInput"
+              (keydown.enter)="doClearData()" placeholder="DELETE" />
+          </div>
+          <div class="ss-edit-footer">
+            <button class="ss-btn ss-btn-danger" (click)="doClearData()"
+              [style.opacity]="clearConfirmInput !== 'DELETE' ? '0.5' : '1'"
+              [disabled]="clearConfirmInput !== 'DELETE'">{{ i18n.t('settings.clear') }}</button>
+            <button class="ss-btn" (click)="closeClearConfirm()">{{ i18n.t('app.cancel') }}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ★ 2026-08-11：隐藏作者信息确认弹窗（点击开启时已自动打开仓库链接） -->
+
+
+    </div>

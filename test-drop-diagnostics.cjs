@@ -1,5 +1,5 @@
 const assert=require('assert/strict'),fs=require('fs/promises'),path=require('path'),os=require('os');
-const install=require('./drop-diagnostics.cjs'),cfg=require('./transfer-policy.json').dropDiagnostics;
+const install=require('./tests/helpers/feature-fixture.cjs')(require('./src/features/drop-diagnostics.cjs')),cfg=require('./transfer-policy.json').dropDiagnostics;
 (async()=>{
  const root=await fs.mkdtemp(path.join(os.tmpdir(),'sftp-drop-diagnostics-'));
  try{

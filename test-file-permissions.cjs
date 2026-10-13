@@ -1,5 +1,5 @@
 const assert=require('assert/strict'),fs=require('fs/promises'),path=require('path'),crypto=require('crypto');
-const engine=require('./transfer-engine.cjs'),permissions=require('./file-permissions.cjs');
+const engine=require('./tests/helpers/feature-fixture.cjs')(require('./src/features/transfer-engine.cjs')),permissions=require('./src/runtime/file-permissions.cjs');
 const root=path.join(__dirname,'test-fixtures','permissions-'+crypto.randomUUID());
 class Panel{
  constructor(mode){

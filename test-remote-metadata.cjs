@@ -1,4 +1,4 @@
-const assert=require('assert/strict'),metadata=require('./remote-metadata.cjs');
+const assert=require('assert/strict'),metadata=require('./src/runtime/remote-metadata.cjs');
 (async()=>{
  const table=new Map([['/dir',[{name:'file',mode:0o100764,size:3,modified:new Date(0),isDirectory:false},{name:'link',isSymlink:true}]],['/loop',[{name:'a',isSymlink:true},{name:'b',isSymlink:true}]]]);
  let nativeCalls=0;const session={sftp:{inner:{}},stat:()=>{nativeCalls++;throw Error('native stat must not be called');},readdir:async folder=>{if(!table.has(folder))throw Error('permission denied');return table.get(folder);},readlink:async target=>target==='/dir/link'?'file':target==='/loop/a'?'b':'a'};

@@ -1,0 +1,118 @@
+
+    <div class="bookmark-popup"
+      [style.top.px]="top"
+      [style.left.px]="left"
+      [style.width.px]="width"
+      [style.maxHeight.px]="maxHeight"
+      (mousedown)="$event.stopPropagation()"
+      (wheel)="$event.stopPropagation()">
+      <div class="popup-arrow" [style.left.px]="arrowLeft"></div>
+      <div class="popup-header">
+        <div class="popup-title">{{ paneLabel }} {{ i18n.t('bookmark.title') }}</div>
+        <div class="bookmark-header-actions">
+          <button class="header-action-btn header-locate-btn"
+                  type="button"
+                  (click)="locateCurrent()"
+                  [disabled]="!hasCurrentBookmark"
+                  [title]="hasCurrentBookmark ? i18n.t('bookmark.locate') : i18n.t('bookmark.locateNone')">
+            <svg viewBox="0 0 1024 1024" width="13" height="13" aria-hidden="true">
+              <path fill="currentColor"
+                d="M481.792 838.656a328.448 328.448 0 0 1-297.152-297.152H64v-59.712h120.704a328.448 328.448 0 0 1 297.152-297.152V64h59.712v120.704a328.448 328.448 0 0 1 297.152 297.152h120.704v59.712h-120.704a328.448 328.448 0 0 1-297.152 297.152v120.704h-59.776v-120.768z m0-59.968v-117.76h59.712v117.76a268.8 268.8 0 0 0 237.12-237.12h-117.76v-59.776h117.76a268.672 268.672 0 0 0-237.12-237.12v117.76h-59.712v-117.76a268.8 268.8 0 0 0-237.12 237.12h117.76v59.712h-117.76a268.864 268.864 0 0 0 237.12 237.184z"/>
+            </svg>
+          </button>
+          <button class="header-action-btn"
+                  (click)="addScopeClick.emit('connection')"
+                  [class.active]="addScope === 'connection'"
+                  [title]="i18n.t('bookmark.addLocal')">{{ i18n.t('bookmark.addCurrentShort') }}</button>
+          <button class="header-action-btn"
+                  (click)="addScopeClick.emit('global')"
+                  [class.active]="addScope === 'global'"
+                  [title]="i18n.t('bookmark.addGlobal')">{{ i18n.t('bookmark.addGlobalShort') }}</button>
+        </div>
+      </div>
+      <div class="bookmark-add-form" *ngIf="addScope">
+        <input [ngModel]="newName" (ngModelChange)="newNameChange.emit($event)"
+          placeholder="{{ i18n.t('bookmark.name') }} ({{ i18n.t('app.optional') }})" />
+        <input [ngModel]="newPath" (ngModelChange)="newPathChange.emit($event)"
+          placeholder="{{ i18n.t('bookmark.path') }}" />
+        <div class="bookmark-form-actions">
+          <button class="btn-cancel" (click)="cancelEdit.emit()">{{ i18n.t('app.cancel') || 'Cancel' }}</button>
+          <button class="btn-confirm" (click)="addBookmark.emit()" [disabled]="!newPath.trim()">
+            {{ editingId ? (i18n.t('bookmark.save') || 'Save bookmark') : i18n.t('bookmark.add') }}
+          </button>
+        </div>
+      </div>
+      <div class="bookmark-list" #bookmarkList>
+        <div class="bookmark-scope-label">Recent</div>
+        <div class="bookmark-item" *ngFor="let b of customRecentItems; trackBy: customTrackRecent" [class.current]="isCurrent(b)" (click)="gotoBookmark.emit(b)" [title]="b.path">
+          <span class="bm-drag-handle" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="5.5"/><path d="M8 4.5V8l2.5 1.5"/></svg></span>
+          <div class="bm-info"><span class="bm-name">{{ b.name }}</span><span class="bm-path">{{ b.path }}</span></div>
+        </div>
+        <div class="bookmark-scope-label" *ngIf="!customRecentItems?.length" style="font-weight:normal">No recent folders yet</div>
+        <!-- 分组模式：按 groupOrder 渲染「当前连接 / 全局」块 -->
+        <ng-container *ngIf="groupByScope">
+          <ng-container *ngFor="let scope of groupOrder">
+            <div class="bookmark-scope-label" *ngIf="bookmarksOf(scope).length">
+              {{ scopeLabel(scope) }}
+            </div>
+            <div class="bookmark-item" *ngFor="let b of bookmarksOf(scope); let i = index"
+              [attr.data-bm-id]="b.id"
+              [class.current]="isCurrent(b)"
+              [class.locate-flash]="flashId === b.id"
+              (click)="gotoBookmark.emit(b)"
+              (contextmenu)="contextMenu.emit({ bookmark: b, event: $event })"
+              draggable="true"
+              (dragstart)="dragStart.emit({ event: $event, index: i, scope: scope })"
+              (dragover)="dragOver.emit({ event: $event, index: i, scope: scope })"
+              (dragend)="dragEnd.emit()"
+              (drop)="drop.emit({ event: $event, index: i, scope: scope })"
+              [class.drag-over-top]="dragOverIdx === i && dragOverScope === scope && !dragOverBottom"
+              [class.drag-over-bottom]="dragOverIdx === i && dragOverScope === scope && dragOverBottom"
+              [class.dragging]="dragSourceIdx === i && dragSourceScope === scope"
+              [title]="b.path">
+              <span class="bm-drag-handle">⠿</span>
+              <div class="bm-info">
+                <span class="bm-name">{{ b.name }}</span>
+                <span class="bm-path">{{ b.path }}</span>
+              </div>
+              <button class="bm-remove" (mousedown)="$event.stopPropagation()" (click)="removeBookmark.emit(b.id)"
+                title="{{ i18n.t('bookmark.remove') }}">✕</button>
+            </div>
+          </ng-container>
+        </ng-container>
+
+        <!-- 扁平模式：本地/全局混排，可跨范围拖拽；全局项左侧显示标签 -->
+        <ng-container *ngIf="!groupByScope">
+          <div class="bookmark-item" *ngFor="let b of allBookmarks; let i = index"
+            [attr.data-bm-id]="b.id"
+            [class.current]="isCurrent(b)"
+            [class.locate-flash]="flashId === b.id"
+            (click)="gotoBookmark.emit(b)"
+            (contextmenu)="contextMenu.emit({ bookmark: b, event: $event })"
+            draggable="true"
+            (dragstart)="dragStart.emit({ event: $event, index: i, scope: 'all' })"
+            (dragover)="dragOver.emit({ event: $event, index: i, scope: 'all' })"
+            (dragend)="dragEnd.emit()"
+            (drop)="drop.emit({ event: $event, index: i, scope: 'all' })"
+            [class.drag-over-top]="dragOverIdx === i && dragOverScope === 'all' && !dragOverBottom"
+            [class.drag-over-bottom]="dragOverIdx === i && dragOverScope === 'all' && dragOverBottom"
+            [class.dragging]="dragSourceIdx === i && dragSourceScope === 'all'"
+            [title]="b.path">
+            <span class="bm-drag-handle">⠿</span>
+            <div class="bm-info">
+              <span class="bm-name-row">
+                <span class="bm-name">{{ b.name }}</span>
+                <span class="bm-global-badge" *ngIf="!b.connectionKey"
+                  [title]="i18n.t('bookmark.global')">{{ i18n.t('bookmark.globalBadge') }}</span>
+              </span>
+              <span class="bm-path">{{ b.path }}</span>
+            </div>
+            <button class="bm-remove" (mousedown)="$event.stopPropagation()" (click)="removeBookmark.emit(b.id)"
+              title="{{ i18n.t('bookmark.remove') }}">✕</button>
+          </div>
+        </ng-container>
+      </div>
+      <div class="popup-footer">
+        <button (click)="close.emit()">{{ i18n.t('app.close') }}</button>
+      </div>
+    </div>

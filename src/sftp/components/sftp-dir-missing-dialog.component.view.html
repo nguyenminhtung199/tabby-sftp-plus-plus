@@ -1,0 +1,25 @@
+
+    <div class="overlay sftp-dir-missing-overlay" #overlayEl *ngIf="visible" tabindex="-1" (keydown)="onKeyDown($event)">
+      <div class="dir-missing-dialog">
+        <div class="dir-missing-header">
+          <svg class="dir-missing-warn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f0a030" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" stroke="#f0a030" fill="rgba(240,160,48,0.1)"/>
+            <line x1="12" y1="8" x2="12" y2="13"/>
+            <circle cx="12" cy="16.5" r="0.8" fill="#f0a030" stroke="none"/>
+          </svg>
+          <span class="dir-missing-title">{{ i18n.t('app.dirMissingTitle') }}</span>
+        </div>
+        <div class="dir-missing-text">{{ i18n.t('app.dirMissingText') }}</div>
+        <div class="dir-missing-preview">
+          <div class="dir-missing-row">
+            <span class="dir-missing-label">{{ isRemote ? '🌐' : '💻' }}</span>
+            <span class="dir-missing-path">{{ dir }}</span>
+          </div>
+        </div>
+        <div class="dialog-buttons">
+          <button (click)="emitChoice('cancel')">{{ i18n.t('app.dirMissingCancel') }}</button>
+          <button class="primary" *ngIf="showFallback" (click)="emitChoice('fallback')">{{ i18n.t('app.dirMissingFallback') }}</button>
+          <button class="primary" (click)="emitChoice('create')">{{ i18n.t('app.dirMissingCreate') }}</button>
+        </div>
+      </div>
+    </div>

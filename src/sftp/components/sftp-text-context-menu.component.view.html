@@ -1,0 +1,25 @@
+
+    <div class="text-ctx-menu" #menuEl *ngIf="visible"
+      [style.left]="left + 'px'" [style.top]="top + 'px'">
+      <!-- 文本模式 -->
+      <ng-container *ngIf="mode === 'text'">
+        <div class="tctx-item" [class.tctx-disabled]="!hasSelection"
+          (click)="do('copySelection')">{{ i18n.t('file.copySelection') }}</div>
+        <div class="tctx-item" (click)="do('copyAll')">{{ i18n.t('file.copyAll') }}</div>
+        <div class="tctx-item" (click)="do('selectAll')">{{ i18n.t('pane.selectAll') }}</div>
+        <ng-container *ngIf="editable">
+          <div class="tctx-sep"></div>
+          <div class="tctx-item" [class.tctx-disabled]="!hasSelection"
+            (click)="do('cut')">{{ i18n.t('file.cut') }}</div>
+          <div class="tctx-item" [class.tctx-disabled]="!canPaste"
+            (click)="do('paste')">{{ i18n.t('file.paste') }}</div>
+        </ng-container>
+      </ng-container>
+      <!-- 图片模式 -->
+      <ng-container *ngIf="mode === 'image'">
+        <div class="tctx-item" [class.tctx-disabled]="!hasImage"
+          (click)="do('copyAll')">{{ i18n.t('file.copyImage') }}</div>
+        <div class="tctx-item" [class.tctx-disabled]="!hasAddress"
+          (click)="do('copyAddress')">{{ i18n.t('file.copyImageAddress') }}</div>
+      </ng-container>
+    </div>

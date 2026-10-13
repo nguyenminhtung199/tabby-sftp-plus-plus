@@ -1,0 +1,1550 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: af_ZA\n"
+
+msgid "app.title"
+msgstr "SFTP+ Lêerbestuurder"
+
+msgid "app.openSettings"
+msgstr "Maak Instellings Oop"
+
+msgid "app.open"
+msgstr "Maak SFTP Oop"
+
+msgid "app.close"
+msgstr "Maak Toe"
+
+msgid "app.maximize"
+msgstr "Maksimeer"
+
+msgid "app.restore"
+msgstr "Herstel"
+
+msgid "app.confirm"
+msgstr "Bevestig"
+
+msgid "app.cancel"
+msgstr "Kanselleer"
+
+msgid "app.delete"
+msgstr "Vee Uit"
+
+msgid "app.deleteFile"
+msgstr "Vee Uit File"
+
+msgid "app.deleteFolder"
+msgstr "Vee Uit Folder"
+
+msgid "app.deleteMultiple"
+msgstr "Vee Uit Multiple Items"
+
+msgid "conflict.title"
+msgstr "Lêerkonflik"
+msgid "conflict.sourceFile"
+msgstr "Bronlêer"
+msgid "conflict.localFile"
+msgstr "Plaaslike Lêer"
+msgid "conflict.remoteFile"
+msgstr "Afgeleë Lêer"
+msgid "conflict.size"
+msgstr "Grootte"
+msgid "conflict.modified"
+msgstr "Gewysig"
+msgid "conflict.path"
+msgstr "Pad"
+msgid "conflict.cancel"
+msgstr "Kanselleer"
+
+msgid "conflict.skip"
+msgstr "Slaan oor"
+msgid "conflict.rename"
+msgstr "Hernoem"
+msgid "conflict.overwrite"
+msgstr "Oorskryf"
+msgid "conflict.batch"
+msgstr "Lotsgewys:"
+msgid "conflict.skipAll"
+msgstr "Skip Alles"
+
+msgid "conflict.renameAll"
+msgstr "Rename Alles"
+
+msgid "conflict.overwriteAll"
+msgstr "Overwrite Alles"
+
+msgid "conflict.existsLocal"
+msgstr "Bestaan reeds plaaslik"
+msgid "conflict.existsRemote"
+msgstr "Bestaan reeds afgeleë"
+msgid "log.onlySuccess"
+msgstr "Slegs Sukses"
+msgid "log.success"
+msgstr "Sukses"
+msgid "log.failed"
+msgstr "Misluk"
+msgid "fileType.txt"
+msgstr "Tekslêer"
+msgid "fileType.log"
+msgstr "Loglêer"
+msgid "fileType.md"
+msgstr "Markdown-lêer"
+msgid "fileType.json"
+msgstr "JSON-lêer"
+msgid "fileType.xml"
+msgstr "XML-lêer"
+msgid "fileType.html"
+msgstr "HTML-lêer"
+msgid "fileType.css"
+msgstr "CSS-lêer"
+msgid "fileType.js"
+msgstr "JavaScript-lêer"
+msgid "fileType.ts"
+msgstr "TypeScript-lêer"
+msgid "fileType.image"
+msgstr "Beeldlêer"
+msgid "fileType.video"
+msgstr "Videolêer"
+msgid "fileType.audio"
+msgstr "Klanklêer"
+msgid "fileType.archive"
+msgstr "Argieflêer"
+msgid "fileType.doc"
+msgstr "Dokumentlêer"
+msgid "fileType.code"
+msgstr "Kodelêer"
+msgid "fileType.data"
+msgstr "Datalêer"
+msgid "fileType.config"
+msgstr "Konfiglêer"
+msgid "fileType.cert"
+msgstr "Sertifikaatlêer"
+msgid "fileType.executable"
+msgstr "Uitvoerbare lêer"
+msgid "fileType.unknown"
+msgstr "Lêer"
+msgid "app.deleteConfirmFile"
+msgstr "Weet u seker u wil hierdie lêer uitvee?"
+msgid "app.deleteConfirmFolder"
+msgstr "Weet u seker u wil hierdie vouer uitvee?"
+msgid "app.deleteConfirmMultiple"
+msgstr "Weet u seker u wil hierdie {count} items uitvee?"
+msgid "app.rename"
+msgstr "Hernoem"
+msgid "app.refresh"
+msgstr "Verfris"
+
+msgid "app.upload"
+msgstr "Laai Op"
+
+msgid "app.download"
+msgstr "Laai Af"
+
+msgid "app.newFolder"
+msgstr "Nuwe Vouer"
+
+msgid "app.newFile"
+msgstr "Nuwe Lêer"
+
+msgid "app.loading"
+msgstr "Laai tans..."
+
+msgid "app.error"
+msgstr "Fout"
+
+msgid "app.success"
+msgstr "Sukses"
+msgid "app.yes"
+msgstr "Ja"
+
+msgid "app.no"
+msgstr "Nee"
+
+msgid "app.all"
+msgstr "Alles"
+
+msgid "app.export"
+msgstr "Eksporteer"
+
+msgid "app.clear"
+msgstr "Vee Uit"
+
+msgid "app.optional"
+msgstr "Opsioneel"
+
+msgid "app.settings"
+msgstr "Instellings"
+
+msgid "app.modeSwitchSsh"
+msgstr "SSH"
+msgid "app.modeSwitchSftp"
+msgstr "SFTP"
+msgid "app.backToTerminal"
+msgstr "Terug na Terminaal"
+msgid "filter.allOps"
+msgstr "Alles Operations"
+
+msgid "filter.allStatus"
+msgstr "Alles Status"
+
+msgid "filter.allTime"
+msgstr "Alles Time"
+
+msgid "filter.today"
+msgstr "Vandag"
+msgid "filter.last7Days"
+msgstr "Afgelope 7 Dae"
+msgid "filter.last30Days"
+msgstr "Afgelope 30 Dae"
+msgid "filter.customRange"
+msgstr "Aangepas"
+msgid "filter.dateFrom"
+msgstr "Van"
+msgid "filter.dateTo"
+msgstr "Tot"
+msgid "pane.local"
+msgstr "Plaaslik"
+msgid "pane.remote"
+msgstr "Afgeleë"
+msgid "pane.path"
+msgstr "Pad"
+msgid "pane.up"
+msgstr "Gaan Op"
+msgid "pane.home"
+msgstr "Tuis"
+msgid "pane.go"
+msgstr "Gaan"
+msgid "pane.refresh"
+msgstr "Verfris"
+
+msgid "pane.filter"
+msgstr "Filter…"
+msgid "pane.filterBtn"
+msgstr "File Filtreer"
+
+msgid "pane.showHidden"
+msgstr "Wys Versteekte Lêers"
+msgid "pane.pinFolders"
+msgstr "Vestig Vouers Bo"
+msgid "view.panelBorder"
+msgstr "Paneelrand"
+msgid "view.colBorder"
+msgstr "Wys rand"
+msgid "view.zebra"
+msgstr "Wys zebra-strepe"
+msgid "pane.hideHidden"
+msgstr "Verskuil Versteekte Lêers"
+msgid "pane.sortByName"
+msgstr "Sorteer op Naam"
+msgid "pane.sortBySize"
+msgstr "Sorteer op Grootte"
+msgid "pane.sortByModified"
+msgstr "Sorteer op Gewysig"
+msgid "pane.selectAll"
+msgstr "Select Alles"
+
+msgid "pane.selectInvert"
+msgstr "Omgekeerde Keuse"
+msgid "pane.clearSelection"
+msgstr "Vee Uit Selection"
+
+msgid "pane.items"
+msgstr "{count} items"
+msgid "pane.copyPath"
+msgstr "Kopieer Path"
+
+msgid "pane.splitterHintHorizontal"
+msgstr "Sleep om links/regs-panele te herskaal. Dubbelklik om te herstel."
+msgid "pane.splitterHintVertical"
+msgstr "Sleep om bo/onder-panele te herskaal. Dubbelklik om te herstel."
+msgid "notify.pathCopied"
+msgstr "{n} pad(e) gekopieer"
+msgid "pane.openFolder"
+msgstr "Open Vouer"
+msgid "pane.noMatch"
+msgstr "Nee matching files"
+
+msgid "pane.empty"
+msgstr "Leë vouer"
+msgid "pane.errorAccess"
+msgstr "Kan nie toegang verkry nie (toestemming geweier of pad nie gevind nie)"
+msgid "pane.loading"
+msgstr "Laai…"
+msgid "path.modeOff"
+msgstr "Padmodus: Af (klik om te wissel: Onthou, Sinchroniseer)"
+msgid "path.modeRemember"
+msgstr "Padmodus: Onthou (herstel volgende keer)"
+msgid "path.modeSync"
+msgstr "Padmodus: Sinchroniseer met terminaal (afgeleë volg cwd)"
+msgid "path.syncNoCwd"
+msgstr "Terminaal cwd nie gerapporteer nie. Wissel na Sinchroniseer weer om te konfigureer"
+msgid "path.cwdSetupTitle"
+msgstr "Aktiveer terminaalgids-sinchronisasie"
+msgid "path.cwdSetupIntro"
+msgstr "Tabby benodig die skulp om cwd via OSC 1337 te rapporteer voordat SFTP+ kan sinchroniseer. Kies hoe om dit te aktiveer:"
+msgid "path.cwdSetupSessionHint"
+msgstr "Slegs hierdie sessie: voer die tydelike opdrag hieronder in die huidige terminaal uit (verlore na skulp-herbegin)"
+msgid "path.cwdSetupPermanentHint"
+msgstr "Permanent: voeg die onderstaande snippertjie by die afgeleë profiel, en source dit dan (gebaseer op opgespoorde skulp)"
+msgid "path.cwdSetupNote"
+msgstr "Kanselleer turns path mode Off. Nothing is executed or written."
+
+msgid "path.cwdSetupSession"
+msgstr "Slegs hierdie sessie"
+msgid "path.cwdSetupPermanent"
+msgstr "Skryf permanent"
+msgid "path.cwdSetupDone"
+msgstr "Gidsrapportering geaktiveer, sinchroniseer…"
+msgid "path.cwdSetupFailed"
+msgstr "Kon nie aktiveer nie. Kontroleer afgeleë regte of skulptipe"
+msgid "file.name"
+msgstr "Naam"
+msgid "file.type"
+msgstr "Tipe"
+msgid "file.size"
+msgstr "Grootte"
+msgid "file.modified"
+msgstr "Gewysig"
+msgid "file.created"
+msgstr "Geskep"
+msgid "file.accessed"
+msgstr "Oopgemaak"
+msgid "file.permissions"
+msgstr "Regte"
+msgid "file.owner"
+msgstr "Eienaar"
+msgid "file.group"
+msgstr "Groep"
+msgid "file.mode"
+msgstr "Modus"
+msgid "file.path"
+msgstr "Pad"
+msgid "file.ext"
+msgstr "Uitbr"
+msgid "file.columns"
+msgstr "Kolomme"
+msgid "file.inaccessible"
+msgstr "Onbereikbaar"
+msgid "file.open"
+msgstr "Open"
+msgid "file.view"
+msgstr "Beskou"
+
+msgid "file.edit"
+msgstr "Redigeer"
+
+msgid "file.copy"
+msgstr "Kopieer"
+
+msgid "file.cut"
+msgstr "Sny"
+
+msgid "file.paste"
+msgstr "Plak"
+
+msgid "file.delete"
+msgstr "Vee Uit"
+
+msgid "file.rename"
+msgstr "Hernoem"
+msgid "file.newFolder"
+msgstr "Nuwe Vouer"
+
+msgid "file.newFile"
+msgstr "Nuwe Lêer"
+
+msgid "file.properties"
+msgstr "Eienskappe"
+
+msgid "file.openWith"
+msgstr "Open Met"
+msgid "file.showInFolder"
+msgstr "Wys in Explorer"
+msgid "file.openInSystem"
+msgstr "Open in Stelsel"
+msgid "file.editInSystem"
+msgstr "Redigeer in System"
+
+msgid "viewer.loading"
+msgstr "Laai…"
+msgid "viewer.loadFailed"
+msgstr "Kon nie lêer laai nie"
+msgid "viewer.binaryNotSupported"
+msgstr "Binêre lêer kan nie as teks bekyk of gewysig word nie"
+msgid "viewer.tooLarge"
+msgstr "Lêer is te groot om oop te maak"
+msgid "viewer.tooLargeView"
+msgstr "Lêer is te groot (meer as {limit}) en kan nie bekyk word nie"
+msgid "viewer.typeNotSupported"
+msgstr "Hierdie lêertipe kan nie bekyk word nie"
+msgid "editor.save"
+msgstr "Stoor"
+
+msgid "editor.saving"
+msgstr "Stoor…"
+msgid "editor.saveSuccess"
+msgstr "Na bediener gestoor"
+msgid "editor.saveFailed"
+msgstr "Stoor failed"
+
+msgid "editor.unsaved"
+msgstr "U het ongestoorde wysigings. Gooi dit weg?"
+msgid "editor.tooLarge"
+msgstr "Lêer is te groot (meer as {limit}) en kan nie gewysig word nie"
+msgid "editor.typeNotSupported"
+msgstr "Hierdie lêertipe kan nie gewysig word nie"
+msgid "file.adjustCol"
+msgstr "Pas Kolomwydte"
+msgid "file.adjustAllCols"
+msgstr "Fit Alles Columns"
+
+msgid "transfer.upload"
+msgstr "Laai Op"
+
+msgid "transfer.download"
+msgstr "Laai Af"
+
+msgid "transfer.edit-upload"
+msgstr "Redigeer Stoor"
+
+msgid "transfer.edit-download"
+msgstr "Redigeer Load"
+
+msgid "transfer.progress"
+msgstr "Vordering"
+msgid "transfer.speed"
+msgstr "Spoed"
+msgid "transfer.remaining"
+msgstr "Oor"
+msgid "transfer.cancel"
+msgstr "Kanselleer"
+
+msgid "transfer.closePanel"
+msgstr "Maak Toe transfer panel"
+
+msgid "transfer.pause"
+msgstr "Onderbreek"
+msgid "transfer.resume"
+msgstr "Hervat"
+msgid "transfer.cancelAll"
+msgstr "Kanselleer folder"
+
+msgid "transfer.cancelCurrent"
+msgstr "Kanselleer current"
+
+msgid "transfer.paused"
+msgstr "Onderbreek"
+msgid "transfer.inProgress"
+msgstr "Aan die gang"
+msgid "transfer.minimizePanel"
+msgstr "Minimeer"
+msgid "transfer.hidePanel"
+msgstr "Verskuil"
+msgid "transfer.noActiveTransfers"
+msgstr "Nee active transfers"
+
+msgid "transfer.clearCompleted"
+msgstr "Vee Uit Completed"
+
+msgid "transfer.queue"
+msgstr "Oordraglys"
+msgid "transfer.log"
+msgstr "Oordraggeskiedenis"
+msgid "transfer.logEmpty"
+msgstr "Nee transfer records yet"
+
+msgid "transfer.logNoMatch"
+msgstr "Nee matching records"
+
+msgid "transfer.logCount"
+msgstr "{total} rekords"
+msgid "transfer.logCountFiltered"
+msgstr "Wys {filtered} van {total}"
+msgid "transfer.noTransfers"
+msgstr "Nee active transfers"
+
+msgid "transfer.clearConfirm"
+msgstr "Vee voltooide oordragrekords uit? Rekords van oordragte wat tans plaasvind, word behou."
+
+msgid "transfer.clearTitle"
+msgstr "Bevestig Vee Uit"
+
+msgid "transfer.replaceConfirm"
+msgstr "Lêer bestaan reeds. Vervang?"
+msgid "transfer.replaceTitle"
+msgstr "Bevestig Replace"
+
+msgid "transfer.deleteConfirm"
+msgstr "Vee Uit {count} selected items?"
+
+msgid "transfer.deleteTitle"
+msgstr "Bevestig Vee Uit"
+
+msgid "bookmark.title"
+msgstr "Boekmerke"
+msgid "bookmark.add"
+msgstr "Voeg Boekmerk By"
+msgid "bookmark.addLocal"
+msgstr "Voeg Plaaslik By"
+msgid "bookmark.addGlobal"
+msgstr "Voeg Globaal By"
+msgid "bookmark.addCurrentShort"
+msgstr "+Plaaslik"
+msgid "bookmark.addGlobalShort"
+msgstr "+Globaal"
+msgid "bookmark.remove"
+msgstr "Verwyder Boekmerk"
+msgid "bookmark.edit"
+msgstr "Redigeer Bookmark"
+
+msgid "bookmark.noBookmarks"
+msgstr "Nee bookmarks yet"
+
+msgid "bookmark.name"
+msgstr "Boekmerknaam"
+msgid "bookmark.path"
+msgstr "Pad"
+msgid "bookmark.save"
+msgstr "Stoor Bookmark"
+
+msgid "bookmark.global"
+msgstr "Globale Boekmerke"
+msgid "bookmark.forConnection"
+msgstr "Huidige boekmerke"
+msgid "permission.title"
+msgstr "Redigeer Permissions"
+
+msgid "permission.owner"
+msgstr "Eienaar"
+msgid "permission.group"
+msgstr "Groep"
+msgid "permission.others"
+msgstr "Ander"
+msgid "permission.read"
+msgstr "Lees"
+msgid "permission.write"
+msgstr "Skryf"
+msgid "permission.execute"
+msgstr "Voer uit"
+msgid "permission.mode"
+msgstr "Modus (Oktale)"
+msgid "notify.sftpOpened"
+msgstr "SFTP Geopen"
+msgid "notify.noSSHSession"
+msgstr "Nee SSH session on current tab"
+
+msgid "notify.transferComplete"
+msgstr "Oordrag Voltooi"
+msgid "notify.transferFailed"
+msgstr "Oordrag Misluk"
+msgid "notify.connectionLost"
+msgstr "Verbinding Verloor"
+msgid "notify.connected"
+msgstr "Verbind aan"
+msgid "notify.connecting"
+msgstr "Verbind aan"
+msgid "notify.sftpConnectFailed"
+msgstr "SFTP-verbinding misluk. Maak seker SSH is gekoppel en die bediener ondersteun SFTP."
+msgid "notify.reconnectNoTerminal"
+msgstr "Terminaal ontkoppel. Klik of druk enige sleutel in die terminaal om weer te koppel."
+msgid "notify.reconnectFailed"
+msgstr "Herkoppeling misluk. Klik of druk enige sleutel in die terminaal om weer te koppel."
+msgid "settings.desc"
+msgstr "Mooi SFTP-lêerbestuurder: sleep-en-drop, boekmerke, sortering, oordragrekords & veeltalig."
+msgid "settings.language"
+msgstr "Taal"
+
+msgid "settings.followTabby"
+msgstr "Volg Tabby"
+msgid "settings.theme"
+msgstr "Tema"
+
+msgid "settings.primary"
+msgstr "Primêr"
+msgid "settings.bg"
+msgstr "Agtergrond"
+msgid "settings.text"
+msgstr "Teks"
+msgid "settings.border"
+msgstr "Rand"
+msgid "settings.layout"
+msgstr "Uitleg"
+msgid "settings.layoutAdaptive"
+msgstr "Aanpasbaar"
+msgid "settings.layoutAdaptiveSub"
+msgstr "Skakel outomaties volgens breedte"
+msgid "settings.layoutHorizontal"
+msgstr "Horisontaal"
+msgid "settings.layoutHorizontalSub"
+msgstr "Panele langs mekaar"
+msgid "settings.layoutVertical"
+msgstr "Vertikaal"
+msgid "settings.layoutVerticalSub"
+msgstr "Panele gestapel"
+msgid "settings.layoutSingle"
+msgstr "Enkele Paneel"
+msgid "settings.layoutSingleSub"
+msgstr "Slegs afgeleë paneel"
+msgid "settings.toolbarLayout"
+msgstr "Pas Werksbalk aan"
+msgid "settings.customToolbar"
+msgstr "Pas Werksbalk aan"
+msgid "settings.toolbarLayoutHint"
+msgstr "Sleep om te herrangskik en pas dadelik op paneelkophings toe"
+msgid "settings.paneLabel"
+msgstr "Terminaaletiket"
+msgid "settings.addressBar"
+msgstr "Adresbalk"
+msgid "settings.toolbar"
+msgstr "Werksbalk"
+msgid "settings.toolbarItem.back"
+msgstr "Terug"
+msgid "settings.toolbarItem.forward"
+msgstr "Vooruit"
+msgid "settings.toolbarItem.up"
+msgstr "Op"
+msgid "settings.toolbarItem.refresh"
+msgstr "Verfris"
+
+msgid "settings.toolbarItem.home"
+msgstr "Tuis"
+msgid "settings.toolbarItem.filter"
+msgstr "Filtreer"
+
+msgid "settings.toolbarItem.bookmark"
+msgstr "Boekmerk"
+msgid "settings.resetLayout"
+msgstr "Herstel"
+msgid "settings.tableStyle"
+msgstr "Tabelstyl"
+msgid "settings.tableStyleHint"
+msgstr "Wenk: Beheer via regterklik-kieslys op lêerlys se kop"
+msgid "settings.hideNativeBtn"
+msgstr "Versteek inheemse SFTP-knoppie"
+msgid "settings.openInNewTab"
+msgstr "Maak paneel in nuwe oortjie oop as standaard"
+msgid "settings.singleWorkspaceInstance"
+msgstr "Slegs een instansie"
+msgid "settings.hotkey"
+msgstr "Paneel-sneltoets"
+msgid "settings.hotkeyUnbound"
+msgstr "Stel kortpad"
+msgid "settings.hotkeyClear"
+msgstr "Vee Uit"
+
+msgid "settings.hotkeyRecording"
+msgstr "Druk ’n sleutelkombinasie…"
+msgid "settings.hotkeyClickToSet"
+msgstr "Klik om sneltoets te stel"
+msgid "settings.hotkeyConflict"
+msgstr "Konflik met: {names}"
+msgid "settings.hotkeyConflictConfirm"
+msgstr "Kortpad {keys} word reeds gebruik deur: {names}\nBind dit niettemin aan SFTP+? (Albei kan aktiveer.)"
+msgid "settings.hotkeySaved"
+msgstr "Gestoor en gesinchroniseer na Tabby: {keys}"
+msgid "settings.hotkeyCleared"
+msgstr "Kortpadbinding gekanselleer"
+msgid "settings.hotkeySaveFailed"
+msgstr "Kon nie sneltoets stoor nie"
+msgid "settings.hotkeyRecordTimeout"
+msgstr "Opname verstryk, probeer weer"
+msgid "settings.other"
+msgstr "Funksionaliteit"
+msgid "settings.data"
+msgstr "Data"
+msgid "settings.export"
+msgstr "Eksporteer"
+
+msgid "settings.import"
+msgstr "Invoer"
+msgid "settings.clearAll"
+msgstr "Vee Uit Alles"
+
+msgid "settings.about"
+msgstr "Oor"
+
+msgid "settings.version"
+msgstr "Weergawe"
+
+msgid "settings.buildTime"
+msgstr "Boutyd"
+msgid "settings.author"
+msgstr "Outeur"
+
+msgid "settings.githubSource"
+msgstr "GitHub-bron"
+
+msgid "settings.npmSource"
+msgstr "NPM-bron"
+msgid "settings.giveStar"
+msgstr "Gee ’n Ster"
+msgid "settings.feedback"
+msgstr "Terugvoer"
+msgid "settings.modifyColors"
+msgstr "⚠️ Wysig Kleure"
+msgid "settings.overwriteConfirm"
+msgstr "U is in Auto/Voorinstelling-modus. Veranderinge sal die aangepaste kleurskema oorskryf. Gaan voort?"
+msgid "settings.overwrite"
+msgstr "Oorskryf"
+msgid "settings.clearAllTitle"
+msgstr "⚠️ Vee Uit Alles Data"
+
+msgid "settings.clearAllConfirm"
+msgstr "Dit sal alle boekmerke, oordragrekords en instellings uitvee. Kan nie ongedaan gemaak word nie!"
+msgid "settings.clearAllPrompt"
+msgstr "Tik DELETE om te bevestig:"
+msgid "settings.clear"
+msgstr "Vee Uit"
+
+msgid "settings.dark"
+msgstr "Donker"
+
+msgid "settings.light"
+msgstr "Lig"
+
+msgid "settings.invalidFormat"
+msgstr "Ongeldige dataformaat."
+msgid "settings.importComplete"
+msgstr "Invoer voltooi."
+msgid "settings.importUnavailable"
+msgstr "Kan nie invoer nie: ConfigService nie beskikbaar nie."
+msgid "settings.importFailed"
+msgstr "Invoer misluk: ongeldige of korrupte lêer."
+msgid "settings.dataCleared"
+msgstr "Alles data cleared"
+
+msgid "conflict.sourceFile"
+msgstr "Bronlêer"
+
+msgid "conflict.targetFileExists"
+msgstr "Teiklêer (bestaan)"
+
+msgid "transfer.success"
+msgstr "Sukses"
+
+msgid "settings.closeBookmarkPanel"
+msgstr "Sluit die boekmerkpaneel na seleksie"
+
+msgid "layout.mode.auto"
+msgstr "Outomatiese uitleg"
+
+msgid "layout.mode.horizontal"
+msgstr "Horisontale uitleg"
+
+msgid "layout.mode.vertical"
+msgstr "Vertikale uitleg"
+
+msgid "layout.mode.single"
+msgstr "Enkele paneel (slegs afgeleë)"
+
+msgid "notify.closeWithTransfers"
+msgstr "{count} oordrag(te) besig. Sluit die paneel sal alle oordrag onderbreek. Gaan voort?"
+
+msgid "type.folder"
+msgstr "Vouer"
+
+msgid "type.file"
+msgstr "Lêer"
+
+msgid "pane.exclFolders"
+msgstr ", uits. vouers"
+
+msgid "pane.selectedInfo"
+msgstr " — {n} item(e) gekies ({size})"
+
+msgid "fail.cancelled"
+msgstr "Gekanselleer"
+
+msgid "fail.interrupted"
+msgstr "Ontkoppel"
+
+msgid "fail.unknown"
+msgstr "Misluk"
+
+msgid "notify.uploadFailed"
+msgstr "Oplaai misluk: {name}"
+
+msgid "notify.downloadFailed"
+msgstr "Aflaai misluk: {name}"
+
+msgid "op.renameFailed"
+msgstr "Hernoem misluk: {reason}"
+
+msgid "op.mkdirFailed"
+msgstr "Skep gids misluk: {reason}"
+
+msgid "op.touchFailed"
+msgstr "Skep lêer misluk: {reason}"
+
+msgid "op.chmodFailed"
+msgstr "Chmod misluk: {reason}"
+
+msgid "op.failed"
+msgstr "Bewerking misluk: {reason}"
+
+msgid "notify.deleteFailed"
+msgstr "{n} item(e) kon nie uitgevee word nie (dalk in gebruik of geen toestemming)"
+
+msgid "input.dirExists"
+msgstr "Gids bestaan reeds: {val}"
+
+msgid "input.fileExists"
+msgstr "Lêer bestaan reeds: {val}"
+
+msgid "input.fileWhenMkdir"
+msgstr "A file named \"{val}\" already exists, cannot create directory"
+
+msgid "input.dirWhenTouch"
+msgstr "A directory named \"{val}\" already exists, cannot create file"
+
+msgid "notify.notConnectedUpload"
+msgstr "Nie verbind nie, kan nie oplaai"
+
+msgid "notify.notConnectedDownload"
+msgstr "Nie verbind nie, kan nie aflaai"
+
+msgid "notify.copied"
+msgstr "{n} item(e) gekopieer"
+
+msgid "notify.cut"
+msgstr "{n} item(e) uitgesny"
+
+msgid "status.disconnected"
+msgstr "Ontkoppel"
+
+msgid "status.reconnecting"
+msgstr "Her verbind…"
+
+msgid "status.reconnect"
+msgstr "Her verbind"
+
+msgid "app.restoreDefaultSize"
+msgstr "Herstel verstekpaneelgrootte"
+
+msgid "notify.pasteFailed"
+msgstr "Plak misluk"
+
+msgid "notify.copyFailed"
+msgstr "Kopieer misluk: {name}"
+
+msgid "theme.auto"
+msgstr "Outo"
+
+msgid "theme.dark"
+msgstr "Donker"
+
+msgid "theme.light"
+msgstr "Lig"
+
+msgid "theme.blue"
+msgstr "Blou"
+
+msgid "theme.green"
+msgstr "Groen"
+
+msgid "theme.purple"
+msgstr "Pers"
+
+msgid "theme.red"
+msgstr "Rooi"
+
+msgid "theme.custom"
+msgstr "Aangepas"
+
+msgid "pane.back"
+msgstr "Terug"
+
+msgid "pane.forward"
+msgstr "Vooruit"
+
+msgid "filter.apply"
+msgstr "Toepas"
+
+msgid "filter.clear"
+msgstr "Vee uit"
+
+msgid "hotkey.togglePanel"
+msgstr "Maak SFTP+ paneel oop"
+
+
+msgid "conflict.existsSamePane"
+msgstr "Lêer met dieselfde naam bestaan reeds op teikengebied"
+
+msgid "settings.dateFormat"
+msgstr "Pasgemaakte tydformaat"
+
+msgid "settings.dateFormatHint"
+msgstr "Tekens: YYYY / YY / MM / DD / HH / hh / mm / ss / A (leeg = verstek)"
+
+msgid "settings.dateFormatPreview"
+msgstr "Voorskou"
+
+msgid "settings.dateFormatReset"
+msgstr "Herstel verstek"
+
+msgid "settings.defaultPathMode"
+msgstr "Verstek padmodus"
+
+msgid "settings.pathModeOff"
+msgstr "Af"
+
+msgid "settings.pathModeRemember"
+msgstr "Onthou pad"
+
+msgid "settings.pathModeSync"
+msgstr "Sinkroniseer met terminaal"
+
+msgid "settings.defaultShowHidden"
+msgstr "Wys verborge lêers by verstek"
+
+msgid "settings.uploadConcurrency"
+msgstr "Gelyktydige oplaaie"
+
+msgid "settings.downloadConcurrency"
+msgstr "Gelyktydige aflaaie"
+
+msgid "transfer.queued"
+msgstr "In waglys"
+
+
+msgid "settings.fastMode"
+msgstr "Vinnige oordragmodus"
+
+msgid "settings.fastModeDesc"
+msgstr "Begin gids-oordragte onmiddellik sonder vooraf skandering: vinniger begin, maar totale grootte en persentasie-vordering kan nie tydens die oordrag gewys word nie (slegs oorgedraagre bytes)"
+
+msgid "file.sizeCalculate"
+msgstr "Bereken"
+
+msgid "file.sizeCalculating"
+msgstr "Bereken tans…"
+
+msgid "file.sizeCalcFailed"
+msgstr "Berekening het misluk"
+
+msgid "file.folderSizeDetail"
+msgstr "{size} ({count} lêers)"
+
+msgid "file.fileProperties"
+msgstr "Lêereienskappe"
+
+msgid "file.folderProperties"
+msgstr "Vouereienskappe"
+
+msgid "settings.hideAuthorInfo"
+msgstr "Versteek inprop-outeurinligting"
+
+msgid "settings.hideAuthorConfirmText"
+msgstr "Voordat jy die outeurinligting versteek, gee asseblief 'n ster aan die inprop-bewaarplek. Die bewaarplekblad is in jou blaaier oopgemaak. Jou ster is my motivasie om te ontwikkel — dankie vir jou ondersteuning! 🙏"
+
+msgid "settings.starredConfirm"
+msgstr "Ek het 'n ster gegee"
+
+msgid "file.location"
+msgstr "Ligging"
+
+msgid "app.trashHint"
+msgstr "Skuif na herwinningsbak"
+
+msgid "app.permDeleteHint"
+msgstr "Permanent uitvee (kan nie ongedaan gemaak word nie)"
+
+msgid "file.viewAsText"
+msgstr "Kyk as teks"
+
+msgid "file.copied"
+msgstr "Gekopieer"
+
+msgid "file.copySelection"
+msgstr "Kopieer seleksie"
+
+msgid "viewer.binaryShownAsText"
+msgstr "Binêre inhoud as teks gewys (mag dalk nie korrek vertoon nie)"
+
+msgid "viewer.prevImage"
+msgstr "Vorige beeld"
+
+msgid "viewer.nextImage"
+msgstr "Volgende beeld"
+
+msgid "editor.saveSuccessLocal"
+msgstr "Gestoor"
+
+msgid "settings.interaction"
+msgstr "Interaksie"
+msgid "settings.viewerEditor"
+msgstr "Kyker en redigeerder"
+
+msgid "settings.openOnClick"
+msgstr "Open lêer/map met"
+
+msgid "settings.clickDouble"
+msgstr "Dubbelklik"
+
+msgid "settings.clickSingle"
+msgstr "Enkelklik"
+
+msgid "settings.openOnClickHint"
+msgstr "Enkelklik maak lêers/mappe direk oop; dubbelklik werk steeds in enkelklik-modus."
+
+msgid "settings.openUnsupportedInSystem"
+msgstr "Maak nie-ondersteunde lêers met stelselprogram oop"
+
+msgid "settings.openUnsupportedInSystemDesc"
+msgstr "Lêers wat die leser nie kan hanteer nie (bv. .pdf/.docx) word met die stelsel se verstekprogram oopgemaak in plaas van om 'n boodskap te wys dat hulle nie ondersteun word nie."
+
+msgid "settings.transferSection"
+msgstr "Oordrag"
+
+msgid "settings.hotkeys"
+msgstr "Kortpaaie"
+
+msgid "settings.resetPanelHotkeys"
+msgstr "Herstel na verstek"
+
+msgid "settings.phk.delete"
+msgstr "Vee uit"
+
+msgid "settings.phk.rename"
+msgstr "Hernoem"
+
+msgid "settings.phk.refresh"
+msgstr "Herlaai"
+
+msgid "settings.phk.up"
+msgstr "Op (ouergids)"
+
+msgid "settings.phk.back"
+msgstr "Terug (geskiedenis)"
+
+msgid "settings.panelHotkeyConflict"
+msgstr "Kortpad {keys} word reeds deur 'n ander aksie gebruik"
+
+msgid "settings.customContextMenu"
+msgstr "Pas regterklik-kieslys aan"
+
+msgid "settings.resetMenu"
+msgstr "Herstel kieslysorde"
+
+msgid "notify.trashFailed"
+msgstr "{n} item(e) kon nie na herwinningsbak geskuif word nie (nie uitgevee nie; probeer Shift+Delete vir permanente uitveë)"
+
+
+msgid "settings.iconLocked"
+msgstr "Gesluit (stelselikoon)"
+
+msgid "settings.phk.forward"
+msgstr "Vorentoe"
+
+msgid "settings.mouseBack"
+msgstr "Muis-terugknoppie"
+
+msgid "settings.mouseForward"
+msgstr "Muis-vorentoe-knoppie"
+
+msgid "settings.hotkeyAdd"
+msgstr "Voeg kortpad by"
+
+msgid "settings.hotkeyDuplicate"
+msgstr "Hierdie kortpad is reeds aan hierdie aksie gekoppel"
+
+msgid "settings.hotkeyMouseHint"
+msgstr "Muiskantknoppie-binding, klik om weer op te neem"
+
+msgid "settings.occupied.title"
+msgstr "Besette kortpaaie"
+
+msgid "settings.occupied.hint"
+msgstr "Hierdie sleutels is deur SFTP+ gereserveer en kan nie verander word nie. Vermy hulle wanneer jy kortpaaie hierbo toewys, anders kan albei aktiveer."
+
+msgid "settings.occupied.groupPanel"
+msgstr "Paneel"
+
+msgid "settings.occupied.groupViewer"
+msgstr "Kyker"
+
+msgid "settings.occupied.groupDialog"
+msgstr "Dialoogvensters"
+
+msgid "settings.occupied.moveSelection"
+msgstr "Skuif keuse op / af"
+
+msgid "settings.occupied.multiSelect"
+msgstr "Meervoudige keuse met klik"
+
+msgid "settings.occupied.prevNextImage"
+msgstr "Vorige / volgende prent"
+
+msgid "settings.occupied.closeDialog"
+msgstr "Sluit dialoog / kyker / paneel"
+
+msgid "settings.occupied.confirmDelete"
+msgstr "Bevestig skraping"
+
+msgid "log.modeFast"
+msgstr "Vinnige modus"
+
+msgid "log.modeTar"
+msgstr "Tar-pakket"
+
+msgid "log.fileCount"
+msgstr "{n} lêers"
+
+msgid "settings.editableExtensions"
+msgstr "Bykomende wysigbare uitbreidings"
+
+msgid "settings.editableExtensionsHint"
+msgstr "Skei met spasies. Aanvaar .conf, *.conf of conf. Witlys wanneer “besigtig & wysig alles” af is."
+msgid "settings.allowViewEditAllFiles"
+msgstr "Laat besigtiging en wysiging van alle lêertipes toe"
+
+msgid "settings.allowViewEditAllFilesHint"
+msgstr "Ignoreer uitbreidingsbeperkings. Enige lêer kan besigtig word; binêre inhoud bly beskerm tydens wysiging."
+msgid "settings.showTextLineNumbers"
+msgstr "Reëlnommers (kyker/redigeerder)"
+msgid "settings.showTextLineNumbersHint"
+msgstr "Wys reëlnommers in die ingeboude kyker en redigeerder."
+
+msgid "conflict.digest"
+msgstr "Samevatting"
+
+msgid "conflict.contentIdentical"
+msgstr "Inhoud is identies — veilig om oor te slaan"
+
+msgid "file.symlink"
+msgstr "Simboliese skakel"
+
+msgid "file.shortcut"
+msgstr "Kortpad"
+
+msgid "file.copyAll"
+msgstr "Kopieer alles"
+
+msgid "file.copyImage"
+msgstr "Kopieer prent"
+
+msgid "file.copyImageAddress"
+msgstr "Kopieer prentadres"
+
+msgid "transfer.skippedAsDuplicate"
+msgstr "Oorgeslaan · inhoud identies"
+
+msgid "settings.font"
+msgstr "Lettertipe"
+
+msgid "settings.fontSize"
+msgstr "Lettergrootte"
+
+msgid "settings.resetFont"
+msgstr "Stel lettergrootte terug"
+
+msgid "settings.fontHint"
+msgstr "Pas teksgrootte in die SFTP+-paneel aan (11–18px)"
+
+msgid "settings.defaultUploadPath"
+msgstr "Verstek-oplaaipad"
+
+msgid "settings.defaultUploadPathPh"
+msgstr "Afgeleë gids, bv. /home/user/uploads (leeg = huidige afgeleë gids)"
+
+msgid "settings.defaultDownloadPath"
+msgstr "Verstek-aflaaipad"
+
+msgid "settings.defaultDownloadPathPh"
+msgstr "Plaaslike gids, bv. C:\\Downloads (leeg = huidige plaaslike gids)"
+
+msgid "settings.iconSettings"
+msgstr "Lêertipe-ikone"
+
+msgid "settings.iconResourceDir"
+msgstr "Ikongids"
+
+msgid "settings.iconResourceDirPh"
+msgstr "Plaaslike gids met svg-lêers, bv. C:\\icons"
+
+msgid "settings.iconSvgFile"
+msgstr "SVG-lêer"
+
+msgid "settings.iconPreview"
+msgstr "Voorskou"
+
+msgid "settings.iconAdd"
+msgstr "Voeg reël by"
+
+msgid "settings.iconDelete"
+msgstr "Skrap"
+
+msgid "settings.iconDeleteConfirm"
+msgstr "Skrap reël \"{name}\"? Dit kan nie ontdoen word nie."
+
+msgid "settings.iconRuleHint"
+msgstr "Koppel uitbreidings aan hul SVG-lêers."
+
+msgid "settings.builtinIcons"
+msgstr "Ingeboude ikone"
+
+msgid "settings.builtinIconDir"
+msgstr "Ingeboude-ikongids"
+
+msgid "settings.builtinIconDesc"
+msgstr "Die volgende SVG-ikone word met die inprop gebundel. Sit jou eie svg’s hier om dit uit te brei."
+
+msgid "settings.iconEdit"
+msgstr "Wysig"
+
+msgid "settings.iconDisable"
+msgstr "Deaktiveer"
+
+msgid "settings.iconEnable"
+msgstr "Herstel"
+
+msgid "settings.iconAddRule"
+msgstr "Voeg reël by"
+
+msgid "settings.iconFolderHint"
+msgstr "Gids (verstek)"
+
+msgid "settings.iconFileHint"
+msgstr "Lêer (verstek)"
+
+msgid "settings.iconExtLockedHint"
+msgstr "Versteklêers kan nie uitbreidings verander nie"
+
+msgid "settings.iconSvgNameHint"
+msgstr "Lêernaam"
+
+msgid "settings.iconRuleName"
+msgstr "Reëlnaam"
+
+msgid "settings.iconRuleNamePh"
+msgstr "bv. Scripts, Documents"
+
+msgid "settings.iconExtLabel"
+msgstr "Uitbreidings"
+
+msgid "settings.iconErrorExtConflict"
+msgstr "Uitbreiding \"{ext}\" word reeds deur ikoon {svg} gebruik"
+
+msgid "settings.iconErrorEmpty"
+msgstr "Reëlnaam, uitbreiding en svg-lêernaam mag nie leeg wees nie"
+
+msgid "settings.iconErrorEmptyName"
+msgstr "Reëlnaam mag nie leeg wees nie"
+
+msgid "settings.iconErrorNameConflict"
+msgstr "Reëlnaam \"{name}\" bestaan reeds"
+
+msgid "settings.iconErrorNameSvgMismatch"
+msgstr "Reël \"{name}\" is reeds aan ikoon {svg} gebind; gebruik dieselfde lêer of ’n ander naam"
+
+msgid "settings.iconErrorMissingSvg"
+msgstr "Die svg-lêer is nie in die ikongids gevind nie"
+
+msgid "settings.iconErrorInvalidExt"
+msgstr "Ongeldige uitbreidingformaat: \"{ext}\". Gebruik .txt of txt; skei meer met spasies/kommas"
+
+msgid "settings.resetIcons"
+msgstr "Stel ikooninstellings terug"
+
+msgid "op.cannotCopyIntoSelf"
+msgstr "Kan nie ’n gids na homself of ’n subgids kopieer nie: {name}"
+
+msgid "settings.tarAcceleration"
+msgstr "TAR-oordragversnelling"
+
+msgid "settings.tarAccelerationDesc"
+msgstr "Pak gids-oordragte outomaties met tar om klein lêers te versnel; val terug na normale oordrag as dit misluk"
+
+msgid "settings.conflictDigest"
+msgstr "Inhoudsamevatting by konflik"
+
+msgid "settings.conflictDigestDesc"
+msgstr "Wanneer grootte ooreenstem maar wysigingstyd verskil, bereken ’n samevatting om te sien of die lêer regtig verander het (bv. na Git-takwissel). Vereis shell op die afgeleë gasheer; anders vorige gedrag"
+
+msgid "settings.conflictAutoSkip"
+msgstr "Slaan outomaties identiese inhoud oor"
+
+msgid "settings.conflictAutoSkipDesc"
+msgstr "As albei samevattings beskikbaar en gelyk is, behandel as geen konflik en slaan stil oor"
+
+msgid "settings.conflictDigestMaxSize"
+msgstr "Grootteperk vir samevatting (MB)"
+
+msgid "settings.conflictDigestMaxSizeDesc"
+msgstr "Groter lêers word nie opgesom nie en altyd as konflik behandel om opsporing nie te vertraag nie"
+
+msgid "settings.customBookmarkPanel"
+msgstr "Pas boekmerkpaneel aan"
+
+msgid "settings.resetBookmarkPanel"
+msgstr "Stel boekmerkpaneel terug"
+
+msgid "settings.bookmarkGroupByScope"
+msgstr "Boekmerkgroepering"
+msgid "settings.bookmarkGroupByScopeHint"
+msgstr "Aan: afdelings Huidig / Globaal. Af: gemengde lys, kan oor omvang hersorteer word."
+msgid "settings.bookmarkGroupOrderHint"
+msgstr "Sleep om die volgorde van groepe verbinding / globaal te stel"
+
+msgid "settings.bookmarkFlatHint"
+msgstr "Sonder groepering toon globale boekmerke ’n Globaal-kenteken regs van die naam en kan vrylik met huidige boekmerke gemeng word."
+msgid "bookmark.globalBadge"
+msgstr "Globaal"
+
+msgid "bookmark.locate"
+msgstr "Vind huidige boekmerk"
+
+msgid "bookmark.locateNone"
+msgstr "Geen boekmerk vir huidige pad nie"
+
+msgid "settings.reportBug"
+msgstr "Report a Bug"
+
+msgid "settings.featureRequest"
+msgstr "Feature Request"
+
+msgid "notify.duplicateTransfer"
+msgstr "{name} is reeds in die oordragtou — duplikaatversoek geïgnoreer"
+
+msgid "transfer.etaRemaining"
+msgstr "nog {time} oor"
+
+msgid "app.dirMissingTitle"
+msgstr "Doelgids bestaan nie"
+
+msgid "app.dirMissingText"
+msgstr "Die oordragdoelgids bestaan nie. Skep dit?"
+
+msgid "app.dirMissingCreate"
+msgstr "Skep en oordra"
+
+msgid "app.dirMissingFallback"
+msgstr "Gebruik huidige gids"
+
+msgid "app.dirMissingCancel"
+msgstr "Kanselleer"
+
+msgid "app.dirCreated"
+msgstr "Gids geskep: {dir}"
+
+msgid "app.mkdirpFailed"
+msgstr "Kon gids nie skep nie: {reason}"
+
+msgid "app.targetNotDir"
+msgstr "Doelpad is nie 'n gids nie: {dir}"
+
+msgid "pane.groupBy"
+msgstr "Groepeer volgens"
+
+msgid "group.none"
+msgstr "Geen"
+
+msgid "group.name"
+msgstr "Naam"
+
+msgid "group.modified"
+msgstr "Wysigingsdatum"
+
+msgid "group.type"
+msgstr "Tipe"
+
+msgid "group.size"
+msgstr "Grootte"
+
+msgid "group.expand"
+msgstr "Vou uit"
+
+msgid "group.collapse"
+msgstr "Vou in"
+
+msgid "group.today"
+msgstr "Vandag"
+
+msgid "group.yesterday"
+msgstr "Gister"
+
+msgid "group.thisWeek"
+msgstr "Vroeër hierdie week"
+
+msgid "group.thisMonth"
+msgstr "Vroeër hierdie maand"
+
+msgid "group.earlierThisYear"
+msgstr "Vroeër vanjaar"
+
+msgid "group.longAgo"
+msgstr "Lank gelede"
+
+msgid "group.folder"
+msgstr "Vouer"
+
+msgid "group.noExt"
+msgstr "Ander lêers"
+
+msgid "group.typeFiles"
+msgstr "lêers"
+
+msgid "group.sizeTiny"
+msgstr "Baie klein (0-16 KB)"
+
+msgid "group.sizeSmall"
+msgstr "Klein (16 KB - 1 MB)"
+
+msgid "group.sizeMedium"
+msgstr "Medium (1-128 MB)"
+
+msgid "group.sizeLarge"
+msgstr "Groot (128 MB - 1 GB)"
+
+msgid "group.sizeHuge"
+msgstr "Reuse (1-4 GB)"
+
+msgid "group.sizeSuper"
+msgstr "Enorm (>4 GB)"
+
+msgid "group.digit"
+msgstr "0-9"
+
+msgid "group.a2h"
+msgstr "A-H"
+
+msgid "group.i2p"
+msgstr "I-P"
+
+msgid "group.q2z"
+msgstr "Q-Z"
+
+msgid "group.pyAF"
+msgstr "Pinyin A-F"
+
+msgid "group.pyGL"
+msgstr "Pinyin G-L"
+
+msgid "group.pyMS"
+msgstr "Pinyin M-S"
+
+msgid "group.pyTZ"
+msgstr "Pinyin T-Z"
+
+msgid "group.other"
+msgstr "Ander"
+
+msgid "group.toggleAll"
+msgstr "Vou alle grupe uit/ineen"
+
+msgid "group.expandAll"
+msgstr "Vou alle uit"
+
+msgid "group.collapseAll"
+msgstr "Vou alle in"
+
+msgid "settings.enableItem"
+msgstr "Aktiveer item"
+
+msgid "settings.channelMode"
+msgstr "Transfer channel mode"
+
+msgid "settings.channelModeDesc"
+msgstr "Choose how folder transfers use tar packaging (TAR) vs file-by-file (SFTP)"
+
+msgid "settings.channelMode.smart"
+msgstr "Smart"
+
+msgid "settings.channelMode.sftpOnly"
+msgstr "SFTP only"
+
+msgid "settings.channelMode.tarOnly"
+msgstr "TAR only"
+
+msgid "settings.channelMode.preferSftp"
+msgstr "Prefer SFTP"
+
+msgid "settings.channelMode.preferTar"
+msgstr "Prefer TAR"
+
+msgid "settings.channelMode.smartDesc"
+msgstr "Auto-pick best channel by folder size and file count"
+
+msgid "settings.channelMode.sftpOnlyDesc"
+msgstr "Always transfer file by file; never use tar packing and no size-based routing"
+
+msgid "settings.channelMode.tarOnlyDesc"
+msgstr "Always use tar packing with no size-based routing; when packing is unavailable or fails, report the error instead of falling back to file-by-file. When the destination already exists the first attempt still goes file-by-file so conflicts can be detected; choosing Overwrite or Rename in the conflict prompt then continues with tar packing. A single file is always transferred file by file"
+
+msgid "settings.channelMode.preferSftpDesc"
+msgstr "Use tar only when clearly beneficial (requires many more files)"
+
+msgid "settings.channelMode.preferTarDesc"
+msgstr "Pack unless clearly worse (huge files); loose threshold"
+
+msgid "notify.tarOnlyFailed"
+msgstr "TAR-only mode: cannot transfer {name} - {reason}. Change Transfer channel mode to Smart / Prefer TAR in Settings, or fix the environment and retry"
+
+msgid "tarchan.reason.localTarMissing"
+msgstr "no usable tar command on this computer"
+
+msgid "tarchan.reason.remoteTarMissing"
+msgstr "no usable tar command on the remote server"
+
+msgid "tarchan.reason.symlinkUnsupported"
+msgstr "the folder contains symbolic links, which the packing channel does not support"
+
+msgid "tarchan.reason.packFailed"
+msgstr "packing or extracting the archive failed"
+
+msgid "tarchan.reason.tarballFailed"
+msgstr "transferring the archive file failed"
+
+msgid "tarchan.reason.other"
+msgstr "the packing channel is unavailable, see the log for details"
+
+msgid "notify.tarOnlyInapplicable"
+msgstr "TAR-only mode: {name} is not using the packed channel - {reason}. To send it as one archive, choose Overwrite in the directory conflict prompt, or delete the destination first and retry"
+
+msgid "tarchan.reason.targetExists"
+msgstr "the destination already exists, and an incremental transfer can only go through the per-file channel"
+
+msgid "tarchan.reason.localPackFailed"
+msgstr "packing the folder on this computer failed, possibly due to disk space or permissions"
+
+msgid "tarchan.reason.remotePackFailed"
+msgstr "packing or extracting on the remote server failed, possibly due to disk space or permissions"
+
+msgid "tarchan.reason.localExtractFailed"
+msgstr "extracting the archive on this computer failed, see the log for details"
+
+msgid "tarchan.reason.nameEncodingUnsupported"
+msgstr "the file names on the remote server cannot be decoded on this computer; switch to Smart or Prefer SFTP mode, or upgrade the tar command on the server"
+
+msgid "transfer.batchUpload"
+msgstr "{n} items from {dir}"
+
+msgid "settings.exportPickHint"
+msgstr "Kies wat in die uitvoerlêer ingesluit moet word."
+
+msgid "settings.exportSelectAll"
+msgstr "Kies alles"
+
+msgid "settings.exportDeselectAll"
+msgstr "Ontkies alles"
+
+msgid "settings.exportCatBookmarkData"
+msgstr "Boekmerkdata"
+
+msgid "settings.hotkeyWheelHint"
+msgstr "Wieltjie-binding, klik om weer op te neem (die lys kan nie meer met die wiel gerol word)"
+
+msgid "settings.panelHotkeyWheelBareWarning"
+msgstr "{keys} is gebind; die lys kan nie meer met die wiel gerol word (voeg Alt by)"
+
+msgid "settings.textCaretShape"
+msgstr "Wyservorm (kyker/redigeerder)"
+msgid "settings.textCaretShapeHint"
+msgstr "Vorm van die wyser wat in die kyker geteken word. Die drie opsies stem ooreen met die kursor van die Tabby-terminaal. Die redigeerder gebruik die stelselwyser."
+msgid "settings.caretShapeBlock"
+msgstr "Blok"
+msgid "settings.caretShapeBeam"
+msgstr "Vertikale streep"
+msgid "settings.caretShapeUnderline"
+msgstr "Onderstreep"

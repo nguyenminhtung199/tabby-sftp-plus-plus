@@ -1,0 +1,2 @@
+const cp=require('child_process'),path=require('path'),cfg=require('../tests/test-policy.json');const root=path.resolve(__dirname,'..'),env={...process.env,SFTP_TEST_TABBY_CORE_MAP:process.env.SFTP_TEST_TABBY_CORE_MAP||path.join(root,cfg.sdkMapRelative)};
+for(const script of cfg.unitScripts){const result=cp.spawnSync(process.execPath,[path.join(root,script)],{cwd:root,env,encoding:'utf8'});if(result.status!==0){process.stdout.write(result.stdout||'');process.stderr.write(result.stderr||'');process.exitCode=1;break;}console.log('PASS '+script);}

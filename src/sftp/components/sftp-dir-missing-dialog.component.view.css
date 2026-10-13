@@ -1,0 +1,41 @@
+
+    .overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+      transition: none !important; animation: none !important;
+      outline: none;
+    }
+    /* 自动聚焦到 overlay 时不显示浏览器默认焦点轮廓（模态遮罩本身已足够明显） */
+    .overlay:focus { outline: none; }
+    .dir-missing-dialog {
+      background: var(--_bg);
+      border: 1px solid var(--_border);
+      border-radius: 12px; padding: 20px; min-width: 340px; max-width: 440px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .dir-missing-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .dir-missing-warn-icon { flex-shrink: 0; width: 18px !important; height: 18px !important; }
+    .dir-missing-title { font-size: 15px; font-weight: 600; color: var(--_text); }
+    .dir-missing-text { font-size: 13px; color: var(--_text); margin-bottom: 12px; opacity: 0.85; }
+    .dir-missing-preview {
+      border: 1px solid var(--_border);
+      border-radius: 8px; padding: 12px; margin-bottom: 16px;
+      background: var(--_content);
+    }
+    .dir-missing-row {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 12px; padding: 2px 0;
+    }
+    .dir-missing-label { flex-shrink: 0; }
+    /* 长路径折行显示，不挤压对话框宽度 */
+    .dir-missing-path { word-break: break-all; color: var(--_text); }
+    .dialog-buttons { display: flex; justify-content: flex-end; gap: 8px; padding-top: 10px; }
+    .dialog-buttons button {
+      padding: 4px 12px; border-radius: 6px;
+      border: 1px solid var(--_border);
+      background: var(--_content);
+      color: var(--_text); cursor: pointer;
+    }
+    .dialog-buttons button.primary { background: #1976d2 !important; border-color: #42a5f5 !important; color: #fff; }
+    .dialog-buttons button.primary:hover { background: #1e88e5 !important; }

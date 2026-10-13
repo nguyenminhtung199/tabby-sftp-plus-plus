@@ -1,5 +1,5 @@
 const assert = require('assert/strict');
-const install = require('./recent-folders.cjs');
+const install = require('./tests/helpers/feature-fixture.cjs')(require('./src/features/recent-folders.cjs'));
 let now = 0, nextId = 0;
 const timers = new Map();
 const clock = { now: () => now, setTimeout(fn, delay) { const id = ++nextId; timers.set(id, { fn, time: now + delay }); return id; }, clearTimeout(id) { timers.delete(id); } };
@@ -26,9 +26,9 @@ class Settings {}
 class Bookmark {}
 install({ Panel, Settings, Bookmark, clock });
 const defaults = { recentFolderLimit: 5, recentFolderDwellSeconds: 10, recentFolderEntries: [] };
-const { proxy, backing } = require('./config-proxy-fixture.cjs')(defaults);
+const { proxy, backing } = require('./tests/helpers/config-proxy-fixture.cjs')(defaults);
 let saves = 0;
-const configService = { store: { 'tabby-sftp-plus': proxy }, save() { proxy.__cleanup(); saves++; } };
+const configService = { store: { 'tabby-sftp-plus-plus': proxy }, save() { proxy.__cleanup(); saves++; } };
 const make = (host = 'one', user = 'user') => Object.assign(new Panel(), { connected: true, sftpSession: {}, profile: { options: { host, username: user } }, configService, bookmarkPane: 'remote', localPath: 'C:\\work', remotePath: '/' });
 const go = async (panel, folder) => { panel.remotePath = folder; await panel.refreshRemote(); };
 const transfer = panel => panel.trackTransfer({}, 'download', panel.remotePath + '/file.py', 'D:\\other\\file.py');

@@ -1,0 +1,195 @@
+
+    <div class="pane" (mousedown)="onPaneAreaMouseDown($event)">
+      <div class="pane-title" *ngIf="resolvedPaneCustomOrder.length">
+        <ng-container *ngFor="let item of resolvedPaneCustomOrder">
+          <span *ngIf="item === 'label'" class="pane-label">{{ labelIcon }} {{ paneLabel }}</span>
+          <div *ngIf="item === 'path'" class="pane-path">
+            <input #pathInputEl class="path-input" [class.path-input--focused]="pathFocused"
+              [ngModel]="pathModel"
+              (ngModelChange)="onPathModelChange($event)"
+              (keyup.enter)="pathEnter.emit()"
+              (focus)="onPathFocus()"
+              (blur)="onPathBlur()"
+              (mousedown)="$event.stopPropagation()"
+              [disabled]="pathDisabled" />
+          </div>
+          <button *ngIf="isToolbarItem(item)"
+            (click)="onToolbarAction(item, $event)"
+            [disabled]="isToolbarActionDisabled(item)"
+            [title]="toolbarActionTitle(item)"
+            class="icon-btn pane-toolbar-btn"
+            [class.toggle-btn]="item === 'filter' || item === 'bookmark' || item === 'hidden'"
+            [class.filter-toggle-btn]="item === 'filter'"
+            [class.bm-btn]="item === 'bookmark'"
+            [class.active]="isToolbarActionActive(item)"
+            (mousedown)="blurPathInput(pathInputEl)">
+            <svg *ngIf="item === 'back'" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3L5 8l5 5"/></svg>
+            <svg *ngIf="item === 'forward'" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3l5 5-5 5"/></svg>
+            <svg *ngIf="item === 'up'" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 13V3M4 6.5L8 3l4 3.5"/></svg>
+            <svg *ngIf="item === 'refresh'" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8a5.5 5.5 0 0 1 9.5-3.5"/><path d="M12 2.5v3H9"/><path d="M13.5 8a5.5 5.5 0 0 1-9.5 3.5"/><path d="M4 13.5v-3h3"/></svg>
+            <svg *ngIf="item === 'home'" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5L8 3l5 4.5V13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7.5z"/><path d="M6.5 14V10h3v4"/></svg>
+            <svg *ngIf="item === 'filter'" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h12l-4.5 5.5v4l-3 1.5v-5.5L2 3z"/></svg>
+            <svg *ngIf="item === 'bookmark'" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2.2L9.71 6.05 13.9 6.48 10.77 9.3 11.64 13.42 8 11.31 4.36 13.42 5.23 9.3 2.1 6.48 6.29 6.05 8 2.2z"/></svg>
+            <svg *ngIf="item === 'hidden'" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 8s2.2-4.2 6.5-4.2S14.5 8 14.5 8 12.3 12.2 8 12.2 1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2.2"/></svg>
+          </button>
+        </ng-container>
+      </div>
+      <div class="pane-filters" *ngIf="filterVisible">
+        <input class="filter-input" [ngModel]="filterPending"
+          (ngModelChange)="filterPendingChange.emit($event)"
+          placeholder="{{ labels.filter }}"
+          (keyup.enter)="applyFilter.emit()"
+          (keyup.escape)="clearFilter.emit()" />
+        <button class="filter-btn filter-confirm" (click)="applyFilter.emit()" title="{{ labels.filterApply }}">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l3.5 4L13 4"/></svg>
+        </button>
+        <button class="filter-btn filter-clear" (click)="clearFilter.emit()" title="{{ labels.filterClear }}">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </div>
+      <div class="pane-list-wrap" [class.pane-drag-over]="dragOver">
+        <div class="pane-list" [class]="listClass" [class.pane-flash]="flash" [class.has-groups]="!!groupRows"
+          (dragover)="listDragOver.emit($event)"
+          (dragenter)="listDragEnter.emit($event)"
+          (dragleave)="listDragLeave.emit($event)"
+          (drop)="listDrop.emit($event)"
+          (mousedown)="listMouseDown.emit($event)"
+          (mouseenter)="listMouseEnter.emit()"
+          (wheel)="listWheel.emit($event)"
+          (scroll)="listScroll.emit()"
+          (click)="listClick.emit($event)"
+          (contextmenu)="listContextMenu.emit($event)">
+          <div class="entry dim" *ngIf="showNoSession">{{ labels.noSession }}</div>
+          <div class="entry header" *ngIf="showHeader" [style.gridTemplateColumns]="headerColWidths || colWidths"
+            (contextmenu)="headerContextMenu.emit($event)"
+            (dragover)="onHeaderDragOver($event)"
+            (drop)="onHeaderDragOver($event)">
+            <span class="icon"></span>
+            <span class="name sortable"
+              [class.header-col-resizing]="resizingCol === 'name'"
+              (click)="sort.emit({ col: 'name' })">
+              {{ labels.name }}<span class="sort-arrow" *ngIf="sortBy === 'name'">{{ sortAsc ? '▲' : '▼' }}</span>
+              <div class="col-resize-handle"
+                [class.resizing]="resizingCol === 'name'"
+                (mousedown)="onColResizeMouseDown('name', $event)"
+                (dblclick)="onColResizeDblClick('name', $event)"></div>
+            </span>
+            <span *ngFor="let col of headerColsResolved; trackBy: trackByCol"
+              class="{{col}} sortable"
+              [class.header-col-resizing]="resizingCol === col"
+              [class.header-col-dragging]="draggingCol === col"
+              [class.header-col-drop-before]="dropIndicatorCol === col && !dropIndicatorAfter"
+              [class.header-col-drop-after]="dropIndicatorCol === col && dropIndicatorAfter"
+              (mousedown)="onColHeaderMouseDown(col, $event)"
+              (click)="onSortCol(col)">
+              {{ colHeaderLabels[col] }}<span class="sort-arrow" *ngIf="sortArrow(col)">{{ sortArrow(col) }}</span>
+              <div class="col-resize-handle"
+                [class.resizing]="resizingCol === col"
+                (mousedown)="onColResizeMouseDown(col, $event)"
+                (dblclick)="onColResizeDblClick(col, $event)"></div>
+            </span>
+          </div>
+<div class="entry custom-inline-draft" *ngIf="customInlineEdit && !customInlineEdit.originalPath" [style.gridTemplateColumns]="colWidths"><span class="icon">{{ customInlineEdit.isDirectory ? '📁' : '📄' }}</span><span class="name custom-inline-cell"><input class="custom-inline-name" [ngModel]="customInlineEdit.value" (ngModelChange)="customInlineOwner.customInlineValue($event)" [disabled]="customInlineEdit.busy" [attr.aria-label]="customInlineEdit.title" (keydown)="customInlineKey($event)" (blur)="customInlineOwner.customInlineCommit()" (mousedown)="$event.stopPropagation()" (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()" (contextmenu)="$event.stopPropagation()" /><span class="custom-inline-error" *ngIf="customInlineEdit.error" role="alert">{{ customInlineEdit.error }}</span></span></div>          <!-- 分组模式关闭：维持原有扁平渲染（性能路径不变） -->
+          <ng-container *ngIf="!groupRows">
+            <div class="entry" *ngFor="let e of entries; let i = index; trackBy: trackByFn"
+            [attr.data-path]="e.fullPath"
+            [attr.data-isdir]="e.isDirectory ? '1' : '0'"
+            (click)="entryClick.emit({ entry: e, event: $event, index: i })"
+            (dblclick)="entryDblClick.emit({ entry: e, event: $event })"
+            (contextmenu)="entryContextMenu.emit({ entry: e, event: $event })"
+            [class.selected]="isSelected(e)"
+            [class.nav-focus]="isNavFocusedEntry(e)"
+            [class.hidden-entry]="isHiddenEntry(e)"
+            [draggable]="draggable && isSelected(e)"
+            (dragstart)="entryDragStart.emit({ entry: e, event: $event })"
+            (dragend)="entryDragEnd.emit()"
+            [style.gridTemplateColumns]="colWidths">
+            <span class="icon">
+              <!-- ★ 2026-09-21 P2：iconSrc/folderIcon 的结果已按Extension memo（见 _iconSrcMemo），
+                   这里的多次求值只是 Map 查表，不再重跑规则匹配链 -->
+              <ng-container *ngIf="e.isDirectory">
+                <img *ngIf="folderIcon as src" class="custom-file-icon" [src]="src" alt="folder" draggable="false" />
+                <ng-container *ngIf="!folderIcon"><span class="native-folder-icon">📁</span></ng-container>
+              </ng-container>
+              <ng-container *ngIf="!e.isDirectory">
+                <span *ngIf="customSetiPython(e)" class="custom-seti-python" aria-hidden="true">&#xE07B;</span>
+<img *ngIf="!customSetiPython(e) && iconSrc(e) as src" class="custom-file-icon" [src]="src" [alt]="e.name" draggable="false" />
+                <ng-container *ngIf="!iconSrc(e)"><span class="native-file-icon">📄</span></ng-container>
+              </ng-container>
+              <!-- ★ 2026-09-08 issue #16：符号链接 / 快捷方式在图标**左下角**叠加 ↗ 角标
+                   （2026-09-29 修正注释：实际是左下角，见 styles.ts 的 .link-badge） -->
+              <span class="link-badge" *ngIf="isLinkEntry(e)" [title]="linkBadgeTitle(e)">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 10.5 L10.5 5.5 M7 5.5 H10.5 V9"/></svg>
+              </span>
+            </span>
+            <span class="name custom-inline-cell" *ngIf="customInlineRename(e)"><input class="custom-inline-name" [ngModel]="customInlineEdit.value" (ngModelChange)="customInlineOwner.customInlineValue($event)" [disabled]="customInlineEdit.busy" [attr.aria-label]="customInlineEdit.title" (keydown)="customInlineKey($event)" (blur)="customInlineOwner.customInlineCommit()" (mousedown)="$event.stopPropagation()" (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()" (contextmenu)="$event.stopPropagation()" /><span class="custom-inline-error" *ngIf="customInlineEdit.error" role="alert">{{ customInlineEdit.error }}</span></span><span *ngIf="!customInlineRename(e)" class="name" [attr.title]="e.name">{{ inaccessiblePrefix(e) }}{{ displayName(e) }}</span>
+            <span *ngFor="let col of visibleCols; trackBy: trackByCol" class="{{col}}" [attr.title]="colValue(col, e)">{{ colValue(col, e) }}</span>
+            </div>
+          </ng-container>
+          <!-- 分组模式开启：分组表头行（点击箭头收展 / 点击其余区域全选该组）+ 条目行。
+               表头行带 .header 类 → 框选/右键/空白判定等既有的 :not(.header) 选择器自动跳过 -->
+          <ng-container *ngIf="groupRows">
+            <ng-container *ngFor="let row of groupRows; trackBy: trackGroupRowFn">
+              <div class="entry header group-row" *ngIf="row.kind === 'header'"
+                [style.gridTemplateColumns]="colWidths"
+                [attr.data-group-key]="row.bucketKey"
+                [class.selected]="groupSelState(row) === 'all'"
+                [class.partial]="groupSelState(row) === 'partial'"
+                [class.nav-focus]="isNavFocusedHeader(row)"
+                (click)="groupSelect.emit(row.bucketKey)">
+                <!-- ★ 2026-09-30：内容包一层 .group-inner（跨全部列后内部 flex 排列）。
+                     这一层是「宽度对齐」与「紧凑视觉」能同时成立的关键：行本身用父级绑定的
+                     同一份列模板撑宽（与条目行逐像素一致），紧凑排列交给内层 flex。
+                     详见 styles.ts 的 .entry.group-row / .group-inner 注释。 -->
+                <span class="group-inner">
+                  <span class="group-chevron" [title]="row.collapsed ? labels.groupExpand : labels.groupCollapse"
+                    (click)="groupToggle.emit(row.bucketKey); $event.stopPropagation()">{{ row.collapsed ? '▸' : '▾' }}</span>
+                  <span class="group-label" [attr.title]="row.label">{{ row.label }}</span>
+                  <span class="group-count">({{ row.count }})</span>
+                </span>
+              </div>
+              <div class="entry" *ngIf="row.kind === 'entry'"
+                [attr.data-path]="row.entry.fullPath"
+                [attr.data-isdir]="row.entry.isDirectory ? '1' : '0'"
+                (click)="entryClick.emit({ entry: row.entry, event: $event, index: row.index })"
+                (dblclick)="entryDblClick.emit({ entry: row.entry, event: $event })"
+                (contextmenu)="entryContextMenu.emit({ entry: row.entry, event: $event })"
+                [class.selected]="isSelected(row.entry)"
+                [class.nav-focus]="isNavFocusedEntry(row.entry)"
+                [class.hidden-entry]="isHiddenEntry(row.entry)"
+                [draggable]="draggable && isSelected(row.entry)"
+                (dragstart)="entryDragStart.emit({ entry: row.entry, event: $event })"
+                (dragend)="entryDragEnd.emit()"
+                [style.gridTemplateColumns]="colWidths">
+                <span class="icon">
+                  <ng-container *ngIf="row.entry.isDirectory">
+                    <img *ngIf="folderIcon as src" class="custom-file-icon" [src]="src" alt="folder" draggable="false" />
+                    <ng-container *ngIf="!folderIcon"><span class="native-folder-icon">📁</span></ng-container>
+                  </ng-container>
+                  <ng-container *ngIf="!row.entry.isDirectory">
+                    <span *ngIf="customSetiPython(row.entry)" class="custom-seti-python" aria-hidden="true">&#xE07B;</span>
+<img *ngIf="!customSetiPython(row.entry) && iconSrc(row.entry) as src" class="custom-file-icon" [src]="src" [alt]="row.entry.name" draggable="false" />
+                    <ng-container *ngIf="!iconSrc(row.entry)">📄</ng-container>
+                  </ng-container>
+                  <span class="link-badge" *ngIf="isLinkEntry(row.entry)" [title]="linkBadgeTitle(row.entry)">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 10.5 L10.5 5.5 M7 5.5 H10.5 V9"/></svg>
+                  </span>
+                </span>
+                <span class="name custom-inline-cell" *ngIf="customInlineRename(row.entry)"><input class="custom-inline-name" [ngModel]="customInlineEdit.value" (ngModelChange)="customInlineOwner.customInlineValue($event)" [disabled]="customInlineEdit.busy" [attr.aria-label]="customInlineEdit.title" (keydown)="customInlineKey($event)" (blur)="customInlineOwner.customInlineCommit()" (mousedown)="$event.stopPropagation()" (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()" (contextmenu)="$event.stopPropagation()" /><span class="custom-inline-error" *ngIf="customInlineEdit.error" role="alert">{{ customInlineEdit.error }}</span></span><span *ngIf="!customInlineRename(row.entry)" class="name" [attr.title]="row.entry.name">{{ inaccessiblePrefix(row.entry) }}{{ displayName(row.entry) }}</span>
+                <span *ngFor="let col of visibleCols; trackBy: trackByCol" class="{{col}}" [attr.title]="colValue(col, row.entry)">{{ colValue(col, row.entry) }}</span>
+              </div>
+            </ng-container>
+          </ng-container>
+          <div class="pane-empty" *ngIf="showEmpty && !customInlineEdit">
+            <ng-container *ngIf="hasError">{{ labels.errorAccess }}</ng-container>
+            <ng-container *ngIf="!hasError">{{ filterActive ? labels.noMatch : labels.empty }}</ng-container>
+          </div>
+        </div>
+      </div>
+      <div class="pane-actions-bar">
+        <span class="selection-info">{{ selectionInfo }}</span>
+      </div>
+      <div class="pane-loading" *ngIf="loading && (!entries.length || !customRefreshSameFolder)">
+        <div class="spinner"></div>
+      </div>
+    </div>

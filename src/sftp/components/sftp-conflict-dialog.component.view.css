@@ -1,0 +1,185 @@
+
+    .overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+      /* ★ 2026-09-21：给对话框留边，避免贴死分栏边缘 */
+      padding: 6px;
+      box-sizing: border-box;
+      transition: none !important; animation: none !important;
+    }
+    .dialog {
+      background: var(--_bg);
+      border: 1px solid var(--_border);
+      border-radius: 10px; padding: 16px; min-width: 0; max-width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      box-sizing: border-box;
+    }
+    .conflict-dialog {
+      /* ★ 2026-09-21：相对面板 overlay，禁止再用固定 420px/视口基准——小分栏会裁切底部批量操作 */
+      width: min(520px, 100%);
+      max-width: 100%;
+      max-height: 100%;
+      min-width: 0;
+      padding: 16px 18px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .conflict-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+      flex-shrink: 0; flex-wrap: wrap;
+    }
+    .conflict-title-icon { font-size: 20px; }
+    .conflict-title-text { font-size: 16px; font-weight: 700; }
+    .conflict-progress {
+      font-size: 11px; padding: 2px 10px;
+      border-radius: 10px; background: var(--_input-bg, rgba(128,128,128,0.08));
+      color: var(--_text); opacity: 0.65; font-weight: 500;
+    }
+    .conflict-close {
+      margin-left: auto;
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      border: none; border-radius: 6px;
+      background: transparent;
+      color: var(--_text);
+      font-size: 18px; line-height: 1;
+      padding: 0;
+      cursor: pointer;
+      opacity: 0.55;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .conflict-close:hover {
+      opacity: 1;
+      background: rgba(244, 67, 54, 0.12);
+      color: #f44336;
+    }
+    .conflict-direction { font-size: 11px; padding: 2px 10px; border-radius: 10px; font-weight: 600; white-space: nowrap; }
+    .dir-upload { background: rgba(76,175,80,0.15); color: #4caf50; }
+    .dir-download { background: rgba(33,150,243,0.15); color: #2196f3; }
+    .conflict-desc {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      font-size: 13px; color: var(--_text); opacity: 0.8;
+      margin-bottom: 10px; word-break: break-all; padding: 0 2px;
+      flex-shrink: 0;
+    }
+    .conflict-file-icon {
+      width: 18px; height: 18px; flex-shrink: 0;
+      object-fit: contain; vertical-align: middle;
+    }
+    .conflict-file-emoji { flex-shrink: 0; font-size: 15px; line-height: 1; }
+    .conflict-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      margin-bottom: 10px;
+      scrollbar-width: thin;
+    }
+    .conflict-compare { display: flex; flex-direction: column; gap: 4px; }
+    .conflict-side {
+      background: var(--_content); border-radius: 8px; padding: 10px 14px;
+      border: 1px solid var(--_border); border-left: 3px solid var(--_primary, #3b82f6);
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .conflict-side-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; display: flex; align-items: center; gap: 4px; }
+    .conflict-file-info { display: flex; flex-direction: column; gap: 2px; }
+    .conflict-info-row { display: flex; align-items: center; gap: 6px; font-size: 12px; min-height: 20px; }
+    .conflict-label { flex-shrink: 0; color: var(--_text); opacity: 0.45; min-width: 52px; font-size: 11px; }
+    .conflict-val { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .conflict-val--pending { opacity: 0.55; font-style: italic; }
+    .conflict-diff { background: rgba(255,152,0,0.08); border-radius: 3px; padding: 0 2px; }
+    .conflict-diff-dot { flex-shrink: 0; font-size: 10px; font-weight: 700; color: #ff9800; width: 14px; text-align: center; }
+    .conflict-path .conflict-val { font-size: 11px; opacity: 0.7; }
+    .conflict-digest .conflict-digest-val {
+      font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', monospace;
+      font-size: 11px;
+      opacity: 0.75;
+      letter-spacing: 0.2px;
+    }
+    .conflict-digest-unavailable {
+      opacity: 0.35 !important;
+      font-style: italic;
+      cursor: help;
+    }
+    .conflict-identical-hint {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin: 8px 0 0;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #4caf50;
+      background: rgba(76, 175, 80, 0.12);
+      border: 1px solid rgba(76, 175, 80, 0.32);
+    }
+    .conflict-vs-row { display: flex; align-items: center; gap: 10px; padding: 2px 0; }
+    .conflict-vs-line { flex: 1; height: 1px; background: var(--_border, rgba(128,128,128,0.2)); }
+    .conflict-vs { flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 0 10px; color: var(--_text); opacity: 0.4; letter-spacing: 1px; }
+    .conflict-footer { flex-shrink: 0; }
+    .conflict-actions { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .conflict-btn {
+      padding: 6px 18px; border-radius: 6px; border: 1px solid var(--_border);
+      background: var(--_content); color: var(--_text); cursor: pointer;
+      font-size: 13px; font-weight: 500; transition: background 0.12s, border-color 0.12s;
+    }
+    .conflict-btn:hover { background: var(--_hover); }
+    .conflict-btn-skip { opacity: 0.7; }
+    .conflict-btn-skip:hover { opacity: 1; }
+    /* ★ 2026-09-29：内容实际相同时，「跳过」升为推荐动作 —— 复用提示条的绿色（描边 + 浅底），
+       不做实心填充，避免与危险动作（实心红「覆盖」）抢主次。
+       特异性注意：必须排在上面的 .conflict-btn-skip 之后（同为单类，靠文件内顺序决胜），
+       且必须额外写 :hover 版本 —— 否则 .conflict-btn:hover 的灰底（0,1,1）会盖掉这里的浅绿底。 */
+    .conflict-btn-skip--identical {
+      opacity: 1;
+      color: #4caf50;
+      border-color: rgba(76, 175, 80, 0.55);
+      background: rgba(76, 175, 80, 0.14);
+    }
+    .conflict-btn-skip--identical:hover {
+      color: #4caf50;
+      border-color: rgba(76, 175, 80, 0.85);
+      background: rgba(76, 175, 80, 0.26);
+    }
+    .conflict-btn-rename { background: transparent; border-color: var(--_primary, #3b82f6); color: var(--_primary, #3b82f6); }
+    .conflict-btn-rename:hover { background: rgba(59,130,246,0.1); }
+    .conflict-btn-danger { background: #d32f2f; color: #fff; border-color: #c62828; font-weight: 600; }
+    .conflict-btn-danger:hover { background: #b71c1c; }
+    .conflict-all-row {
+      display: flex; justify-content: center; gap: 6px; align-items: center;
+      padding-top: 8px; border-top: 1px solid var(--_border); flex-wrap: wrap;
+    }
+    .conflict-all-label { font-size: 12px; color: var(--_text); opacity: 0.55; }
+    .conflict-link {
+      background: none; border: none; color: var(--_primary, #3b82f6);
+      cursor: pointer; font-size: 12px; padding: 2px 6px; border-radius: 4px;
+    }
+    .conflict-link:hover { background: var(--_hover); text-decoration: underline; }
+    .conflict-sep { color: var(--_text); opacity: 0.3; font-size: 12px; }
+
+    /* ★ 2026-09-21：矮/窄分栏紧凑样式——缩小间距与字号，优先保住操作按钮可见 */
+    .conflict-dialog.is-compact {
+      padding: 10px 12px;
+      border-radius: 8px;
+    }
+    .conflict-dialog.is-compact .conflict-title-icon { font-size: 16px; }
+    .conflict-dialog.is-compact .conflict-title-text { font-size: 14px; }
+    .conflict-dialog.is-compact .conflict-direction,
+    .conflict-dialog.is-compact .conflict-progress { font-size: 10px; padding: 1px 7px; }
+    .conflict-dialog.is-compact .conflict-close { width: 24px; height: 24px; font-size: 16px; }
+    .conflict-dialog.is-compact .conflict-desc { font-size: 12px; margin-bottom: 6px; }
+    .conflict-dialog.is-compact .conflict-file-icon { width: 16px; height: 16px; }
+    .conflict-dialog.is-compact .conflict-side { padding: 6px 8px; border-radius: 6px; }
+    .conflict-dialog.is-compact .conflict-side-title { font-size: 12px; }
+    .conflict-dialog.is-compact .conflict-info-row { font-size: 11px; min-height: 18px; }
+    .conflict-dialog.is-compact .conflict-label { min-width: 40px; font-size: 10px; }
+    .conflict-dialog.is-compact .conflict-identical-hint { padding: 5px 8px; font-size: 11px; margin-top: 6px; }
+    .conflict-dialog.is-compact .conflict-btn { padding: 5px 12px; font-size: 12px; }
+    .conflict-dialog.is-compact .conflict-actions { gap: 6px; margin-bottom: 6px; }
+    .conflict-dialog.is-compact .conflict-all-row { padding-top: 6px; gap: 4px; }
+    .conflict-dialog.is-compact .conflict-link,
+    .conflict-dialog.is-compact .conflict-all-label { font-size: 11px; }

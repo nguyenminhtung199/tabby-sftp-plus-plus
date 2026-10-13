@@ -1,4 +1,4 @@
-param([string]$Target, [switch]$CompileOnly)
+param([string]$Target, [uint32]$Flags, [int]$CancelExitCode, [switch]$CompileOnly)
 $ErrorActionPreference = 'Stop'
 Add-Type -TypeDefinition @"
 using System;
@@ -15,13 +15,12 @@ public static class SftpOpenWith {
 }
 "@
 if ($CompileOnly) { exit 0 }
-$policy = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'transfer-policy.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 if (-not (Test-Path -LiteralPath $Target -PathType Leaf)) { throw 'Open with target is unavailable' }
 $info = New-Object SftpOpenWith+OpenAsInfo
 $info.File = $Target
 $info.Class = $null
-$info.Flags = $policy.windowsOpenWith.flags
+$info.Flags = $Flags
 $result = [SftpOpenWith]::SHOpenWithDialog([IntPtr]::Zero, [ref]$info)
-if ($result -eq -2147023673) { exit $policy.windowsOpenWith.cancelExitCode }
+if ($result -eq -2147023673) { exit $CancelExitCode }
 if ($result -lt 0) { throw ('Open with failed: 0x{0:X8}' -f $result) }
 exit 0

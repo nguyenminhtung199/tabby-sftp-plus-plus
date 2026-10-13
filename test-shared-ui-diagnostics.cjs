@@ -1,5 +1,5 @@
 const assert=require('assert/strict'),fs=require('fs'),os=require('os'),path=require('path'),vm=require('vm'),ts=require('typescript');
-const install=require('./drop-diagnostics.cjs'),cfg=require('./transfer-policy.json').dropDiagnostics;
+const install=require('./tests/helpers/feature-fixture.cjs')(require('./src/features/drop-diagnostics.cjs')),cfg=require('./transfer-policy.json').dropDiagnostics;
 (async()=>{
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'sftp-shared-ui-')),previousWindow=global.window,listeners=new Map();
  try{
@@ -16,7 +16,7 @@ const install=require('./drop-diagnostics.cjs'),cfg=require('./transfer-policy.j
   for(const phase of ['runtime:window:error','runtime:promise:error','runtime:zone:error','toggleCustomSidebarPin:error'])assert.ok(rows.some(r=>r.phase===phase));
   assert.ok(rows.every(r=>!JSON.stringify(r).includes('private fixture')));
   await tracer.flush();
-  const source=fs.readFileSync('sidebar.cjs','utf8'),ast=ts.createSourceFile('sidebar.js',source,99,true);let pin;
+  const source=fs.readFileSync('src/features/sidebar.cjs','utf8'),ast=ts.createSourceFile('sidebar.js',source,99,true);let pin;
   function visit(n){if(ts.isBinaryExpression(n)&&n.left.getText(ast)==='m.togglePin')pin=n.right.getText(ast);ts.forEachChild(n,visit);}visit(ast);assert.ok(pin);
   let failedStage;const stages=[],calls=[];
   const m={pinned:false,expanded:true,hovering:true,cmp:{_customTraceTransfer:phase=>stages.push(phase),_safeDetect(){calls.push('detect');if(failedStage==='detect')throw error;}},layout(){calls.push('layout');},scheduleCollapse(){calls.push('collapse');}};

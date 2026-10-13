@@ -1,0 +1,20 @@
+{
+  "entry": "./src/index.ts",
+  "outputDirectory": "dist",
+  "stagingDirectory": "recovery/source-build-staging",
+  "assetsDirectory": "assets",
+  "policyFile": "transfer-policy.json",
+  "runtimeFiles": [
+    {
+      "source": "src/runtime/windows-open-with.ps1",
+      "name": "windows-open-with.ps1"
+    }
+  ],
+  "verificationScripts": [
+    "test-source-architecture.cjs",
+    "test-context-menu.cjs",
+    "test-inline-edit.cjs",
+    "test-keyboard-events.cjs",
+    "test-data-safety.cjs"
+  ]
+}

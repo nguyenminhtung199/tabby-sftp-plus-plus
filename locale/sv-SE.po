@@ -1,0 +1,1549 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: sv_SE\n"
+
+msgid "app.title"
+msgstr "SFTP+ Filhanterare"
+
+msgid "app.openSettings"
+msgstr "Öppna Inställningar"
+
+msgid "app.open"
+msgstr "Öppna SFTP"
+
+msgid "app.close"
+msgstr "Stäng"
+
+msgid "app.maximize"
+msgstr "Maximera"
+
+msgid "app.restore"
+msgstr "Återställ"
+
+msgid "app.confirm"
+msgstr "Bekräfta"
+
+msgid "app.cancel"
+msgstr "Avbryt"
+
+msgid "app.delete"
+msgstr "Ta Bort"
+
+msgid "app.deleteFile"
+msgstr "Ta Bort File"
+
+msgid "app.deleteFolder"
+msgstr "Ta Bort Folder"
+
+msgid "app.deleteMultiple"
+msgstr "Ta Bort Multiple Items"
+
+msgid "conflict.title"
+msgstr "Filkonflikt"
+msgid "conflict.sourceFile"
+msgstr "Källfil"
+msgid "conflict.localFile"
+msgstr "Lokal fil"
+msgid "conflict.remoteFile"
+msgstr "Fjärrfil"
+msgid "conflict.size"
+msgstr "Storlek"
+msgid "conflict.modified"
+msgstr "Ändrad"
+msgid "conflict.path"
+msgstr "Sökväg"
+msgid "conflict.cancel"
+msgstr "Avbryt"
+
+msgid "conflict.skip"
+msgstr "Hoppa över"
+msgid "conflict.rename"
+msgstr "Byt namn"
+msgid "conflict.overwrite"
+msgstr "Skriv över"
+msgid "conflict.batch"
+msgstr "Batch:"
+msgid "conflict.skipAll"
+msgstr "Skip Alla"
+
+msgid "conflict.renameAll"
+msgstr "Rename Alla"
+
+msgid "conflict.overwriteAll"
+msgstr "Overwrite Alla"
+
+msgid "conflict.existsLocal"
+msgstr "Finns redan lokalt"
+msgid "conflict.existsRemote"
+msgstr "Finns redan fjärr"
+msgid "log.onlySuccess"
+msgstr "Endast lyckade"
+msgid "log.success"
+msgstr "Lyckades"
+msgid "log.failed"
+msgstr "Misslyckades"
+msgid "fileType.txt"
+msgstr "Textfil"
+msgid "fileType.log"
+msgstr "Loggfil"
+msgid "fileType.md"
+msgstr "Markdown-fil"
+msgid "fileType.json"
+msgstr "JSON-fil"
+msgid "fileType.xml"
+msgstr "XML-fil"
+msgid "fileType.html"
+msgstr "HTML-fil"
+msgid "fileType.css"
+msgstr "CSS-fil"
+msgid "fileType.js"
+msgstr "JavaScript-fil"
+msgid "fileType.ts"
+msgstr "TypeScript-fil"
+msgid "fileType.image"
+msgstr "Bildfil"
+msgid "fileType.video"
+msgstr "Videofil"
+msgid "fileType.audio"
+msgstr "Ljudfil"
+msgid "fileType.archive"
+msgstr "Arkivfil"
+msgid "fileType.doc"
+msgstr "Dokumentfil"
+msgid "fileType.code"
+msgstr "Kodfil"
+msgid "fileType.data"
+msgstr "Datafil"
+msgid "fileType.config"
+msgstr "Konfigurationsfil"
+msgid "fileType.cert"
+msgstr "Certifikatfil"
+msgid "fileType.executable"
+msgstr "Körbar fil"
+msgid "fileType.unknown"
+msgstr "Fil"
+msgid "app.deleteConfirmFile"
+msgstr "Är du säker på att du vill ta bort denna fil?"
+msgid "app.deleteConfirmFolder"
+msgstr "Är du säker på att du vill ta bort denna mapp?"
+msgid "app.deleteConfirmMultiple"
+msgstr "Är du säker på att du vill ta bort dessa {count} objekt?"
+msgid "app.rename"
+msgstr "Byt namn"
+msgid "app.refresh"
+msgstr "Uppdatera"
+
+msgid "app.upload"
+msgstr "Ladda Upp"
+
+msgid "app.download"
+msgstr "Ladda Ner"
+
+msgid "app.newFolder"
+msgstr "Ny Mapp"
+
+msgid "app.newFile"
+msgstr "Ny Fil"
+
+msgid "app.loading"
+msgstr "Laddar..."
+
+msgid "app.error"
+msgstr "Fel"
+
+msgid "app.success"
+msgstr "Klart"
+msgid "app.yes"
+msgstr "Ja"
+
+msgid "app.no"
+msgstr "Nej"
+
+msgid "app.all"
+msgstr "Alla"
+
+msgid "app.export"
+msgstr "Exportera"
+
+msgid "app.clear"
+msgstr "Rensa"
+
+msgid "app.optional"
+msgstr "Valfritt"
+
+msgid "app.settings"
+msgstr "Inställningar"
+
+msgid "app.modeSwitchSsh"
+msgstr "SSH"
+msgid "app.modeSwitchSftp"
+msgstr "SFTP"
+msgid "app.backToTerminal"
+msgstr "Tillbaka till terminalen"
+msgid "filter.allOps"
+msgstr "Alla Operations"
+
+msgid "filter.allStatus"
+msgstr "Alla Status"
+
+msgid "filter.allTime"
+msgstr "Alla Time"
+
+msgid "filter.today"
+msgstr "Idag"
+msgid "filter.last7Days"
+msgstr "Senaste 7 dagarna"
+msgid "filter.last30Days"
+msgstr "Senaste 30 dagarna"
+msgid "filter.customRange"
+msgstr "Anpassat"
+msgid "filter.dateFrom"
+msgstr "Från"
+msgid "filter.dateTo"
+msgstr "Till"
+msgid "pane.local"
+msgstr "Lokal"
+msgid "pane.remote"
+msgstr "Fjärr"
+msgid "pane.path"
+msgstr "Sökväg"
+msgid "pane.up"
+msgstr "Upp"
+msgid "pane.home"
+msgstr "Hem"
+msgid "pane.go"
+msgstr "Gå"
+msgid "pane.refresh"
+msgstr "Uppdatera"
+
+msgid "pane.filter"
+msgstr "Filter…"
+msgid "pane.filterBtn"
+msgstr "File Filtrera"
+
+msgid "pane.showHidden"
+msgstr "Visa dolda filer"
+msgid "pane.pinFolders"
+msgstr "Fäst mappar överst"
+msgid "view.panelBorder"
+msgstr "Panelkant"
+msgid "view.colBorder"
+msgstr "Visa kant"
+msgid "view.zebra"
+msgstr "Visa zebraränder"
+msgid "pane.hideHidden"
+msgstr "Dölj dolda filer"
+msgid "pane.sortByName"
+msgstr "Sortera efter namn"
+msgid "pane.sortBySize"
+msgstr "Sortera efter storlek"
+msgid "pane.sortByModified"
+msgstr "Sortera efter ändring"
+msgid "pane.selectAll"
+msgstr "Select Alla"
+
+msgid "pane.selectInvert"
+msgstr "Invertera markering"
+msgid "pane.clearSelection"
+msgstr "Rensa Selection"
+
+msgid "pane.items"
+msgstr "{count} objekt"
+msgid "pane.copyPath"
+msgstr "Kopiera Path"
+
+msgid "pane.splitterHintHorizontal"
+msgstr "Dra för att ändra storlek på vänster/höger panel. Dubbelklicka för att återställa."
+msgid "pane.splitterHintVertical"
+msgstr "Dra för att ändra storlek på övre/nedre panel. Dubbelklicka för att återställa."
+msgid "notify.pathCopied"
+msgstr "{n} sökväg(ar) kopierade"
+msgid "pane.openFolder"
+msgstr "Öppna mapp"
+msgid "pane.noMatch"
+msgstr "Nej matching files"
+
+msgid "pane.empty"
+msgstr "Tom mapp"
+msgid "pane.errorAccess"
+msgstr "Kan inte komma åt (åtkomst nekad eller sökväg hittades inte)"
+msgid "pane.loading"
+msgstr "Laddar…"
+msgid "path.modeOff"
+msgstr "Sökvägsläge: Av (klicka för att växla: Kom ihåg, Synkronisera)"
+msgid "path.modeRemember"
+msgstr "Sökvägsläge: Kom ihåg (återställ nästa gång)"
+msgid "path.modeSync"
+msgstr "Sökvägsläge: Synkronisera med terminal (fjärr följer cwd)"
+msgid "path.syncNoCwd"
+msgstr "Terminal cwd rapporterades inte. Växla till Synkronisera igen för att konfigurera"
+msgid "path.cwdSetupTitle"
+msgstr "Aktivera synkronisering av terminalkatalog"
+msgid "path.cwdSetupIntro"
+msgstr "Tabby behöver att skalet rapporterar cwd via OSC 1337 innan SFTP+ kan synkronisera. Välj hur du aktiverar:"
+msgid "path.cwdSetupSessionHint"
+msgstr "Endast denna session: kör det tillfälliga kommandot nedan i den aktuella terminalen (försvinner efter omstart av skalet)"
+msgid "path.cwdSetupPermanentHint"
+msgstr "Permanent: lägg till utdraget nedan i fjärrprofilen och käll sedan in det (baserat på upptäckt skal)"
+msgid "path.cwdSetupNote"
+msgstr "Avbryt turns path mode Off. Nothing is executed or written."
+
+msgid "path.cwdSetupSession"
+msgstr "Endast denna session"
+msgid "path.cwdSetupPermanent"
+msgstr "Skriv permanent"
+msgid "path.cwdSetupDone"
+msgstr "Katalograpportering aktiverad, synkroniserar…"
+msgid "path.cwdSetupFailed"
+msgstr "Kunde inte aktivera. Kontrollera fjärrrättigheter eller skaltyp"
+msgid "file.name"
+msgstr "Namn"
+msgid "file.type"
+msgstr "Typ"
+msgid "file.size"
+msgstr "Storlek"
+msgid "file.modified"
+msgstr "Ändrad"
+msgid "file.created"
+msgstr "Skapad"
+msgid "file.accessed"
+msgstr "Öppnad"
+msgid "file.permissions"
+msgstr "Rättigheter"
+msgid "file.owner"
+msgstr "Ägare"
+msgid "file.group"
+msgstr "Grupp"
+msgid "file.mode"
+msgstr "Läge"
+msgid "file.path"
+msgstr "Sökväg"
+msgid "file.ext"
+msgstr "Ext"
+msgid "file.columns"
+msgstr "Kolumner"
+msgid "file.inaccessible"
+msgstr "Otilgänglig"
+msgid "file.open"
+msgstr "Öppna"
+msgid "file.view"
+msgstr "Visa"
+
+msgid "file.edit"
+msgstr "Redigera"
+
+msgid "file.copy"
+msgstr "Kopiera"
+
+msgid "file.cut"
+msgstr "Klipp Ut"
+
+msgid "file.paste"
+msgstr "Klistra In"
+
+msgid "file.delete"
+msgstr "Ta Bort"
+
+msgid "file.rename"
+msgstr "Byt namn"
+msgid "file.newFolder"
+msgstr "Ny Mapp"
+
+msgid "file.newFile"
+msgstr "Ny Fil"
+
+msgid "file.properties"
+msgstr "Egenskaper"
+
+msgid "file.openWith"
+msgstr "Öppna med"
+msgid "file.showInFolder"
+msgstr "Visa i Utforskaren"
+msgid "file.openInSystem"
+msgstr "Öppna i systemet"
+msgid "file.editInSystem"
+msgstr "Redigera in System"
+
+msgid "viewer.loading"
+msgstr "Laddar…"
+msgid "viewer.loadFailed"
+msgstr "Kunde inte ladda fil"
+msgid "viewer.binaryNotSupported"
+msgstr "Binär fil kan inte visas eller redigeras som text"
+msgid "viewer.tooLarge"
+msgstr "Filen är för stor att öppna"
+msgid "viewer.tooLargeView"
+msgstr "Filen är för stor (över {limit}) och kan inte visas"
+msgid "viewer.typeNotSupported"
+msgstr "Denna filtyp kan inte visas"
+msgid "editor.save"
+msgstr "Spara"
+
+msgid "editor.saving"
+msgstr "Sparar…"
+msgid "editor.saveSuccess"
+msgstr "Sparad på server"
+msgid "editor.saveFailed"
+msgstr "Spara failed"
+
+msgid "editor.unsaved"
+msgstr "Du har osparade ändringar. Vill du kasta dem?"
+msgid "editor.tooLarge"
+msgstr "Filen är för stor (över {limit}) och kan inte redigeras"
+msgid "editor.typeNotSupported"
+msgstr "Denna filtyp kan inte redigeras"
+msgid "file.adjustCol"
+msgstr "Anpassa kolumnbredd"
+msgid "file.adjustAllCols"
+msgstr "Fit Alla Columns"
+
+msgid "transfer.upload"
+msgstr "Ladda Upp"
+
+msgid "transfer.download"
+msgstr "Ladda Ner"
+
+msgid "transfer.edit-upload"
+msgstr "Redigera Spara"
+
+msgid "transfer.edit-download"
+msgstr "Redigera Load"
+
+msgid "transfer.progress"
+msgstr "Förlopp"
+msgid "transfer.speed"
+msgstr "Hastighet"
+msgid "transfer.remaining"
+msgstr "Återstående"
+msgid "transfer.cancel"
+msgstr "Avbryt"
+
+msgid "transfer.closePanel"
+msgstr "Stäng transfer panel"
+
+msgid "transfer.pause"
+msgstr "Pausa"
+msgid "transfer.resume"
+msgstr "Återuppta"
+msgid "transfer.cancelAll"
+msgstr "Avbryt folder"
+
+msgid "transfer.cancelCurrent"
+msgstr "Avbryt current"
+
+msgid "transfer.paused"
+msgstr "Pausad"
+msgid "transfer.inProgress"
+msgstr "Pågår"
+msgid "transfer.minimizePanel"
+msgstr "Minimera"
+msgid "transfer.hidePanel"
+msgstr "Dölj"
+msgid "transfer.noActiveTransfers"
+msgstr "Nej active transfers"
+
+msgid "transfer.clearCompleted"
+msgstr "Rensa Completed"
+
+msgid "transfer.queue"
+msgstr "Överföringskö"
+msgid "transfer.log"
+msgstr "Överföringshistorik"
+msgid "transfer.logEmpty"
+msgstr "Nej transfer records yet"
+
+msgid "transfer.logNoMatch"
+msgstr "Nej matching records"
+
+msgid "transfer.logCount"
+msgstr "{total} poster"
+msgid "transfer.logCountFiltered"
+msgstr "Visar {filtered} av {total}"
+msgid "transfer.noTransfers"
+msgstr "Nej active transfers"
+
+msgid "transfer.clearConfirm"
+msgstr "Rensa avslutade överföringsloggar? Loggar för pågående överföringar behålls."
+
+msgid "transfer.clearTitle"
+msgstr "Bekräfta Rensa"
+
+msgid "transfer.replaceConfirm"
+msgstr "Filen finns redan. Ersätt?"
+msgid "transfer.replaceTitle"
+msgstr "Bekräfta Replace"
+
+msgid "transfer.deleteConfirm"
+msgstr "Ta Bort {count} selected items?"
+
+msgid "transfer.deleteTitle"
+msgstr "Bekräfta Ta Bort"
+
+msgid "bookmark.title"
+msgstr "Bokmärken"
+msgid "bookmark.add"
+msgstr "Lägg till bokmärke"
+msgid "bookmark.addLocal"
+msgstr "Lägg till lokalt"
+msgid "bookmark.addGlobal"
+msgstr "Lägg till globalt"
+msgid "bookmark.addCurrentShort"
+msgstr "+Lokalt"
+msgid "bookmark.addGlobalShort"
+msgstr "+Globalt"
+msgid "bookmark.remove"
+msgstr "Ta bort bokmärke"
+msgid "bookmark.edit"
+msgstr "Redigera Bookmark"
+
+msgid "bookmark.noBookmarks"
+msgstr "Nej bookmarks yet"
+
+msgid "bookmark.name"
+msgstr "Bokmärkesnamn"
+msgid "bookmark.path"
+msgstr "Sökväg"
+msgid "bookmark.save"
+msgstr "Spara Bookmark"
+
+msgid "bookmark.global"
+msgstr "Globala bokmärken"
+msgid "bookmark.forConnection"
+msgstr "Aktuella bokmärken"
+msgid "permission.title"
+msgstr "Redigera Permissions"
+
+msgid "permission.owner"
+msgstr "Ägare"
+msgid "permission.group"
+msgstr "Grupp"
+msgid "permission.others"
+msgstr "Andra"
+msgid "permission.read"
+msgstr "Läs"
+msgid "permission.write"
+msgstr "Skriv"
+msgid "permission.execute"
+msgstr "Kör"
+msgid "permission.mode"
+msgstr "Läge (Oktal)"
+msgid "notify.sftpOpened"
+msgstr "SFTP öppnad"
+msgid "notify.noSSHSession"
+msgstr "Nej SSH session on current tab"
+
+msgid "notify.transferComplete"
+msgstr "Överföring klar"
+msgid "notify.transferFailed"
+msgstr "Överföring misslyckades"
+msgid "notify.connectionLost"
+msgstr "Anslutningen förlorad"
+msgid "notify.connected"
+msgstr "Ansluten till"
+msgid "notify.connecting"
+msgstr "Ansluter till"
+msgid "notify.sftpConnectFailed"
+msgstr "SFTP-anslutningen misslyckades. Se till att SSH är ansluten och att servern stöder SFTP."
+msgid "notify.reconnectNoTerminal"
+msgstr "Terminalen frånkopplad. Klicka eller tryck på valfri tangent i terminalen för att återansluta."
+msgid "notify.reconnectFailed"
+msgstr "Återanslutning misslyckades. Klicka eller tryck på valfri tangent i terminalen för att försöka igen."
+msgid "settings.desc"
+msgstr "Vacker SFTP-filhanterare: drag-och-släpp, bokmärken, sortering, överföringshistorik och flerspråkighet."
+msgid "settings.language"
+msgstr "Språk"
+
+msgid "settings.followTabby"
+msgstr "Följ Tabby"
+msgid "settings.theme"
+msgstr "Tema"
+
+msgid "settings.primary"
+msgstr "Primär"
+msgid "settings.bg"
+msgstr "Bakgrund"
+msgid "settings.text"
+msgstr "Text"
+msgid "settings.border"
+msgstr "Kant"
+msgid "settings.layout"
+msgstr "Layout"
+msgid "settings.layoutAdaptive"
+msgstr "Adaptiv"
+msgid "settings.layoutAdaptiveSub"
+msgstr "Växla automatiskt efter bredd"
+msgid "settings.layoutHorizontal"
+msgstr "Horisontell"
+msgid "settings.layoutHorizontalSub"
+msgstr "Paneler sida vid sida"
+msgid "settings.layoutVertical"
+msgstr "Vertikal"
+msgid "settings.layoutVerticalSub"
+msgstr "Paneler staplade"
+msgid "settings.layoutSingle"
+msgstr "Enkel panel"
+msgid "settings.layoutSingleSub"
+msgstr "Endast fjärrpanel"
+msgid "settings.toolbarLayout"
+msgstr "Anpassa verktygsfält"
+msgid "settings.customToolbar"
+msgstr "Anpassa verktygsfält"
+msgid "settings.toolbarLayoutHint"
+msgstr "Dra för att ordna om och tillämpa direkt på panelens rubrik"
+msgid "settings.paneLabel"
+msgstr "Terminaletikett"
+msgid "settings.addressBar"
+msgstr "Adressfält"
+msgid "settings.toolbar"
+msgstr "Verktygsfält"
+msgid "settings.toolbarItem.back"
+msgstr "Tillbaka"
+msgid "settings.toolbarItem.forward"
+msgstr "Framåt"
+msgid "settings.toolbarItem.up"
+msgstr "Upp"
+msgid "settings.toolbarItem.refresh"
+msgstr "Uppdatera"
+
+msgid "settings.toolbarItem.home"
+msgstr "Hem"
+msgid "settings.toolbarItem.filter"
+msgstr "Filtrera"
+
+msgid "settings.toolbarItem.bookmark"
+msgstr "Bokmärke"
+msgid "settings.resetLayout"
+msgstr "Återställ"
+msgid "settings.tableStyle"
+msgstr "Tabellstil"
+msgid "settings.tableStyleHint"
+msgstr "Tips: Styr via högerklick på fil listans rubrik"
+msgid "settings.hideNativeBtn"
+msgstr "Dölj inbyggd SFTP-knapp"
+msgid "settings.openInNewTab"
+msgstr "Öppna panelen i ny flik som standard"
+msgid "settings.singleWorkspaceInstance"
+msgstr "Endast en instans"
+msgid "settings.hotkey"
+msgstr "Panelgenväg"
+msgid "settings.hotkeyUnbound"
+msgstr "Ställ in genväg"
+msgid "settings.hotkeyClear"
+msgstr "Rensa"
+
+msgid "settings.hotkeyRecording"
+msgstr "Tryck en tangentkombination…"
+msgid "settings.hotkeyClickToSet"
+msgstr "Klicka för att ställa in genväg"
+msgid "settings.hotkeyConflict"
+msgstr "Konflikt med: {names}"
+msgid "settings.hotkeyConflictConfirm"
+msgstr "Shortcut {keys} is already used by: {names}\nBind it to SFTP+ anyway? (Both may fire.)"
+msgid "settings.hotkeySaved"
+msgstr "Sparad och synkroniserad till Tabby: {keys}"
+msgid "settings.hotkeyCleared"
+msgstr "Genvägsbinding rensad"
+msgid "settings.hotkeySaveFailed"
+msgstr "Kunde inte spara genväg"
+msgid "settings.hotkeyRecordTimeout"
+msgstr "Inspelningstiden löpte ut, försök igen"
+msgid "settings.other"
+msgstr "Funktionalitet"
+msgid "settings.data"
+msgstr "Data"
+msgid "settings.export"
+msgstr "Exportera"
+
+msgid "settings.import"
+msgstr "Importera"
+msgid "settings.clearAll"
+msgstr "Rensa Alla"
+
+msgid "settings.about"
+msgstr "Om"
+
+msgid "settings.version"
+msgstr "Version"
+msgid "settings.buildTime"
+msgstr "Byggtid"
+msgid "settings.author"
+msgstr "Författare"
+
+msgid "settings.githubSource"
+msgstr "GitHub-källa"
+
+msgid "settings.npmSource"
+msgstr "NPM-källkod"
+msgid "settings.giveStar"
+msgstr "Ge en stjärna"
+msgid "settings.feedback"
+msgstr "Feedback"
+msgid "settings.modifyColors"
+msgstr "⚠️ Ändra färger"
+msgid "settings.overwriteConfirm"
+msgstr "Du är i Auto/Förinställt läge. Ändringar kommer att skriva över det anpassade färgschemat. Fortsätta?"
+msgid "settings.overwrite"
+msgstr "Skriv över"
+msgid "settings.clearAllTitle"
+msgstr "⚠️ Rensa Alla Data"
+
+msgid "settings.clearAllConfirm"
+msgstr "Detta tar bort alla bokmärken, överföringshistorik och inställningar. Kan inte ångras!"
+msgid "settings.clearAllPrompt"
+msgstr "Skriv DELETE för att bekräfta:"
+msgid "settings.clear"
+msgstr "Rensa"
+
+msgid "settings.dark"
+msgstr "Mörk"
+
+msgid "settings.light"
+msgstr "Ljus"
+
+msgid "settings.invalidFormat"
+msgstr "Ogiltigt dataformat."
+msgid "settings.importComplete"
+msgstr "Import klar."
+msgid "settings.importUnavailable"
+msgstr "Kan inte importera: ConfigService inte tillgänglig."
+msgid "settings.importFailed"
+msgstr "Import misslyckades: ogiltig eller korrupt fil."
+msgid "settings.dataCleared"
+msgstr "Alla data cleared"
+
+msgid "conflict.sourceFile"
+msgstr "Källfil"
+
+msgid "conflict.targetFileExists"
+msgstr "Målfil (finns)"
+
+msgid "transfer.success"
+msgstr "Klart"
+
+msgid "settings.closeBookmarkPanel"
+msgstr "Stäng bokmärkespanelen efter val"
+
+msgid "layout.mode.auto"
+msgstr "Automatisk layout"
+
+msgid "layout.mode.horizontal"
+msgstr "Horisontellt layout"
+
+msgid "layout.mode.vertical"
+msgstr "Vertikalt layout"
+
+msgid "layout.mode.single"
+msgstr "Enkel panel (endast fjärr)"
+
+msgid "notify.closeWithTransfers"
+msgstr "{count} överföring(ar) pågår. Att stänga panelen avbryter alla överföringar. Fortsätt?"
+
+msgid "type.folder"
+msgstr "Mapp"
+
+msgid "type.file"
+msgstr "Fil"
+
+msgid "pane.exclFolders"
+msgstr ", exkl. mappar"
+
+msgid "pane.selectedInfo"
+msgstr " — {n} objekt valda ({size})"
+
+msgid "fail.cancelled"
+msgstr "Avbruten"
+
+msgid "fail.interrupted"
+msgstr "Frånkopplad"
+
+msgid "fail.unknown"
+msgstr "Misslyckades"
+
+msgid "notify.uploadFailed"
+msgstr "Uppladdning misslyckades: {name}"
+
+msgid "notify.downloadFailed"
+msgstr "Nedladdning misslyckades: {name}"
+
+msgid "op.renameFailed"
+msgstr "Namnbyte misslyckades: {reason}"
+
+msgid "op.mkdirFailed"
+msgstr "Skapa mapp misslyckades: {reason}"
+
+msgid "op.touchFailed"
+msgstr "Skapa fil misslyckades: {reason}"
+
+msgid "op.chmodFailed"
+msgstr "Chmod misslyckades: {reason}"
+
+msgid "op.failed"
+msgstr "Åtgärd misslyckades: {reason}"
+
+msgid "notify.deleteFailed"
+msgstr "{n} objekt kunde inte raderas (kanske används eller saknar behörighet)"
+
+msgid "input.dirExists"
+msgstr "Mappen finns redan: {val}"
+
+msgid "input.fileExists"
+msgstr "Filen finns redan: {val}"
+
+msgid "input.fileWhenMkdir"
+msgstr "En fil med namnet \"{val}\" finns redan, mappen kan inte skapas"
+
+msgid "input.dirWhenTouch"
+msgstr "En mapp med namnet \"{val}\" finns redan, filen kan inte skapas"
+
+msgid "notify.notConnectedUpload"
+msgstr "Inte ansluten, kan inte ladda upp"
+
+msgid "notify.notConnectedDownload"
+msgstr "Inte ansluten, kan inte ladda ner"
+
+msgid "notify.copied"
+msgstr "{n} objekt kopierade"
+
+msgid "notify.cut"
+msgstr "{n} objekt klippta"
+
+msgid "status.disconnected"
+msgstr "Frånkopplad"
+
+msgid "status.reconnecting"
+msgstr "Återansluter…"
+
+msgid "status.reconnect"
+msgstr "Återanslut"
+
+msgid "app.restoreDefaultSize"
+msgstr "Återställ standardpanelstorlek"
+
+msgid "notify.pasteFailed"
+msgstr "Klistra in misslyckades"
+
+msgid "notify.copyFailed"
+msgstr "Kopiera misslyckades: {name}"
+
+msgid "theme.auto"
+msgstr "Auto"
+
+msgid "theme.dark"
+msgstr "Mörk"
+
+msgid "theme.light"
+msgstr "Ljus"
+
+msgid "theme.blue"
+msgstr "Blå"
+
+msgid "theme.green"
+msgstr "Grön"
+
+msgid "theme.purple"
+msgstr "Lila"
+
+msgid "theme.red"
+msgstr "Röd"
+
+msgid "theme.custom"
+msgstr "Anpassad"
+
+msgid "pane.back"
+msgstr "Tillbaka"
+
+msgid "pane.forward"
+msgstr "Framåt"
+
+msgid "filter.apply"
+msgstr "Tillämpa"
+
+msgid "filter.clear"
+msgstr "Rensa"
+
+msgid "hotkey.togglePanel"
+msgstr "Öppna SFTP+-panel"
+
+
+msgid "conflict.existsSamePane"
+msgstr "En fil med samma namn finns redan på målplatsen"
+
+msgid "settings.dateFormat"
+msgstr "Anpassat tidsformat"
+
+msgid "settings.dateFormatHint"
+msgstr "Tokens: YYYY / YY / MM / DD / HH / hh / mm / ss / A (tomt = standard)"
+
+msgid "settings.dateFormatPreview"
+msgstr "Förhandsgranskning"
+
+msgid "settings.dateFormatReset"
+msgstr "Återställ standard"
+
+msgid "settings.defaultPathMode"
+msgstr "Standardläge för sökväg"
+
+msgid "settings.pathModeOff"
+msgstr "Av"
+
+msgid "settings.pathModeRemember"
+msgstr "Kom ihåg sökväg"
+
+msgid "settings.pathModeSync"
+msgstr "Synka med terminalen"
+
+msgid "settings.defaultShowHidden"
+msgstr "Visa dolda filer som standard"
+
+msgid "settings.uploadConcurrency"
+msgstr "Samtidiga uppladdningar"
+
+msgid "settings.downloadConcurrency"
+msgstr "Samtidiga nedladdningar"
+
+msgid "transfer.queued"
+msgstr "I kö"
+
+
+msgid "settings.fastMode"
+msgstr "Snabbt överföringsläge"
+
+msgid "settings.fastModeDesc"
+msgstr "Startar katalogöverföringar direkt utan föregående skanning: snabbare start, men total storlek och procentuellt förlopp kan inte visas under överföringen (bara överförda byte)"
+
+msgid "file.sizeCalculate"
+msgstr "Beräkna"
+
+msgid "file.sizeCalculating"
+msgstr "Beräknar…"
+
+msgid "file.sizeCalcFailed"
+msgstr "Beräkningen misslyckades"
+
+msgid "file.folderSizeDetail"
+msgstr "{size} ({count} filer)"
+
+msgid "file.fileProperties"
+msgstr "Filegenskaper"
+
+msgid "file.folderProperties"
+msgstr "Mappegenskaper"
+
+msgid "settings.hideAuthorInfo"
+msgstr "Dölj pluginförfattarinformation"
+
+msgid "settings.hideAuthorConfirmText"
+msgstr "Innan du döljer författarinformationen, ge gärna pluginförrådet en stjärna. Förrådssidan har öppnats i webbläsaren. Din stjärna är min motivation att utveckla — tack för ditt stöd! 🙏"
+
+msgid "settings.starredConfirm"
+msgstr "Jag har gett en stjärna"
+
+msgid "file.location"
+msgstr "Plats"
+
+msgid "app.trashHint"
+msgstr "Flytta till papperskorgen"
+
+msgid "app.permDeleteHint"
+msgstr "Radera permanent (kan inte ångras)"
+
+msgid "file.viewAsText"
+msgstr "Visa som text"
+
+msgid "file.copied"
+msgstr "Kopierat"
+
+msgid "file.copySelection"
+msgstr "Kopiera markering"
+
+msgid "viewer.binaryShownAsText"
+msgstr "Binärt innehåll visas som text (visas kanske inte korrekt)"
+
+msgid "viewer.prevImage"
+msgstr "Föregående bild"
+
+msgid "viewer.nextImage"
+msgstr "Nästa bild"
+
+msgid "editor.saveSuccessLocal"
+msgstr "Sparat"
+
+msgid "settings.interaction"
+msgstr "Interaktion"
+msgid "settings.viewerEditor"
+msgstr "Visare och redigerare"
+
+msgid "settings.openOnClick"
+msgstr "Öppna fil/mapp med"
+
+msgid "settings.clickDouble"
+msgstr "Dubbelklick"
+
+msgid "settings.clickSingle"
+msgstr "Enkelklick"
+
+msgid "settings.openOnClickHint"
+msgstr "Enkelklick öppnar filer/mappar direkt; dubbelklick fungerar fortfarande i enkelklicksläge."
+
+msgid "settings.openUnsupportedInSystem"
+msgstr "Öppna filer som inte stöds med systemapp"
+
+msgid "settings.openUnsupportedInSystemDesc"
+msgstr "Filer som visningsprogrammet inte kan hantera (t.ex. .pdf/.docx) öppnas med systemets standardapp istället för att visa ett meddelande om att de inte stöds."
+
+msgid "settings.transferSection"
+msgstr "Överföring"
+
+msgid "settings.hotkeys"
+msgstr "Genvägstangenter"
+
+msgid "settings.resetPanelHotkeys"
+msgstr "Återställ till standard"
+
+msgid "settings.phk.delete"
+msgstr "Ta bort"
+
+msgid "settings.phk.rename"
+msgstr "Byt namn"
+
+msgid "settings.phk.refresh"
+msgstr "Uppdatera"
+
+msgid "settings.phk.up"
+msgstr "Upp (överordnad mapp)"
+
+msgid "settings.phk.back"
+msgstr "Tillbaka (historik)"
+
+msgid "settings.panelHotkeyConflict"
+msgstr "Genvägstangent {keys} används redan av en annan åtgärd"
+
+msgid "settings.customContextMenu"
+msgstr "Anpassa högerklicksmenyn"
+
+msgid "settings.resetMenu"
+msgstr "Återställ menyposition"
+
+msgid "notify.trashFailed"
+msgstr "{n} objekt kunde inte flyttas till papperskorgen (inte borttagna; prova Shift+Delete för permanent borttagning)"
+
+
+msgid "settings.iconLocked"
+msgstr "Låst (systemikon)"
+
+msgid "settings.phk.forward"
+msgstr "Framåt"
+
+msgid "settings.mouseBack"
+msgstr "Musens bakåtknapp"
+
+msgid "settings.mouseForward"
+msgstr "Musens framåtknapp"
+
+msgid "settings.hotkeyAdd"
+msgstr "Lägg till genväg"
+
+msgid "settings.hotkeyDuplicate"
+msgstr "Denna genväg är redan bunden till denna åtgärd"
+
+msgid "settings.hotkeyMouseHint"
+msgstr "Musens sidoknapp, klicka för att spela in igen"
+
+msgid "settings.occupied.title"
+msgstr "Upptagna genvägar"
+
+msgid "settings.occupied.hint"
+msgstr "Dessa tangenter är reserverade av SFTP+ och kan inte ändras. Undvik dem när du tilldelar genvägar ovan, annars kan båda utlösas."
+
+msgid "settings.occupied.groupPanel"
+msgstr "Panel"
+
+msgid "settings.occupied.groupViewer"
+msgstr "Visare"
+
+msgid "settings.occupied.groupDialog"
+msgstr "Dialogrutor"
+
+msgid "settings.occupied.moveSelection"
+msgstr "Flytta markeringen upp / ner"
+
+msgid "settings.occupied.multiSelect"
+msgstr "Flerval med klick"
+
+msgid "settings.occupied.prevNextImage"
+msgstr "Föregående / nästa bild"
+
+msgid "settings.occupied.closeDialog"
+msgstr "Stäng dialog / visare / panel"
+
+msgid "settings.occupied.confirmDelete"
+msgstr "Bekräfta borttagning"
+
+msgid "log.modeFast"
+msgstr "Snabbläge"
+
+msgid "log.modeTar"
+msgstr "Tar-paketering"
+
+msgid "log.fileCount"
+msgstr "{n} filer"
+
+msgid "settings.editableExtensions"
+msgstr "Ytterligare redigerbara tillägg"
+
+msgid "settings.editableExtensionsHint"
+msgstr "Separera med mellanslag. Godtar .conf, *.conf eller conf. Vitlista när ”visa & redigera alla” är av."
+msgid "settings.allowViewEditAllFiles"
+msgstr "Tillåt visning och redigering av alla filtyper"
+
+msgid "settings.allowViewEditAllFilesHint"
+msgstr "Ignorera tilläggsbegränsningar. Vilken fil som helst kan visas; binärt innehåll skyddas vid redigering."
+msgid "settings.showTextLineNumbers"
+msgstr "Radnummer (visare/redigerare)"
+msgid "settings.showTextLineNumbersHint"
+msgstr "Visa radnummer i den inbyggda visaren och redigeraren."
+
+msgid "conflict.digest"
+msgstr "Sammandrag"
+
+msgid "conflict.contentIdentical"
+msgstr "Innehållet är identiskt — säkert att hoppa över"
+
+msgid "file.symlink"
+msgstr "Symbolisk länk"
+
+msgid "file.shortcut"
+msgstr "Genväg"
+
+msgid "file.copyAll"
+msgstr "Kopiera allt"
+
+msgid "file.copyImage"
+msgstr "Kopiera bild"
+
+msgid "file.copyImageAddress"
+msgstr "Kopiera bildadress"
+
+msgid "transfer.skippedAsDuplicate"
+msgstr "Hoppad över · identiskt innehåll"
+
+msgid "settings.font"
+msgstr "Typsnitt"
+
+msgid "settings.fontSize"
+msgstr "Teckenstorlek"
+
+msgid "settings.resetFont"
+msgstr "Återställ teckenstorlek"
+
+msgid "settings.fontHint"
+msgstr "Justera textstorlek i SFTP+-panelen (11–18px)"
+
+msgid "settings.defaultUploadPath"
+msgstr "Standarduppladdningssökväg"
+
+msgid "settings.defaultUploadPathPh"
+msgstr "Fjärrkatalog, t.ex. /home/user/uploads (tomt = aktuell fjärrkatalog)"
+
+msgid "settings.defaultDownloadPath"
+msgstr "Standardnedladdningssökväg"
+
+msgid "settings.defaultDownloadPathPh"
+msgstr "Lokal katalog, t.ex. C:\\Downloads (tomt = aktuell lokal katalog)"
+
+msgid "settings.iconSettings"
+msgstr "Filtypsikoner"
+
+msgid "settings.iconResourceDir"
+msgstr "Ikondkatalog"
+
+msgid "settings.iconResourceDirPh"
+msgstr "Lokal katalog med svg-filer, t.ex. C:\\icons"
+
+msgid "settings.iconSvgFile"
+msgstr "SVG-fil"
+
+msgid "settings.iconPreview"
+msgstr "Förhandsvisning"
+
+msgid "settings.iconAdd"
+msgstr "Lägg till regel"
+
+msgid "settings.iconDelete"
+msgstr "Ta bort"
+
+msgid "settings.iconDeleteConfirm"
+msgstr "Ta bort regeln \"{name}\"? Detta kan inte ångras."
+
+msgid "settings.iconRuleHint"
+msgstr "Koppla tillägg till deras SVG-filer."
+
+msgid "settings.builtinIcons"
+msgstr "Inbyggda ikoner"
+
+msgid "settings.builtinIconDir"
+msgstr "Katalog för inbyggda ikoner"
+
+msgid "settings.builtinIconDesc"
+msgstr "Följande SVG-ikoner ingår i tillägget. Lägg egna svg-filer här för att utöka dem."
+
+msgid "settings.iconEdit"
+msgstr "Redigera"
+
+msgid "settings.iconDisable"
+msgstr "Inaktivera"
+
+msgid "settings.iconEnable"
+msgstr "Återställ"
+
+msgid "settings.iconAddRule"
+msgstr "Lägg till regel"
+
+msgid "settings.iconFolderHint"
+msgstr "Mapp (standard)"
+
+msgid "settings.iconFileHint"
+msgstr "Fil (standard)"
+
+msgid "settings.iconExtLockedHint"
+msgstr "Standardfiler kan inte ändra tillägg"
+
+msgid "settings.iconSvgNameHint"
+msgstr "Filnamn"
+
+msgid "settings.iconRuleName"
+msgstr "Regelnamn"
+
+msgid "settings.iconRuleNamePh"
+msgstr "t.ex. Scripts, Documents"
+
+msgid "settings.iconExtLabel"
+msgstr "Tillägg"
+
+msgid "settings.iconErrorExtConflict"
+msgstr "Tillägget \"{ext}\" används redan av ikonen {svg}"
+
+msgid "settings.iconErrorEmpty"
+msgstr "Regelnamn, tillägg och svg-filnamn får inte vara tomma"
+
+msgid "settings.iconErrorEmptyName"
+msgstr "Regelnamn får inte vara tomt"
+
+msgid "settings.iconErrorNameConflict"
+msgstr "Regelnamnet \"{name}\" finns redan"
+
+msgid "settings.iconErrorNameSvgMismatch"
+msgstr "Regeln \"{name}\" är redan bunden till ikonen {svg}; använd samma fil eller ett annat namn"
+
+msgid "settings.iconErrorMissingSvg"
+msgstr "SVG-filen hittades inte i ikonkatalogen"
+
+msgid "settings.iconErrorInvalidExt"
+msgstr "Ogiltigt tilläggsformat: \"{ext}\". Använd .txt eller txt; separera flera med mellanslag/komman"
+
+msgid "settings.resetIcons"
+msgstr "Återställ ikoninställningar"
+
+msgid "op.cannotCopyIntoSelf"
+msgstr "Kan inte kopiera en mapp till sig själv eller en undermapp: {name}"
+
+msgid "settings.tarAcceleration"
+msgstr "TAR-överföringsacceleration"
+
+msgid "settings.tarAccelerationDesc"
+msgstr "Paketerar automatiskt mappöverföringar med tar för snabbare småfiler; återgår smidigt till normal överföring vid fel"
+
+msgid "settings.conflictDigest"
+msgstr "Innehållssammandrag vid konflikt"
+
+msgid "settings.conflictDigestDesc"
+msgstr "När storleken stämmer men ändringstiden skiljer beräknas ett sammandrag för att se om filen verkligen ändrats (t.ex. efter Git-grenbyte). Kräver shell på fjärrvärden; annars tidigare beteende"
+
+msgid "settings.conflictAutoSkip"
+msgstr "Hoppa över identiskt innehåll automatiskt"
+
+msgid "settings.conflictAutoSkipDesc"
+msgstr "Om båda sammandragen finns och är lika, behandla som ingen konflikt och hoppa över tyst"
+
+msgid "settings.conflictDigestMaxSize"
+msgstr "Storleksgräns för sammandrag (MB)"
+
+msgid "settings.conflictDigestMaxSizeDesc"
+msgstr "Större filer summeras inte och behandlas alltid som konflikt för att inte sakta ner detekteringen"
+
+msgid "settings.customBookmarkPanel"
+msgstr "Anpassa bokmärkespanelen"
+
+msgid "settings.resetBookmarkPanel"
+msgstr "Återställ bokmärkespanelen"
+
+msgid "settings.bookmarkGroupByScope"
+msgstr "Bokmärkesgruppering"
+msgid "settings.bookmarkGroupByScopeHint"
+msgstr "På: sektioner Aktuella / Globala. Av: blandad lista, omordningsbar över omfattningar."
+msgid "settings.bookmarkGroupOrderHint"
+msgstr "Dra för att ställa in ordningen för grupperna anslutning / globala"
+
+msgid "settings.bookmarkFlatHint"
+msgstr "Utan gruppering visar globala bokmärken en Global-bricka till höger om namnet och kan blandas fritt med aktuella bokmärken."
+msgid "bookmark.globalBadge"
+msgstr "Global"
+
+msgid "bookmark.locate"
+msgstr "Hitta aktuellt bokmärke"
+
+msgid "bookmark.locateNone"
+msgstr "Inget bokmärke för aktuell sökväg"
+
+msgid "settings.reportBug"
+msgstr "Report a Bug"
+
+msgid "settings.featureRequest"
+msgstr "Feature Request"
+
+msgid "notify.duplicateTransfer"
+msgstr "{name} finns redan i överföringskön — dubblerad begäran ignorerades"
+
+msgid "transfer.etaRemaining"
+msgstr "{time} kvar"
+
+msgid "app.dirMissingTitle"
+msgstr "Målkatalogen finns inte"
+
+msgid "app.dirMissingText"
+msgstr "Målkatalogen för överföringen finns inte. Skapa den?"
+
+msgid "app.dirMissingCreate"
+msgstr "Skapa och överför"
+
+msgid "app.dirMissingFallback"
+msgstr "Använd aktuell katalog"
+
+msgid "app.dirMissingCancel"
+msgstr "Avbryt"
+
+msgid "app.dirCreated"
+msgstr "Katalog skapad: {dir}"
+
+msgid "app.mkdirpFailed"
+msgstr "Kunde inte skapa katalog: {reason}"
+
+msgid "app.targetNotDir"
+msgstr "Målsökvägen är inte en katalog: {dir}"
+
+msgid "pane.groupBy"
+msgstr "Gruppera efter"
+
+msgid "group.none"
+msgstr "Ingen"
+
+msgid "group.name"
+msgstr "Namn"
+
+msgid "group.modified"
+msgstr "Ändringsdatum"
+
+msgid "group.type"
+msgstr "Typ"
+
+msgid "group.size"
+msgstr "Storlek"
+
+msgid "group.expand"
+msgstr "Utöka"
+
+msgid "group.collapse"
+msgstr "Fäll ihop"
+
+msgid "group.today"
+msgstr "Idag"
+
+msgid "group.yesterday"
+msgstr "Igår"
+
+msgid "group.thisWeek"
+msgstr "Tidigare denna vecka"
+
+msgid "group.thisMonth"
+msgstr "Tidigare denna månad"
+
+msgid "group.earlierThisYear"
+msgstr "Tidigare i år"
+
+msgid "group.longAgo"
+msgstr "Länge sedan"
+
+msgid "group.folder"
+msgstr "Mapp"
+
+msgid "group.noExt"
+msgstr "Andra filer"
+
+msgid "group.typeFiles"
+msgstr "filer"
+
+msgid "group.sizeTiny"
+msgstr "Mycket liten (0-16 KB)"
+
+msgid "group.sizeSmall"
+msgstr "Liten (16 KB - 1 MB)"
+
+msgid "group.sizeMedium"
+msgstr "Medel (1-128 MB)"
+
+msgid "group.sizeLarge"
+msgstr "Stor (128 MB - 1 GB)"
+
+msgid "group.sizeHuge"
+msgstr "Enorm (1-4 GB)"
+
+msgid "group.sizeSuper"
+msgstr "Jättelik (>4 GB)"
+
+msgid "group.digit"
+msgstr "0-9"
+
+msgid "group.a2h"
+msgstr "A-H"
+
+msgid "group.i2p"
+msgstr "I-P"
+
+msgid "group.q2z"
+msgstr "Q-Z"
+
+msgid "group.pyAF"
+msgstr "Pinyin A-F"
+
+msgid "group.pyGL"
+msgstr "Pinyin G-L"
+
+msgid "group.pyMS"
+msgstr "Pinyin M-S"
+
+msgid "group.pyTZ"
+msgstr "Pinyin T-Z"
+
+msgid "group.other"
+msgstr "Andra"
+
+msgid "group.toggleAll"
+msgstr "Utöka/fäll ihop alla"
+
+msgid "group.expandAll"
+msgstr "Utöka alla"
+
+msgid "group.collapseAll"
+msgstr "Fäll ihop alla"
+
+msgid "settings.enableItem"
+msgstr "Aktivera objekt"
+
+msgid "settings.channelMode"
+msgstr "Transfer channel mode"
+
+msgid "settings.channelModeDesc"
+msgstr "Choose how folder transfers use tar packaging (TAR) vs file-by-file (SFTP)"
+
+msgid "settings.channelMode.smart"
+msgstr "Smart"
+
+msgid "settings.channelMode.sftpOnly"
+msgstr "SFTP only"
+
+msgid "settings.channelMode.tarOnly"
+msgstr "TAR only"
+
+msgid "settings.channelMode.preferSftp"
+msgstr "Prefer SFTP"
+
+msgid "settings.channelMode.preferTar"
+msgstr "Prefer TAR"
+
+msgid "settings.channelMode.smartDesc"
+msgstr "Auto-pick best channel by folder size and file count"
+
+msgid "settings.channelMode.sftpOnlyDesc"
+msgstr "Always transfer file by file; never use tar packing and no size-based routing"
+
+msgid "settings.channelMode.tarOnlyDesc"
+msgstr "Always use tar packing with no size-based routing; when packing is unavailable or fails, report the error instead of falling back to file-by-file. When the destination already exists the first attempt still goes file-by-file so conflicts can be detected; choosing Overwrite or Rename in the conflict prompt then continues with tar packing. A single file is always transferred file by file"
+
+msgid "settings.channelMode.preferSftpDesc"
+msgstr "Use tar only when clearly beneficial (requires many more files)"
+
+msgid "settings.channelMode.preferTarDesc"
+msgstr "Pack unless clearly worse (huge files); loose threshold"
+
+msgid "notify.tarOnlyFailed"
+msgstr "TAR-only mode: cannot transfer {name} - {reason}. Change Transfer channel mode to Smart / Prefer TAR in Settings, or fix the environment and retry"
+
+msgid "tarchan.reason.localTarMissing"
+msgstr "no usable tar command on this computer"
+
+msgid "tarchan.reason.remoteTarMissing"
+msgstr "no usable tar command on the remote server"
+
+msgid "tarchan.reason.symlinkUnsupported"
+msgstr "the folder contains symbolic links, which the packing channel does not support"
+
+msgid "tarchan.reason.packFailed"
+msgstr "packing or extracting the archive failed"
+
+msgid "tarchan.reason.tarballFailed"
+msgstr "transferring the archive file failed"
+
+msgid "tarchan.reason.other"
+msgstr "the packing channel is unavailable, see the log for details"
+
+msgid "notify.tarOnlyInapplicable"
+msgstr "TAR-only mode: {name} is not using the packed channel - {reason}. To send it as one archive, choose Overwrite in the directory conflict prompt, or delete the destination first and retry"
+
+msgid "tarchan.reason.targetExists"
+msgstr "the destination already exists, and an incremental transfer can only go through the per-file channel"
+
+msgid "tarchan.reason.localPackFailed"
+msgstr "packing the folder on this computer failed, possibly due to disk space or permissions"
+
+msgid "tarchan.reason.remotePackFailed"
+msgstr "packing or extracting on the remote server failed, possibly due to disk space or permissions"
+
+msgid "tarchan.reason.localExtractFailed"
+msgstr "extracting the archive on this computer failed, see the log for details"
+
+msgid "tarchan.reason.nameEncodingUnsupported"
+msgstr "the file names on the remote server cannot be decoded on this computer; switch to Smart or Prefer SFTP mode, or upgrade the tar command on the server"
+
+msgid "transfer.batchUpload"
+msgstr "{n} items from {dir}"
+
+msgid "settings.exportPickHint"
+msgstr "Välj vad som ska ingå i exportfilen."
+
+msgid "settings.exportSelectAll"
+msgstr "Välj alla"
+
+msgid "settings.exportDeselectAll"
+msgstr "Rensa val"
+
+msgid "settings.exportCatBookmarkData"
+msgstr "Bokmärkesdata"
+
+msgid "settings.hotkeyWheelHint"
+msgstr "Hjulbindning, klicka för att spela in igen (listan kan inte längre rullas med hjulet)"
+
+msgid "settings.panelHotkeyWheelBareWarning"
+msgstr "Kopplat till {keys}; listan kan inte längre rullas med hjulet (lägg till Alt)"
+
+msgid "settings.textCaretShape"
+msgstr "Markörform (visare/redigerare)"
+msgid "settings.textCaretShapeHint"
+msgstr "Formen på markören som ritas i visaren. De tre valen motsvarar markören i Tabby-terminalen. Redigeraren använder systemmarkören."
+msgid "settings.caretShapeBlock"
+msgstr "Block"
+msgid "settings.caretShapeBeam"
+msgstr "Lodrät streck"
+msgid "settings.caretShapeUnderline"
+msgstr "Understrykning"
