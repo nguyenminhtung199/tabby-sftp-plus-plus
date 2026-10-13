@@ -2910,7 +2910,7 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
         /** 插件版本号（webpack 构建时内联 package.json） */
         this.pkgVersion = (__webpack_require__(/*! ../../package.json */ "./package.json").version);
         /** 构建时间（webpack 每次 build 时注入，用于确认是否已重新打包） */
-        this.pkgBuildTime =  true ? "2026-10-13T07:32:03.992Z" : 0;
+        this.pkgBuildTime =  true ? "2026-10-13T07:34:40.958Z" : 0;
         /** 主题颜色标签 key 映射（统一走 .po 翻译） */
         this.themeLabelKeys = {
             '': 'theme.auto',
