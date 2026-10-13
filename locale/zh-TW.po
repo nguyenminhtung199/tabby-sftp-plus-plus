@@ -1752,3 +1752,15 @@ msgid "settings.caretShapeBeam"
 msgstr "直線"
 msgid "settings.caretShapeUnderline"
 msgstr "底線"
+
+msgid "pane.firstPage"
+msgstr "首页"
+
+msgid "pane.previousPage"
+msgstr "上一页"
+
+msgid "pane.nextPage"
+msgstr "下一页"
+
+msgid "pane.lastPage"
+msgstr "末页"

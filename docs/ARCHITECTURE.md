@@ -34,3 +34,11 @@ The remote Python resume-protocol test remains separate and requires an explicit
 ## Remaining work
 
 The upstream host and settings classes are still large, and the facade uses a compatibility index signature for retained code. A future extraction should move state and baseline methods into typed controllers subsystem by subsystem. Controller composition still has an explicit order; changing it requires integration checks. Cross-process transfer ownership and lifecycle stress testing deserve further work. These limitations are documented rather than claiming a completely fresh implementation.
+
+## Large directory rendering
+
+FilePane retains the complete filtered/sorted model and renders a bounded page of 200 display rows (transfer-policy.json fileList.pageSize). Group continuations repeat their header. The page controls preserve selection, and click indices remain absolute for Shift selection. Parent keyboard/type-to-find scrolling uses the pane's sftpRevealRow bridge before locating a DOM row. An active inline edit keeps its page mounted. All directory operations and Ctrl+A still use the full model; rubber-band selection covers the displayed page, and Ctrl preserves selections on other pages.
+
+Column values are formatted lazily for rendered cells, cached in a WeakMap, and invalidated on directory/metadata refresh or date-format changes. Rubber-band path lookup is cached for the drag instead of rebuilding a full-directory Map each frame. Sorting and grouping still process the full model synchronously; this change bounds rendering work rather than claiming unlimited directory sizes.
+
+Renderer regression coverage includes 1,000, 10,000 and 50,000 entries, bounded DOM, page controls, keyboard reveal, full-range Shift selection, inline rename focus, grouped pages, collapse and context/open/drag/drop outputs. Transfer correctness is checked separately through the installed russh adapter.

@@ -1779,3 +1779,15 @@ msgid "settings.caretShapeBeam"
 msgstr "竖线"
 msgid "settings.caretShapeUnderline"
 msgstr "下划线"
+
+msgid "pane.firstPage"
+msgstr "首页"
+
+msgid "pane.previousPage"
+msgstr "上一页"
+
+msgid "pane.nextPage"
+msgstr "下一页"
+
+msgid "pane.lastPage"
+msgstr "末页"

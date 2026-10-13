@@ -48,13 +48,14 @@ import { featureApis, invokeFeature, readFeature, writeFeature } from "../../fea
  *              2026-08-24
  */
 
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core'
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core'
 import * as path from 'path'
 import * as fs from 'fs'
 
 import { SftpI18nService } from '../../services/sftp-i18n.service'
 import { DEFAULT_ICON_MAP } from '../core/icon-defaults'
 import { NAV_HEADER_KEY_PREFIX } from '../core/grouping'
+import { fileList as fileListPolicy } from '../../../transfer-policy.json'
 
 export type PaneNavAction =
   | 'back' | 'forward' | 'up' | 'home' | 'refresh'
@@ -67,7 +68,7 @@ export type PaneSortAction = { col: string }
   template: require('./sftp-file-pane.component.view.html'),
 })
 export class SftpFilePaneComponent {
-  constructor(private hostRef: ElementRef<HTMLElement>) {}
+  constructor(private hostRef: ElementRef<HTMLElement>, private viewDetector: ChangeDetectorRef) {}
 
   @Input() labelIcon = '🖥'
   @Input() paneLabel = ''
@@ -408,7 +409,86 @@ export class SftpFilePaneComponent {
     this._rebuildLabels()
   }
 
+  // Keep the full input model; only the active page participates in Angular rendering.
+  listPage = 0
+  listPageStart = 0
+  listPageCount = 1
+  listRowCount = 0
+  pageEntries: any[] = []
+  pageGroupRows: any[] = []
+  private pageKeys = new Map<string, number>()
+  private pageBridge: HTMLElement | null = null
+  private pageGroupHeaders = new Map<number, any>()
+
+  private rebuildListPage(): void {
+    const rows = this.groupRows || this.entries
+    this.listRowCount = rows.length
+    this.listPageCount = Math.max(1, Math.ceil(rows.length / fileListPolicy.pageSize))
+    this.listPage = Math.min(this.listPage, this.listPageCount - 1)
+    this.listPageStart = this.listPage * fileListPolicy.pageSize
+    const slice = rows.slice(this.listPageStart, this.listPageStart + fileListPolicy.pageSize)
+    this.pageEntries = this.groupRows ? [] : slice
+    this.pageGroupRows = this.groupRows ? slice : []
+    const header = this.pageGroupHeaders.get(this.listPageStart)
+    if (this.groupRows && slice[0]?.kind === 'entry' && header) this.pageGroupRows = [header, ...slice]
+  }
+
+  private indexListPages(): void {
+    this.pageKeys.clear()
+    this.pageGroupHeaders.clear()
+    let header: any = null
+    const rows = this.groupRows || this.entries
+    rows.forEach((row: any, index) => {
+      if (this.groupRows && row.kind === 'header') header = row
+      if (index % fileListPolicy.pageSize === 0 && header) this.pageGroupHeaders.set(index, header)
+      const key = this.groupRows
+        ? row.kind === 'header' ? NAV_HEADER_KEY_PREFIX + row.bucketKey : row.entry.fullPath
+        : row.fullPath
+      this.pageKeys.set(key, index)
+    })
+  }
+
+  private revealListKey(key: string): boolean {
+    if (this.customInlineEdit?.originalPath && key !== this.customInlineEdit.originalPath) return false
+    const index = this.pageKeys.get(key)
+    if (index === undefined) return false
+    const page = Math.floor(index / fileListPolicy.pageSize)
+    if (page === this.listPage) return false
+    this.listPage = page
+    this.rebuildListPage()
+    return true
+  }
+
+  changeListPage(page: number): void {
+    // Keep inline inputs mounted until Enter/Escape/blur has completed the operation.
+    if (this.customInlineEdit || page < 0 || page >= this.listPageCount) return
+    this.listPage = page
+    this.rebuildListPage()
+    const list = this.hostRef.nativeElement.querySelector('.pane-list') as HTMLElement
+    if (list) list.scrollTop = 0
+  }
+
+  get listPageEnd(): number {
+    return Math.min(this.listRowCount, this.listPageStart + fileListPolicy.pageSize)
+  }
+
+  private attachListPageBridge(): void {
+    const list = this.hostRef.nativeElement.querySelector('.pane-list') as HTMLElement
+    if (!list || list === this.pageBridge) return
+    this.pageBridge = list
+    // Keyboard/type-to-find scrolling asks for a full-model path before looking up its DOM row.
+    ;(list as any).sftpRevealRow = (attr: string, value: string) => {
+      const key = attr === 'data-group-key' ? NAV_HEADER_KEY_PREFIX + value : value
+      if (this.revealListKey(key)) this.viewDetector.detectChanges()
+    }
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes.entries || changes.groupRows) this.indexListPages()
+    if (changes.pathInput || changes.filterActive || changes.sortBy || changes.sortAsc) this.listPage = 0
+    if (changes.navFocusKey && this.navFocusKey) this.revealListKey(this.navFocusKey)
+    if (this.customInlineEdit?.originalPath) this.revealListKey(this.customInlineEdit.originalPath)
+    this.rebuildListPage()
     // 仅在非聚焦态同步父级 pathInput，聚焦编辑时绝不覆盖用户正在输入的内容
     if (changes.pathInput && !this._pathFocused) {
       this.pathModel = this.pathInput
@@ -587,11 +667,11 @@ export class SftpFilePaneComponent {
   _customScheduleSuggestions(...args: any[]): any { return invokeFeature("FilePane","_customScheduleSuggestions",this,args) }
   _customPreviewSuggestion(...args: any[]): any { return invokeFeature("FilePane","_customPreviewSuggestion",this,args) }
   _customHighlightSuggestion(...args: any[]): any { return invokeFeature("FilePane","_customHighlightSuggestion",this,args) }
-  ngOnDestroy(...args: any[]): any { return invokeFeature("FilePane","ngOnDestroy",this,args) }
+  ngOnDestroy(...args: any[]): any { if (this.pageBridge) delete (this.pageBridge as any).sftpRevealRow; return invokeFeature("FilePane","ngOnDestroy",this,args) }
   customSetiPython(...args: any[]): any { return invokeFeature("FilePane","customSetiPython",this,args) }
   customInlineRename(...args: any[]): any { return invokeFeature("FilePane","customInlineRename",this,args) }
   customInlineKey(...args: any[]): any { return invokeFeature("FilePane","customInlineKey",this,args) }
-  ngAfterViewChecked(...args: any[]): any { return invokeFeature("FilePane","ngAfterViewChecked",this,args) }
+  ngAfterViewChecked(...args: any[]): any { this.attachListPageBridge(); return invokeFeature("FilePane","ngAfterViewChecked",this,args) }
   @Input() customPathProvider: any
   @Input() customRefreshSameFolder: any
   @Input() customInlineEdit: any

@@ -1515,3 +1515,7 @@
 .sftp-root .custom-inline-name:disabled { opacity:.65; }
 .sftp-root .custom-inline-error { display:block; font-size:11px; color:var(--_danger,#ff8f8f); white-space:normal; }
 .sftp-root .custom-inline-draft { background:var(--_input-bg); }
+
+.sftp-root .pane-pagination { display:flex; flex:0 0 auto; align-items:center; justify-content:center; gap:8px; padding:4px 10px; font-size:12px; }
+.sftp-root .pane-pagination button { color:inherit; background:transparent; border:1px solid rgba(128,128,128,.35); border-radius:4px; cursor:pointer; min-width:28px; }
+.sftp-root .pane-pagination button:disabled { opacity:.4; cursor:default; }

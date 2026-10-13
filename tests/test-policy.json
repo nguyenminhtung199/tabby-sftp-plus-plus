@@ -25,7 +25,16 @@
     "settleMs": 30,
     "focusMs": 15,
     "width": 1100,
-    "height": 740
+    "height": 740,
+    "largeLists": {
+      "sizes": [
+        1000,
+        10000,
+        50000
+      ],
+      "maxInteractionMs": 500,
+      "maxPageRows": 201
+    }
   },
   "sdkMapRelative": "node_modules/tabby-core/dist/index.js.map",
   "nativeRootRelative": "Programs/Tabby/resources/app.asar.unpacked/node_modules/russh",

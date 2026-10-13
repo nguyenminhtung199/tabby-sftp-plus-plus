@@ -70,6 +70,9 @@ export class PanelRubberBand {
   private _rbEntryEls: HTMLElement[] = []
   /** ★ 2026-09-29：与 _rbEntryEls 平行的 data-path 数组（分组模式下 DOM 行序 ≠ 过滤列表序，位置对位会选错行） */
   private _rbElPaths: string[] = []
+  private _rbOffPageSelected: any[] = []
+  private _rbEntrySource: any[] | null = null
+  private _rbEntriesByPath = new Map<string, any>()
   private _rbPaneListEl: HTMLElement | null = null
   private _rbPaneListRect: DOMRect | null = null
   private _rbScrollHandler: (() => void) | null = null
@@ -378,6 +381,9 @@ export class PanelRubberBand {
     this._rbEntryRects = []
     this._rbEntryEls = []
     this._rbElPaths = []
+    this._rbOffPageSelected = []
+    this._rbEntrySource = null
+    this._rbEntriesByPath.clear()
     this._rbPaneListEl = null
     this._rbPaneListRect = null
     this._rbCtrlHeld = false
@@ -491,6 +497,7 @@ export class PanelRubberBand {
     }
     // 快照追加模式的初始选中
     const selected = rb.pane === 'local' ? this.host.selectedLocal : this.host.selectedRemote
+    this._rbOffPageSelected = merge ? (selected as any[]).filter(e => !this._rbPathToIndex.has(e.fullPath)) : []
     this._rbInitialSelectedIndices = new Set<number>()
     for (const e of selected) {
       const idx = this._rbPathToIndex.get(e.fullPath)
@@ -588,21 +595,29 @@ export class PanelRubberBand {
   }
 
   /** 同步选中模型；★ 2026-09-29：序号为 DOM 行序号，先经 _rbElPaths 转路径再按路径取条目（分组模式顺序无关） */
+  private _rbLookupEntries(source: any[]): Map<string, any> {
+    if (source !== this._rbEntrySource) {
+      this._rbEntrySource = source
+      this._rbEntriesByPath = new Map(source.map(e => [e.fullPath, e]))
+    }
+    return this._rbEntriesByPath
+  }
+
   private _rbSyncSelectionModel(indices: Set<number>): void {
     const rb = this.rubberBand
     const sorted = [...indices].sort((a, b) => a - b)
     if (rb.pane === 'local' && this._rbCachedLocalEntries) {
-      const byPath = new Map(this.host.getFilteredLocalEntries().map(e => [e.fullPath, e]))
-      this.host.selectedLocal = sorted
+      const byPath = this._rbLookupEntries(this.host.getFilteredLocalEntries())
+      this.host.selectedLocal = [...this._rbOffPageSelected, ...sorted
         .map(i => this._rbElPaths[i])
         .map(p => (p ? byPath.get(p) : null))
-        .filter(Boolean) as LocalEntry[]
+        .filter(Boolean)] as LocalEntry[]
     } else if (rb.pane === 'remote' && this._rbCachedRemoteEntries) {
-      const byPath = new Map(this.host.getFilteredRemoteEntries().map(e => [e.fullPath, e]))
-      this.host.selectedRemote = sorted
+      const byPath = this._rbLookupEntries(this.host.getFilteredRemoteEntries())
+      this.host.selectedRemote = [...this._rbOffPageSelected, ...sorted
         .map(i => this._rbElPaths[i])
         .map(p => (p ? byPath.get(p) : null))
-        .filter(Boolean) as SFTPFile[]
+        .filter(Boolean)] as SFTPFile[]
     }
   }
 

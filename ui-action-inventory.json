@@ -208,9 +208,10 @@
   },
   {
     "selector": "sftp-file-pane",
-    "eventCount": 84,
+    "eventCount": 90,
     "actions": [
       "blurPathInput",
+      "changeListPage",
       "customInlineKey",
       "onColHeaderMouseDown",
       "onColResizeDblClick",

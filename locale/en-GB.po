@@ -1927,3 +1927,15 @@ msgid "settings.caretShapeBeam"
 msgstr "Vertical bar"
 msgid "settings.caretShapeUnderline"
 msgstr "Underline"
+
+msgid "pane.firstPage"
+msgstr "First page"
+
+msgid "pane.previousPage"
+msgstr "Previous page"
+
+msgid "pane.nextPage"
+msgstr "Next page"
+
+msgid "pane.lastPage"
+msgstr "Last page"

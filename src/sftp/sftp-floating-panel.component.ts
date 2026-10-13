@@ -4432,6 +4432,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     try {
       const listEl = this.elRef.nativeElement.querySelector(`.pane-list.${side}-pane`) as HTMLElement | null
       if (!listEl) return
+      ;(listEl as any).sftpRevealRow?.(attr, value)
       const rowEl = this._findRowEl(listEl, attr, value)
       if (!rowEl) return
       const headerEl = listEl.querySelector('.entry.header') as HTMLElement | null
@@ -4755,71 +4756,26 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
   private _localFilterDirty = true
   private _remoteFilteredCache: SFTPFile[] | null = null
   private _remoteFilterDirty = true
-  // 记录各面板 _cells 预计算时使用的 date pattern；命中缓存时若与当前 pattern 不一致则重算，
-  // 确保自定义时间格式在任意时序/缓存窗口下对本地、远程时间列统一生效
-  private _decoratedLocalPattern = ''
-  private _decoratedRemotePattern = ''
+  private cellEpoch = 0
+  private cellCache = new WeakMap<object, { epoch: number; pattern: string; cells: Record<string, string> }>()
 
-  protected _invalidateLocalCache(): void { this._localFilterDirty = true }
-  protected _invalidateRemoteCache(): void { this._remoteFilterDirty = true }
-
-  /** trackBy 函数：避免 *ngFor 每次变更检测重建所有 DOM 节点 */
+  protected _invalidateLocalCache(): void { this._localFilterDirty = true; this.cellEpoch++ }
+  protected _invalidateRemoteCache(): void { this._remoteFilterDirty = true; this.cellEpoch++ }
   trackLocalEntryBy(_index: number, item: LocalEntry): string { return item.fullPath }
   trackRemoteEntryBy(_index: number, item: SFTPFile): string { return item.fullPath }
 
-  /**
-   * 需要预计算显示串的数据列（不含 name，name 走模板独立绑定）。
-   */
-  private readonly _cellCols = ['size', 'date', 'created', 'perms', 'mode', 'access', 'owner', 'group', 'path', 'ext']
-
-  /**
-   * 功能描述：为每个 entry 预计算各列显示串并挂到 e._cells，供模板直接查表绑定，
-   *          避免文件列表模板在每次变更检测里逐格调用 colValue（内部含 formatSize/formatDate）。
-   *          显示串是纯函数（仅依赖 entry 原始数据，与语言/主题/设置无关），
-   *          因此只需随过滤缓存一同失效（entries/过滤/排序变化时重建），无需在语言切换时重算。
-   * 创建人：DD1024z + Hy3
-   * 创建时间：2026-07-23
-   */
-  private _decorateCells(list: any[]): void {
-    for (const e of list) {
-      const cells: Record<string, string> = {}
-      for (const col of this._cellCols) cells[col] = this.colValue(col, e)
-      e._cells = cells
-    }
-  }
-
   getFilteredLocalEntries(): LocalEntry[] {
-    if (!this._localFilterDirty && this._localFilteredCache) {
-      // 自定义时间格式可能在缓存构建后变化（设置页修改 / 初始化时序），
-      // 若当前 pattern 与装饰时不一致，重算 _cells（本地、远程统一处理）
-      if (getDateFormatPattern() !== this._decoratedLocalPattern) {
-        this._decorateCells(this._localFilteredCache)
-        this._decoratedLocalPattern = getDateFormatPattern()
-      }
-      return this._localFilteredCache
-    }
-    let entries = filterByHidden([...this.localEntries], this.showHiddenLocal)
-    entries = filterByName(entries, this.localFilter)
+    if (!this._localFilterDirty && this._localFilteredCache) return this._localFilteredCache
+    const entries = filterByName(filterByHidden(this.localEntries, this.showHiddenLocal), this.localFilter)
     this._localFilteredCache = sortLocalEntries(entries, this.localSortBy, this.localSortAsc, this.pinFoldersLocal)
-    this._decorateCells(this._localFilteredCache)
-    this._decoratedLocalPattern = getDateFormatPattern()
     this._localFilterDirty = false
     return this._localFilteredCache
   }
 
   getFilteredRemoteEntries(): SFTPFile[] {
-    if (!this._remoteFilterDirty && this._remoteFilteredCache) {
-      if (getDateFormatPattern() !== this._decoratedRemotePattern) {
-        this._decorateCells(this._remoteFilteredCache)
-        this._decoratedRemotePattern = getDateFormatPattern()
-      }
-      return this._remoteFilteredCache
-    }
-    let entries = filterByHidden([...this.remoteEntries], this.showHiddenRemote)
-    entries = filterByName(entries, this.remoteFilter)
+    if (!this._remoteFilterDirty && this._remoteFilteredCache) return this._remoteFilteredCache
+    const entries = filterByName(filterByHidden(this.remoteEntries, this.showHiddenRemote), this.remoteFilter)
     this._remoteFilteredCache = sortRemoteEntries(entries, this.remoteSortBy, this.remoteSortAsc, this.pinFoldersRemote)
-    this._decorateCells(this._remoteFilteredCache)
-    this._decoratedRemotePattern = getDateFormatPattern()
     this._remoteFilterDirty = false
     return this._remoteFilteredCache
   }
@@ -5134,8 +5090,20 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
   // ========== 子组件桥接 ==========
   colHeaderLabelFn = (col: string) => this.colHeaderLabel(col)
-  // P1-perf：优先读预计算的 e._cells（廉价查表）；缺失时回退到实时计算，保证正确性
-  colValueFn = (col: string, e: any) => (e && e._cells && col in e._cells) ? e._cells[col] : this.colValue(col, e)
+  // Format only rendered cells; invalidate on directory/metadata or date-format changes.
+  colValueFn = (col: string, e: any): string => this.cachedColumnValue(col, e)
+
+  cachedColumnValue(col: string, e: any): string {
+    if (!e) return this.colValue(col, e)
+    const pattern = getDateFormatPattern()
+    let cached = this.cellCache.get(e)
+    if (!cached || cached.epoch !== this.cellEpoch || cached.pattern !== pattern) {
+      cached = { epoch: this.cellEpoch, pattern, cells: {} }
+      this.cellCache.set(e, cached)
+    }
+    if (!(col in cached.cells)) cached.cells[col] = this.colValue(col, e)
+    return cached.cells[col]
+  }
   isLocalSelectedFn = (e: LocalEntry) => this.isLocalSelected(e)
   isRemoteSelectedFn = (e: SFTPFile) => this.isRemoteSelected(e)
   localSortArrowFn = (col: string) => this.sortArrow(col, 'local')

@@ -91,10 +91,10 @@
           </div>
 <div class="entry custom-inline-draft" *ngIf="customInlineEdit && !customInlineEdit.originalPath" [style.gridTemplateColumns]="colWidths"><span class="icon">{{ customInlineEdit.isDirectory ? '📁' : '📄' }}</span><span class="name custom-inline-cell"><input class="custom-inline-name" [ngModel]="customInlineEdit.value" (ngModelChange)="customInlineOwner.customInlineValue($event)" [disabled]="customInlineEdit.busy" [attr.aria-label]="customInlineEdit.title" (keydown)="customInlineKey($event)" (blur)="customInlineOwner.customInlineCommit()" (mousedown)="$event.stopPropagation()" (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()" (contextmenu)="$event.stopPropagation()" /><span class="custom-inline-error" *ngIf="customInlineEdit.error" role="alert">{{ customInlineEdit.error }}</span></span></div>          <!-- 分组模式关闭：维持原有扁平渲染（性能路径不变） -->
           <ng-container *ngIf="!groupRows">
-            <div class="entry" *ngFor="let e of entries; let i = index; trackBy: trackByFn"
+            <div class="entry" *ngFor="let e of pageEntries; let i = index; trackBy: trackByFn"
             [attr.data-path]="e.fullPath"
             [attr.data-isdir]="e.isDirectory ? '1' : '0'"
-            (click)="entryClick.emit({ entry: e, event: $event, index: i })"
+            (click)="entryClick.emit({ entry: e, event: $event, index: listPageStart + i })"
             (dblclick)="entryDblClick.emit({ entry: e, event: $event })"
             (contextmenu)="entryContextMenu.emit({ entry: e, event: $event })"
             [class.selected]="isSelected(e)"
@@ -129,7 +129,7 @@
           <!-- 分组模式开启：分组表头行（点击箭头收展 / 点击其余区域全选该组）+ 条目行。
                表头行带 .header 类 → 框选/右键/空白判定等既有的 :not(.header) 选择器自动跳过 -->
           <ng-container *ngIf="groupRows">
-            <ng-container *ngFor="let row of groupRows; trackBy: trackGroupRowFn">
+            <ng-container *ngFor="let row of pageGroupRows; trackBy: trackGroupRowFn">
               <div class="entry header group-row" *ngIf="row.kind === 'header'"
                 [style.gridTemplateColumns]="colWidths"
                 [attr.data-group-key]="row.bucketKey"
@@ -185,6 +185,13 @@
             <ng-container *ngIf="!hasError">{{ filterActive ? labels.noMatch : labels.empty }}</ng-container>
           </div>
         </div>
+      </div>
+      <div class="pane-pagination" *ngIf="listPageCount > 1" (mousedown)="$event.stopPropagation()">
+        <button type="button" (click)="changeListPage(0)" [disabled]="listPage === 0 || !!customInlineEdit" [attr.aria-label]="i18n.t('pane.firstPage')">«</button>
+        <button type="button" (click)="changeListPage(listPage - 1)" [disabled]="listPage === 0 || !!customInlineEdit" [attr.aria-label]="i18n.t('pane.previousPage')">‹</button>
+        <span>{{ listPageStart + 1 }}–{{ listPageEnd }} / {{ listRowCount }}</span>
+        <button type="button" (click)="changeListPage(listPage + 1)" [disabled]="listPage === listPageCount - 1 || !!customInlineEdit" [attr.aria-label]="i18n.t('pane.nextPage')">›</button>
+        <button type="button" (click)="changeListPage(listPageCount - 1)" [disabled]="listPage === listPageCount - 1 || !!customInlineEdit" [attr.aria-label]="i18n.t('pane.lastPage')">»</button>
       </div>
       <div class="pane-actions-bar">
         <span class="selection-info">{{ selectionInfo }}</span>
