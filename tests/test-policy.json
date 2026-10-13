@@ -34,6 +34,10 @@
       ],
       "maxInteractionMs": 500,
       "maxPageRows": 201
+    },
+    "dualPane": {
+      "idleTicks": 20,
+      "scrollEvents": 40
     }
   },
   "sdkMapRelative": "node_modules/tabby-core/dist/index.js.map",

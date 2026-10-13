@@ -48,7 +48,7 @@ import { featureApis, invokeFeature, readFeature, writeFeature } from "../../fea
  *              2026-08-24
  */
 
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core'
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core'
 import * as path from 'path'
 import * as fs from 'fs'
 
@@ -65,10 +65,11 @@ export type PaneSortAction = { col: string }
 
 @Component({
   selector: 'sftp-file-pane',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: require('./sftp-file-pane.component.view.html'),
 })
 export class SftpFilePaneComponent {
-  constructor(private hostRef: ElementRef<HTMLElement>, private viewDetector: ChangeDetectorRef) {}
+  constructor(private hostRef: ElementRef<HTMLElement>, private viewDetector: ChangeDetectorRef, private zone: NgZone) {}
 
   @Input() labelIcon = '🖥'
   @Input() paneLabel = ''
@@ -418,6 +419,11 @@ export class SftpFilePaneComponent {
   pageGroupRows: any[] = []
   private pageKeys = new Map<string, number>()
   private pageBridge: HTMLElement | null = null
+  private listListenerCleanup: (() => void) | null = null
+  // Selection callbacks keep a stable identity; the state reference explicitly invalidates this view.
+  @Input() selectionState: any[] = []
+  @Input() cellRevision = 0
+  @Input() transientMenuVisible = false
   private pageGroupHeaders = new Map<number, any>()
 
   private rebuildListPage(): void {
@@ -464,6 +470,7 @@ export class SftpFilePaneComponent {
     if (this.customInlineEdit || page < 0 || page >= this.listPageCount) return
     this.listPage = page
     this.rebuildListPage()
+    this.viewDetector.markForCheck()
     const list = this.hostRef.nativeElement.querySelector('.pane-list') as HTMLElement
     if (list) list.scrollTop = 0
   }
@@ -475,7 +482,20 @@ export class SftpFilePaneComponent {
   private attachListPageBridge(): void {
     const list = this.hostRef.nativeElement.querySelector('.pane-list') as HTMLElement
     if (!list || list === this.pageBridge) return
+    this.listListenerCleanup?.()
     this.pageBridge = list
+    this.zone.runOutsideAngular(() => {
+      const scroll = () => {
+        if (this.transientMenuVisible) this.zone.run(() => this.listScroll.emit())
+      }
+      const wheel = (event: WheelEvent) => {
+        this.listWheel.emit(event)
+        if (event.defaultPrevented) this.zone.run(() => this.viewDetector.markForCheck())
+      }
+      list.addEventListener('scroll', scroll, { passive: true })
+      list.addEventListener('wheel', wheel, { passive: false })
+      this.listListenerCleanup = () => { list.removeEventListener('scroll', scroll); list.removeEventListener('wheel', wheel) }
+    })
     // Keyboard/type-to-find scrolling asks for a full-model path before looking up its DOM row.
     ;(list as any).sftpRevealRow = (attr: string, value: string) => {
       const key = attr === 'data-group-key' ? NAV_HEADER_KEY_PREFIX + value : value
@@ -667,7 +687,7 @@ export class SftpFilePaneComponent {
   _customScheduleSuggestions(...args: any[]): any { return invokeFeature("FilePane","_customScheduleSuggestions",this,args) }
   _customPreviewSuggestion(...args: any[]): any { return invokeFeature("FilePane","_customPreviewSuggestion",this,args) }
   _customHighlightSuggestion(...args: any[]): any { return invokeFeature("FilePane","_customHighlightSuggestion",this,args) }
-  ngOnDestroy(...args: any[]): any { if (this.pageBridge) delete (this.pageBridge as any).sftpRevealRow; return invokeFeature("FilePane","ngOnDestroy",this,args) }
+  ngOnDestroy(...args: any[]): any { this.listListenerCleanup?.(); if (this.pageBridge) delete (this.pageBridge as any).sftpRevealRow; return invokeFeature("FilePane","ngOnDestroy",this,args) }
   customSetiPython(...args: any[]): any { return invokeFeature("FilePane","customSetiPython",this,args) }
   customInlineRename(...args: any[]): any { return invokeFeature("FilePane","customInlineRename",this,args) }
   customInlineKey(...args: any[]): any { return invokeFeature("FilePane","customInlineKey",this,args) }

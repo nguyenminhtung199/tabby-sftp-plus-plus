@@ -55,8 +55,6 @@
           (drop)="listDrop.emit($event)"
           (mousedown)="listMouseDown.emit($event)"
           (mouseenter)="listMouseEnter.emit()"
-          (wheel)="listWheel.emit($event)"
-          (scroll)="listScroll.emit()"
           (click)="listClick.emit($event)"
           (contextmenu)="listContextMenu.emit($event)">
           <div class="entry dim" *ngIf="showNoSession">{{ labels.noSession }}</div>

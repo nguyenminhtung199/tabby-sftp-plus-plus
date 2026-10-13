@@ -42,3 +42,9 @@ FilePane retains the complete filtered/sorted model and renders a bounded page o
 Column values are formatted lazily for rendered cells, cached in a WeakMap, and invalidated on directory/metadata refresh or date-format changes. Rubber-band path lookup is cached for the drag instead of rebuilding a full-directory Map each frame. Sorting and grouping still process the full model synchronously; this change bounds rendering work rather than claiming unlimited directory sizes.
 
 Renderer regression coverage includes 1,000, 10,000 and 50,000 entries, bounded DOM, page controls, keyboard reveal, full-range Shift selection, inline rename focus, grouped pages, collapse and context/open/drag/drop outputs. Transfer correctness is checked separately through the installed russh adapter.
+
+## Independent file-pane updates
+
+FilePane uses Angular OnPush. The full selection-array reference and cell-cache revision are explicit inputs, so selection changes (including a different selection of the same count), metadata refresh and inline edits still update the view. An unchanged sibling file list skips row bindings on unrelated terminal/application ticks and on actions in the other pane. The host panel retains its existing update strategy.
+
+Native wheel and scroll listeners are registered outside Angular and released on destroy. Wheel events still reach the parent hotkey handler synchronously with a non-passive listener; only a consumed shortcut enters Angular. Scroll enters Angular to close an open context/header menu, while ordinary scrolling needs no view update. Keyboard page reveal still performs an explicit child-view update. Dual-pane renderer regressions check these zone boundaries, selection state, metadata repaint, independent pagination and teardown.
