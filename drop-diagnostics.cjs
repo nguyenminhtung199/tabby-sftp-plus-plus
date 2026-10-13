@@ -1,7 +1,7 @@
 module.exports=function installDropDiagnostics({Panel,root}){
- const fs=require('fs'),path=require('path'),{AsyncLocalStorage}=require('async_hooks'),cfg=require('./transfer-policy.json').dropDiagnostics;
+ const fs=require('fs'),path=require('path'),createContext=require('./sync-context.cjs'),cfg=require('./transfer-policy.json').dropDiagnostics;
  if(!fs.existsSync(path.join(root,cfg.enabledMarker)))return;
- fs.mkdirSync(root,{recursive:true});const scope=new AsyncLocalStorage(),panels=new WeakMap(),jobs=new WeakMap(),spans=new Map();
+ fs.mkdirSync(root,{recursive:true});const scope=createContext(),panels=new WeakMap(),jobs=new WeakMap(),spans=new Map();
  const observedZones=new WeakSet();
  const file=path.join(root,cfg.file);let writes=Promise.resolve(),pending=0,records=0,nextPanel=0,nextJob=0,nextOperation=0,nextSpan=0,timer,last,owner;
  const outside=(p,fn)=>p?.zone?.runOutsideAngular?p.zone.runOutsideAngular(fn):fn();
@@ -31,10 +31,10 @@ module.exports=function installDropDiagnostics({Panel,root}){
   const span=spans.get(frame.spanId);record(p,method+(error?':error':':end'),{durationMs:span?Date.now()-span.started:undefined,result:typeof result==='boolean'?result:undefined,...(error?errorData(error):{})},frame);
   spans.delete(frame.spanId);if(!spans.size&&timer){clearInterval(timer);timer=null;}
  }
- const trace=function(phase,data){record(this,phase,data);return outside(this,()=>writes);};
+ const trace=function(phase,data){const parent=scope.getStore();const frame=data?.transferId?{operationId:process.pid+'-transfer-'+data.transferId,parentSpanId:parent?.spanId,jobId:parent?.jobId}:parent;record(this,phase,data,frame);return outside(this,()=>writes);};
  Panel.prototype._customTraceClipboard=trace;Panel.prototype._customTraceTransfer=trace;
  Panel.prototype._customTraceQueueEntry=function(entry){
-  if(!jobs.has(entry))jobs.set(entry,{operationId:scope.getStore()?.operationId,jobId:process.pid+'-j'+(++nextJob)});
+  if(!jobs.has(entry))jobs.set(entry,{operationId:scope.getStore()?.operationId||process.pid+'-o'+(++nextOperation),jobId:process.pid+'-j'+(++nextJob)});
   return jobs.get(entry);
  };
  for(const method of cfg.methods){
@@ -45,7 +45,7 @@ module.exports=function installDropDiagnostics({Panel,root}){
    return scope.run(frame,()=>{
     start(this,method,frame);
     if(cfg.flushBeforeMethods.includes(method))return outside(this,async()=>{
-     await writes;try{const result=await original.apply(this,args);finish(this,method,frame,null,result);return result;}catch(error){finish(this,method,frame,error);throw error;}
+     await writes;try{const result=await scope.run(frame,()=>original.apply(this,args));finish(this,method,frame,null,result);return result;}catch(error){finish(this,method,frame,error);throw error;}
     });
     try{const result=original.apply(this,args);if(result?.then)return outside(this,()=>Promise.resolve(result).then(value=>{finish(this,method,frame,null,value);return value;},error=>{finish(this,method,frame,error);throw error;}));finish(this,method,frame,null,result);return result;}catch(error){finish(this,method,frame,error);throw error;}
    });

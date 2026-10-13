@@ -31,3 +31,5 @@ The loader uses Tabby's existing @electron/remote support to load a small observ
 6. Once logs have been reviewed, optionally delete only the three named diagnostic JSONL files. Preserve recovery/state.json, edit and transfer recovery files, and staged uploads.
 
 Electron event contracts: https://www.electronjs.org/docs/latest/api/web-contents and https://www.electronjs.org/docs/latest/api/app . Tests simulate these event emitters; live Tabby execution is still required to confirm readiness and reproduce the hang.
+
+Permanent compatibility change (2026-10-13): sync-context.cjs and folder ownership logic in activity.cjs replace the native AsyncLocalStorage path found in crash dumps. Keep them when removing diagnostics; do not reintroduce AsyncLocalStorage into the renderer.

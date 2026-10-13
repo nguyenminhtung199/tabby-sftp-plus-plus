@@ -1,6 +1,6 @@
 # Shared white-screen investigation — 2026-10-12
 
-Status: cause not established. This change adds observations; it does not claim a fix.
+Status: shared crash site confirmed in AsyncLocalStorage.getStore from saved native/JavaScript stacks. The replacement is built and tested; live Tabby acceptance is pending.
 
 ## Shared code paths
 
@@ -26,3 +26,11 @@ Node fixture tests validate diagnostic behavior, real sidebar pin function order
 ## Temporary Tabby-level observer
 
 See DIAGNOSTICS-CLEANUP.md for all new hooks, local outputs and removal steps. The observer separates main heartbeats from renderer heartbeat age and records native renderer/GPU lifecycle events. Readiness is not confirmed until main:diagnostics:ready appears after a full restart.
+
+## Confirmed native crash site — 2026-10-13
+
+The 09:05:25 (UTC+7) Crashpad dump records renderer process, exception 0xc0000005 at Tabby.exe+0x3a543ce, Electron 43.7.0, and electron.v8-fatal.location = Isolate::PushStackTraceAndDie / electron.v8-fatal.message = null prototype chain root. Its saved JavaScript stack begins getStore -> _safeDetect (drop-diagnostics.cjs) -> customSyncNow -> Angular click listener. A 2026-10-12 upload dump has the same native fault address and getStore -> uploadPathToRemote in the activity/diagnostic wrappers. This locates the shared failure in native AsyncLocalStorage.getStore, not the SFTP write/read operation.
+
+Removed AsyncLocalStorage from activity.cjs and drop-diagnostics.cjs. New sync-context.cjs supports only synchronous nesting; folder ownership after await is resolved from running job server/direction and both source/destination paths. Diagnostic correlations across native await are best-effort; explicit saved queue context is retained. No global async busy flag absorbs unrelated jobs. Tests cover delayed folder children and a concurrent independent file. Full Tabby restart/live reproduction remains required to confirm the observed crashes stop.
+
+The Tabby main diagnostics loader failed at startup with TypeError and has no main:diagnostics:ready entry. This is a separate diagnostic limitation. Added installation stage and stripped frames to locate that failure; do not treat main heartbeats as available until readiness is recorded.

@@ -1,8 +1,12 @@
 module.exports = function installActivity({ Panel, recovery }) {
     const fs = require('fs'), path = require('path'), crypto = require('crypto');
     const remoteStat=require('./remote-metadata.cjs');
-    const scope = new (require('async_hooks').AsyncLocalStorage)();
+    const scope = require('./sync-context.cjs')();
     const live = new Map();
+    // After await, resolve directory ownership from both paths and server identity.
+    // A global async flag would incorrectly absorb concurrent unrelated files.
+    const within=(parent,file,remote)=>{const api=remote?path.posix:path;const relative=api.relative(parent,file);return relative===''||(!api.isAbsolute(relative)&&relative!=='..'&&!relative.startsWith('..'+api.sep));};
+    const folderOwner=(p,direction,remotePath,localPath)=>[...live.values()].find(row=>row.isFolder&&row.status==='Running'&&row.server===recovery.server(p)&&row.direction===direction&&within(row.remotePath,remotePath,true)&&within(row.localPath,localPath,false));
     const release = row => { const key=JSON.stringify([row.server,row.direction,row.remotePath,row.localPath]);if(live.get(key)===row)live.delete(key); };
     const original = { upload: Panel.prototype._doUpload, download: Panel.prototype._doDownload };
     const terminal = status => ['Completed','Cancelled'].includes(status);
@@ -69,7 +73,7 @@ module.exports = function installActivity({ Panel, recovery }) {
     for (const direction of ['upload','download']) {
         const method = direction === 'upload' ? '_doUpload' : '_doDownload';
         Panel.prototype[method] = async function (remotePath, localPath, ...args) {
-            if (scope.getStore() || (direction === 'upload' && args[0] === 'edit-upload') || (direction === 'download' && args[2] === 'edit-download')) return original[direction].call(this, remotePath, localPath, ...args);
+            if (scope.getStore() || folderOwner(this,direction,remotePath,localPath) || (direction === 'upload' && args[0] === 'edit-upload') || (direction === 'download' && args[2] === 'edit-download')) return original[direction].call(this, remotePath, localPath, ...args);
             const row = make(this, { direction, remotePath, localPath, isFolder: false, args });
             return this._customRunTransfer(row, () => original[direction].call(this, remotePath, localPath, ...args));
         };
@@ -86,6 +90,7 @@ module.exports = function installActivity({ Panel, recovery }) {
                 const direction = method === 'downloadRemoteDir' ? 'download' : 'upload';
                 const remotePath = method === 'uploadPathToRemote' ? path.posix.join(args[0], path.basename(args[1])) : method === 'mergeLocalDirToRemote' ? args[1] : args[0];
                 const localPath = method === 'downloadRemoteDir' ? path.join(args[1], args[3] || path.posix.basename(args[0])) : method === 'mergeLocalDirToRemote' ? args[0] : args[1];
+                if(folderOwner(this,direction,remotePath,localPath))return run.apply(coordinator,args);
                 const retryArgs = method === 'mergeLocalDirToRemote' ? [args[0],args[1]] : method === 'downloadRemoteDir' ? [args[0],args[1],null,args[3],false] : [args[0],args[1]];
                 const row = make(this, { direction, remotePath, localPath, isFolder: true, method, args: retryArgs });
                 return this._customRunTransfer(row, () => scope.run(row, () => run.apply(coordinator, args)));
