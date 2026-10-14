@@ -76,7 +76,8 @@ const stop=p=>{for(const e of p._customExternalSessions?.values()||[])clearInter
     const beforeUploads=uploads;
     reopened._customRestoreEdits();await delay(40);stop(reopened);
     const restored=reopened._customExternalSessions.get('/edit.txt');
-    assert.equal(restored.localPath,originalPath);assert.equal(restored.status,'Synced');assert.equal(uploads,beforeUploads+1,'offline save uploads after reconnect');
+    assert.equal(restored.localPath,originalPath);assert.equal(restored.status,'Offline');assert.equal(uploads,beforeUploads,'old local saves are not uploaded automatically after reconnect');
+    await reopened.customRetryEdit(restored);stop(reopened);assert.equal(restored.status,'Synced');assert.equal(uploads,beforeUploads+1,'explicit Retry can recover an offline local save');
     await fsp.writeFile(restored.localPath,'conflicting save');await fsp.utimes(restored.localPath,new Date(0),new Date(0));
     reopened.remote.set('/edit.txt',{size:99,mtime:1700009999});
     const beforeConflict=uploads,automaticAction=editPolicy.remoteChangeAction;

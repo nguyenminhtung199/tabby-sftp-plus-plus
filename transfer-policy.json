@@ -117,6 +117,7 @@
     "pageSize": 200
   },
   "externalEdit": {
-    "remoteChangeAction": "overwrite"
+    "remoteChangeAction": "overwrite",
+    "restoreWatchers": false
   }
 }

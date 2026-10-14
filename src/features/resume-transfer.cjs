@@ -4,6 +4,7 @@ module.exports = function createResumeTransfer({apis,Panel,root,server}) {
     const registry=globalThis[Symbol.for('sftp-plus-plus.resume-owners')] ||= new Map();
     const owners=registry.get(file)||new Map();registry.set(file,owners);
     const metadata=require('../runtime/remote-metadata.cjs');
+    const editPolicy=require('../../transfer-policy.json').externalEdit;
     const CHUNK=256*1024;
     const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
     const quote=value=>"'"+String(value).replaceAll("'","'\\''")+"'";
@@ -120,6 +121,7 @@ o.write(struct.pack('!I',0));o.flush()`;
             refresh();
             let tried=attempts.get(panel);if(!tried){tried=new Map();attempts.set(panel,tried);}
             for(const state of [...states.values()]){
+                if(state.operation?.startsWith('edit-')&&!editPolicy.restoreWatchers)continue;
                 if(state.server!==server(panel)||state.status!=='Interrupted'||owners.has(state.id)||tried.get(state.id)===panel.sftpSession)continue;
                 tried.set(state.id,panel.sftpSession);
                 if(state.operation==='edit-download'){void panel._customExternalEdit?.({name:path.posix.basename(state.remote),fullPath:state.remote,size:state.size,mode:420});continue;}

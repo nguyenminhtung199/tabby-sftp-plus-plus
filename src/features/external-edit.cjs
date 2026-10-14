@@ -5,6 +5,7 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
     const crypto = require('crypto');
     const editPolicy = require('../../transfer-policy.json').externalEdit;
     const metadata=require('../runtime/remote-metadata.cjs');
+    const openRequests = new Map();
     const hashFile = async file => {const digest=crypto.createHash('sha256');for await(const chunk of fs.createReadStream(file,{highWaterMark:256*1024}))digest.update(chunk);return digest.digest('hex');};
     const signature = stat => [stat.size,stat.mtimeMs,stat.ctimeMs,stat.ino].join(':');
     const poll = (panel, state) => {
@@ -60,6 +61,11 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
                 if (!state) { state = { ...saved, busy: false, stopped: true }; sessions.set(saved.remotePath, state); }
                 if (state.busy || state.opening) continue;
                 if (!fs.existsSync(state.localPath)) { status(this, state, 'Missing', 'Local copy is unavailable'); continue; }
+                if (!editPolicy.restoreWatchers && (state.session !== this.sftpSession || state.stopped)) {
+                    state.stopped = true; clearInterval(state.timer);
+                    status(this, state, 'Offline', 'Local copy retained; open again to download the current server file');
+                    continue;
+                }
                 if (state.session !== this.sftpSession || state.stopped) {
                     clearInterval(state.timer); state.session = this.sftpSession; state.stopped = false;
                     status(this, state, state.blockedHash ? (saved.status === 'Failed' ? 'Failed' : 'Conflict') : 'Editing', state.blockedHash ? 'Resolve or retry this local edit' : '');
@@ -70,6 +76,7 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
         } catch (e) { if (!this._customRecoveryError) { this._customRecoveryError = e.message; notice(this, 'Cannot restore edits: ' + e.message, true); } }
     };
     apis.Panel.customRetryEdit = async function (state) {
+        if (this._customExternalSessions?.get(state.remotePath) !== state) return;
         if (!this.connected || state.busy || state.opening || this._destroyed) return;
         if (state.openingError) return this._customExternalEdit(state.entry);
         if(this._customPendingEditUpload?.(state.remotePath)&&!await this._customRetrySavedEditUpload(state.remotePath))return;
@@ -78,11 +85,11 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
         clearInterval(state.timer); state.timer = poll(this, state);
         status(this, state, 'Editing'); await this._customSyncExternal(state);
     };
-    apis.Panel.customOpenEdit = async function (state) {
-        const error = await shell.openPath(state.localPath);
-        if (error) status(this, state, 'Failed', 'Cannot open local app: ' + error);
+    apis.Panel.customOpenEdit = function (state) {
+        return this._customExternalEdit({ ...state.entry, name: path.basename(state.remotePath), fullPath: state.remotePath });
     };
     apis.Panel.customStopEdit = function (state) {
+        if (this._customExternalSessions?.get(state.remotePath) !== state) return;
         if (state.busy || state.opening) return;
         state.stopped = true; clearInterval(state.timer);
         this._customExternalSessions?.delete(state.remotePath);
@@ -111,39 +118,26 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
         if (pane === 'local') return this._openPathInSystem(entry.linkTarget || entry.fullPath, { waitForModRelease: true });
         return this._customExternalEdit(entry);
     };
-    apis.Panel._customExternalEdit = async function (entry, opener) {
+    const openFresh = async function (entry, opener) {
         const open=opener||((file)=>shell.openPath(file));
         if (!this.connected || !this.sftpSession || this._destroyed) return;
-        this._customRestoreEdits();
-        const sessions = this._customExternalSessions ||= new Map();
-        let existing = sessions.get(entry.fullPath);
-        if(existing?.openingError){sessions.delete(entry.fullPath);if(existing.id && recovery)recovery.release(existing.id,this);existing=null;}
-        if (existing && existing.session === this.sftpSession) {
-            if (existing.opening) {
-                await existing.opening;
-                if(opener&&existing.syncedHash&&!existing.stopped&&!this._destroyed&&existing.session===this.sftpSession)return open(existing.localPath);
-                return;
-            }
-            existing.blockedHash = null;
-            existing.nextRetry = 0; existing.retries = 0;
-            if (existing.stopped) {
-                existing.stopped = false;
-                existing.timer = poll(this, existing);
-            }
-            const error = await open(existing.localPath);
-            if (error) notice(this, `Cannot open editor: ${error}. Local copy: ${existing.localPath}`, true);
-            else if(existing.status==='Failed')status(this,existing,'Editing');
-            return;
-        }
-        if (existing) { existing.stopped = true; clearInterval(existing.timer); }
         const server = recovery?.server(this);
         const id = server && recovery.editId(server, entry.fullPath);
-        if (id && !recovery.claim(id, this)) {
-            const owner = recovery.owner(id); const state = owner?._customExternalSessions?.get(entry.fullPath);
-            if (state?.localPath) await open(state.localPath);
-            else notice(this, 'This file is already opening in another SFTP panel.');
-            return;
+        const sessions = this._customExternalSessions ||= new Map();
+        const owner = (id && recovery.owner(id)) || this;
+        const existing = owner._customExternalSessions?.get(entry.fullPath);
+        if (existing) {
+            existing.stopped = true; clearInterval(existing.timer);
+            // Finish a save already in flight before downloading the new server version.
+            if (existing.syncing) await existing.syncing;
+            status(owner, existing, 'Offline', 'Reopened from server; previous local copy retained');
+            owner._customExternalSessions.delete(entry.fullPath);
+            if (id) recovery.release(id, owner);
         }
+        const pending = this._customPendingEditUpload?.(entry.fullPath);
+        if (pending) await this._customDiscardPartial('upload', entry.fullPath, pending.local);
+        if (!this.connected || !this.sftpSession || this._destroyed) return;
+        if (id && !recovery.claim(id, this)) throw new Error('Cannot acquire save-upload ownership');
         const state = { id, server, entry: { name: entry.name, fullPath: entry.fullPath, size: entry.size, mode: entry.mode }, session: this.sftpSession, remotePath: entry.fullPath, stopped: false, busy: false, blockedHash: null, status: 'Opening' };
         sessions.set(entry.fullPath, state);
         this._safeDetect?.();
@@ -151,12 +145,11 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
             try {
                 const before = baseline(await metadata(state.session,entry.fullPath));
                 if(this._customDownloadForEdit){
-                    const resumed=this._customResumeLocalForEdit?.(entry.fullPath);
-                    const directory=resumed?path.dirname(resumed):path.join(id?recovery.root:require('os').tmpdir(),'edits',crypto.randomUUID());
-                    await fsp.mkdir(directory,{recursive:true});state.localPath=resumed||path.join(directory,path.basename(entry.fullPath));
+                    const directory=path.join(id?recovery.root:require('os').tmpdir(),'edits',crypto.randomUUID());
+                    await fsp.mkdir(directory,{recursive:true});state.localPath=path.join(directory,path.basename(entry.fullPath));
                     status(this,state,'Downloading');
                     if(!await this._customDownloadForEdit({...entry,size:before.size},state.localPath))throw new Error('Download failed or cancelled; local app was not opened');
-                }else state.localPath = await download(state.session, entry.fullPath, entry.size ?? 0, entry.mode, { requireExactSize: true });
+                }else state.localPath = await download(state.session, entry.fullPath, before.size, entry.mode, { requireExactSize: true });
                 state.baseline = baseline(await metadata(state.session,entry.fullPath));
                 if (!same(before, state.baseline)) throw new Error('Remote file changed while downloading; open it again');
                 if (id && !this._customDownloadForEdit) {
@@ -184,7 +177,19 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
         })();
         return state.opening;
     };
-    apis.Panel._customSyncExternal = async function (state) {
+    apis.Panel._customExternalEdit = function (entry, opener) {
+        const key = JSON.stringify([recovery?.server(this), entry.fullPath]);
+        const previous = openRequests.get(key) || Promise.resolve();
+        let request;
+        const start = () => openFresh.call(this, entry, opener);
+        request = previous.catch(() => {}).then(() => this.zone?.runOutsideAngular ? this.zone.runOutsideAngular(start) : start())
+        .catch(error => notice(this, 'Cannot download/open file: ' + error.message, true)).finally(() => {
+            if (openRequests.get(key) === request) openRequests.delete(key);
+        });
+        openRequests.set(key, request);
+        return request;
+    };
+    const syncExternal = async function (state) {
         if(this._customPendingEditUpload?.(state.remotePath))return;
         if (state.stopped || state.busy || this._destroyed) return;
         if (state.nextRetry > Date.now()) return;
@@ -252,6 +257,14 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
             state.uploadSnapshot=null;state.pendingHash=null;
             state.busy = false;
         }
+    };
+    apis.Panel._customSyncExternal = function (state) {
+        if (state.syncing) return state.syncing;
+        const pending = syncExternal.call(this, state);
+        let running;
+        running = pending.finally(() => { if (state.syncing === running) state.syncing = null; });
+        state.syncing = running;
+        return running;
     };
     apis.Panel.ngOnDestroy = function (...args) {
         this._customEditDisposing = true;

@@ -52,3 +52,9 @@ Native wheel and scroll listeners are registered outside Angular and released on
 ## Automatic external-editor sync
 
 transfer-policy.json externalEdit.remoteChangeAction defaults to overwrite: a new local save uploads automatically even when remote size/mtime differs from the previously synchronized baseline. No modal confirmation interrupts each save. The freshly observed remote metadata is still passed to the queue, preserving its check for changes while waiting or transferring. Failed/cancelled uploads retain the local copy and existing retry behavior; unchanged local content is not uploaded. The explicit confirm policy retains the previous prompt/reject workflow when deliberately selected. Permission preservation continues through the existing upload engine.
+
+## Fresh downloads on Open
+
+Every explicit remote Open/Open with (including opening a retained copy from the transfer panel) downloads to a new local path using current remote metadata. Opens for the same server/path are serialized; an already-running save finishes before the next download. The previous watcher is stopped and its local bytes retained. Cross-panel ownership moves to the newest open rather than reusing another panel's cached file. Save still uploads an immutable snapshot with permission preservation. A failed download never opens an older cached copy.
+
+externalEdit.restoreWatchers is false: reconnect/restart retains old edit copies for explicit recovery but does not automatically watch/upload them. Interrupted editor transfers are not automatically resumed. An explicit Open starts fresh; explicit Retry remains available for recovering a failed local save. Regular file transfers retain their automatic recovery behavior. Retired edit snapshots are discarded before a new open so they cannot block the new file's save-upload.
