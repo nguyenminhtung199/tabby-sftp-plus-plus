@@ -2910,7 +2910,7 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
         /** 插件版本号（webpack 构建时内联 package.json） */
         this.pkgVersion = (__webpack_require__(/*! ../../package.json */ "./package.json").version);
         /** 构建时间（webpack 每次 build 时注入，用于确认是否已重新打包） */
-        this.pkgBuildTime =  true ? "2026-10-14T02:08:15.628Z" : 0;
+        this.pkgBuildTime =  true ? "2026-10-14T02:44:13.142Z" : 0;
         /** 主题颜色标签 key 映射（统一走 .po 翻译） */
         this.themeLabelKeys = {
             '': 'theme.auto',
@@ -37359,6 +37359,7 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
     const crypto = __webpack_require__(/*! crypto */ "crypto");
     const editPolicy = (__webpack_require__(/*! ../../transfer-policy.json */ "./transfer-policy.json").externalEdit);
     const metadata=__webpack_require__(/*! ../runtime/remote-metadata.cjs */ "./src/runtime/remote-metadata.cjs");
+    const openRequests = new Map();
     const hashFile = async file => {const digest=crypto.createHash('sha256');for await(const chunk of fs.createReadStream(file,{highWaterMark:256*1024}))digest.update(chunk);return digest.digest('hex');};
     const signature = stat => [stat.size,stat.mtimeMs,stat.ctimeMs,stat.ino].join(':');
     const poll = (panel, state) => {
@@ -37414,6 +37415,11 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
                 if (!state) { state = { ...saved, busy: false, stopped: true }; sessions.set(saved.remotePath, state); }
                 if (state.busy || state.opening) continue;
                 if (!fs.existsSync(state.localPath)) { status(this, state, 'Missing', 'Local copy is unavailable'); continue; }
+                if (!editPolicy.restoreWatchers && (state.session !== this.sftpSession || state.stopped)) {
+                    state.stopped = true; clearInterval(state.timer);
+                    status(this, state, 'Offline', 'Local copy retained; open again to download the current server file');
+                    continue;
+                }
                 if (state.session !== this.sftpSession || state.stopped) {
                     clearInterval(state.timer); state.session = this.sftpSession; state.stopped = false;
                     status(this, state, state.blockedHash ? (saved.status === 'Failed' ? 'Failed' : 'Conflict') : 'Editing', state.blockedHash ? 'Resolve or retry this local edit' : '');
@@ -37424,6 +37430,7 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
         } catch (e) { if (!this._customRecoveryError) { this._customRecoveryError = e.message; notice(this, 'Cannot restore edits: ' + e.message, true); } }
     };
     apis.Panel.customRetryEdit = async function (state) {
+        if (this._customExternalSessions?.get(state.remotePath) !== state) return;
         if (!this.connected || state.busy || state.opening || this._destroyed) return;
         if (state.openingError) return this._customExternalEdit(state.entry);
         if(this._customPendingEditUpload?.(state.remotePath)&&!await this._customRetrySavedEditUpload(state.remotePath))return;
@@ -37432,11 +37439,11 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
         clearInterval(state.timer); state.timer = poll(this, state);
         status(this, state, 'Editing'); await this._customSyncExternal(state);
     };
-    apis.Panel.customOpenEdit = async function (state) {
-        const error = await shell.openPath(state.localPath);
-        if (error) status(this, state, 'Failed', 'Cannot open local app: ' + error);
+    apis.Panel.customOpenEdit = function (state) {
+        return this._customExternalEdit({ ...state.entry, name: path.basename(state.remotePath), fullPath: state.remotePath });
     };
     apis.Panel.customStopEdit = function (state) {
+        if (this._customExternalSessions?.get(state.remotePath) !== state) return;
         if (state.busy || state.opening) return;
         state.stopped = true; clearInterval(state.timer);
         this._customExternalSessions?.delete(state.remotePath);
@@ -37465,39 +37472,26 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
         if (pane === 'local') return this._openPathInSystem(entry.linkTarget || entry.fullPath, { waitForModRelease: true });
         return this._customExternalEdit(entry);
     };
-    apis.Panel._customExternalEdit = async function (entry, opener) {
+    const openFresh = async function (entry, opener) {
         const open=opener||((file)=>shell.openPath(file));
         if (!this.connected || !this.sftpSession || this._destroyed) return;
-        this._customRestoreEdits();
-        const sessions = this._customExternalSessions ||= new Map();
-        let existing = sessions.get(entry.fullPath);
-        if(existing?.openingError){sessions.delete(entry.fullPath);if(existing.id && recovery)recovery.release(existing.id,this);existing=null;}
-        if (existing && existing.session === this.sftpSession) {
-            if (existing.opening) {
-                await existing.opening;
-                if(opener&&existing.syncedHash&&!existing.stopped&&!this._destroyed&&existing.session===this.sftpSession)return open(existing.localPath);
-                return;
-            }
-            existing.blockedHash = null;
-            existing.nextRetry = 0; existing.retries = 0;
-            if (existing.stopped) {
-                existing.stopped = false;
-                existing.timer = poll(this, existing);
-            }
-            const error = await open(existing.localPath);
-            if (error) notice(this, `Cannot open editor: ${error}. Local copy: ${existing.localPath}`, true);
-            else if(existing.status==='Failed')status(this,existing,'Editing');
-            return;
-        }
-        if (existing) { existing.stopped = true; clearInterval(existing.timer); }
         const server = recovery?.server(this);
         const id = server && recovery.editId(server, entry.fullPath);
-        if (id && !recovery.claim(id, this)) {
-            const owner = recovery.owner(id); const state = owner?._customExternalSessions?.get(entry.fullPath);
-            if (state?.localPath) await open(state.localPath);
-            else notice(this, 'This file is already opening in another SFTP panel.');
-            return;
+        const sessions = this._customExternalSessions ||= new Map();
+        const owner = (id && recovery.owner(id)) || this;
+        const existing = owner._customExternalSessions?.get(entry.fullPath);
+        if (existing) {
+            existing.stopped = true; clearInterval(existing.timer);
+            // Finish a save already in flight before downloading the new server version.
+            if (existing.syncing) await existing.syncing;
+            status(owner, existing, 'Offline', 'Reopened from server; previous local copy retained');
+            owner._customExternalSessions.delete(entry.fullPath);
+            if (id) recovery.release(id, owner);
         }
+        const pending = this._customPendingEditUpload?.(entry.fullPath);
+        if (pending) await this._customDiscardPartial('upload', entry.fullPath, pending.local);
+        if (!this.connected || !this.sftpSession || this._destroyed) return;
+        if (id && !recovery.claim(id, this)) throw new Error('Cannot acquire save-upload ownership');
         const state = { id, server, entry: { name: entry.name, fullPath: entry.fullPath, size: entry.size, mode: entry.mode }, session: this.sftpSession, remotePath: entry.fullPath, stopped: false, busy: false, blockedHash: null, status: 'Opening' };
         sessions.set(entry.fullPath, state);
         this._safeDetect?.();
@@ -37505,12 +37499,11 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
             try {
                 const before = baseline(await metadata(state.session,entry.fullPath));
                 if(this._customDownloadForEdit){
-                    const resumed=this._customResumeLocalForEdit?.(entry.fullPath);
-                    const directory=resumed?path.dirname(resumed):path.join(id?recovery.root:(__webpack_require__(/*! os */ "os").tmpdir)(),'edits',crypto.randomUUID());
-                    await fsp.mkdir(directory,{recursive:true});state.localPath=resumed||path.join(directory,path.basename(entry.fullPath));
+                    const directory=path.join(id?recovery.root:(__webpack_require__(/*! os */ "os").tmpdir)(),'edits',crypto.randomUUID());
+                    await fsp.mkdir(directory,{recursive:true});state.localPath=path.join(directory,path.basename(entry.fullPath));
                     status(this,state,'Downloading');
                     if(!await this._customDownloadForEdit({...entry,size:before.size},state.localPath))throw new Error('Download failed or cancelled; local app was not opened');
-                }else state.localPath = await download(state.session, entry.fullPath, entry.size ?? 0, entry.mode, { requireExactSize: true });
+                }else state.localPath = await download(state.session, entry.fullPath, before.size, entry.mode, { requireExactSize: true });
                 state.baseline = baseline(await metadata(state.session,entry.fullPath));
                 if (!same(before, state.baseline)) throw new Error('Remote file changed while downloading; open it again');
                 if (id && !this._customDownloadForEdit) {
@@ -37538,7 +37531,19 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
         })();
         return state.opening;
     };
-    apis.Panel._customSyncExternal = async function (state) {
+    apis.Panel._customExternalEdit = function (entry, opener) {
+        const key = JSON.stringify([recovery?.server(this), entry.fullPath]);
+        const previous = openRequests.get(key) || Promise.resolve();
+        let request;
+        const start = () => openFresh.call(this, entry, opener);
+        request = previous.catch(() => {}).then(() => this.zone?.runOutsideAngular ? this.zone.runOutsideAngular(start) : start())
+        .catch(error => notice(this, 'Cannot download/open file: ' + error.message, true)).finally(() => {
+            if (openRequests.get(key) === request) openRequests.delete(key);
+        });
+        openRequests.set(key, request);
+        return request;
+    };
+    const syncExternal = async function (state) {
         if(this._customPendingEditUpload?.(state.remotePath))return;
         if (state.stopped || state.busy || this._destroyed) return;
         if (state.nextRetry > Date.now()) return;
@@ -37606,6 +37611,14 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
             state.uploadSnapshot=null;state.pendingHash=null;
             state.busy = false;
         }
+    };
+    apis.Panel._customSyncExternal = function (state) {
+        if (state.syncing) return state.syncing;
+        const pending = syncExternal.call(this, state);
+        let running;
+        running = pending.finally(() => { if (state.syncing === running) state.syncing = null; });
+        state.syncing = running;
+        return running;
     };
     apis.Panel.ngOnDestroy = function (...args) {
         this._customEditDisposing = true;
@@ -38237,6 +38250,7 @@ module.exports = function createResumeTransfer({apis,Panel,root,server}) {
     const registry=globalThis[Symbol.for('sftp-plus-plus.resume-owners')] ||= new Map();
     const owners=registry.get(file)||new Map();registry.set(file,owners);
     const metadata=__webpack_require__(/*! ../runtime/remote-metadata.cjs */ "./src/runtime/remote-metadata.cjs");
+    const editPolicy=(__webpack_require__(/*! ../../transfer-policy.json */ "./transfer-policy.json").externalEdit);
     const CHUNK=256*1024;
     const hash=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
     const quote=value=>"'"+String(value).replaceAll("'","'\\''")+"'";
@@ -38353,6 +38367,7 @@ o.write(struct.pack('!I',0));o.flush()`;
             refresh();
             let tried=attempts.get(panel);if(!tried){tried=new Map();attempts.set(panel,tried);}
             for(const state of [...states.values()]){
+                if(state.operation?.startsWith('edit-')&&!editPolicy.restoreWatchers)continue;
                 if(state.server!==server(panel)||state.status!=='Interrupted'||owners.has(state.id)||tried.get(state.id)===panel.sftpSession)continue;
                 tried.set(state.id,panel.sftpSession);
                 if(state.operation==='edit-download'){void panel._customExternalEdit?.({name:path.posix.basename(state.remote),fullPath:state.remote,size:state.size,mode:420});continue;}
@@ -39123,7 +39138,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"names":{"mix":"vscode_hex.svg","karm
 (module) {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.3","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.4","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
 
 /***/ },
 
@@ -39145,7 +39160,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"Panel":["_readDefaultShowHidden","lo
 (module) {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"newFileMode":"0764","symlinkDepthLimit":32,"dropDiagnostics":{"enabledMarker":"enable-drop-trace","file":"drop-trace.jsonl","heartbeatMs":1000,"maxRecords":15000,"maxPendingRecords":256,"methods":["onDrop","_customDeferDrop","_customStageDropFile","_customUploadLocalPaths","_streamUploadOne","_pumpUploadQueue","_runQueuedUpload","uploadPathToRemote","_doUpload","refreshRemote","_safeDetect","customPasteImage","ctxClipboardPaste","_streamDownloadOne","_pumpDownloadQueue","_runQueuedDownload","_doDownload","_doUploadRaw","_doDownloadRaw","_customQueueEditTransfer","_customDownloadForEdit","_customUploadForEdit","_customDownloadToDirectory","trackTransfer","pauseTransfer","resumeTransfer","cancelTransfer","toggleCustomSidebarPin","toggleCustomSidebarMode","toggleCustomSidebarFull","_scheduleLayoutRefresh","closeContextMenu","ctxNewFile"],"flushBeforeMethods":["_customUploadLocalPaths","_streamUploadOne","_runQueuedUpload","uploadPathToRemote","_doUpload","_streamDownloadOne","_runQueuedDownload","_doDownload","_doUploadRaw","_doDownloadRaw","_customQueueEditTransfer","_customDownloadForEdit","_customUploadForEdit","_customDownloadToDirectory"],"maxErrorFrames":8,"heartbeatMaxSpans":16,"chunkTraceLimit":32,"criticalSyncPhases":["clipboard:key:capture","clipboard:key:capture-route","clipboard:key-route","runtime:zone:error","runtime:window:error","runtime:promise:error","toggleCustomSidebarPin:start","toggleCustomSidebarPin:error","toggleCustomSidebarPin:end","_safeDetect:error","sidebar:pin:start","sidebar:pin:config:start","sidebar:pin:config:return","sidebar:pin:layout:start","sidebar:pin:layout:end","sidebar:pin:detect:start","sidebar:pin:detect:end","sidebar:pin:resize:start","sidebar:pin:resize:end","sidebar:pin:end","sidebar:pin:error"]},"tabbyDiagnostics":{"enabledMarker":"enable-tabby-trace","file":"tabby-runtime.jsonl","backupFile":"tabby-runtime.previous.jsonl","channel":"sftp-plus-plus:diagnostic-heartbeat","heartbeatMs":2000,"rendererHeartbeatMs":1000,"maxBytes":2097152,"maxRecords":20000,"maxMetrics":16,"maxErrorFrames":8},"windowsOpenWith":{"executable":"System32/WindowsPowerShell/v1.0/powershell.exe","script":"windows-open-with.ps1","arguments":["-NoProfile","-NonInteractive","-ExecutionPolicy","Bypass","-WindowStyle","Hidden","-File"],"flags":4,"cancelExitCode":2},"newFileOpenFlags":42,"fileList":{"pageSize":200},"externalEdit":{"remoteChangeAction":"overwrite"}}');
+module.exports = /*#__PURE__*/JSON.parse('{"newFileMode":"0764","symlinkDepthLimit":32,"dropDiagnostics":{"enabledMarker":"enable-drop-trace","file":"drop-trace.jsonl","heartbeatMs":1000,"maxRecords":15000,"maxPendingRecords":256,"methods":["onDrop","_customDeferDrop","_customStageDropFile","_customUploadLocalPaths","_streamUploadOne","_pumpUploadQueue","_runQueuedUpload","uploadPathToRemote","_doUpload","refreshRemote","_safeDetect","customPasteImage","ctxClipboardPaste","_streamDownloadOne","_pumpDownloadQueue","_runQueuedDownload","_doDownload","_doUploadRaw","_doDownloadRaw","_customQueueEditTransfer","_customDownloadForEdit","_customUploadForEdit","_customDownloadToDirectory","trackTransfer","pauseTransfer","resumeTransfer","cancelTransfer","toggleCustomSidebarPin","toggleCustomSidebarMode","toggleCustomSidebarFull","_scheduleLayoutRefresh","closeContextMenu","ctxNewFile"],"flushBeforeMethods":["_customUploadLocalPaths","_streamUploadOne","_runQueuedUpload","uploadPathToRemote","_doUpload","_streamDownloadOne","_runQueuedDownload","_doDownload","_doUploadRaw","_doDownloadRaw","_customQueueEditTransfer","_customDownloadForEdit","_customUploadForEdit","_customDownloadToDirectory"],"maxErrorFrames":8,"heartbeatMaxSpans":16,"chunkTraceLimit":32,"criticalSyncPhases":["clipboard:key:capture","clipboard:key:capture-route","clipboard:key-route","runtime:zone:error","runtime:window:error","runtime:promise:error","toggleCustomSidebarPin:start","toggleCustomSidebarPin:error","toggleCustomSidebarPin:end","_safeDetect:error","sidebar:pin:start","sidebar:pin:config:start","sidebar:pin:config:return","sidebar:pin:layout:start","sidebar:pin:layout:end","sidebar:pin:detect:start","sidebar:pin:detect:end","sidebar:pin:resize:start","sidebar:pin:resize:end","sidebar:pin:end","sidebar:pin:error"]},"tabbyDiagnostics":{"enabledMarker":"enable-tabby-trace","file":"tabby-runtime.jsonl","backupFile":"tabby-runtime.previous.jsonl","channel":"sftp-plus-plus:diagnostic-heartbeat","heartbeatMs":2000,"rendererHeartbeatMs":1000,"maxBytes":2097152,"maxRecords":20000,"maxMetrics":16,"maxErrorFrames":8},"windowsOpenWith":{"executable":"System32/WindowsPowerShell/v1.0/powershell.exe","script":"windows-open-with.ps1","arguments":["-NoProfile","-NonInteractive","-ExecutionPolicy","Bypass","-WindowStyle","Hidden","-File"],"flags":4,"cancelExitCode":2},"newFileOpenFlags":42,"fileList":{"pageSize":200},"externalEdit":{"remoteChangeAction":"overwrite","restoreWatchers":false}}');
 
 /***/ }
 
