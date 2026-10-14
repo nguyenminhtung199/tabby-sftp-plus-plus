@@ -1,6 +1,7 @@
 const assert = require('assert/strict');
 const fs = require('fs/promises');
 const path = require('path');
+const editPolicy = require('./transfer-policy.json').externalEdit;
 const install = require('./tests/helpers/feature-fixture.cjs')(require('./src/features/external-edit.cjs'));
 const root = path.join(__dirname, 'test-fixtures');
 let counter = 0, opened = [], confirmations = 0, originalCalls = 0;
@@ -56,8 +57,10 @@ const save = async (state, bytes) => { await fs.writeFile(state.localPath, bytes
     assert.equal(p.uploads[3].name, '/b.txt', 'multiple files use correct destination');
     p.remote.set('/a.conf', { size: 0, mtime: 1700000900 }); await save(a, Buffer.from('conflict'));
     await p._customSyncExternal(a); await p._customSyncExternal(a);
-    assert.equal(confirmations, 1); assert.equal(p.uploads.length, 4, 'rejected conflict does not overwrite, including empty remote');
-    window.confirm = () => true; a.blockedHash = null; await p._customSyncExternal(a); assert.equal(p.uploads.length, 5);
+    assert.equal(confirmations, 0, 'default automatic sync never prompts for earlier remote changes');
+    assert.equal(p.uploads.length, 5, 'local save automatically replaces changed remote, including an empty file');
+    assert.equal(p.uploads[4].data.toString(), 'conflict');assert.equal(a.status, 'Synced');assert.equal(a.blockedHash, null);
+    await p._customSyncExternal(a);assert.equal(p.uploads.length,5,'automatic overwrite updates the baseline without duplicate uploads');
     p.failUpload = true; await save(b, Buffer.from('failed')); await p._customSyncExternal(b);
     assert.equal((await fs.readFile(b.localPath)).toString(), 'failed', 'failed upload preserves local edits');
     assert.ok(p.messages.some(m => m.includes('Local copy retained')));
@@ -83,5 +86,20 @@ const save = async (state, bytes) => { await fs.writeFile(state.localPath, bytes
     await custom._customExternalEdit({name:'custom.conf',fullPath:'/custom.conf'},async file=>{customPaths.push(file);return '';});
     assert.equal(customPaths[1],customPaths[0],'opening with another app reuses verified local copy');custom.ngOnDestroy();
 
-    console.log('PASS: deduplicated open, byte preservation, repeat saves, save during upload, multiple files, conflicts, failed-upload recovery, directories, settings, disconnect, cleanup.');
+    // An explicitly selected confirm policy retains the original conflict workflow.
+    const originalAction=editPolicy.remoteChangeAction,manual=new Panel();
+    try{
+        editPolicy.remoteChangeAction='confirm';manual.remote.set('/manual.conf',{size:4,mtime:1700000000});
+        await manual._customExternalEdit({name:'manual.conf',fullPath:'/manual.conf'});
+        const state=manual._customExternalSessions.get('/manual.conf');clearInterval(state.timer);
+        manual.remote.set('/manual.conf',{size:0,mtime:1700000900});await save(state,Buffer.from('manual save'));
+        window.confirm=()=>{confirmations++;return false;};await manual._customSyncExternal(state);await manual._customSyncExternal(state);
+        assert.equal(manual.uploads.length,0);assert.equal(confirmations,1);assert.equal(state.status,'Conflict');
+        editPolicy.remoteChangeAction=originalAction;await manual._customSyncExternal(state);
+        assert.equal(manual.uploads.length,1,'old prompt-rejected edits resume under automatic policy');assert.equal(confirmations,1);
+        editPolicy.remoteChangeAction='confirm';manual.remote.set('/manual.conf',{size:0,mtime:1700009999});await save(state,Buffer.from('confirmed save'));
+        window.confirm=()=>true;await manual._customSyncExternal(state);assert.equal(manual.uploads.length,2);
+    }finally{editPolicy.remoteChangeAction=originalAction;manual.ngOnDestroy();}
+
+    console.log('PASS: deduplicated open, byte preservation, repeat saves, save during upload, multiple files, automatic remote overwrite without prompts, explicit confirm policy, failed-upload recovery, directories, settings, disconnect, cleanup.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

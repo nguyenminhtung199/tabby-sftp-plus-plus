@@ -3,6 +3,7 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
     const fsp = fs.promises;
     const path = require('path');
     const crypto = require('crypto');
+    const editPolicy = require('../../transfer-policy.json').externalEdit;
     const metadata=require('../runtime/remote-metadata.cjs');
     const hashFile = async file => {const digest=crypto.createHash('sha256');for await(const chunk of fs.createReadStream(file,{highWaterMark:256*1024}))digest.update(chunk);return digest.digest('hex');};
     const signature = stat => [stat.size,stat.mtimeMs,stat.ctimeMs,stat.ino].join(':');
@@ -194,6 +195,7 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
             notice(this, `Sync stopped: connection closed. Local copy retained: ${state.localPath}`, true);
             return;
         }
+        if (state.status === 'Conflict' && editPolicy.remoteChangeAction === 'overwrite') state.blockedHash = null;
         state.busy = true;
         let snapshot, snapshotDirectory;
         let contentHash;
@@ -209,7 +211,8 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
             state.pendingHash=contentHash;state.cancelledUpload=false;
             status(this, state, 'Pending');
             const current = baseline(await metadata(state.session,state.remotePath));
-            if (!same(current, state.baseline)) {
+            // Local saves are authoritative by default. Keep current metadata as the queued-upload guard.
+            if (!same(current, state.baseline) && editPolicy.remoteChangeAction === 'confirm') {
                 const overwrite = window.confirm(`Remote file changed: ${state.remotePath}\nOverwrite with your local edits?\nLocal copy: ${state.localPath}`);
                 if (!overwrite) { state.blockedHash = contentHash; status(this, state, 'Conflict', 'Server file changed; local edits retained'); return; }
             }

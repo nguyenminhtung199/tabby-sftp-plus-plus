@@ -115,5 +115,8 @@
   "newFileOpenFlags": 42,
   "fileList": {
     "pageSize": 200
+  },
+  "externalEdit": {
+    "remoteChangeAction": "overwrite"
   }
 }

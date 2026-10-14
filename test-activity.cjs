@@ -1,6 +1,7 @@
 const assert = require('assert/strict');
 const fs = require('fs'), fsp = fs.promises, path = require('path');
 const root = path.join(__dirname,'test-activity-fixture');
+const editPolicy=require('./transfer-policy.json').externalEdit;
 const createStore = require('./src/runtime/recovery-store.cjs');
 const installEdit = require('./tests/helpers/feature-fixture.cjs')(require('./src/features/external-edit.cjs'));
 const installActivity = require('./tests/helpers/feature-fixture.cjs')(require('./src/features/activity.cjs'));
@@ -78,7 +79,9 @@ const stop=p=>{for(const e of p._customExternalSessions?.values()||[])clearInter
     assert.equal(restored.localPath,originalPath);assert.equal(restored.status,'Synced');assert.equal(uploads,beforeUploads+1,'offline save uploads after reconnect');
     await fsp.writeFile(restored.localPath,'conflicting save');await fsp.utimes(restored.localPath,new Date(0),new Date(0));
     reopened.remote.set('/edit.txt',{size:99,mtime:1700009999});
-    const beforeConflict=uploads;await reopened._customSyncExternal(restored);
+    const beforeConflict=uploads,automaticAction=editPolicy.remoteChangeAction;
+    editPolicy.remoteChangeAction='confirm';
+    try { await reopened._customSyncExternal(restored); } finally { editPolicy.remoteChangeAction=automaticAction; }
     assert.equal(restored.status,'Conflict');assert.equal(uploads,beforeConflict,'remote conflict never overwrites without confirmation');
     const other=new Reopened('fixture','bob');other._customRestoreEdits();assert.equal(other.customEditRows.length,0,'recovery isolated by username');
     const duplicate=new Reopened();duplicate.remote=reopened.remote;duplicate._customRestoreEdits();assert.equal(duplicate.customEditRows.length,0,'one watcher owns each file across panels');
