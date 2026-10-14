@@ -436,23 +436,13 @@
         (showTransfers)="transfersHidden = false; transfersMinimized = false"
         (export)="exportLog()"
         (clear)="clearLog()">
-            <section class="custom-activity" *ngIf="customEditRows.length || customHistoryRecoveryRows.length || _customRecoveryError" (mousedown)="$event.stopPropagation()">
+            <section class="custom-activity" *ngIf="customHistoryRecoveryRows.length || _customRecoveryError" (mousedown)="$event.stopPropagation()">
         <div class="custom-activity-heading">
-          <span>Local editing &amp; recovered transfers</span>
+          <span>Uploads &amp; downloads</span>
           <button class="btn-link" (click)="customClearFinishedTransfers()" title="Clear completed and cancelled transfers"><i class="fas fa-broom"></i></button>
         </div>
         <div class="custom-recovery-warning" *ngIf="_customRecoveryError">Recovery could not be saved: {{ _customRecoveryError }}</div>
         <div class="custom-activity-list">
-          <div class="custom-activity-row" *ngFor="let e of customEditRows; trackBy: customTrackActivity">
-            <div class="custom-activity-info" [title]="e.remotePath + '\nLocal: ' + (e.localPath || 'Downloading…')">
-              <span class="custom-activity-name">{{ customActivityName(e) }}</span>
-              <span class="custom-activity-state" [class.custom-state-error]="e.status === 'Failed' || e.status === 'Conflict' || e.status === 'Missing'" [class.custom-state-success]="e.status === 'Synced'">{{ e.status }}</span>
-              <span class="custom-activity-detail" *ngIf="e.error">{{ e.error }}</span>
-            </div>
-            <button class="btn-link" (click)="customOpenEdit(e)" [disabled]="!e.localPath || e.status === 'Missing'" title="Open local copy"><i class="fas fa-external-link-alt"></i></button>
-            <button class="btn-link" (click)="customRetryEdit(e)" [disabled]="!connected || e.busy || e.opening || e.status === 'Missing'" title="Retry sync"><i class="fas fa-redo-alt"></i></button>
-            <button class="btn-link" (click)="customStopEdit(e)" [disabled]="e.busy || e.opening" title="Stop watching; keep local copy"><i class="fas fa-times"></i></button>
-          </div>
           <div class="custom-activity-row" *ngFor="let t of customHistoryRecoveryRows; trackBy: customTrackActivity">
             <span class="custom-direction" [title]="t.direction">{{ t.direction === 'upload' ? '↑' : '↓' }}</span>
             <div class="custom-activity-info" [title]="t.remotePath + '\nLocal: ' + t.localPath">

@@ -137,7 +137,14 @@ const stop=p=>{for(const e of p._customExternalSessions?.values()||[])clearInter
     assert.equal(q.customCanRetryTransfer({status:'Interrupted'}),true);
     q.cancelClear=true;q.clearLog();assert.ok(q.customTransferRows.includes(paused),'cancelled history clear retains recovery');q.cancelClear=false;q.clearLog();assert.ok(!q.customTransferRows.includes(paused),'cleared history does not reappear as a recovery duplicate');
     q.customClearFinishedTransfers();assert.ok(q.customTransferRows.every(r=>!['Completed','Cancelled'].includes(r.status)));
-    q.ngOnDestroy();stop(q);
+    const failedState={remotePath:'/save',localPath:source,status:'Failed',error:'upload failed',uploadLogId:'save-log'};
+    q._customExternalSessions=new Map([['/idle',{status:'Editing'}],['/save',failedState]]);q.logs=[{id:'save-log'}];
+    const failedRow=q.customLogTransfer(q.logs[0]);assert.equal(failedRow.direction,'upload');assert.equal(failedRow.status,'Failed');
+    assert.equal(q.customActivityCount,q.customTransferRows.filter(r=>!['Completed','Cancelled'].includes(r.status)).length+1,'idle watchers are not transfer modes');
+    let retried;q.customRetryEdit=async state=>{retried=state;state.status='Synced';};await q.customRetryTransfer(failedRow);assert.equal(retried,failedState);assert.equal(q.customLogTransfer(q.logs[0]),undefined,'successful retry no longer exposes failed save action');
+    const failedDownload={remotePath:'/open-fail',localPath:source,status:'Failed',error:'download failed',openingError:true,downloadLogId:'download-log'};
+    q._customExternalSessions.set('/open-fail',failedDownload);assert.equal(q.customLogTransfer({id:'download-log'}).direction,'download');
+    q._customExternalSessions.clear();q.ngOnDestroy();stop(q);
     const mergeRoot=path.join(root,'merge-'+require('crypto').randomUUID()),writerA=createStore(mergeRoot),writerB=createStore(mergeRoot);
     writerA.put('transfers',{id:'a',server:'host',status:'Failed'});writerB.put('transfers',{id:'b',server:'host',status:'Failed'});writerA.remove('transfers','a');
     assert.equal(createStore(mergeRoot).rows('transfers','host')[0].id,'b','stale writer cannot erase another saved job');

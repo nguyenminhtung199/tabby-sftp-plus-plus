@@ -3,6 +3,16 @@ module.exports = function installActivity({apis, Panel, recovery }) {
     const remoteStat=require('../runtime/remote-metadata.cjs');
     const scope = require('../runtime/sync-context.cjs')();
     const live = new Map();
+    const failedFileRows = panel => Array.from(panel._customExternalSessions?.values() || [])
+        .filter(state => (state.openingError ? state.downloadLogId : state.uploadLogId) && ['Failed','Conflict'].includes(state.status))
+        .map(state => {
+            const direction=state.openingError?'download':'upload';
+            const logEntryId=direction==='download'?state.downloadLogId:state.uploadLogId;
+            return Object.assign(state.failedTransferRow ||= {}, {
+                id:logEntryId,logEntryId,direction,remotePath:state.remotePath,
+                localPath:state.localPath,status:'Failed',error:state.error,_saveState:state,
+            });
+        });
     // After await, resolve directory ownership from both paths and server identity.
     // A global async flag would incorrectly absorb concurrent unrelated files.
     const within=(parent,file,remote)=>{const api=remote?path.posix:path;const relative=api.relative(parent,file);return relative===''||(!api.isAbsolute(relative)&&relative!=='..'&&!relative.startsWith('..'+api.sep));};
@@ -129,6 +139,7 @@ module.exports = function installActivity({apis, Panel, recovery }) {
     }
     // Reconnect can retry verified partial files; changed files always require manual review.
     apis.Panel.customRetryTransfer = async function (row, automatic=false) {
+        if (row._saveState) return automatic ? undefined : this.customRetryEdit(row._saveState);
         if (!this.connected || !this.sftpSession || this._destroyed || terminal(row.status) || row.status === 'Running' || row.status === 'Queued') return;
         const entry = rowEntry(this, row);
         if (entry?.paused&&!entry.transfer?.isCancelled?.()&&!entry.transfer?.isFailed?.()) { await this.resumeTransfer(entry); return; }
@@ -178,6 +189,7 @@ module.exports = function installActivity({apis, Panel, recovery }) {
         finally { row._retryBusy = false; }
     };
     apis.Panel.customCancelTransfer = function (row) {
+        if (row._saveState) { row._saveState.blockedHash = row._saveState.pendingHash || row._saveState.checkedHash; this.customStopEdit(row._saveState); return; }
         const entry = rowEntry(this, row);
         const inactive=!entry||entry.transfer?.isCancelled?.()||entry.transfer?.isComplete?.();
         if (entry) this.cancelTransfer(entry);
@@ -234,9 +246,9 @@ module.exports = function installActivity({apis, Panel, recovery }) {
     Object.defineProperty(apis.Panel, 'customHistoryOwner', { get() { return this; } });
     Object.defineProperty(apis.Panel, 'customHistoryRecoveryRows', { get() {
         const ids=new Set((this.transferLog?.getAll?.() || []).map(e=>e.id));
-        return this.customTransferRows.filter(row=>!row.logEntryId || !ids.has(row.logEntryId));
+        return [...this.customTransferRows, ...failedFileRows(this)].filter(row=>!row.logEntryId || !ids.has(row.logEntryId));
     } });
-    apis.Panel.customLogTransfer=function(entry){return this.customTransferRows.find(row=>row.logEntryId===entry.id);};
+    apis.Panel.customLogTransfer=function(entry){return [...this.customTransferRows,...failedFileRows(this)].find(row=>row.logEntryId===entry.id);};
     apis.Panel.customCanRetryTransfer=row=>!!row && !['Completed','Cancelled','Running','Queued'].includes(row.status);
     const clearHistory=apis.Panel.clearLog;
     if(clearHistory)apis.Panel.clearLog=function(...args){
@@ -249,7 +261,7 @@ module.exports = function installActivity({apis, Panel, recovery }) {
         });
         return result;
     };
-    Object.defineProperty(apis.Panel, 'customActivityCount', { get() { return this.customEditRows.length + this.customTransferRows.filter(r => !terminal(r.status)).length; } });
+    Object.defineProperty(apis.Panel, 'customActivityCount', { get() { return this.customTransferRows.filter(r => !terminal(r.status)).length + failedFileRows(this).length; } });
     apis.Panel.customTrackActivity = (_, row) => row.id || row.remotePath;
     apis.Panel.customActivityName = row => row.name || path.basename(row.remotePath) || row.remotePath;
     apis.Panel.customTransferDetails = row => row.status === 'Running' ? `${Math.round(row.percent || 0)}% · ${row.speed || '--'}` : row.error || row.status;

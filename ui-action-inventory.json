@@ -1,7 +1,7 @@
 [
   {
     "selector": "sftp-plus-panel",
-    "eventCount": 218,
+    "eventCount": 215,
     "actions": [
       "addBookmark",
       "applyLocalFilter",
@@ -22,10 +22,7 @@
       "confirmPermDialog",
       "customCancelTransfer",
       "customClearFinishedTransfers",
-      "customOpenEdit",
-      "customRetryEdit",
       "customRetryTransfer",
-      "customStopEdit",
       "customSyncNow",
       "cycleLayoutMode",
       "cyclePathMode",

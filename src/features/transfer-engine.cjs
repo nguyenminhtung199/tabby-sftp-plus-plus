@@ -133,8 +133,10 @@ module.exports = function installTransferEngine({apis,Panel,resume}) {
     apis.Panel._customQueueEditTransfer=function(direction,remote,local,size,operation,run){
         const pump=direction==='upload'?'_pumpUploadQueue':'_pumpDownloadQueue',queue=direction==='upload'?'_upQueue':'_dlQueue';
         if(!this[pump]||!this.transferLog?.add)return run();
-        const log=this.transferLog.add({operation,localPath:local,remotePath:remote,profileName:this.profile?.name,size,duration:0,startTime:Date.now(),pending:true,success:true});
+        const log=this.transferLog.add({operation:direction,localPath:local,remotePath:remote,profileName:this.profile?.name,size,duration:0,startTime:Date.now(),pending:true,success:true});
         const entry={transfer:null,direction,name:path.basename(remote),remotePath:remote,localPath:local,percent:0,speed:'',bytesDone:0,bytesTotal:size,paused:false,queued:true,logEntryId:log.id,customEditTransfer:true};
+        const watcher=this._customExternalSessions?.get(remote);
+        if (watcher) watcher[direction === 'upload' ? 'uploadLogId' : 'downloadLogId']=log.id;
         entry._customDiagnosticContext=this._customTraceQueueEntry?.(entry);
         this.transfers.push(entry);this.transfersMinimized=false;this.transfersHidden=false;this._safeDetect?.();
         return new Promise(resolve=>{

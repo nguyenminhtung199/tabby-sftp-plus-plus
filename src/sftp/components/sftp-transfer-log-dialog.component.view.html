@@ -10,8 +10,6 @@
             <option value="">{{ i18n.t('filter.allOps') }}</option>
             <option value="upload">{{ i18n.t('transfer.upload') }}</option>
             <option value="download">{{ i18n.t('transfer.download') }}</option>
-            <option value="edit-upload">{{ i18n.t('transfer.edit-upload') }}</option>
-            <option value="edit-download">{{ i18n.t('transfer.edit-download') }}</option>
           </select>
           <select [(ngModel)]="filterStatus" (ngModelChange)="filterStatusChange.emit($event)">
             <option value="">{{ i18n.t('filter.allStatus') }}</option>
@@ -43,17 +41,16 @@
           </button>
         </div>
         <div class="log-list" (wheel)="onScrollableWheel($event)"><ng-content></ng-content>
-          <div class="log-empty" *ngIf="!entries.length && !customHistoryOwner?.customEditRows.length && !customHistoryOwner?.customHistoryRecoveryRows.length">
+          <div class="log-empty" *ngIf="!entries.length && !customHistoryOwner?.customHistoryRecoveryRows.length">
             <span>{{ emptyLabel }}</span>
           </div>
           <div class="log-entry" *ngFor="let entry of entries; trackBy: trackById">
             <div class="log-row-main">
               <span class="log-op-badge"
-                    [class.op-upload]="entry.operation === 'upload'"
-                    [class.op-download]="entry.operation === 'download'"
-                    [class.op-edit]="entry.operation === 'edit-upload' || entry.operation === 'edit-download'"
-                    [class.op-other]="entry.operation !== 'upload' && entry.operation !== 'download' && entry.operation !== 'edit-upload' && entry.operation !== 'edit-download'">
-                {{ i18n.t('transfer.' + entry.operation) || entry.operation }}
+                    [class.op-upload]="operationFor(entry) === 'upload'"
+                    [class.op-download]="operationFor(entry) === 'download'"
+                    [class.op-other]="operationFor(entry) !== 'upload' && operationFor(entry) !== 'download'">
+                {{ i18n.t('transfer.' + operationFor(entry)) || operationFor(entry) }}
               </span>
               <span class="log-filename" [title]="isUploadLike(entry) ? entry.localPath + ' → ' + entry.remotePath : entry.remotePath + ' → ' + entry.localPath">
                 {{ getLogFileName(entry) }}

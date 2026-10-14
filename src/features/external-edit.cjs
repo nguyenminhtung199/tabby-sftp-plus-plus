@@ -166,7 +166,7 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
                 status(this, state, 'Editing');
                 const error = await open(state.localPath);
                 if (error) throw new Error(error);
-                notice(this, `Editing ${entry.name}: save in the local app to sync to the server.`);
+                notice(this, `Downloaded ${entry.name}. Save in the local app to upload to the server.`);
             } catch (error) {
                 state.stopped = true;
                 clearInterval(state.timer);
@@ -239,7 +239,7 @@ module.exports = function installExternalEdit({apis, Panel, Settings, download, 
             state.blockedHash = null;
             state.retries = 0; state.nextRetry = 0;
             status(this, state, 'Synced'); persist(this, state);
-            notice(this, `Synced ${path.basename(state.remotePath)} to server.`);
+            notice(this, `Uploaded ${path.basename(state.remotePath)} to server.`);
             void this.refreshRemote();
         } catch (error) {
             // Atomic-save gaps are transient; bounded retry keeps the local copy and avoids a tight failure loop.

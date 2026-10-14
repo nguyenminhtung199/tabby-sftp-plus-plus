@@ -28,6 +28,11 @@ const panel=sandbox.module.exports.default.__annotations__[0].declarations.find(
     p.sftpSession={stat:()=>{editOutside=outside>0;throw Error('test stop before file access');}};
     await p._customExternalEdit({fullPath:'/file.txt',name:'file.txt',size:100});assert.equal(editOutside,true);
 
+    const savePanel=Object.create(panel.prototype),saveLogs=[];const saveState={};
+    Object.assign(savePanel,{transfers:[],_upQueue:[],_pumpUploadQueue(){},_safeDetect(){},_customExternalSessions:new Map([['/save',saveState]]),transferLog:{add:row=>{saveLogs.push(row);return {id:'save-1',...row};},update(){}}});
+    const queuedSave=savePanel._customQueueEditTransfer('upload','/save','C:/snapshot',1,'edit-upload',async()=>true);
+    assert.equal(saveLogs[0].operation,'upload');assert.equal(saveState.uploadLogId,'save-1');savePanel._upQueue[0].finish(false);assert.equal(await queuedSave,false);
+
     // Local metadata must not block the renderer, even for an immediately small file.
     const fsp=fs.promises,root=await fsp.mkdtemp(path.join(require('os').tmpdir(),'sftp-drop-')),tiny=path.join(root,'tiny.py');await fsp.writeFile(tiny,'x');
     const originalStat=fsp.stat,originalSync=fs.statSync;let releaseStat,queued=false;

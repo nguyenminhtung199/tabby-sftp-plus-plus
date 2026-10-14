@@ -18,6 +18,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core'
 
 import { SftpI18nService } from '../../services/sftp-i18n.service'
+import { normalizeTransferOperation } from '../../services/sftp-transfer-log.service'
 import type { TransferLogEntry } from '../../services/sftp-transfer-log.service'
 import {
   formatDuration,
@@ -79,6 +80,8 @@ export class SftpTransferLogDialogComponent {
    *  `entry === 'upload'` 恒为 false，导致上传条目误走下载分支（🌐远端→🖥本地），
    *  方向看起来是反的（下载分支碰巧正确，故只有上传受害）。
    *  改为接收条目对象、内部取 operation，使签名与调用方语义一致；同时防御空条目。 */
+  operationFor(entry: TransferLogEntry): string { return normalizeTransferOperation(entry.operation) }
+
   isUploadLike(entry: TransferLogEntry): boolean {
     return isUploadLikeOperation(entry?.operation)
   }

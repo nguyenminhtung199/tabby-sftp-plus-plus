@@ -52,6 +52,11 @@ export type TransferLogEntry = {
   skippedAsDuplicate?: { reason: 'content-identical'; algo?: 'sha1' | 'sha256'; at: number }
 }
 
+// Old editor-origin tags migrate into the same two public transfer operations.
+export function normalizeTransferOperation<T extends string>(operation: T): T | 'upload' | 'download' {
+  return operation === 'edit-upload' ? 'upload' : operation === 'edit-download' ? 'download' : operation
+}
+
 const STORAGE_KEY = 'sftp-plus-transfer-logs'
 const MAX_LOGS = 1000
 // ★ 2026-08-10 修复 #9：tombstone（已删 id 持久化清单）。
@@ -157,6 +162,7 @@ export class SftpTransferLogService {
       seen.add(id)
       return {
         ...l,
+        operation: normalizeTransferOperation(l.operation),
         id,
         timestamp: num(l.timestamp) ?? Date.now(),
         size: l.size != null ? num(l.size) : undefined,
@@ -321,6 +327,7 @@ export class SftpTransferLogService {
   add(entry: Omit<TransferLogEntry, 'id' | 'timestamp'>): TransferLogEntry {
     const fullEntry: TransferLogEntry = {
       ...entry,
+      operation: normalizeTransferOperation(entry.operation),
       id: generateId(),
       timestamp: Date.now(),
     }
@@ -385,7 +392,7 @@ export class SftpTransferLogService {
   }): TransferLogEntry[] {
     let result = [...this.logs]
     if (options?.operation) {
-      result = result.filter(l => l.operation === options.operation)
+      result = result.filter(l => normalizeTransferOperation(l.operation) === normalizeTransferOperation(options.operation))
     }
     if (options?.success !== undefined) {
       result = result.filter(l => !l.pending && l.success === options.success)
