@@ -1,4 +1,5 @@
 module.exports = function installNavigation({apis, Panel, Settings, FilePane, I18n, CwdDialog, Angular, execRemote, reporter }) {
+    const sendTerminalCommand=require('../runtime/terminal-command.cjs');
     const fs = require('fs');
     const path = require('path');
     const originalTranslate = apis.I18n.t;
@@ -289,7 +290,7 @@ module.exports = function installNavigation({apis, Panel, Settings, FilePane, I1
     };
     apis.Panel._enableCwdReporterSession = function () {
         if (!this.terminalRef?.sendInput) return false;
-        try { this.terminalRef.sendInput(reporter.session + '\n'); this._customReporterSession = this.terminalRef.session || this.terminalRef; return true; } catch { return false; }
+        try { if(!sendTerminalCommand(this.terminalRef,reporter.session))return false; this._customReporterSession = this.terminalRef.session || this.terminalRef; return true; } catch { return false; }
     };
     apis.Panel._enableCwdReporterPermanent = async function () {
         if (!this.sshSession) return false;

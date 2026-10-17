@@ -62,3 +62,11 @@ externalEdit.restoreWatchers is false: reconnect/restart retains old edit copies
 ## Two public transfer operations
 
 The persistent Editing ledger and editor-operation filter options are removed. Remote Open produces Download records and local Save produces Upload records in the same queue/history. Legacy edit-upload/edit-download log tags are normalized when loaded or added, and rendered with the regular badges and filters. Idle save watchers do not count as active transfers or suppress the empty history state. Their state is private implementation needed to detect saves, not a public mode. Failed save uploads expose Retry on the Upload record, routed to the original local copy; successful retry removes that failed recovery action.
+
+## Commands sent to the interactive terminal
+
+All plugin-owned terminal writes go through src/runtime/terminal-command.cjs: Open terminal here, temporary CWD reporting, permanent-hook activation, manual sync reporting and retained baseline implementations. SSH exec/SFTP transfer channels do not share the user's editable command line and remain separate.
+
+For a Readline-compatible Emacs keymap, the helper parks the complete current input in the shell's kill buffer, submits the plugin command, then yanks the draft back with the cursor at its end. A trailing sentinel gives an empty draft its own kill-buffer entry and is removed after restoration. Numeric word movement covers literal newlines and wrapped display lines. Multiline plugin scripts are submitted through an encoded eval so they remain one shell input. Control sequences live in transfer-policy.json terminalCommands. Fullscreen alternate-screen applications are rejected. This path assumes a shell prompt with the standard Emacs editing bindings; custom/vi keymaps and non-shell REPL input are not supported.
+
+npm run test:terminal uses the installed node-pty addon and Git Bash in an isolated test process. It verifies empty/quoted/Unicode/wrapped/multiline drafts, pre-existing kill history, cursor restoration, actual cd, the real CWD reporter and back-to-back commands. Readline fixtures seed multiline buffers through bind -x because Windows ConPTY interprets pasted newline input before Bash receives it. Synthetic drafts are inspected from the shell's READLINE_LINE, rather than inferred from its screen.

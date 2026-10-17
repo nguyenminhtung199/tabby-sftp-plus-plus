@@ -1,4 +1,5 @@
 // CWD tracking before Tabby's OSC middleware (preserves paths containing '=' and chunk boundaries).
+const sendTerminalCommand=require('../runtime/terminal-command.cjs');
 module.exports = function installCwd({apis,Panel, reporter}) {
     const watchers=new WeakMap();
     const debugFile=require('path').join(process.env.APPDATA || '', 'tabby','custom-sftp-plus','path-mode-debug.json');
@@ -88,7 +89,7 @@ module.exports = function installCwd({apis,Panel, reporter}) {
         if(!this.terminalRef?.sendInput)return false;
         watch(this);
         const command=reportOnly?'if command -v __sftp_plus_cwd_report >/dev/null 2>&1; then __sftp_plus_cwd_report; else '+reporter.session+'; fi':reporter.session;
-        try{this.terminalRef.sendInput('\x05\x15'+command+'\n');this._customReporterSession=this.terminalRef.session||this.terminalRef;if(!setup(this))rememberSetup(this,'session');return true;}catch(e){this.showToast?.('CWD setup failed: '+e.message);return false;}
+        try{if(!sendTerminalCommand(this.terminalRef,command))return false;this._customReporterSession=this.terminalRef.session||this.terminalRef;if(!setup(this))rememberSetup(this,'session');return true;}catch(e){this.showToast?.('CWD setup failed: '+e.message);return false;}
     };
     apis.Panel._enableCwdReporterPermanent=async function(){
         if(!this.sshSession)return false;

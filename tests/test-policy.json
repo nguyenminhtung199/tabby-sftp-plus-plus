@@ -42,5 +42,25 @@
   },
   "sdkMapRelative": "node_modules/tabby-core/dist/index.js.map",
   "nativeRootRelative": "Programs/Tabby/resources/app.asar.unpacked/node_modules/russh",
-  "nativeCoreMapRelative": "Programs/Tabby/resources/builtin-plugins/tabby-core/dist/index.js.map"
+  "nativeCoreMapRelative": "Programs/Tabby/resources/builtin-plugins/tabby-core/dist/index.js.map",
+  "terminalNative": {
+    "ptyRelative": "Programs/Tabby/resources/app.asar.unpacked/node_modules/node-pty",
+    "bashRelative": "Git/bin/bash.exe",
+    "args": [
+      "--noprofile",
+      "--norc",
+      "-i"
+    ],
+    "terminal": "xterm-256color",
+    "columns": 60,
+    "rows": 24,
+    "timeoutMs": 15000,
+    "prompt": "SFTP_COMMAND_TEST> ",
+    "inputrc": "/dev/null",
+    "scratchRelative": "recovery/terminal-command-fixture",
+    "dumpFile": "draft-state.bin",
+    "seedFile": "seed.txt",
+    "historyFile": "/dev/null"
+  },
+  "terminalCommandSource": "src/runtime/terminal-command.cjs"
 }

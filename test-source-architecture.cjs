@@ -6,4 +6,7 @@ assert.ok(!fs.readFileSync('scripts/build.cjs','utf8').includes('index.original'
 const provider=plugin.default.__annotations__[0].providers.find(p=>p.useClass?.toString().includes('this.defaults'));assert.ok(provider);const defaults=new provider.useClass().defaults;
 const createProxy=require('./tests/helpers/config-proxy-fixture.cjs'),fixture=createProxy(defaults),config=fixture.proxy['tabby-sftp-plus-plus'];for(const field of ['sidebarSessions','pathModes','cwdSetupServers']){config[field].fixture={saved:true};assert.equal(fixture.backing['tabby-sftp-plus-plus'][field].fixture.saved,true,field+' mutations must persist through ConfigProxy');}
 assert.equal(plugin.default.__annotations__[0].declarations.length,16);
-console.log('PASS: complete controller facade, source-only build, no Angular prototype mutation, mutable ConfigProxy maps and 16 component declarations.');
+const terminalCommandSource=require('./tests/test-policy.json').terminalCommandSource;
+function auditTerminalWrites(dir){for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isDirectory())auditTerminalWrites(file);else if(/\.(?:ts|cjs)$/.test(file)&&file.replace(/\\/g,'/')!==terminalCommandSource)assert.ok(!/\.sendInput\s*\(/.test(fs.readFileSync(file,'utf8')),'terminal command must use shared draft-preserving helper: '+file);}}
+auditTerminalWrites('src');
+console.log('PASS: complete controller facade, source-only build, no Angular prototype mutation, mutable ConfigProxy maps 16 component declarations and one draft-preserving terminal write point.');

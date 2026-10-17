@@ -1,3 +1,4 @@
+import sendTerminalCommand from '../runtime/terminal-command.cjs'
 import { featureApis, invokeFeature, readFeature, writeFeature } from "../features/api"
 ﻿/**
  * SFTP++ 浮动面板组件
@@ -1414,7 +1415,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     const term = this.terminalRef as { sendInput?: (data: string) => void } | null
     if (!term?.sendInput) return false
     try {
-      term.sendInput(CWD_SESSION_CMD + '\n')
+      if (!sendTerminalCommand(term, CWD_SESSION_CMD)) return false
       return true
     } catch (e) {
       log.warn('Session cwd reporter failed', e)
@@ -1470,7 +1471,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       const apply = useZsh
         ? `source ~/.zshrc >/dev/null 2>&1; printf "\\033]1337;CurrentDir=%s\\007" "\${PWD:-\$(pwd)}"\n`
         : `source ~/.bashrc >/dev/null 2>&1; printf "\\033]1337;CurrentDir=%s\\007" "\${PWD:-\$(pwd)}"\n`
-      try { term.sendInput(apply) } catch { /* 文件已写入即可 */ }
+      try { sendTerminalCommand(term, apply) } catch { /* 文件已写入即可 */ }
     }
     return true
   }

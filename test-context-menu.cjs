@@ -1,3 +1,5 @@
+const terminalPolicy=require('./transfer-policy.json').terminalCommands;
+const terminalEnvelope=command=>terminalPolicy.park+command+terminalPolicy.submit+terminalPolicy.restore;
 const assert=require('assert/strict'),fs=require('fs'),path=require('path'),vm=require('vm'),{createRequire}=require('module');
 const pluginRequire=createRequire(path.resolve(__dirname,'package.json'));
 const generic=new Proxy({}, {get:(_,key)=>key==='__esModule'?true:class{}});
@@ -108,9 +110,9 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  terminalPanel.terminalRef={sendInput:command=>commands.push(command),emitFocused:()=>focused++};
  terminalPanel.contextMenuEntry={name:'file.py',fullPath:"/tmp/a b/o'neil/file.py"};
  assert.equal(await terminalPanel.onContextMenuAction('openTerminalHere'),true);
- assert.equal(commands[0],"cd -- '/tmp/a b/o'\\''neil'\n");assert.equal(focused,1);
- terminalPanel.contextMenuEntry={fullPath:'/folder',isDirectory:true};await terminalPanel.onContextMenuAction('openTerminalHere');assert.equal(commands[1],"cd -- '/folder'\n");
- terminalPanel.contextMenuEntry=null;terminalPanel.remotePath='/current';await terminalPanel.onContextMenuAction('openTerminalHere');assert.equal(commands[2],"cd -- '/current'\n");
+ assert.equal(commands[0],terminalEnvelope("cd -- '/tmp/a b/o'\\''neil'"));assert.equal(focused,1);
+ terminalPanel.contextMenuEntry={fullPath:'/folder',isDirectory:true};await terminalPanel.onContextMenuAction('openTerminalHere');assert.equal(commands[1],terminalEnvelope("cd -- '/folder'"));
+ terminalPanel.contextMenuEntry=null;terminalPanel.remotePath='/current';await terminalPanel.onContextMenuAction('openTerminalHere');assert.equal(commands[2],terminalEnvelope("cd -- '/current'"));
  terminalPanel.contextMenuEntry={fullPath:'/bad\ncommand',isDirectory:true};assert.equal(await terminalPanel.onContextMenuAction('openTerminalHere'),false);assert.equal(commands.length,3);
  const choose=panel();let appOpens=0,editDownloads=0;
  choose._customOpenWithFile=async(file)=>{assert.equal(file,'C:/copy/chosen.py');appOpens++;return '';};

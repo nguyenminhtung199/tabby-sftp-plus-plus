@@ -1,4 +1,5 @@
 module.exports = function installContextMenu({apis,Panel,Angular,Platform,Menu,Registry,Settings}) {
+    const sendTerminalCommand=require('../runtime/terminal-command.cjs');
     if(Menu&&Registry){
         Registry.editFile.labelKey='file.open';
         Object.assign(Registry,{openWith:{labelKey:'Open with…',category:'open'},openTerminalHere:{labelKey:'Open terminal here',category:'open'},copyFileName:{labelKey:'Copy file name',category:'panel'}});
@@ -175,7 +176,7 @@ module.exports = function installContextMenu({apis,Panel,Angular,Platform,Menu,R
             if(!target||/[\x00-\x1f\x7f]/.test(target))throw Error('This folder path contains terminal control characters');
             if(this._destroyed||!this.connected||this.sftpSession!==session||this.terminalRef!==terminal)return false;
             const quoted="'"+target.replace(/'/g,"'\\''")+"'";
-            terminal.sendInput('cd -- '+quoted+'\n');
+            if(!sendTerminalCommand(terminal,'cd -- '+quoted))return false;
             terminal.emitFocused?.();terminal.frontend?.focus?.();return true;
         });
     };
