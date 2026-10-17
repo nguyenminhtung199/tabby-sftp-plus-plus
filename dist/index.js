@@ -2917,7 +2917,7 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
         /** 插件版本号（webpack 构建时内联 package.json） */
         this.pkgVersion = (__webpack_require__(/*! ../../package.json */ "./package.json").version);
         /** 构建时间（webpack 每次 build 时注入，用于确认是否已重新打包） */
-        this.pkgBuildTime =  true ? "2026-10-14T02:55:59.626Z" : 0;
+        this.pkgBuildTime =  true ? "2026-10-17T05:31:51.490Z" : 0;
         /** 主题颜色标签 key 映射（统一走 .po 翻译） */
         this.themeLabelKeys = {
             '': 'theme.auto',
@@ -23783,54 +23783,56 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   SftpFloatingPanel: () => (/* binding */ SftpFloatingPanel)
 /* harmony export */ });
-/* harmony import */ var _features_api__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../features/api */ "./src/features/api.ts");
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! path */ "path");
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! fs/promises */ "fs/promises");
-/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(fs_promises__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! fs */ "fs");
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! os */ "os");
-/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(os__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! crypto */ "crypto");
-/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/core */ "@angular/core");
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_angular_core__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! tabby-core */ "tabby-core");
-/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(tabby_core__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var _core_transfer_adapters__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./core/transfer-adapters */ "./src/sftp/core/transfer-adapters.ts");
-/* harmony import */ var _core_task_scope__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./core/task-scope */ "./src/sftp/core/task-scope.ts");
-/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../services/sftp-logger */ "./src/services/sftp-logger.ts");
-/* harmony import */ var _services_sftp_service__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../services/sftp.service */ "./src/services/sftp.service.ts");
-/* harmony import */ var _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../services/sftp-i18n.service */ "./src/services/sftp-i18n.service.ts");
-/* harmony import */ var _services_sftp_config_service__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../services/sftp-config.service */ "./src/services/sftp-config.service.ts");
-/* harmony import */ var _services_sftp_bookmarks_service__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../services/sftp-bookmarks.service */ "./src/services/sftp-bookmarks.service.ts");
-/* harmony import */ var _services_sftp_transfer_log_service__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../services/sftp-transfer-log.service */ "./src/services/sftp-transfer-log.service.ts");
-/* harmony import */ var _settings_sftp_open_settings__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../settings/sftp-open-settings */ "./src/settings/sftp-open-settings.ts");
-/* harmony import */ var _components_connection_lifecycle__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./components/connection-lifecycle */ "./src/sftp/components/connection-lifecycle.ts");
-/* harmony import */ var _components_panel_rubber_band__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./components/panel-rubber-band */ "./src/sftp/components/panel-rubber-band.ts");
-/* harmony import */ var _components_panel_header_reorder__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./components/panel-header-reorder */ "./src/sftp/components/panel-header-reorder.ts");
-/* harmony import */ var _components_panel_file_dnd__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./components/panel-file-dnd */ "./src/sftp/components/panel-file-dnd.ts");
-/* harmony import */ var _core_drop__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./core/drop */ "./src/sftp/core/drop.ts");
-/* harmony import */ var _core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./core/transfer-coordinator */ "./src/sftp/core/transfer-coordinator.ts");
-/* harmony import */ var _core_paste__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./core/paste */ "./src/sftp/core/paste.ts");
-/* harmony import */ var _core_digest__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./core/digest */ "./src/sftp/core/digest.ts");
-/* harmony import */ var _core_fs_ops__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./core/fs-ops */ "./src/sftp/core/fs-ops.ts");
-/* harmony import */ var _core_session_errors__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./core/session-errors */ "./src/sftp/core/session-errors.ts");
-/* harmony import */ var _core_concurrency__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./core/concurrency */ "./src/sftp/core/concurrency.ts");
-/* harmony import */ var _core_trash_local__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./core/trash-local */ "./src/sftp/core/trash-local.ts");
-/* harmony import */ var _components_panel_conflict_resolver__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./components/panel-conflict-resolver */ "./src/sftp/components/panel-conflict-resolver.ts");
-/* harmony import */ var _core_selection__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./core/selection */ "./src/sftp/core/selection.ts");
-/* harmony import */ var _core_grouping__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./core/grouping */ "./src/sftp/core/grouping.ts");
-/* harmony import */ var _tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ../tabby/hotkey-util */ "./src/tabby/hotkey-util.ts");
-/* harmony import */ var _tabby_config_provider__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ../tabby/config-provider */ "./src/tabby/config-provider.ts");
-/* harmony import */ var _common_utils__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! @common/utils */ "./tabby-plugin-common/src/utils.ts");
-/* harmony import */ var _controllers_panel_bookmark_controller__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./controllers/panel-bookmark-controller */ "./src/sftp/controllers/panel-bookmark-controller.ts");
-/* harmony import */ var _core_file_utils__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./core/file-utils */ "./src/sftp/core/file-utils.ts");
-/* harmony import */ var _core_icon_defaults__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./core/icon-defaults */ "./src/sftp/core/icon-defaults.ts");
-/* harmony import */ var _core_path_utils__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./core/path-utils */ "./src/sftp/core/path-utils.ts");
-/* harmony import */ var _components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./components/sftp-context-menu.component */ "./src/sftp/components/sftp-context-menu.component.ts");
-/* harmony import */ var _components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./components/sftp-cwd-setup-dialog.component */ "./src/sftp/components/sftp-cwd-setup-dialog.component.ts");
+/* harmony import */ var _runtime_terminal_command_cjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../runtime/terminal-command.cjs */ "./src/runtime/terminal-command.cjs");
+/* harmony import */ var _runtime_terminal_command_cjs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_runtime_terminal_command_cjs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _features_api__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../features/api */ "./src/features/api.ts");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! fs/promises */ "fs/promises");
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(fs_promises__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! fs */ "fs");
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! os */ "os");
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(os__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! crypto */ "crypto");
+/* harmony import */ var crypto__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(crypto__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/core */ "@angular/core");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_angular_core__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! tabby-core */ "tabby-core");
+/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(tabby_core__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var _core_transfer_adapters__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./core/transfer-adapters */ "./src/sftp/core/transfer-adapters.ts");
+/* harmony import */ var _core_task_scope__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./core/task-scope */ "./src/sftp/core/task-scope.ts");
+/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../services/sftp-logger */ "./src/services/sftp-logger.ts");
+/* harmony import */ var _services_sftp_service__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../services/sftp.service */ "./src/services/sftp.service.ts");
+/* harmony import */ var _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../services/sftp-i18n.service */ "./src/services/sftp-i18n.service.ts");
+/* harmony import */ var _services_sftp_config_service__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../services/sftp-config.service */ "./src/services/sftp-config.service.ts");
+/* harmony import */ var _services_sftp_bookmarks_service__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../services/sftp-bookmarks.service */ "./src/services/sftp-bookmarks.service.ts");
+/* harmony import */ var _services_sftp_transfer_log_service__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../services/sftp-transfer-log.service */ "./src/services/sftp-transfer-log.service.ts");
+/* harmony import */ var _settings_sftp_open_settings__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../settings/sftp-open-settings */ "./src/settings/sftp-open-settings.ts");
+/* harmony import */ var _components_connection_lifecycle__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./components/connection-lifecycle */ "./src/sftp/components/connection-lifecycle.ts");
+/* harmony import */ var _components_panel_rubber_band__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./components/panel-rubber-band */ "./src/sftp/components/panel-rubber-band.ts");
+/* harmony import */ var _components_panel_header_reorder__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./components/panel-header-reorder */ "./src/sftp/components/panel-header-reorder.ts");
+/* harmony import */ var _components_panel_file_dnd__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./components/panel-file-dnd */ "./src/sftp/components/panel-file-dnd.ts");
+/* harmony import */ var _core_drop__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./core/drop */ "./src/sftp/core/drop.ts");
+/* harmony import */ var _core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./core/transfer-coordinator */ "./src/sftp/core/transfer-coordinator.ts");
+/* harmony import */ var _core_paste__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./core/paste */ "./src/sftp/core/paste.ts");
+/* harmony import */ var _core_digest__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./core/digest */ "./src/sftp/core/digest.ts");
+/* harmony import */ var _core_fs_ops__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./core/fs-ops */ "./src/sftp/core/fs-ops.ts");
+/* harmony import */ var _core_session_errors__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./core/session-errors */ "./src/sftp/core/session-errors.ts");
+/* harmony import */ var _core_concurrency__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./core/concurrency */ "./src/sftp/core/concurrency.ts");
+/* harmony import */ var _core_trash_local__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./core/trash-local */ "./src/sftp/core/trash-local.ts");
+/* harmony import */ var _components_panel_conflict_resolver__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./components/panel-conflict-resolver */ "./src/sftp/components/panel-conflict-resolver.ts");
+/* harmony import */ var _core_selection__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./core/selection */ "./src/sftp/core/selection.ts");
+/* harmony import */ var _core_grouping__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./core/grouping */ "./src/sftp/core/grouping.ts");
+/* harmony import */ var _tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ../tabby/hotkey-util */ "./src/tabby/hotkey-util.ts");
+/* harmony import */ var _tabby_config_provider__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ../tabby/config-provider */ "./src/tabby/config-provider.ts");
+/* harmony import */ var _common_utils__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! @common/utils */ "./tabby-plugin-common/src/utils.ts");
+/* harmony import */ var _controllers_panel_bookmark_controller__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./controllers/panel-bookmark-controller */ "./src/sftp/controllers/panel-bookmark-controller.ts");
+/* harmony import */ var _core_file_utils__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./core/file-utils */ "./src/sftp/core/file-utils.ts");
+/* harmony import */ var _core_icon_defaults__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./core/icon-defaults */ "./src/sftp/core/icon-defaults.ts");
+/* harmony import */ var _core_path_utils__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./core/path-utils */ "./src/sftp/core/path-utils.ts");
+/* harmony import */ var _components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./components/sftp-context-menu.component */ "./src/sftp/components/sftp-context-menu.component.ts");
+/* harmony import */ var _components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./components/sftp-cwd-setup-dialog.component */ "./src/sftp/components/sftp-cwd-setup-dialog.component.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -23844,6 +23846,7 @@ var __param = (undefined && undefined.__param) || function (paramIndex, decorato
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 var SftpFloatingPanel_1;
+
 
 /**
 * SFTP++ 浮动面板组件
@@ -24125,7 +24128,7 @@ const TAR_CHANNEL_FAILURE_REASON_KEYS = {
     targetExists: 'tarchan.reason.targetExists',
     other: 'tarchan.reason.other',
 };
-let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _controllers_panel_bookmark_controller__WEBPACK_IMPORTED_MODULE_35__.SftpPanelBookmarkController {
+let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _controllers_panel_bookmark_controller__WEBPACK_IMPORTED_MODULE_36__.SftpPanelBookmarkController {
     /** 组件是否仍存活（销毁后所有异步视图操作必须短路） */
     get _isAlive() {
         return !this._destroyed;
@@ -24225,7 +24228,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         const sig = this._rowsSig('local');
         if (this._localRowsSource === list && this._localRowsSig === sig && this._localRowsCache)
             return this._localRowsCache;
-        const rows = (0,_core_grouping__WEBPACK_IMPORTED_MODULE_31__.buildGroupedRows)(list, this.localGroupBy, this._reverseGroups('local'), this._localCollapsedGroups, b => this._groupLabel(b));
+        const rows = (0,_core_grouping__WEBPACK_IMPORTED_MODULE_32__.buildGroupedRows)(list, this.localGroupBy, this._reverseGroups('local'), this._localCollapsedGroups, b => this._groupLabel(b));
         this._localRowsCache = rows;
         this._localRowsSource = list;
         this._localRowsSig = sig;
@@ -24238,7 +24241,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         const sig = this._rowsSig('remote');
         if (this._remoteRowsSource === list && this._remoteRowsSig === sig && this._remoteRowsCache)
             return this._remoteRowsCache;
-        const rows = (0,_core_grouping__WEBPACK_IMPORTED_MODULE_31__.buildGroupedRows)(list, this.remoteGroupBy, this._reverseGroups('remote'), this._remoteCollapsedGroups, b => this._groupLabel(b));
+        const rows = (0,_core_grouping__WEBPACK_IMPORTED_MODULE_32__.buildGroupedRows)(list, this.remoteGroupBy, this._reverseGroups('remote'), this._remoteCollapsedGroups, b => this._groupLabel(b));
         this._remoteRowsCache = rows;
         this._remoteRowsSource = list;
         this._remoteRowsSig = sig;
@@ -24247,7 +24250,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     /** 组序是否应反转：分组维度与当前排序列一致且为降序时反转（贴近资源管理器行为） */
     _reverseGroups(pane) {
         const mode = pane === 'local' ? this.localGroupBy : this.remoteGroupBy;
-        const field = (0,_core_grouping__WEBPACK_IMPORTED_MODULE_31__.groupModeSortField)(mode);
+        const field = (0,_core_grouping__WEBPACK_IMPORTED_MODULE_32__.groupModeSortField)(mode);
         if (!field)
             return false;
         const sortBy = pane === 'local' ? this.localSortBy : this.remoteSortBy;
@@ -24303,7 +24306,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this.localLastSelectedIndex = null;
         // ★ 2026-09-29：与点击条目行对称——键盘焦点/锚点落在该分组头（导航键），
         //   之后按 Shift+↑/↓ 即可从这一组（表头行）起算区间。
-        this._localNavFocusKey = (0,_core_grouping__WEBPACK_IMPORTED_MODULE_31__.navHeaderKey)(key);
+        this._localNavFocusKey = (0,_core_grouping__WEBPACK_IMPORTED_MODULE_32__.navHeaderKey)(key);
         this._localNavAnchorKey = this._localNavFocusKey;
         this._localNavCursorOn = false;
     }
@@ -24328,7 +24331,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this.selectedLocal = [];
         this.remoteLastSelectedIndex = null;
         // ★ 2026-09-29：同 onLocalGroupSelect，键盘焦点/锚点落在该分组头
-        this._remoteNavFocusKey = (0,_core_grouping__WEBPACK_IMPORTED_MODULE_31__.navHeaderKey)(key);
+        this._remoteNavFocusKey = (0,_core_grouping__WEBPACK_IMPORTED_MODULE_32__.navHeaderKey)(key);
         this._remoteNavAnchorKey = this._remoteNavFocusKey;
         this._remoteNavCursorOn = false;
     }
@@ -24813,11 +24816,12 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         if (!(term === null || term === void 0 ? void 0 : term.sendInput))
             return false;
         try {
-            term.sendInput(_components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_40__.CWD_SESSION_CMD + '\n');
+            if (!_runtime_terminal_command_cjs__WEBPACK_IMPORTED_MODULE_0___default()(term, _components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_41__.CWD_SESSION_CMD))
+                return false;
             return true;
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('Session cwd reporter failed', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('Session cwd reporter failed', e);
             return false;
         }
     }
@@ -24829,11 +24833,11 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         if (!this.sshSession)
             return false;
         const marker = '# tabby-sftp-plus-plus cwd reporting';
-        const shellOut = (await (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_38__.execSshCommand)(this.sshSession, 'echo "${SHELL:-}"; [ -n "${BASH_VERSION:-}" ] && echo BASH; [ -n "${ZSH_VERSION:-}" ] && echo ZSH; true')).toLowerCase();
+        const shellOut = (await (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_39__.execSshCommand)(this.sshSession, 'echo "${SHELL:-}"; [ -n "${BASH_VERSION:-}" ] && echo BASH; [ -n "${ZSH_VERSION:-}" ] && echo ZSH; true')).toLowerCase();
         const useZsh = /zsh/.test(shellOut);
         const rcFile = useZsh ? '$HOME/.zshrc' : '$HOME/.bashrc';
-        const snippet = useZsh ? _components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_40__.CWD_ZSH_SNIPPET + '\n' : _components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_40__.CWD_BASH_SNIPPET + '\n';
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.info(`Enabling permanent CWD reporting — target: ${useZsh ? '~/.zshrc' : '~/.bashrc'}`);
+        const snippet = useZsh ? _components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_41__.CWD_ZSH_SNIPPET + '\n' : _components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_41__.CWD_BASH_SNIPPET + '\n';
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.info(`Enabling permanent CWD reporting — target: ${useZsh ? '~/.zshrc' : '~/.bashrc'}`);
         const b64 = Buffer.from(snippet, 'utf8').toString('base64');
         /* Shell logic (all in one SSH round-trip):
          *  1. Idempotency — if marker already present, skip write entirely.
@@ -24849,15 +24853,15 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             `echo '${b64}' | base64 -d >> "$RC"; ` +
             `echo WRITTEN; ` +
             `fi`;
-        const result = await (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_38__.execSshCommand)(this.sshSession, writeCmd);
+        const result = await (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_39__.execSshCommand)(this.sshSession, writeCmd);
         if (/\bALREADY\b/.test(result)) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.info('CWD reporting already present in rc file — skipped write');
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.info('CWD reporting already present in rc file — skipped write');
         }
         else if (/\bWRITTEN\b/.test(result)) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn(`Backed up original to ${useZsh ? '~/.zshrc.sftp-plus-backup' : '~/.bashrc.sftp-plus-backup'} and appended CWD reporting snippet`);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn(`Backed up original to ${useZsh ? '~/.zshrc.sftp-plus-backup' : '~/.bashrc.sftp-plus-backup'} and appended CWD reporting snippet`);
         }
         else {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('Unexpected response when writing CWD reporter:', result);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('Unexpected response when writing CWD reporter:', result);
             return false;
         }
         const term = this.terminalRef;
@@ -24866,7 +24870,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 ? `source ~/.zshrc >/dev/null 2>&1; printf "\\033]1337;CurrentDir=%s\\007" "\${PWD:-\$(pwd)}"\n`
                 : `source ~/.bashrc >/dev/null 2>&1; printf "\\033]1337;CurrentDir=%s\\007" "\${PWD:-\$(pwd)}"\n`;
             try {
-                term.sendInput(apply);
+                _runtime_terminal_command_cjs__WEBPACK_IMPORTED_MODULE_0___default()(term, apply);
             }
             catch ( /* 文件已写入即可 */_a) { /* 文件已写入即可 */ }
         }
@@ -25192,7 +25196,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             }
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('Failed to load saved paths', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('Failed to load saved paths', e);
         }
     }
     /** connect() 后恢复远程路径（防止 getDefaultRemotePath 覆盖） */
@@ -25231,7 +25235,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this.onMinimize = null; // 最小化回调（隐藏面板，不销毁）
         this.displayMode = 'floating';
         // ========== 服务（直接实例化，非 DI）==========
-        this.sftpService = (0,_services_sftp_service__WEBPACK_IMPORTED_MODULE_11__.getSftpConnectionService)();
+        this.sftpService = (0,_services_sftp_service__WEBPACK_IMPORTED_MODULE_12__.getSftpConnectionService)();
         /** 统一配置访问服务（嵌套存取 + 自动迁移旧扁平 key） */
         this.sftpConfig = null;
         // ========== 连接 ==========
@@ -25304,7 +25308,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this.connected = false;
         this.hostInfo = '';
         // ========== 本地面板 ==========
-        this.localPath = os__WEBPACK_IMPORTED_MODULE_4__.homedir();
+        this.localPath = os__WEBPACK_IMPORTED_MODULE_5__.homedir();
         this.localEntries = [];
         this.localFilter = '';
         this.localFilterPending = '';
@@ -25378,15 +25382,15 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this._remoteFlash = false;
         /** 远程面板访问错误（权限不足、路径不存在等） */
         this._remoteError = false;
-        this.localIdResolver = new _core_path_utils__WEBPACK_IMPORTED_MODULE_38__.IdNameResolver();
-        this.remoteIdResolver = new _core_path_utils__WEBPACK_IMPORTED_MODULE_38__.IdNameResolver();
+        this.localIdResolver = new _core_path_utils__WEBPACK_IMPORTED_MODULE_39__.IdNameResolver();
+        this.remoteIdResolver = new _core_path_utils__WEBPACK_IMPORTED_MODULE_39__.IdNameResolver();
         // ========== 传输 ==========
         this.transfers = [];
         // ========== 远程导航历史 ==========
-        this._remoteNav = new _core_selection__WEBPACK_IMPORTED_MODULE_30__.PaneNavHistory(50);
+        this._remoteNav = new _core_selection__WEBPACK_IMPORTED_MODULE_31__.PaneNavHistory(50);
         this._ignoreNavPush = false;
         // ========== 本地导航历史 ==========
-        this._localNav = new _core_selection__WEBPACK_IMPORTED_MODULE_30__.PaneNavHistory(50);
+        this._localNav = new _core_selection__WEBPACK_IMPORTED_MODULE_31__.PaneNavHistory(50);
         /** 是否忽略历史记录（后退/前进导航时跳过记录） */
         this._ignoreLocalNavPush = false;
         // ========== 对话框 ==========
@@ -25546,7 +25550,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         // ★ BUG-2 修复：独立的取消引用集合（按传输任务隔离，避免全局共享导致误取消）
         this._cancelRefs = new Set();
         /** ★ 2026-09-20 P2-2：本面板的「拖入兜底临时目录」作用域（面板级唯一），销毁时定向清理自己产生的副本 */
-        this._dropTmpScope = (0,crypto__WEBPACK_IMPORTED_MODULE_5__.randomUUID)();
+        this._dropTmpScope = (0,crypto__WEBPACK_IMPORTED_MODULE_6__.randomUUID)();
         // ★ 2026-07-25：并发同名下载守卫（防止两个下载写同一个 .tmp 造成数据损坏，见 B3）
         this._activeDownloadTargets = new Set();
         // ★ 2026-09-21 P1：并发同名上传守卫（对称下载）——防止两个并发上传互踩同一 .tabby-upload
@@ -25613,7 +25617,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
          * 创建人：DD1024z + Claude
          * 创建时间：2026-06-22
          */
-        this.isDirByMode = _core_file_utils__WEBPACK_IMPORTED_MODULE_36__.isDirByMode;
+        this.isDirByMode = _core_file_utils__WEBPACK_IMPORTED_MODULE_37__.isDirByMode;
         // ========== 子组件桥接 ==========
         this.colHeaderLabelFn = (col) => this.colHeaderLabel(col);
         // Format only rendered cells; invalidate on directory/metadata or date-format changes.
@@ -25628,14 +25632,14 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
          *  结果按配置数组引用缓存，避免每轮变更检测重新 filter 出新的数组引用。 */
         this._menuOrderCache = null;
         // ========== 格式（委托 panel/panel-format） ==========
-        this.formatSize = _core_file_utils__WEBPACK_IMPORTED_MODULE_36__.formatSize;
-        this.formatDate = _core_file_utils__WEBPACK_IMPORTED_MODULE_36__.formatDate;
-        this.formatPercent = _core_file_utils__WEBPACK_IMPORTED_MODULE_36__.formatPercent;
-        this.formatLogTime = _core_file_utils__WEBPACK_IMPORTED_MODULE_36__.formatLogTime;
-        this.formatLogTimeRange = _core_file_utils__WEBPACK_IMPORTED_MODULE_36__.formatLogTimeRange;
-        this.formatDuration = _core_file_utils__WEBPACK_IMPORTED_MODULE_36__.formatDuration;
-        this.formatSpeedFromSize = _core_file_utils__WEBPACK_IMPORTED_MODULE_36__.formatSpeedFromSize;
-        this.getLogFileName = _core_file_utils__WEBPACK_IMPORTED_MODULE_36__.getLogFileName;
+        this.formatSize = _core_file_utils__WEBPACK_IMPORTED_MODULE_37__.formatSize;
+        this.formatDate = _core_file_utils__WEBPACK_IMPORTED_MODULE_37__.formatDate;
+        this.formatPercent = _core_file_utils__WEBPACK_IMPORTED_MODULE_37__.formatPercent;
+        this.formatLogTime = _core_file_utils__WEBPACK_IMPORTED_MODULE_37__.formatLogTime;
+        this.formatLogTimeRange = _core_file_utils__WEBPACK_IMPORTED_MODULE_37__.formatLogTimeRange;
+        this.formatDuration = _core_file_utils__WEBPACK_IMPORTED_MODULE_37__.formatDuration;
+        this.formatSpeedFromSize = _core_file_utils__WEBPACK_IMPORTED_MODULE_37__.formatSpeedFromSize;
+        this.getLogFileName = _core_file_utils__WEBPACK_IMPORTED_MODULE_37__.getLogFileName;
         this._customDragPreviewEl = null;
         this._dragCacheTimer = null;
         this._dragCacheGen = 0;
@@ -25673,7 +25677,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this._conflictResolvedKeys = new Set();
         // 通过 Injector 安全获取 ConfigService（避免 NG0202 DI 错误）
         try {
-            this.configService = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_7__.ConfigService, null);
+            this.configService = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_8__.ConfigService, null);
         }
         catch (_a) {
             // ConfigService 在插件环境中不可用，忽略
@@ -25681,25 +25685,25 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         }
         // 统一配置服务
         try {
-            this.sftpConfig = injector.get(_services_sftp_config_service__WEBPACK_IMPORTED_MODULE_13__.SftpConfigService, null);
+            this.sftpConfig = injector.get(_services_sftp_config_service__WEBPACK_IMPORTED_MODULE_14__.SftpConfigService, null);
         }
         catch (_b) {
             this.sftpConfig = null;
         }
         // 安全获取 NotificationsService（用于重连失败提示）
         try {
-            this.notifications = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_7__.NotificationsService, null);
+            this.notifications = injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_8__.NotificationsService, null);
         }
         catch (_c) {
             this.notifications = null;
         }
         // 将 ConfigService 传给 i18n service，让 Auto 模式能读取 Tabby 系统语言
-        this.i18n = new _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_12__.SftpI18nService(this.configService);
+        this.i18n = new _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_13__.SftpI18nService(this.configService);
         // 将 ConfigService 传给 bookmarks / transferLog service，确保数据写入 Tabby 配置
-        this.bookmarks = new _services_sftp_bookmarks_service__WEBPACK_IMPORTED_MODULE_14__.SftpBookmarksService(this.configService);
-        this.transferLog = new _services_sftp_transfer_log_service__WEBPACK_IMPORTED_MODULE_15__.SftpTransferLogService(this.configService);
+        this.bookmarks = new _services_sftp_bookmarks_service__WEBPACK_IMPORTED_MODULE_15__.SftpBookmarksService(this.configService);
+        this.transferLog = new _services_sftp_transfer_log_service__WEBPACK_IMPORTED_MODULE_16__.SftpTransferLogService(this.configService);
         const panel = this;
-        this._rubberBand = new _components_panel_rubber_band__WEBPACK_IMPORTED_MODULE_18__.PanelRubberBand({
+        this._rubberBand = new _components_panel_rubber_band__WEBPACK_IMPORTED_MODULE_19__.PanelRubberBand({
             zone: this.zone,
             cdr: this.cdr,
             elRef: this.elRef,
@@ -25730,7 +25734,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             set headerMenuVisible(v) { panel.headerMenuVisible = v; },
             syncPaneSelectionVisual: (p) => panel.syncPaneSelectionVisual(p),
         });
-        this._headerReorder = new _components_panel_header_reorder__WEBPACK_IMPORTED_MODULE_19__.PanelHeaderReorder({
+        this._headerReorder = new _components_panel_header_reorder__WEBPACK_IMPORTED_MODULE_20__.PanelHeaderReorder({
             cdr: this.cdr,
             elRef: this.elRef,
             get resizing() { return panel.resizing; },
@@ -25745,12 +25749,12 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             markJustResized: () => { panel._colJustResized = true; },
             clearJustResizedSoon: (ms) => { setTimeout(() => { panel._colJustResized = false; }, ms !== null && ms !== void 0 ? ms : 200); },
         });
-        this._fileDnd = new _components_panel_file_dnd__WEBPACK_IMPORTED_MODULE_20__.PanelFileDnd({
+        this._fileDnd = new _components_panel_file_dnd__WEBPACK_IMPORTED_MODULE_21__.PanelFileDnd({
             cdr: this.cdr,
             elRef: this.elRef,
             isHeaderReorderActive: () => { var _a; return !!((_a = panel._headerReorder) === null || _a === void 0 ? void 0 : _a.active); },
         });
-        this._fileDropRuntime = new _core_drop__WEBPACK_IMPORTED_MODULE_21__.PanelDropAdapter({
+        this._fileDropRuntime = new _core_drop__WEBPACK_IMPORTED_MODULE_22__.PanelDropAdapter({
             cdr: this.cdr,
             markViewDirty: () => panel._safeDetect(),
             // ★ 2026-09-20 P2-2：拖入兜底临时目录归属本面板，销毁时定向清理
@@ -25778,7 +25782,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             refreshRemote: () => panel.refreshRemote(),
             showConflictDialog: () => panel._showConflictDialog(),
         });
-        this._transferCoordinator = new _core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_22__.PanelTransferCoordinator({
+        this._transferCoordinator = new _core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_23__.PanelTransferCoordinator({
             get sftpSession() { return panel.sftpSession; },
             // ★ 2026-08-11：tar 打包通道需要 SSH exec（打包/解包）
             get sshSession() { return panel.sshSession; },
@@ -25805,7 +25809,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                     panel.showToast(panel.i18n.t(inapplicable ? 'notify.tarOnlyInapplicable' : 'notify.tarOnlyFailed', { name, reason: panel.i18n.t(reasonKey) }), inapplicable ? 6000 : 7000);
                 }
                 catch ( /* ignore */_b) { /* ignore */ }
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn(`[tar-only] channel ${code === 'targetExists' ? 'not applicable' : 'unusable'} for "${name}" (${code}): ${detail}`);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn(`[tar-only] channel ${code === 'targetExists' ? 'not applicable' : 'unusable'} for "${name}" (${code}): ${detail}`);
             },
             enqueueConflict: (item) => {
                 panel._conflictQueue.push(item);
@@ -25871,7 +25875,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             dirUploadConcurrency: () => panel._uploadConcurrency,
             dirDownloadConcurrency: () => panel._downloadConcurrency,
         });
-        this._pasteAdapter = new _core_paste__WEBPACK_IMPORTED_MODULE_23__.PanelPasteAdapter({
+        this._pasteAdapter = new _core_paste__WEBPACK_IMPORTED_MODULE_24__.PanelPasteAdapter({
             get sftpSession() { return panel.sftpSession; },
             get sshSession() { return panel.sshSession; },
             get effectiveLang() { return panel.effectiveLang; },
@@ -25904,7 +25908,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             refreshLocal: () => panel.refreshLocal(),
             refreshRemote: () => panel.refreshRemote(),
         });
-        this._conflictResolver = new _components_panel_conflict_resolver__WEBPACK_IMPORTED_MODULE_29__.PanelConflictResolver({
+        this._conflictResolver = new _components_panel_conflict_resolver__WEBPACK_IMPORTED_MODULE_30__.PanelConflictResolver({
             get sftpSession() { return panel.sftpSession; },
             get cdr() { return panel.cdr; },
             // ★ 2026-09-20 A2：面板销毁后，冲突框的异步 stat / 扫描 / 摘要回调必须短路
@@ -25969,7 +25973,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 }
                 catch ( /* ignore */_a) { /* ignore */ }
             },
-            copyLocalDir: (src, dest) => (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_25__.copyLocalDir)(src, dest),
+            copyLocalDir: (src, dest) => (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_26__.copyLocalDir)(src, dest),
             scanLocalDir: (p) => panel._scanLocalDir(p),
             scanRemoteDir: (p) => panel._scanRemoteDir(p),
             computeConflictDigests: (args) => panel._computeConflictDigests(args),
@@ -25983,7 +25987,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                     panel.showToast(`${fileName}: skipped (same content)`);
                 }
             },
-            copyRemoteDir: (srcRemotePath, destRemotePath, isDirectory) => (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_25__.copyRemoteDir)(srcRemotePath, destRemotePath, isDirectory, {
+            copyRemoteDir: (srcRemotePath, destRemotePath, isDirectory) => (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_26__.copyRemoteDir)(srcRemotePath, destRemotePath, isDirectory, {
                 hasSession: () => !!panel.sftpSession,
                 mkdir: async (p) => { await panel.sftpSession.mkdir(p); },
                 readdir: async (p) => {
@@ -25996,10 +26000,10 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 },
                 download: (r, l) => panel._doDownload(r, l),
                 upload: (r, l) => panel._doUpload(r, l),
-                tryServerCopy: (src, dest, isDir) => (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_25__.tryRemoteCpViaSsh)(panel.sshSession, src, dest, isDir),
+                tryServerCopy: (src, dest, isDir) => (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_26__.tryRemoteCpViaSsh)(panel.sshSession, src, dest, isDir),
             }),
         });
-        this._transferRuntime = new _core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_22__.PanelTransferRuntime({
+        this._transferRuntime = new _core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_23__.PanelTransferRuntime({
             get connected() { return panel.connected; },
             get sftpSession() { return panel.sftpSession; },
             get transfers() { return panel.transfers; },
@@ -26169,7 +26173,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     _base_ngOnInit() {
         var _a, _b, _c;
         const panel = this;
-        this._connLifecycle = new _components_connection_lifecycle__WEBPACK_IMPORTED_MODULE_17__.PanelConnectionLifecycle({
+        this._connLifecycle = new _components_connection_lifecycle__WEBPACK_IMPORTED_MODULE_18__.PanelConnectionLifecycle({
             get sshSession() { return panel.sshSession; },
             set sshSession(v) { panel.sshSession = v; },
             get sftpSession() { return panel.sftpSession; },
@@ -26272,7 +26276,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             this.loadLocalColWidths();
             this.loadRemoteColWidths();
             // 重建 i18n service 以应用语言设置变更
-            this.i18n = new _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_12__.SftpI18nService(this.configService);
+            this.i18n = new _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_13__.SftpI18nService(this.configService);
             // 同步书签与传输日志（其他面板或导入后可能已变更）
             this.bookmarks.reload();
             this.transferLog.reload();
@@ -26565,9 +26569,9 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             this._winResizeHandler = null;
         }
         // P2-1: 清理远程拖拽缓存临时目录
-        void fs_promises__WEBPACK_IMPORTED_MODULE_2__.rm(path__WEBPACK_IMPORTED_MODULE_1__.join(os__WEBPACK_IMPORTED_MODULE_4__.tmpdir(), 'sftp-plus-dragout'), { recursive: true, force: true }).catch(() => { });
+        void fs_promises__WEBPACK_IMPORTED_MODULE_3__.rm(path__WEBPACK_IMPORTED_MODULE_2__.join(os__WEBPACK_IMPORTED_MODULE_5__.tmpdir(), 'sftp-plus-dragout'), { recursive: true, force: true }).catch(() => { });
         // ★ 2026-09-20 P2-2: 清理「拖入兜底」临时目录（仅本面板作用域内的副本，不误删其它面板的）
-        void fs_promises__WEBPACK_IMPORTED_MODULE_2__.rm((0,_core_drop__WEBPACK_IMPORTED_MODULE_21__.dragDropTempDir)(this._dropTmpScope), { recursive: true, force: true }).catch(() => { });
+        void fs_promises__WEBPACK_IMPORTED_MODULE_3__.rm((0,_core_drop__WEBPACK_IMPORTED_MODULE_22__.dragDropTempDir)(this._dropTmpScope), { recursive: true, force: true }).catch(() => { });
         // P2-2: 清理 _openPathInSystem 可能残留的 keyup 监听和定时器
         if (this._openPathKeyupHandler) {
             window.removeEventListener('keyup', this._openPathKeyupHandler, true);
@@ -26662,7 +26666,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             el.style.setProperty('--_border', themeBorder || 'rgba(128,128,128,0.2)', 'important');
             el.style.setProperty('--_content', themeBg, 'important');
             // 表面色和 hover 色基于背景色自动计算
-            const isDark = (0,_common_utils__WEBPACK_IMPORTED_MODULE_34__.isColorDark)(themeBg);
+            const isDark = (0,_common_utils__WEBPACK_IMPORTED_MODULE_35__.isColorDark)(themeBg);
             if (isDark) {
                 el.style.setProperty('--_surface', 'rgba(255,255,255,0.06)', 'important');
                 el.style.setProperty('--_hover', 'rgba(255,255,255,0.12)', 'important');
@@ -26811,8 +26815,8 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             }
             // 自定义时间格式：pattern 变化后 formatDate 输出改变，必须失效 _cells 预计算缓存
             const fmt = typeof (cfg === null || cfg === void 0 ? void 0 : cfg.dateFormat) === 'string' ? cfg.dateFormat.trim() : '';
-            if (fmt !== (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.getDateFormatPattern)()) {
-                (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.setDateFormatPattern)(fmt);
+            if (fmt !== (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.getDateFormatPattern)()) {
+                (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.setDateFormatPattern)(fmt);
                 this._invalidateLocalCache();
                 this._invalidateRemoteCache();
             }
@@ -26923,7 +26927,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                     this.configService.save();
                 }
                 catch (e) {
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('[panel-geom] configService.save failed:', e);
+                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('[panel-geom] configService.save failed:', e);
                 }
             }
             try {
@@ -26932,7 +26936,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             catch ( /* ignore */_h) { /* ignore */ }
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('[panel-geom] persist failed:', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('[panel-geom] persist failed:', e);
         }
     }
     /** 把几何值归一化为「相对父窗口的百分比」。
@@ -27271,11 +27275,11 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     openPluginSettings() {
         this.zone.run(() => {
             try {
-                const app = this.injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_7__.AppService);
-                (0,_settings_sftp_open_settings__WEBPACK_IMPORTED_MODULE_16__.openSftpPlusSettings)(app);
+                const app = this.injector.get(tabby_core__WEBPACK_IMPORTED_MODULE_8__.AppService);
+                (0,_settings_sftp_open_settings__WEBPACK_IMPORTED_MODULE_17__.openSftpPlusSettings)(app);
             }
             catch (e) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.error('openPluginSettings failed', e);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.error('openPluginSettings failed', e);
             }
         });
     }
@@ -27363,7 +27367,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         const prevRef = this._cancelRef;
         this._cancelRef = cancelRef;
         try {
-            return await (0,_core_task_scope__WEBPACK_IMPORTED_MODULE_9__.runInTaskScope)(cancelRef, () => this._transferCoordinator.mergeLocalDirToRemote(localSrc, remoteDest, reuseLogEntryId));
+            return await (0,_core_task_scope__WEBPACK_IMPORTED_MODULE_10__.runInTaskScope)(cancelRef, () => this._transferCoordinator.mergeLocalDirToRemote(localSrc, remoteDest, reuseLogEntryId));
         }
         finally {
             this._cancelRefs.delete(cancelRef);
@@ -27393,7 +27397,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             return;
         let entries = baseEntries;
         if (this._remoteNeedsEnrich()) {
-            entries = await (0,_services_sftp_service__WEBPACK_IMPORTED_MODULE_11__.enrichSftpFilesWithAtime)(this.sftpSession, snapshotPath, baseEntries, this._remoteEnrichOptions());
+            entries = await (0,_services_sftp_service__WEBPACK_IMPORTED_MODULE_12__.enrichSftpFilesWithAtime)(this.sftpSession, snapshotPath, baseEntries, this._remoteEnrichOptions());
             if (!this.connected || this.remotePath !== snapshotPath || refreshGen !== this._remoteRefreshGen)
                 return;
             this.zone.run(() => {
@@ -27410,7 +27414,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         //   注：数万级条目的渲染卡顿仍需虚拟滚动（架构级），此处为低风险缓解。
         const hugeDir = entries.length > SftpFloatingPanel_1.REMOTE_LISTING_ENRICH_LIMIT;
         if (wantOwner && !this.remoteIdResolver.remoteExecDisabled && !hugeDir) {
-            entries = await (0,_services_sftp_service__WEBPACK_IMPORTED_MODULE_11__.enrichRemoteOwnersViaStat)(this.sftpSession, entries);
+            entries = await (0,_services_sftp_service__WEBPACK_IMPORTED_MODULE_12__.enrichRemoteOwnersViaStat)(this.sftpSession, entries);
             if (!this.connected || this.remotePath !== snapshotPath || refreshGen !== this._remoteRefreshGen)
                 return;
             this.zone.run(() => {
@@ -27474,7 +27478,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     async _base_refreshLocal() {
         this.localPathInput = this.localPath;
         if (!this.localPath || typeof this.localPath !== 'string') {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('refreshLocal skipped: localPath is invalid');
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('refreshLocal skipped: localPath is invalid');
             return;
         }
         const gen = ++this._localRefreshGen;
@@ -27489,7 +27493,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this._localFlash = false;
         // this._safeDetect()  // 去掉强制变更检测，避免重绘抖动
         try {
-            const names = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(requestedPath);
+            const names = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readdir(requestedPath);
             if (gen !== this._localRefreshGen)
                 return;
             const needOwner = this.localShowColOwner || this.localShowColGroup;
@@ -27500,16 +27504,16 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             const statResults = [];
             for (let i = 0; i < names.length; i += BATCH) {
                 const batch = names.slice(i, i + BATCH);
-                const results = await Promise.all(batch.map(name => fs_promises__WEBPACK_IMPORTED_MODULE_2__.lstat(path__WEBPACK_IMPORTED_MODULE_1__.join(requestedPath, name)).catch(() => null)));
+                const results = await Promise.all(batch.map(name => fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(path__WEBPACK_IMPORTED_MODULE_2__.join(requestedPath, name)).catch(() => null)));
                 if (gen !== this._localRefreshGen)
                     return;
                 statResults.push(...results);
             }
             const entries = [];
-            const isWin = os__WEBPACK_IMPORTED_MODULE_4__.platform() === 'win32';
+            const isWin = os__WEBPACK_IMPORTED_MODULE_5__.platform() === 'win32';
             for (let i = 0; i < names.length; i++) {
                 const name = names[i];
-                const fp = path__WEBPACK_IMPORTED_MODULE_1__.join(requestedPath, name);
+                const fp = path__WEBPACK_IMPORTED_MODULE_2__.join(requestedPath, name);
                 const lst = statResults[i];
                 if (lst) {
                     let isDirectory = lst.isDirectory();
@@ -27528,7 +27532,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                             const { shell } = __webpack_require__(/*! electron */ "electron");
                             const shortcut = shell.readShortcutLink(fp);
                             linkTarget = shortcut.target;
-                            const targetStat = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(linkTarget).catch(() => null);
+                            const targetStat = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(linkTarget).catch(() => null);
                             if (targetStat)
                                 isDirectory = targetStat.isDirectory();
                         }
@@ -27537,7 +27541,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                     else if (isSymlink) {
                         // ★ 2026-09-08 issue #16：真 symlink（POSIX / Windows mklink、junction）——
                         //   lstat 不 follow，需再 stat 拿目标真实类型 + 目标元数据。
-                        const targetStat = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(fp).catch(() => null);
+                        const targetStat = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(fp).catch(() => null);
                         if (targetStat) {
                             isDirectory = targetStat.isDirectory();
                             meta = targetStat;
@@ -27578,7 +27582,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         catch (e) {
             if (gen !== this._localRefreshGen)
                 return;
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.error('Local listing failed', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.error('Local listing failed', e);
             this.zone.run(() => {
                 this.localEntries = [];
                 this._localError = true;
@@ -27619,7 +27623,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     canLocalUp() {
         if (!this.localPath || typeof this.localPath !== 'string')
             return false;
-        return path__WEBPACK_IMPORTED_MODULE_1__.dirname(this.localPath) !== this.localPath;
+        return path__WEBPACK_IMPORTED_MODULE_2__.dirname(this.localPath) !== this.localPath;
     }
     canRemoteUp() {
         if (!this.remotePath || typeof this.remotePath !== 'string')
@@ -27631,7 +27635,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     /** 统一上级目录导航 */
     _paneUp(side) {
         if (side === 'local') {
-            const parent = path__WEBPACK_IMPORTED_MODULE_1__.dirname(this.localPath);
+            const parent = path__WEBPACK_IMPORTED_MODULE_2__.dirname(this.localPath);
             if (parent !== this.localPath) {
                 this._pushLocalNav(parent);
                 this.localPath = parent;
@@ -27643,7 +27647,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         else {
             if (!this.connected || this.remotePath === '/')
                 return;
-            const next = path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname(this.remotePath);
+            const next = path__WEBPACK_IMPORTED_MODULE_2__.posix.dirname(this.remotePath);
             const dest = next === '.' ? '/' : next;
             this._pushRemoteNav(dest);
             this.remotePath = dest;
@@ -27654,7 +27658,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     }
     /** 统一回到主目录 */
     _paneGoHome(side) {
-        const home = side === 'local' ? os__WEBPACK_IMPORTED_MODULE_4__.homedir() : '/';
+        const home = side === 'local' ? os__WEBPACK_IMPORTED_MODULE_5__.homedir() : '/';
         if (side === 'remote' && (!this.connected || !this.sftpSession))
             return;
         if (side === 'local')
@@ -27689,9 +27693,9 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         if (!p)
             return this.localPath || '';
         const base = this.localPath || '';
-        const joined = path__WEBPACK_IMPORTED_MODULE_1__.isAbsolute(p) ? p : path__WEBPACK_IMPORTED_MODULE_1__.join(base, p);
+        const joined = path__WEBPACK_IMPORTED_MODULE_2__.isAbsolute(p) ? p : path__WEBPACK_IMPORTED_MODULE_2__.join(base, p);
         // ★ 2026-08-26：normalize/resolve，折叠 .. 与混用分隔符
-        return path__WEBPACK_IMPORTED_MODULE_1__.resolve(path__WEBPACK_IMPORTED_MODULE_1__.normalize(joined));
+        return path__WEBPACK_IMPORTED_MODULE_2__.resolve(path__WEBPACK_IMPORTED_MODULE_2__.normalize(joined));
     }
     // ========== 远程文件 ==========
     async _base_refreshRemote() {
@@ -27706,7 +27710,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         const refreshGen = ++this._remoteRefreshGen;
         this.remotePathInput = this.remotePath;
         if (!this.remotePath || typeof this.remotePath !== 'string') {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('refreshRemote skipped: remotePath is invalid, resetting to /');
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('refreshRemote skipped: remotePath is invalid, resetting to /');
             this.remotePath = '/';
             this.remotePathInput = '/';
         }
@@ -27763,15 +27767,15 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             //   就是这么刷出来的：弱网把通道关掉后，用户每点一次刷新/切一次目录就多一条 error。
             //   只在第一次尝试时自愈（retriedAfterReopen=false），失败通道上绝不无限递归重试。
             //   自愈本身不弹通知、不打断在途传输（有传输时交给心跳处理，见 recoverChannelForListing）。
-            if (!retriedAfterReopen && (0,_core_session_errors__WEBPACK_IMPORTED_MODULE_26__.isChannelDeadError)(e) && ((_a = this._connLifecycle) === null || _a === void 0 ? void 0 : _a.recoverChannelForListing)) {
+            if (!retriedAfterReopen && (0,_core_session_errors__WEBPACK_IMPORTED_MODULE_27__.isChannelDeadError)(e) && ((_a = this._connLifecycle) === null || _a === void 0 ? void 0 : _a.recoverChannelForListing)) {
                 const healed = await this._connLifecycle.recoverChannelForListing();
                 // 期间可能已有更新的刷新在跑 / 面板已销毁 → 让那一次说了算
                 if (healed && refreshGen === this._remoteRefreshGen && this._isAlive) {
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.info('Remote listing retried on a freshly reopened SFTP session');
+                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.info('Remote listing retried on a freshly reopened SFTP session');
                     return this._refreshRemoteInternal(true);
                 }
             }
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.error('Remote listing failed', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.error('Remote listing failed', e);
             this.zone.run(() => {
                 if (refreshGen !== this._remoteRefreshGen || snapshotPath !== this.remotePath)
                     return;
@@ -27815,7 +27819,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             return;
         const target = dir === 'back' ? nav.back() : nav.forward();
         if (!target) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn(`${side}Nav ${dir}: history entry invalid, aborting`);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn(`${side}Nav ${dir}: history entry invalid, aborting`);
             return;
         }
         if (side === 'local') {
@@ -27856,7 +27860,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         if (!r.startsWith('/'))
             r = '/' + r;
         // 折叠连续斜杠并解析 .. / . 段，防止路径遍历
-        r = path__WEBPACK_IMPORTED_MODULE_1__.posix.normalize(r.replace(/\/+/g, '/'));
+        r = path__WEBPACK_IMPORTED_MODULE_2__.posix.normalize(r.replace(/\/+/g, '/'));
         if (!r.startsWith('/'))
             r = '/' + r;
         return r;
@@ -27891,10 +27895,10 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             return false;
         // 先找命中的动作（PANEL_HOTKEY_ACTIONS 顺序 ⇒ back 先于 forward，与既有优先级一致）
         let hit = null;
-        for (const a of _tabby_config_provider__WEBPACK_IMPORTED_MODULE_33__.PANEL_HOTKEY_ACTIONS) {
+        for (const a of _tabby_config_provider__WEBPACK_IMPORTED_MODULE_34__.PANEL_HOTKEY_ACTIONS) {
             if (!this._panelHotkeyEnabled(a))
                 continue;
-            if ((0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.matchPointerHotkeySpecs)(event, this._panelHotkeyKeys(a))) {
+            if ((0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.matchPointerHotkeySpecs)(event, this._panelHotkeyKeys(a))) {
                 hit = a;
                 break;
             }
@@ -27968,7 +27972,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             default: {
                 // 右键菜单类动作（上传/下载/打开/查看/编辑/新建/属性/复制路径）：判定沿用键盘路径的 _contextHotkeyReady
                 const a = action;
-                if (!_tabby_config_provider__WEBPACK_IMPORTED_MODULE_33__.CONTEXT_ACTION_HOTKEYS.includes(a))
+                if (!_tabby_config_provider__WEBPACK_IMPORTED_MODULE_34__.CONTEXT_ACTION_HOTKEYS.includes(a))
                     return;
                 const pane = (a === 'upload' || a === 'openLocal') ? 'local'
                     : a === 'download' ? 'remote'
@@ -28245,7 +28249,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     selectLocal(entry, event, idx) {
         if (this.selectedRemote.length > 0)
             this.selectedRemote = [];
-        const r = (0,_core_selection__WEBPACK_IMPORTED_MODULE_30__.computeSelection)(this.selectedLocal, entry, event, idx, this.localLastSelectedIndex, this.getFilteredLocalEntries(), this._localSelectedPaths);
+        const r = (0,_core_selection__WEBPACK_IMPORTED_MODULE_31__.computeSelection)(this.selectedLocal, entry, event, idx, this.localLastSelectedIndex, this.getFilteredLocalEntries(), this._localSelectedPaths);
         this.selectedLocal = r.selection;
         this.localLastSelectedIndex = r.lastIndex;
         this.syncPaneSelectionVisual('local');
@@ -28386,7 +28390,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                         continue;
                     out.push({
                         kind: 'header',
-                        key: (0,_core_grouping__WEBPACK_IMPORTED_MODULE_31__.navHeaderKey)(r.bucketKey),
+                        key: (0,_core_grouping__WEBPACK_IMPORTED_MODULE_32__.navHeaderKey)(r.bucketKey),
                         entries: (r.items || []).slice(),
                         listIndex: -1,
                         groupKey: r.bucketKey,
@@ -28544,7 +28548,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     selectRemote(entry, event, idx) {
         if (this.selectedLocal.length > 0)
             this.selectedLocal = [];
-        const r = (0,_core_selection__WEBPACK_IMPORTED_MODULE_30__.computeSelection)(this.selectedRemote, entry, event, idx, this.remoteLastSelectedIndex, this.getFilteredRemoteEntries(), this._remoteSelectedPaths);
+        const r = (0,_core_selection__WEBPACK_IMPORTED_MODULE_31__.computeSelection)(this.selectedRemote, entry, event, idx, this.remoteLastSelectedIndex, this.getFilteredRemoteEntries(), this._remoteSelectedPaths);
         this.selectedRemote = r.selection;
         this.remoteLastSelectedIndex = r.lastIndex;
         this.syncPaneSelectionVisual('remote');
@@ -28603,7 +28607,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     }
     // ========== 排序 ==========
     setLocalSort(f) {
-        const r = (0,_core_selection__WEBPACK_IMPORTED_MODULE_30__.computeSortToggle)(this.localSortBy, this.localSortAsc, f, this._colJustResized);
+        const r = (0,_core_selection__WEBPACK_IMPORTED_MODULE_31__.computeSortToggle)(this.localSortBy, this.localSortAsc, f, this._colJustResized);
         if (!r)
             return;
         this.localSortBy = r.by;
@@ -28619,7 +28623,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     setRemoteSort(f) {
         if (f === 'birthtime')
             return;
-        const r = (0,_core_selection__WEBPACK_IMPORTED_MODULE_30__.computeSortToggle)(this.remoteSortBy, this.remoteSortAsc, f, this._colJustResized);
+        const r = (0,_core_selection__WEBPACK_IMPORTED_MODULE_31__.computeSortToggle)(this.remoteSortBy, this.remoteSortAsc, f, this._colJustResized);
         if (!r)
             return;
         this.remoteSortBy = r.by;
@@ -28673,16 +28677,16 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     getFilteredLocalEntries() {
         if (!this._localFilterDirty && this._localFilteredCache)
             return this._localFilteredCache;
-        const entries = (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.filterByName)((0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.filterByHidden)(this.localEntries, this.showHiddenLocal), this.localFilter);
-        this._localFilteredCache = (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.sortLocalEntries)(entries, this.localSortBy, this.localSortAsc, this.pinFoldersLocal);
+        const entries = (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.filterByName)((0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.filterByHidden)(this.localEntries, this.showHiddenLocal), this.localFilter);
+        this._localFilteredCache = (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.sortLocalEntries)(entries, this.localSortBy, this.localSortAsc, this.pinFoldersLocal);
         this._localFilterDirty = false;
         return this._localFilteredCache;
     }
     getFilteredRemoteEntries() {
         if (!this._remoteFilterDirty && this._remoteFilteredCache)
             return this._remoteFilteredCache;
-        const entries = (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.filterByName)((0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.filterByHidden)(this.remoteEntries, this.showHiddenRemote), this.remoteFilter);
-        this._remoteFilteredCache = (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.sortRemoteEntries)(entries, this.remoteSortBy, this.remoteSortAsc, this.pinFoldersRemote);
+        const entries = (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.filterByName)((0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.filterByHidden)(this.remoteEntries, this.showHiddenRemote), this.remoteFilter);
+        this._remoteFilteredCache = (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.sortRemoteEntries)(entries, this.remoteSortBy, this.remoteSortAsc, this.pinFoldersRemote);
         this._remoteFilterDirty = false;
         return this._remoteFilteredCache;
     }
@@ -28742,7 +28746,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     /** 查看器自绘插入光标形状（block/beam/underline，默认 beam）；编辑器为系统原生光标，不受此项影响 */
     get _base_textCaretShape() {
         var _a, _b, _c;
-        return (0,_tabby_config_provider__WEBPACK_IMPORTED_MODULE_33__.normalizeCaretShape)((_c = (_b = (_a = this.configService) === null || _a === void 0 ? void 0 : _a.store) === null || _b === void 0 ? void 0 : _b['tabby-sftp-plus-plus']) === null || _c === void 0 ? void 0 : _c.textCaretShape);
+        return (0,_tabby_config_provider__WEBPACK_IMPORTED_MODULE_34__.normalizeCaretShape)((_c = (_b = (_a = this.configService) === null || _a === void 0 ? void 0 : _a.store) === null || _b === void 0 ? void 0 : _b['tabby-sftp-plus-plus']) === null || _c === void 0 ? void 0 : _c.textCaretShape);
     }
     /** 设置页的可查看/编辑文本扩展名（已在 file-utils 中再次规范化，防御手工配置）。 */
     getCustomEditableExtensions() {
@@ -28798,7 +28802,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     }
     get _bundledIconDir() {
         if (this._bundledIconDirCache === null) {
-            this._bundledIconDirCache = (0,_core_icon_defaults__WEBPACK_IMPORTED_MODULE_37__.resolveSftpPlusBundledIconDir)(this.bootstrapData);
+            this._bundledIconDirCache = (0,_core_icon_defaults__WEBPACK_IMPORTED_MODULE_38__.resolveSftpPlusBundledIconDir)(this.bootstrapData);
         }
         return this._bundledIconDirCache;
     }
@@ -28811,15 +28815,15 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     get _base__panelHotkeys() {
         var _a, _b, _c, _d;
         const cfg = (_c = (_b = (_a = this.configService) === null || _a === void 0 ? void 0 : _a.store) === null || _b === void 0 ? void 0 : _b['tabby-sftp-plus-plus']) === null || _c === void 0 ? void 0 : _c.panelHotkeys;
-        const def = (0,_tabby_config_provider__WEBPACK_IMPORTED_MODULE_33__.defaultPanelHotkeys)();
+        const def = (0,_tabby_config_provider__WEBPACK_IMPORTED_MODULE_34__.defaultPanelHotkeys)();
         if (!cfg || typeof cfg !== 'object')
             return def;
-        for (const a of _tabby_config_provider__WEBPACK_IMPORTED_MODULE_33__.PANEL_HOTKEY_ACTIONS) {
+        for (const a of _tabby_config_provider__WEBPACK_IMPORTED_MODULE_34__.PANEL_HOTKEY_ACTIONS) {
             const h = cfg[a];
             if (!h || typeof h !== 'object')
                 continue;
             // ★ 2026-08-31：兼容旧格式 { key: 'Delete' } 与新格式 { keys: [...] }
-            const keys = (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.normalizePanelHotkeyKeys)((_d = h.keys) !== null && _d !== void 0 ? _d : h.key, HOTKEY_CLEARED);
+            const keys = (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.normalizePanelHotkeyKeys)((_d = h.keys) !== null && _d !== void 0 ? _d : h.key, HOTKEY_CLEARED);
             def[a] = { keys, enabled: h.enabled !== false };
         }
         return def;
@@ -28840,13 +28844,13 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     }
     /** 取该动作的首个键盘绑定（用于右键菜单展示；鼠标键不计入，多绑定时只显示第一个） */
     _panelHotkeyKey(action) {
-        const kb = (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.keyboardHotkeySpecs)(this._panelHotkeyKeys(action));
+        const kb = (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.keyboardHotkeySpecs)(this._panelHotkeyKeys(action));
         return kb.length ? kb[0] : '';
     }
     /** 面板快捷键匹配（忽略 shift 差异，支持多绑定）：用于 Delete 等 shift 作为语义修饰符的操作 */
     _matchPanelHotkeyKeysIgnoreShift(event, specs) {
-        for (const spec of (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.keyboardHotkeySpecs)(specs)) {
-            const p = (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.parsePanelHotkeyKey)(spec);
+        for (const spec of (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.keyboardHotkeySpecs)(specs)) {
+            const p = (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.parsePanelHotkeyKey)(spec);
             if (!p)
                 continue;
             if (event.ctrlKey !== p.ctrl)
@@ -28869,7 +28873,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         //   isSymlink=true）→ 双重判否点不进目录。需 stat(follow) 解析目标真实类型。
         //   根因：russh stat 的 JS 层展开 napi 对象丢失 permissions，旧 statRemotePath 只认
         //   'directory' 字符串/permissions 位 → 恒判非目录。本地侧无需此修复（fs.stat 已跟随）。
-        if (!isDir && pane === 'remote' && ((entry === null || entry === void 0 ? void 0 : entry.isSymlink) || (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.isSymlinkByMode)(entry === null || entry === void 0 ? void 0 : entry.mode))) {
+        if (!isDir && pane === 'remote' && ((entry === null || entry === void 0 ? void 0 : entry.isSymlink) || (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.isSymlinkByMode)(entry === null || entry === void 0 ? void 0 : entry.mode))) {
             isDir = await this._resolveRemoteSymlinkIsDir(entry.fullPath);
         }
         if (isDir) {
@@ -28879,7 +28883,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 void this.openRemote(entry, event);
             return;
         }
-        const openInSystem = !!(event && (os__WEBPACK_IMPORTED_MODULE_4__.platform() === 'darwin' ? event.metaKey : event.ctrlKey));
+        const openInSystem = !!(event && (os__WEBPACK_IMPORTED_MODULE_5__.platform() === 'darwin' ? event.metaKey : event.ctrlKey));
         if (openInSystem) {
             if (pane === 'local')
                 this._openPathInSystem(entry.linkTarget || entry.fullPath, { waitForModRelease: true });
@@ -28888,7 +28892,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             return;
         }
         // ★ 2026-08-24：查看器不支持的文件，若开关开启则改用系统默认程序打开
-        if (this._openUnsupportedInSystem && !(0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.isViewableRemoteFileType)(entry.name, this.getCustomEditableExtensions(), this.getAllowViewEditAllFiles())) {
+        if (this._openUnsupportedInSystem && !(0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.isViewableRemoteFileType)(entry.name, this.getCustomEditableExtensions(), this.getAllowViewEditAllFiles())) {
             if (pane === 'local')
                 this._openPathInSystem(entry.linkTarget || entry.fullPath, { waitForModRelease: true });
             else
@@ -28926,7 +28930,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     async _resolveRemoteSymlinkIsDir(fullPath) {
         if (!this.connected || !this.sftpSession)
             return false;
-        const st = await (0,_services_sftp_service__WEBPACK_IMPORTED_MODULE_11__.resolveRemoteSymlinkStat)(this.sftpSession, fullPath);
+        const st = await (0,_services_sftp_service__WEBPACK_IMPORTED_MODULE_12__.resolveRemoteSymlinkStat)(this.sftpSession, fullPath);
         return !!(st === null || st === void 0 ? void 0 : st.isDirectory);
     }
     openLocal(e, $event) {
@@ -28973,7 +28977,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             return;
         let isDir = e.isDirectory || this.isDirByMode(e.mode);
         // ★ 2026-08-24 修复：symlink 指向目录时，readdir lstat 不跟随 → 需 stat(follow) 解析
-        if (!isDir && (e.isSymlink || (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.isSymlinkByMode)(e.mode))) {
+        if (!isDir && (e.isSymlink || (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.isSymlinkByMode)(e.mode))) {
             isDir = await this._resolveRemoteSymlinkIsDir(e.fullPath);
         }
         if (!isDir)
@@ -29011,7 +29015,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     cachedColumnValue(col, e) {
         if (!e)
             return this.colValue(col, e);
-        const pattern = (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.getDateFormatPattern)();
+        const pattern = (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.getDateFormatPattern)();
         let cached = this.cellCache.get(e);
         if (!cached || cached.epoch !== this.cellEpoch || cached.pattern !== pattern) {
             cached = { epoch: this.cellEpoch, pattern, cells: {} };
@@ -29026,7 +29030,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         const v = (_c = (_b = (_a = this.configService) === null || _a === void 0 ? void 0 : _a.store) === null || _b === void 0 ? void 0 : _b['tabby-sftp-plus-plus']) === null || _c === void 0 ? void 0 : _c.contextMenuOrder;
         if (this._menuOrderCache && this._menuOrderCache.src === v)
             return this._menuOrderCache.out;
-        const out = (0,_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_39__.sanitizeMenuOrder)(v);
+        const out = (0,_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_40__.sanitizeMenuOrder)(v);
         this._menuOrderCache = { src: v, out };
         return out;
     }
@@ -29051,7 +29055,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             refresh: this._panelHotkeyKey('refresh'),
         };
         // ★ 2026-09-20：属性/上传/下载等可配置动作也要显示在右键菜单
-        for (const a of _tabby_config_provider__WEBPACK_IMPORTED_MODULE_33__.CONTEXT_ACTION_HOTKEYS) {
+        for (const a of _tabby_config_provider__WEBPACK_IMPORTED_MODULE_34__.CONTEXT_ACTION_HOTKEYS) {
             out[a] = this._panelHotkeyKey(a);
         }
         return out;
@@ -29069,10 +29073,10 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         const base = this.effectiveIconBaseDir;
         if (!base)
             return null;
-        const joinUrl = (svg) => 'file://' + path__WEBPACK_IMPORTED_MODULE_1__.join(base, svg);
+        const joinUrl = (svg) => 'file://' + path__WEBPACK_IMPORTED_MODULE_2__.join(base, svg);
         const exists = (svg) => {
             try {
-                return fs__WEBPACK_IMPORTED_MODULE_3__.existsSync(path__WEBPACK_IMPORTED_MODULE_1__.join(base, svg));
+                return fs__WEBPACK_IMPORTED_MODULE_4__.existsSync(path__WEBPACK_IMPORTED_MODULE_2__.join(base, svg));
             }
             catch (_a) {
                 return false;
@@ -29101,7 +29105,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 return joinUrl(rule.svg);
         }
         // 2) 内置默认扩展名映射（DEFAULT_ICON_MAP）
-        const svg = _core_icon_defaults__WEBPACK_IMPORTED_MODULE_37__.DEFAULT_ICON_MAP[ext];
+        const svg = _core_icon_defaults__WEBPACK_IMPORTED_MODULE_38__.DEFAULT_ICON_MAP[ext];
         if (svg && !disabled.includes(svg) && exists(svg))
             return joinUrl(svg);
         // 3) default.svg 兜底
@@ -29308,7 +29312,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         };
         const prop = map[e.field];
         if (!SftpFloatingPanel_1._PERM_PROP_WHITELIST.has(prop)) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('Blocked dynamic assignment to non-whitelisted property:', prop);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('Blocked dynamic assignment to non-whitelisted property:', prop);
             return;
         }
         ;
@@ -29316,7 +29320,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this.updatePermMode();
     }
     formatFailReason(entry) {
-        return (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.formatFailReason)(entry, this.i18n.t.bind(this.i18n));
+        return (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.formatFailReason)(entry, this.i18n.t.bind(this.i18n));
     }
     /** 计算本地选中文件的总大小（含目录不计） */
     formatSelectedSizeLocal() {
@@ -29360,7 +29364,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     }
     // ========== 拖拽 ==========
     _normRemoteDir(p) {
-        const n = path__WEBPACK_IMPORTED_MODULE_1__.posix.normalize(p || '/');
+        const n = path__WEBPACK_IMPORTED_MODULE_2__.posix.normalize(p || '/');
         return n.length > 1 && n.endsWith('/') ? n.slice(0, -1) : n;
     }
     _isInternalSameDirDrag(targetPane) {
@@ -29505,8 +29509,8 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         if (!src)
             return;
         this._setCustomDragPreview(ev, src.map(e => ({ name: e.name, isDirectory: e.isDirectory })));
-        const cur = path__WEBPACK_IMPORTED_MODULE_1__.resolve(this.localPath);
-        this._fileDnd.setDragSource('local', src.every(e => path__WEBPACK_IMPORTED_MODULE_1__.resolve(path__WEBPACK_IMPORTED_MODULE_1__.dirname(e.fullPath)) === cur));
+        const cur = path__WEBPACK_IMPORTED_MODULE_2__.resolve(this.localPath);
+        this._fileDnd.setDragSource('local', src.every(e => path__WEBPACK_IMPORTED_MODULE_2__.resolve(path__WEBPACK_IMPORTED_MODULE_2__.dirname(e.fullPath)) === cur));
         const p = { kind: 'local-paths', paths: src.map(e => ({ fullPath: e.linkTarget || e.fullPath, name: e.name, isDirectory: e.isDirectory })) };
         (_a = ev.dataTransfer) === null || _a === void 0 ? void 0 : _a.setData('application/x-sftp-plus', JSON.stringify(p));
         // 本地文件真实存在于磁盘，设置 OS 拖拽数据（FilePath + text/uri-list）以支持拖到桌面/资源管理器
@@ -29535,20 +29539,20 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             return;
         this._setCustomDragPreview(ev, src.map(e => ({ name: e.name, isDirectory: e.isDirectory })));
         const cur = this._normRemoteDir(this.remotePath);
-        this._fileDnd.setDragSource('remote', src.every(e => this._normRemoteDir(path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname(e.fullPath)) === cur));
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.info('[dragstart] remote modified:', src.map(e => { var _a, _b; return ({ name: e.name, modified: e.modified, modifiedMs: (_b = (_a = e.modified) === null || _a === void 0 ? void 0 : _a.getTime) === null || _b === void 0 ? void 0 : _b.call(_a) }); }));
+        this._fileDnd.setDragSource('remote', src.every(e => this._normRemoteDir(path__WEBPACK_IMPORTED_MODULE_2__.posix.dirname(e.fullPath)) === cur));
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.info('[dragstart] remote modified:', src.map(e => { var _a, _b; return ({ name: e.name, modified: e.modified, modifiedMs: (_b = (_a = e.modified) === null || _a === void 0 ? void 0 : _a.getTime) === null || _b === void 0 ? void 0 : _b.call(_a) }); }));
         const p = { kind: 'remote-paths', paths: src.map(e => { var _a, _b; return ({ remotePath: e.fullPath, name: e.name, isDirectory: e.isDirectory, size: e.size, mode: e.mode, modified: (_b = (_a = e.modified) === null || _a === void 0 ? void 0 : _a.getTime) === null || _b === void 0 ? void 0 : _b.call(_a) }); }) };
         (_a = ev.dataTransfer) === null || _a === void 0 ? void 0 : _a.setData('application/x-sftp-plus', JSON.stringify(p));
         // 同步检查临时缓存：只在实际文件已缓存时设置 OS 拖拽数据，否则不设置
         // 避免生成无效的 .url 快捷方式文件
-        const tmpDir = path__WEBPACK_IMPORTED_MODULE_1__.join(os__WEBPACK_IMPORTED_MODULE_4__.tmpdir(), 'sftp-plus-dragout');
+        const tmpDir = path__WEBPACK_IMPORTED_MODULE_2__.join(os__WEBPACK_IMPORTED_MODULE_5__.tmpdir(), 'sftp-plus-dragout');
         const uriList = [];
         for (const e of src) {
-            const tmpPath = path__WEBPACK_IMPORTED_MODULE_1__.join(tmpDir, e.name);
+            const tmpPath = path__WEBPACK_IMPORTED_MODULE_2__.join(tmpDir, e.name);
             try {
-                const st = fs__WEBPACK_IMPORTED_MODULE_3__.statSync(tmpPath);
+                const st = fs__WEBPACK_IMPORTED_MODULE_4__.statSync(tmpPath);
                 if (e.isDirectory) {
-                    if (st.isDirectory() && fs__WEBPACK_IMPORTED_MODULE_3__.statSync(path__WEBPACK_IMPORTED_MODULE_1__.join(tmpPath, '.sftp-cache-done'))) {
+                    if (st.isDirectory() && fs__WEBPACK_IMPORTED_MODULE_4__.statSync(path__WEBPACK_IMPORTED_MODULE_2__.join(tmpPath, '.sftp-cache-done'))) {
                         try {
                             const file = new File([''], e.name);
                             file.path = tmpPath;
@@ -29603,15 +29607,15 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         var _a;
         if (!this.sftpSession || gen !== this._dragCacheGen)
             return;
-        const tmpDir = path__WEBPACK_IMPORTED_MODULE_1__.join(os__WEBPACK_IMPORTED_MODULE_4__.tmpdir(), 'sftp-plus-dragout');
-        await fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdir(tmpDir, { recursive: true }).catch(() => { });
+        const tmpDir = path__WEBPACK_IMPORTED_MODULE_2__.join(os__WEBPACK_IMPORTED_MODULE_5__.tmpdir(), 'sftp-plus-dragout');
+        await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdir(tmpDir, { recursive: true }).catch(() => { });
         if (gen !== this._dragCacheGen)
             return;
         for (const entry of entries) {
             if (gen !== this._dragCacheGen || !this.sftpSession)
                 return;
             // ★ 2026-09-20 N2 审计修复：统一用 safeEntryName 净化远程文件名（与全库一致，防 . / .. / 穿越 / 控制字符）
-            const safeName = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_38__.safeEntryName)(entry.name);
+            const safeName = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_39__.safeEntryName)(entry.name);
             if (!safeName || safeName === '.' || safeName === '..')
                 continue;
             if (entry.isDirectory)
@@ -29623,14 +29627,14 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 continue;
             this._dragCacheInFlight.add(flightKey);
             try {
-                const tmpPath = path__WEBPACK_IMPORTED_MODULE_1__.join(tmpDir, safeName);
-                const cached = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(tmpPath).then(s => { var _a; return s.size === ((_a = entry.size) !== null && _a !== void 0 ? _a : 0); }).catch(() => false);
+                const tmpPath = path__WEBPACK_IMPORTED_MODULE_2__.join(tmpDir, safeName);
+                const cached = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(tmpPath).then(s => { var _a; return s.size === ((_a = entry.size) !== null && _a !== void 0 ? _a : 0); }).catch(() => false);
                 if (cached || gen !== this._dragCacheGen)
                     continue;
                 // 独立 cancel 列表，不占用文件夹传输的共享 _cancelRef（★ 2026-09-20 P1-2：改用显式 ref 入参）
                 const dragCancelRef = { current: null };
                 const ctx = this._byteTransferCtx(dragCancelRef);
-                await (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_8__.downloadRemoteFile)(ctx, entry.fullPath, tmpPath, undefined, entry.size, {
+                await (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_9__.downloadRemoteFile)(ctx, entry.fullPath, tmpPath, undefined, entry.size, {
                     exposeCancel: true,
                     onTransfer: (dl) => {
                         if (gen !== this._dragCacheGen) {
@@ -29673,20 +29677,20 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             return undefined;
         const isDir = el.getAttribute('data-isdir') === '1';
         if (targetPane === 'remote') {
-            return isDir ? p : path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname(p);
+            return isDir ? p : path__WEBPACK_IMPORTED_MODULE_2__.posix.dirname(p);
         }
-        return isDir ? p : path__WEBPACK_IMPORTED_MODULE_1__.dirname(p);
+        return isDir ? p : path__WEBPACK_IMPORTED_MODULE_2__.dirname(p);
     }
     // ========== 文件夹传输进度 ==========
     /** ★ 2026-08-11 提速：递归扫描本地目录，单次遍历同时得出总大小与文件数。
      *   仅对 readdir 调用限流（并发 8）；目录递归本身不占槽——持槽等待子任务
      *   会形成 hold-and-wait 死锁（见 concurrency.ts 注释）。 */
     async _scanLocalDir(dirPath) {
-        const limiter = new _core_concurrency__WEBPACK_IMPORTED_MODULE_27__.ConcurrencyLimiter(8);
+        const limiter = new _core_concurrency__WEBPACK_IMPORTED_MODULE_28__.ConcurrencyLimiter(8);
         const scan = async (dir) => {
             let entries;
             try {
-                entries = await limiter.run(() => fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(dir, { withFileTypes: true }));
+                entries = await limiter.run(() => fs_promises__WEBPACK_IMPORTED_MODULE_3__.readdir(dir, { withFileTypes: true }));
             }
             catch (_a) {
                 return { size: 0, count: 0 };
@@ -29697,12 +29701,12 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             for (const item of entries) {
                 if (item.isSymbolicLink())
                     continue;
-                const p = path__WEBPACK_IMPORTED_MODULE_1__.join(dir, item.name);
+                const p = path__WEBPACK_IMPORTED_MODULE_2__.join(dir, item.name);
                 if (item.isDirectory()) {
                     subs.push(scan(p));
                 }
                 else {
-                    const st = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(p).catch(() => null);
+                    const st = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(p).catch(() => null);
                     if (st) {
                         size += st.size;
                         count++;
@@ -29725,7 +29729,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         const session = this.sftpSession;
         if (!session)
             return { size: 0, count: 0 };
-        const limiter = new _core_concurrency__WEBPACK_IMPORTED_MODULE_27__.ConcurrencyLimiter(8);
+        const limiter = new _core_concurrency__WEBPACK_IMPORTED_MODULE_28__.ConcurrencyLimiter(8);
         const scan = async (dir) => {
             let entries;
             try {
@@ -29742,7 +29746,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 if (e.isSymlink || e.isSymbolicLink)
                     continue;
                 if (e.isDirectory) {
-                    subs.push(scan(path__WEBPACK_IMPORTED_MODULE_1__.posix.join(dir, e.name)));
+                    subs.push(scan(path__WEBPACK_IMPORTED_MODULE_2__.posix.join(dir, e.name)));
                 }
                 else {
                     size += e.size || 0;
@@ -29776,7 +29780,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         catch ( /* ignore */_a) { /* ignore */ }
         if (!active)
             return false;
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('[dup-transfer] ignored duplicate request:', direction, remotePath, localPath);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('[dup-transfer] ignored duplicate request:', direction, remotePath, localPath);
         try {
             this.showToast(this.i18n.t('notify.duplicateTransfer', { name: displayName }), 4200);
         }
@@ -29790,7 +29794,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         // ★ 2026-09-20 P1-2：解析本条目所属任务的 cancelRef（优先当前任务作用域，其次面板「最近任务」字段）。
         //   必须在此刻定死：任务运行期间面板的 _cancelRef 会被后续并发任务改写，
         //   若取消时再去读 _cancelRef，广播就落到别的任务的在途子流上了。
-        const taskRef = (_a = (0,_core_task_scope__WEBPACK_IMPORTED_MODULE_9__.currentTaskScope)()) !== null && _a !== void 0 ? _a : this._cancelRef;
+        const taskRef = (_a = (0,_core_task_scope__WEBPACK_IMPORTED_MODULE_10__.currentTaskScope)()) !== null && _a !== void 0 ? _a : this._cancelRef;
         // ★ 2026-08-10：认领预注册的排队占位条目（多选拖拽下载的目录），
         //   原地升级为文件夹条目并复用其日志，避免占位与文件夹条目重复显示
         // ★ 2026-09-14 F6：认领键补 remotePath（与 trackTransfer 同步），防同名 localPath 认领错条目
@@ -29924,8 +29928,8 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 // ⚠ 计时基准必须是**最后一次字节增长**，不能是「第一次空窗口」：后者会白饶一个窗口
                 //   （产物探针实测：真实零推进已 16s，却只从上一窗口算起 2s ⇒ 迟迟不显示停摆）。
                 const lastGrowAt = Number(t._lastGrowAt) || now;
-                if (now - lastGrowAt >= _core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_22__.SPEED_STALL_ZERO_MS && t.speed !== _core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_22__.SPEED_STALL_ZERO_TEXT) {
-                    t.speed = _core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_22__.SPEED_STALL_ZERO_TEXT;
+                if (now - lastGrowAt >= _core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_23__.SPEED_STALL_ZERO_MS && t.speed !== _core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_23__.SPEED_STALL_ZERO_TEXT) {
+                    t.speed = _core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_23__.SPEED_STALL_ZERO_TEXT;
                     t.speedBps = 0;
                 }
             }
@@ -29960,8 +29964,8 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         var _a;
         // ★ 2026-09-25 P1：仅顶层调用做重复入队只读预检（真正的槽位由协调器认领/释放；
         //   嵌套子目录/冲突覆盖重入必须放行）。远端目标与 UploadPathUseCase 一致
-        const slotBaseName = path__WEBPACK_IMPORTED_MODULE_1__.basename(localPath);
-        const slotRemote = path__WEBPACK_IMPORTED_MODULE_1__.posix.join(remoteDir, slotBaseName);
+        const slotBaseName = path__WEBPACK_IMPORTED_MODULE_2__.basename(localPath);
+        const slotRemote = path__WEBPACK_IMPORTED_MODULE_2__.posix.join(remoteDir, slotBaseName);
         if (!_top && this._blockDuplicateTransfer('upload', slotRemote, localPath, slotBaseName))
             return false;
         // ★ BUG-2 修复：为每个传输任务创建独立的 cancelRef，避免并发任务互相影响
@@ -29972,7 +29976,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         try {
             // ★ 2026-09-20 P1-2：把任务 ref 绑到异步调用链上——该任务（含递归子目录、并发子文件）
             //   里所有叶子传输都经 currentTaskScope() 解析到这个 ref，不再被后启动任务覆盖
-            return await (0,_core_task_scope__WEBPACK_IMPORTED_MODULE_9__.runInTaskScope)(cancelRef, () => this._transferCoordinator.uploadPathToRemote(remoteDir, localPath, _top));
+            return await (0,_core_task_scope__WEBPACK_IMPORTED_MODULE_10__.runInTaskScope)(cancelRef, () => this._transferCoordinator.uploadPathToRemote(remoteDir, localPath, _top));
         }
         finally {
             this._cancelRefs.delete(cancelRef);
@@ -29992,7 +29996,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     async _base__doUpload(remotePath, localPath, logOperation) {
         if (!this.sftpSession)
             return false;
-        return (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_8__.uploadLocalFile)(this._byteTransferCtx(), remotePath, localPath, {
+        return (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_9__.uploadLocalFile)(this._byteTransferCtx(), remotePath, localPath, {
             track: true,
             logOperation,
         });
@@ -30001,7 +30005,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     async _base__doUploadRaw(remotePath, localPath) {
         if (!this.sftpSession)
             return false;
-        return (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_8__.uploadLocalFile)(this._byteTransferCtx(), remotePath, localPath, {
+        return (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_9__.uploadLocalFile)(this._byteTransferCtx(), remotePath, localPath, {
             exposeCancel: true,
         });
     }
@@ -30015,7 +30019,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     async _base__doDownload(remotePath, localPath, mode, size) {
         if (!this.sftpSession)
             return false;
-        return (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_8__.downloadRemoteFile)(this._byteTransferCtx(), remotePath, localPath, mode, size, {
+        return (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_9__.downloadRemoteFile)(this._byteTransferCtx(), remotePath, localPath, mode, size, {
             track: true,
         });
     }
@@ -30036,7 +30040,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 onProgress(Number((_a = dl.getCompletedBytes) === null || _a === void 0 ? void 0 : _a.call(dl)) || 0); }, 400)
             : null;
         try {
-            return await (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_8__.downloadRemoteFile)(this._byteTransferCtx(), remotePath, localPath, mode, size, {
+            return await (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_9__.downloadRemoteFile)(this._byteTransferCtx(), remotePath, localPath, mode, size, {
                 exposeCancel: true,
                 onTransfer: (d) => { dl = d; },
             });
@@ -30059,7 +30063,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 onProgress(dl.getCompletedBytes());
         }, 400);
         try {
-            return await (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_8__.downloadRemoteFile)(this._byteTransferCtx(), remotePath, localPath, undefined, size, {
+            return await (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_9__.downloadRemoteFile)(this._byteTransferCtx(), remotePath, localPath, undefined, size, {
                 onTransfer: (d) => { dl = d; },
                 // ★ 2026-09-26：把 tar 通道的中止信号透传给下载层——分块通道每块检查，
                 //   用户取消/条目被 abort 时立刻停手（原先只能等下一次整文件超时才发现）
@@ -30081,11 +30085,11 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             activeDownloadTargets: this._activeDownloadTargets,
             // ★ 2026-09-21 P1：同名并发上传守卫（uploadLocalFile 消费）
             activeUploadTargets: this._activeUploadTargets,
-            cancelRef: (_a = taskRef !== null && taskRef !== void 0 ? taskRef : (0,_core_task_scope__WEBPACK_IMPORTED_MODULE_9__.currentTaskScope)()) !== null && _a !== void 0 ? _a : this._cancelRef,
+            cancelRef: (_a = taskRef !== null && taskRef !== void 0 ? taskRef : (0,_core_task_scope__WEBPACK_IMPORTED_MODULE_10__.currentTaskScope)()) !== null && _a !== void 0 ? _a : this._cancelRef,
             trackTransfer: (t, direction, remotePath, localPath, logOperation) => this.trackTransfer(t, direction, remotePath, localPath, logOperation),
             onUploadError: (_remotePath, localPath) => {
                 var _a, _b;
-                const name = path__WEBPACK_IMPORTED_MODULE_1__.basename(localPath);
+                const name = path__WEBPACK_IMPORTED_MODULE_2__.basename(localPath);
                 const msg = this.i18n.t('notify.uploadFailed', { name });
                 try {
                     (_b = (_a = this.notifications) === null || _a === void 0 ? void 0 : _a.error) === null || _b === void 0 ? void 0 : _b.call(_a, msg, '');
@@ -30094,7 +30098,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             },
             onDownloadError: (remotePath) => {
                 var _a, _b;
-                const name = path__WEBPACK_IMPORTED_MODULE_1__.basename(remotePath);
+                const name = path__WEBPACK_IMPORTED_MODULE_2__.basename(remotePath);
                 const msg = this.i18n.t('notify.downloadFailed', { name });
                 try {
                     (_b = (_a = this.notifications) === null || _a === void 0 ? void 0 : _a.error) === null || _b === void 0 ? void 0 : _b.call(_a, msg, '');
@@ -30166,7 +30170,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         // ★ 2026-08-26 H2：文件夹取消时广播全部在途子流（并发>1）
         // ★ 2026-09-20 P1-2：广播范围限定为「本条目所属任务」的 ref
         if (entry.isFolder)
-            (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_8__.cancelAllInFlight)(this._taskRefOf(entry));
+            (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_9__.cancelAllInFlight)(this._taskRefOf(entry));
     }
     /** 取消当前文件（文件夹：跳过此文件，循环继续） */
     cancelCurrentFile(entry) {
@@ -30174,7 +30178,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         // ★ 2026-08-26 H2：中断当前在途子流集合
         // ★ 2026-09-20 P1-2：同样是「本任务」的集合，不是面板最近任务的
         if (entry.isFolder)
-            (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_8__.cancelAllInFlight)(this._taskRefOf(entry));
+            (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_9__.cancelAllInFlight)(this._taskRefOf(entry));
     }
     /** 暂停传输 */
     _base_pauseTransfer(entry) {
@@ -30225,7 +30229,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         }
         this._transferRuntime.clearTransfers();
         for (const r of refs)
-            (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_8__.cancelAllInFlight)(r);
+            (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_9__.cancelAllInFlight)(r);
     }
     // ========== 权限编辑对话框 ==========
     _base_openPermDialog(entry) {
@@ -30293,7 +30297,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this.sftpSession.chmod(this.permTargetPath, m)
             .then(() => this.refreshRemote())
             .catch(e => {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.error('chmod failed', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.error('chmod failed', e);
             this.showToast(this.i18n.t('permission.chmodFailed') || '权限修改失败', 3000);
         });
         this.showPermDialog = false;
@@ -30397,7 +30401,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             && this._arrowNavPane) {
             return true;
         }
-        if (this._panelHotkeyEnabled('up') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('up'))) {
+        if (this._panelHotkeyEnabled('up') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('up'))) {
             return true;
         }
         if (this._panelHotkeyEnabled('delete') && this._matchPanelHotkeyKeysIgnoreShift(event, this._panelHotkeyKeys('delete'))) {
@@ -30405,7 +30409,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             const sel = side === 'local' ? this._selectedLocal : this._selectedRemote;
             return !!(sel && sel.length > 0);
         }
-        if (this._panelHotkeyEnabled('rename') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('rename'))) {
+        if (this._panelHotkeyEnabled('rename') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('rename'))) {
             const pane = this._resolveTargetPane();
             if (pane === 'local' && this.selectedLocal.length === 1)
                 return true;
@@ -30413,13 +30417,13 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 return true;
             return false;
         }
-        if (this._panelHotkeyEnabled('refresh') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('refresh'))) {
+        if (this._panelHotkeyEnabled('refresh') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('refresh'))) {
             return true;
         }
-        for (const a of _tabby_config_provider__WEBPACK_IMPORTED_MODULE_33__.CONTEXT_ACTION_HOTKEYS) {
+        for (const a of _tabby_config_provider__WEBPACK_IMPORTED_MODULE_34__.CONTEXT_ACTION_HOTKEYS) {
             if (!this._panelHotkeyEnabled(a))
                 continue;
-            if (!(0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys(a)))
+            if (!(0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys(a)))
                 continue;
             const pane = this._resolveContextHotkeyPane(a);
             if (!this._contextHotkeyReady(a, pane))
@@ -30465,7 +30469,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             return;
         }
         // 返回上级（默认 Shift+Backspace）：目标面板与 Delete 一致走 _resolveTargetPane
-        if (this._panelHotkeyEnabled('up') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('up'))) {
+        if (this._panelHotkeyEnabled('up') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('up'))) {
             event.preventDefault();
             event.stopPropagation();
             const pane = this._resolveTargetPane();
@@ -30488,7 +30492,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             return;
         }
         // 重命名（默认 F2）
-        if (this._panelHotkeyEnabled('rename') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('rename'))) {
+        if (this._panelHotkeyEnabled('rename') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('rename'))) {
             const pane = this._resolveTargetPane();
             if (pane === 'local' && this.selectedLocal.length === 1) {
                 event.preventDefault();
@@ -30503,7 +30507,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             return;
         }
         // 刷新当前面板（默认 F5）
-        if (this._panelHotkeyEnabled('refresh') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('refresh'))) {
+        if (this._panelHotkeyEnabled('refresh') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('refresh'))) {
             event.preventDefault();
             event.stopPropagation();
             const pane = this._resolveTargetPane();
@@ -30515,10 +30519,10 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         }
         // ★ 2026-08-31 / 2026-09-20：右键菜单常用动作的可配置快捷键（默认留空，未绑定即不响应）
         //   上传/下载/打开/查看/编辑等按目标侧与选中态判断；不满足时不拦截，避免抢走其它键位。
-        for (const a of _tabby_config_provider__WEBPACK_IMPORTED_MODULE_33__.CONTEXT_ACTION_HOTKEYS) {
+        for (const a of _tabby_config_provider__WEBPACK_IMPORTED_MODULE_34__.CONTEXT_ACTION_HOTKEYS) {
             if (!this._panelHotkeyEnabled(a))
                 continue;
-            if (!(0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys(a)))
+            if (!(0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys(a)))
                 continue;
             const pane = this._resolveContextHotkeyPane(a);
             if (!this._contextHotkeyReady(a, pane))
@@ -30805,7 +30809,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
      * 目录不唯一时并列展示，避免「看着像当前目录」而误删。
      */
     _deleteTargetsLocation(entries, side) {
-        const dirname = side === 'local' ? path__WEBPACK_IMPORTED_MODULE_1__.dirname.bind(path__WEBPACK_IMPORTED_MODULE_1__) : path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname.bind(path__WEBPACK_IMPORTED_MODULE_1__.posix);
+        const dirname = side === 'local' ? path__WEBPACK_IMPORTED_MODULE_2__.dirname.bind(path__WEBPACK_IMPORTED_MODULE_2__) : path__WEBPACK_IMPORTED_MODULE_2__.posix.dirname.bind(path__WEBPACK_IMPORTED_MODULE_2__.posix);
         const dirs = [];
         for (const e of entries) {
             if (!(e === null || e === void 0 ? void 0 : e.fullPath))
@@ -30917,7 +30921,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     }
     /** 格式化日期为删除对话框显示格式 */
     formatDeleteDate(d) {
-        return (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.formatDate)(d.getTime());
+        return (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.formatDate)(d.getTime());
     }
     async _base_confirmInputDialog() {
         if ((!this.inputDialogVisible && !this._customInlineEdit) || !this.inputDialogMode || this._inputBusy)
@@ -30929,7 +30933,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         if (!rawVal || !tp && !rp)
             return;
         // chmod 不走文件名净化
-        const val = mode === 'remote-chmod' ? rawVal : ((0,_core_path_utils__WEBPACK_IMPORTED_MODULE_38__.safeEntryName)(rawVal) || '');
+        const val = mode === 'remote-chmod' ? rawVal : ((0,_core_path_utils__WEBPACK_IMPORTED_MODULE_39__.safeEntryName)(rawVal) || '');
         if (mode !== 'remote-chmod' && !val) {
             this.showToast(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name', 3000);
             return;
@@ -30938,14 +30942,14 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         try {
             switch (mode) {
                 case 'local-mkdir': {
-                    const existing = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_38__.safeJoinUnder)(tp, val, false);
+                    const existing = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_39__.safeJoinUnder)(tp, val, false);
                     if (!existing) {
                         this.showToast(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name', 3000);
                         break;
                     }
                     let exType = null;
                     try {
-                        const st = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(existing);
+                        const st = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(existing);
                         exType = st.isDirectory() ? 'dir' : 'file';
                     }
                     catch ( /* 不存在 */_a) { /* 不存在 */ }
@@ -30957,13 +30961,13 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                         this._showInputConflict('file-when-mkdir', val);
                         break;
                     }
-                    await fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdir(existing, { recursive: true });
+                    await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdir(existing, { recursive: true });
                     this.cancelInputDialog();
                     await this.refreshLocal();
                     break;
                 }
                 case 'local-rename': {
-                    const newPath = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_38__.safeJoinUnder)(this.localPath, val, false);
+                    const newPath = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_39__.safeJoinUnder)(this.localPath, val, false);
                     if (!newPath) {
                         this.showToast(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name', 3000);
                         break;
@@ -30971,7 +30975,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                     if (newPath !== tp) {
                         let exType = null;
                         try {
-                            const st = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(newPath);
+                            const st = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(newPath);
                             exType = st.isDirectory() ? 'dir' : 'file';
                         }
                         catch ( /* 不存在 */_b) { /* 不存在 */ }
@@ -30984,7 +30988,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                             break;
                         }
                     }
-                    await fs_promises__WEBPACK_IMPORTED_MODULE_2__.rename(tp, newPath);
+                    await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rename(tp, newPath);
                     this.cancelInputDialog();
                     await this.refreshLocal();
                     break;
@@ -30992,7 +30996,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 case 'remote-mkdir': {
                     if (!this.sftpSession)
                         return;
-                    const dest = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_38__.safeJoinUnder)(tp, val, true);
+                    const dest = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_39__.safeJoinUnder)(tp, val, true);
                     if (!dest) {
                         this.showToast(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name', 3000);
                         break;
@@ -31012,14 +31016,14 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                     break;
                 }
                 case 'local-touch': {
-                    const newPath = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_38__.safeJoinUnder)(tp, val, false);
+                    const newPath = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_39__.safeJoinUnder)(tp, val, false);
                     if (!newPath) {
                         this.showToast(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name', 3000);
                         break;
                     }
                     let exType = null;
                     try {
-                        const st = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(newPath);
+                        const st = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(newPath);
                         exType = st.isDirectory() ? 'dir' : 'file';
                     }
                     catch ( /* 不存在 */_c) { /* 不存在 */ }
@@ -31031,7 +31035,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                         this._showInputConflict('file-dup', val);
                         break;
                     }
-                    await fs_promises__WEBPACK_IMPORTED_MODULE_2__.writeFile(newPath, '', { flag: 'wx' });
+                    await fs_promises__WEBPACK_IMPORTED_MODULE_3__.writeFile(newPath, '', { flag: 'wx' });
                     this.cancelInputDialog();
                     await this.refreshLocal();
                     break;
@@ -31039,7 +31043,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 case 'remote-touch': {
                     if (!this.sftpSession)
                         return;
-                    const dest = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_38__.safeJoinUnder)(tp, val, true);
+                    const dest = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_39__.safeJoinUnder)(tp, val, true);
                     if (!dest)
                         throw Error('Invalid filename');
                     const r = await this._remoteEntryExists(tp, val);
@@ -31055,7 +31059,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 case 'remote-rename': {
                     if (!this.sftpSession)
                         return;
-                    const newPath = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_38__.safeJoinUnder)(this.remotePath, val, true);
+                    const newPath = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_39__.safeJoinUnder)(this.remotePath, val, true);
                     if (!newPath) {
                         this.showToast(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name', 3000);
                         break;
@@ -31091,7 +31095,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             }
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.error('Operation failed', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.error('Operation failed', e);
             const reason = (e === null || e === void 0 ? void 0 : e.message) || String(e);
             const mode = this.inputDialogMode || '';
             // 失败时不关闭对话框，便于用户改个名字/路径立即重试
@@ -31146,29 +31150,29 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                     // 不再使用 powershell -EncodedCommand（会被 360 等误报为「命令执行攻击」）。
                     for (const e of localPending) {
                         try {
-                            await (0,_core_trash_local__WEBPACK_IMPORTED_MODULE_28__.trashLocalPath)(e.fullPath, !!e.isDirectory);
+                            await (0,_core_trash_local__WEBPACK_IMPORTED_MODULE_29__.trashLocalPath)(e.fullPath, !!e.isDirectory);
                         }
                         catch (err) {
                             trashFailed.push(e.fullPath);
-                            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.error('trash failed for', e.fullPath, err);
+                            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.error('trash failed for', e.fullPath, err);
                         }
                     }
                 }
                 else {
                     // ★ 2026-08-11 提速：目录优先 Node 原生 fs.rm（比 JS 层逐文件删快得多），
                     //   失败再回退并发递归以收集失败明细；多项并行，共享同一限制器
-                    const delLim = new _core_concurrency__WEBPACK_IMPORTED_MODULE_27__.ConcurrencyLimiter(8);
+                    const delLim = new _core_concurrency__WEBPACK_IMPORTED_MODULE_28__.ConcurrencyLimiter(8);
                     await Promise.all(localPending.map(async (e) => {
                         if (e.isDirectory) {
                             try {
-                                await fs_promises__WEBPACK_IMPORTED_MODULE_2__.rm(e.fullPath, { recursive: true, force: true });
+                                await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rm(e.fullPath, { recursive: true, force: true });
                                 return;
                             }
                             catch (err) {
-                                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('fs.rm failed, fallback to recursive:', e.fullPath, err);
+                                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('fs.rm failed, fallback to recursive:', e.fullPath, err);
                             }
                         }
-                        await (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_25__.deleteLocalRecursive)(e.fullPath, failed, 0, delLim);
+                        await (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_26__.deleteLocalRecursive)(e.fullPath, failed, 0, delLim);
                     }));
                 }
                 await this.refreshLocal();
@@ -31177,18 +31181,18 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             if (remotePending.length && this.sftpSession) {
                 // ★ 2026-08-11 提速：目录优先服务端 `rm -rf` 整目录删除（SSH exec 可用时），
                 //   不可用/失败自动回退 SFTP 并发递归删除；多项并行，共享同一限制器
-                const delLim = new _core_concurrency__WEBPACK_IMPORTED_MODULE_27__.ConcurrencyLimiter(8);
+                const delLim = new _core_concurrency__WEBPACK_IMPORTED_MODULE_28__.ConcurrencyLimiter(8);
                 await Promise.all(remotePending.map(async (e) => {
-                    if (e.isDirectory && await (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_25__.tryRemoteRmViaSsh)(this.sshSession, e.fullPath))
+                    if (e.isDirectory && await (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_26__.tryRemoteRmViaSsh)(this.sshSession, e.fullPath))
                         return;
-                    await (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_25__.deleteRemoteRecursive)(this.sftpSession, e.fullPath, failed, 0, delLim);
+                    await (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_26__.deleteRemoteRecursive)(this.sftpSession, e.fullPath, failed, 0, delLim);
                 }));
                 await this.refreshRemote();
                 this.selectedRemote = [];
             }
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.error('Delete failed', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.error('Delete failed', e);
         }
         finally {
             this._deleteBusy = false;
@@ -31564,13 +31568,13 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this.closeContextMenu();
         if (!filePath)
             return;
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.info('Reveal in explorer:', filePath);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.info('Reveal in explorer:', filePath);
         try {
             const { shell } = __webpack_require__(/*! electron */ "electron");
             shell.showItemInFolder(filePath);
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.error('Reveal in explorer failed:', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.error('Reveal in explorer failed:', e);
         }
     }
     /** 检查当前右键菜单面板是否有选中项 */
@@ -31583,7 +31587,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     }
     /** 获取修饰键名称（macOS=Cmd，其他=Ctrl） */
     get modKey() {
-        return os__WEBPACK_IMPORTED_MODULE_4__.platform() === 'darwin' ? '⌘' : 'Ctrl+';
+        return os__WEBPACK_IMPORTED_MODULE_5__.platform() === 'darwin' ? '⌘' : 'Ctrl+';
     }
     /** 获取 entry 的路径 */
     getEntryPath(e) { var _a, _b; return (_b = (_a = e.fullPath) !== null && _a !== void 0 ? _a : e.fullPath) !== null && _b !== void 0 ? _b : ''; }
@@ -31675,7 +31679,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     _base_canViewEntry(entry) {
         if (!entry || entry.isDirectory)
             return false;
-        return (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_36__.isViewableRemoteFileType)(entry.name, this.getCustomEditableExtensions(), this.getAllowViewEditAllFiles());
+        return (0,_core_file_utils__WEBPACK_IMPORTED_MODULE_37__.isViewableRemoteFileType)(entry.name, this.getCustomEditableExtensions(), this.getAllowViewEditAllFiles());
     }
     _base_canEditEntry(entry) {
         if (!entry || entry.isDirectory)
@@ -31704,12 +31708,12 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         try {
             if (isRemote) {
                 // 远程走 statRemotePath（已处理 russh 数字 type / 包装层 stat 差异）
-                const st = this.sftpSession ? await (0,_services_sftp_service__WEBPACK_IMPORTED_MODULE_11__.statRemotePath)(this.sftpSession, dir) : null;
+                const st = this.sftpSession ? await (0,_services_sftp_service__WEBPACK_IMPORTED_MODULE_12__.statRemotePath)(this.sftpSession, dir) : null;
                 exists = !!st;
                 isDir = !!(st === null || st === void 0 ? void 0 : st.isDirectory);
             }
             else {
-                const st = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(dir).catch(() => null);
+                const st = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(dir).catch(() => null);
                 exists = !!st;
                 isDir = !!(st === null || st === void 0 ? void 0 : st.isDirectory());
             }
@@ -31735,14 +31739,14 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 await this._remoteMkdirp(dir);
             }
             else {
-                await fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdir(dir, { recursive: true });
+                await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdir(dir, { recursive: true });
             }
             this.showToast(this.i18n.t('app.dirCreated', { dir }));
             return dir;
         }
         catch (e) {
             const reason = (e === null || e === void 0 ? void 0 : e.message) || String(e);
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.error('create target dir failed:', dir, reason);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.error('create target dir failed:', dir, reason);
             this.showToast(this.i18n.t('app.mkdirpFailed', { reason }), 4000);
             return null;
         }
@@ -31774,21 +31778,21 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         const session = this.sftpSession;
         if (!session)
             throw new Error('no sftp session');
-        const norm = path__WEBPACK_IMPORTED_MODULE_1__.posix.normalize(String(dir).replace(/\/+$/, '') || '/');
+        const norm = path__WEBPACK_IMPORTED_MODULE_2__.posix.normalize(String(dir).replace(/\/+$/, '') || '/');
         if (!norm || norm === '/')
             return;
         const parts = norm.split('/').filter(Boolean);
         let cur = '';
         for (const seg of parts) {
             cur += '/' + seg;
-            const st = await (0,_services_sftp_service__WEBPACK_IMPORTED_MODULE_11__.statRemotePath)(session, cur).catch(() => null);
+            const st = await (0,_services_sftp_service__WEBPACK_IMPORTED_MODULE_12__.statRemotePath)(session, cur).catch(() => null);
             if (st === null || st === void 0 ? void 0 : st.isDirectory)
                 continue;
             if (st)
                 throw new Error(`not a directory: ${cur}`);
             await session.mkdir(cur);
         }
-        const finalSt = await (0,_services_sftp_service__WEBPACK_IMPORTED_MODULE_11__.statRemotePath)(session, norm).catch(() => null);
+        const finalSt = await (0,_services_sftp_service__WEBPACK_IMPORTED_MODULE_12__.statRemotePath)(session, norm).catch(() => null);
         if (!(finalSt === null || finalSt === void 0 ? void 0 : finalSt.isDirectory))
             throw new Error(`verify failed: ${norm}`);
     }
@@ -31853,14 +31857,14 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
      */
     async _base__streamDownloadOne(p, targetLocalDir) {
         var _a, _b, _c, _d;
-        const safeName = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_38__.safeEntryName)(p.name);
+        const safeName = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_39__.safeEntryName)(p.name);
         if (!safeName) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('skip download with unsafe name:', p.name);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('skip download with unsafe name:', p.name);
             return Promise.resolve();
         }
         // 默认下载路径优先；未设置则回退当前本地目录（保证右键/拖拽/旧API 统一走默认路径）
         const localDir = (targetLocalDir === null || targetLocalDir === void 0 ? void 0 : targetLocalDir.trim()) || this._defaultDownloadPath || this.localPath;
-        const localTarget = path__WEBPACK_IMPORTED_MODULE_1__.join(localDir, safeName);
+        const localTarget = path__WEBPACK_IMPORTED_MODULE_2__.join(localDir, safeName);
         const logEntry = this.transferLog.add({
             operation: 'download',
             localPath: localTarget,
@@ -31921,12 +31925,12 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 // ★ 2026-08-24：从 entry.localPath 提取目标目录传给执行层（修复右键下载默认路径不生效：
                 //   ctxDownload 正确计算了 downloadDir 但此前 streamDownloadOne 只传 file 未传目标 dir，
                 //   导致 DownloadOneUseCase.execute 回退到 host.localPath 即当前面板目录）
-                const targetDir = item.entry.localPath ? path__WEBPACK_IMPORTED_MODULE_1__.dirname(item.entry.localPath) : undefined;
+                const targetDir = item.entry.localPath ? path__WEBPACK_IMPORTED_MODULE_2__.dirname(item.entry.localPath) : undefined;
                 await this._transferCoordinator.streamDownloadOne(item.file, targetDir);
             }
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.error('Queued download failed for', item.file.fullPath, e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.error('Queued download failed for', item.file.fullPath, e);
         }
         finally {
             // ★ BUG-7 修复：先递减计数器再启动调度泵，避免调度泵异常导致计数器不一致
@@ -31936,7 +31940,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 this._pumpDownloadQueue();
             }
             catch (e) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.error('Pump download queue failed', e);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.error('Pump download queue failed', e);
             }
         }
     }
@@ -31972,7 +31976,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             // ★ 2026-09-21 P2 修复：右键单文件上传/下载走 uploadTopLevel/downloadTopLevel，
             //   auto-skip 发生在 trackTransfer 之前 → 列表无占位条目可标，此前完全静默
             //   （无条目、无日志、无提示）。落一条「已跳过 · 内容相同」日志让用户可见。
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('[auto-skip] no matching transfer entry for:', info.remotePath);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('[auto-skip] no matching transfer entry for:', info.remotePath);
             try {
                 const now = Date.now();
                 this.transferLog.add({
@@ -31993,7 +31997,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 });
             }
             catch (e) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('[auto-skip] fallback log add failed:', e);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('[auto-skip] fallback log add failed:', e);
             }
             return;
         }
@@ -32015,7 +32019,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 });
             }
             catch (e) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('[auto-skip] transferLog.update failed:', e);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('[auto-skip] transferLog.update failed:', e);
             }
         }
         this._safeDetect();
@@ -32039,7 +32043,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             return { localDigest: null, remoteDigest: null };
         const key = `${this._conflictDigestAlgo}|${this._conflictDigestMaxSizeMB}`;
         if (!this._panelDigestSvc || this._panelDigestSvcKey !== key) {
-            this._panelDigestSvc = new _core_digest__WEBPACK_IMPORTED_MODULE_24__.ContentDigestService(() => { var _a; return (_a = this.sshSession) !== null && _a !== void 0 ? _a : null; }, {
+            this._panelDigestSvc = new _core_digest__WEBPACK_IMPORTED_MODULE_25__.ContentDigestService(() => { var _a; return (_a = this.sshSession) !== null && _a !== void 0 ? _a : null; }, {
                 algo: this._conflictDigestAlgo,
                 maxBytes: this._conflictDigestMaxSizeMB * 1024 * 1024,
             });
@@ -32059,7 +32063,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             return { localDigest, remoteDigest };
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('[conflict-digest] compute failed:', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('[conflict-digest] compute failed:', e);
             return { localDigest: null, remoteDigest: null };
         }
     }
@@ -32082,25 +32086,25 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         // 危险条目名（. / .. / 含分隔符 / 控制字符）直接放弃整批 —— 不做「过滤掉危险项后凑一批」，
         // 那会让用户以为整批都传了。逐项路径本来就会各自 skip 并留日志，交回给它更诚实。
         for (const p of localPaths) {
-            if (!(0,_core_path_utils__WEBPACK_IMPORTED_MODULE_38__.safeEntryName)(path__WEBPACK_IMPORTED_MODULE_1__.basename(p)))
+            if (!(0,_core_path_utils__WEBPACK_IMPORTED_MODULE_39__.safeEntryName)(path__WEBPACK_IMPORTED_MODULE_2__.basename(p)))
                 return false;
         }
         let label;
         try {
             label = this.i18n.t('transfer.batchUpload', {
                 n: localPaths.length,
-                dir: path__WEBPACK_IMPORTED_MODULE_1__.basename(path__WEBPACK_IMPORTED_MODULE_1__.dirname(localPaths[0])) || path__WEBPACK_IMPORTED_MODULE_1__.dirname(localPaths[0]),
+                dir: path__WEBPACK_IMPORTED_MODULE_2__.basename(path__WEBPACK_IMPORTED_MODULE_2__.dirname(localPaths[0])) || path__WEBPACK_IMPORTED_MODULE_2__.dirname(localPaths[0]),
             });
         }
         catch (_a) {
             // i18n 不可用不该阻断传输：退化成语言中性的「父目录名 (项数)」
-            label = `${path__WEBPACK_IMPORTED_MODULE_1__.basename(remoteDir)} (${localPaths.length})`;
+            label = `${path__WEBPACK_IMPORTED_MODULE_2__.basename(remoteDir)} (${localPaths.length})`;
         }
         try {
             return await this._transferCoordinator.uploadBatchToRemote(localPaths, remoteDir, label);
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('[batch-upload] batch path unavailable, using per-file flow:', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('[batch-upload] batch path unavailable, using per-file flow:', e);
             return false;
         }
     }
@@ -32112,16 +32116,16 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     async _base__streamUploadOne(localPath, targetRemoteDir) {
         var _a, _b;
         const sourceSession = this.sftpSession, capturedRemoteDir = targetRemoteDir || this.remotePath;
-        const base = path__WEBPACK_IMPORTED_MODULE_1__.basename(localPath);
-        const safeName = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_38__.safeEntryName)(base);
+        const base = path__WEBPACK_IMPORTED_MODULE_2__.basename(localPath);
+        const safeName = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_39__.safeEntryName)(base);
         if (!safeName) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.warn('skip upload with unsafe name:', base);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.warn('skip upload with unsafe name:', base);
             return Promise.resolve();
         }
         let isFolder = false;
         let size = 0;
         try {
-            const st = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(localPath);
+            const st = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(localPath);
             isFolder = st.isDirectory();
             size = isFolder ? 0 : (st.size || 0);
         }
@@ -32132,7 +32136,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             throw Error('Connection changed before queuing upload');
         // 默认上传路径（远程目标目录）优先；未设置则回退当前远程目录
         const remoteDir = (targetRemoteDir === null || targetRemoteDir === void 0 ? void 0 : targetRemoteDir.trim()) || capturedRemoteDir;
-        const remoteTarget = path__WEBPACK_IMPORTED_MODULE_1__.posix.join(remoteDir, safeName);
+        const remoteTarget = path__WEBPACK_IMPORTED_MODULE_2__.posix.join(remoteDir, safeName);
         const logEntry = this.transferLog.add({
             operation: 'upload',
             localPath,
@@ -32195,7 +32199,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             }
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.error('Queued upload failed for', item.localPath, e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.error('Queued upload failed for', item.localPath, e);
         }
         finally {
             // ★ BUG-7 修复：先递减计数器再启动调度泵，避免调度泵异常导致计数器不一致
@@ -32205,7 +32209,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 this._pumpUploadQueue();
             }
             catch (e) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.error('Pump upload queue failed', e);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.error('Pump upload queue failed', e);
             }
         }
     }
@@ -32217,7 +32221,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this.closeContextMenu();
         const count = this.clipboardEntries.length;
         this.showToast(this.i18n.t('notify.copied', { n: count }));
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.info(`Copy ${count} items from ${this.clipboardSource}`);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.info(`Copy ${count} items from ${this.clipboardSource}`);
     }
     ctxClipboardCut() {
         this.clipboardEntries = this.getContextSelection().slice();
@@ -32226,7 +32230,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this.closeContextMenu();
         const count = this.clipboardEntries.length;
         this.showToast(this.i18n.t('notify.cut', { n: count }));
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.info(`Cut ${count} items from ${this.clipboardSource}`);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.info(`Cut ${count} items from ${this.clipboardSource}`);
     }
     async _base_ctxClipboardPaste() {
         if (!this.clipboardEntries.length)
@@ -32237,7 +32241,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         const entries = this.clipboardEntries.slice();
         const mode = this.clipboardMode;
         const source = this.clipboardSource;
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_10__.log.info(`Paste ${entries.length} items (${mode}) from ${source} to ${destPane}`);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__.log.info(`Paste ${entries.length} items (${mode}) from ${source} to ${destPane}`);
         this.clipboardEntries = [];
         await this._pasteAdapter.paste(entries.map(e => {
             var _a;
@@ -32282,8 +32286,8 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         var _a;
         // ★ 2026-09-25 P1：仅顶层调用做重复入队只读预检（真正的槽位由协调器认领/释放；
         //   嵌套子目录/冲突覆盖重入必须放行）。本地目标与 DownloadDirUseCase 一致
-        const slotName = _localName || path__WEBPACK_IMPORTED_MODULE_1__.posix.basename(remoteSrc);
-        const slotLocal = path__WEBPACK_IMPORTED_MODULE_1__.join(localDest, slotName);
+        const slotName = _localName || path__WEBPACK_IMPORTED_MODULE_2__.posix.basename(remoteSrc);
+        const slotLocal = path__WEBPACK_IMPORTED_MODULE_2__.join(localDest, slotName);
         if (!_top && this._blockDuplicateTransfer('download', remoteSrc, slotLocal, slotName))
             return false;
         // ★ BUG-2 修复：为每个传输任务创建独立的 cancelRef，避免并发任务互相影响
@@ -32293,7 +32297,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this._cancelRef = cancelRef;
         try {
             // ★ 2026-09-20 P1-2：把任务 ref 绑到异步调用链上（子文件流/进度条目各自解析到自己的 ref）
-            return await (0,_core_task_scope__WEBPACK_IMPORTED_MODULE_9__.runInTaskScope)(cancelRef, () => this._transferCoordinator.downloadRemoteDir(remoteSrc, localDest, _top, _localName, _forceOverwrite));
+            return await (0,_core_task_scope__WEBPACK_IMPORTED_MODULE_10__.runInTaskScope)(cancelRef, () => this._transferCoordinator.downloadRemoteDir(remoteSrc, localDest, _top, _localName, _forceOverwrite));
         }
         finally {
             this._cancelRefs.delete(cancelRef);
@@ -32377,7 +32381,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     _shieldTerminalClipboardKeys(ev) {
         if (!this._isPanelActive)
             return;
-        const isMod = os__WEBPACK_IMPORTED_MODULE_4__.platform() === 'darwin' ? ev.metaKey : ev.ctrlKey;
+        const isMod = os__WEBPACK_IMPORTED_MODULE_5__.platform() === 'darwin' ? ev.metaKey : ev.ctrlKey;
         if (!isMod)
             return;
         const k = ev.key;
@@ -32692,7 +32696,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             const r = (_a = this.elRef) === null || _a === void 0 ? void 0 : _a.nativeElement;
             return !!(a && r && r.contains(a));
         })();
-        if (panelFocused && (os__WEBPACK_IMPORTED_MODULE_4__.platform() === 'darwin' ? event.metaKey : event.ctrlKey) && ['c', 'C', 'x', 'X', 'v', 'V', 'a', 'A'].includes(event.key)) {
+        if (panelFocused && (os__WEBPACK_IMPORTED_MODULE_5__.platform() === 'darwin' ? event.metaKey : event.ctrlKey) && ['c', 'C', 'x', 'X', 'v', 'V', 'a', 'A'].includes(event.key)) {
             event.stopImmediatePropagation();
         }
         // 仅当焦点位于「本面板自身」的输入框（path input、filter input、对话框等）时才视为正在输入，
@@ -32700,7 +32704,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         if (this._isPanelTyping(event) && event.key !== 'Escape') {
             // 兜底：面板内 textarea/input 的 Ctrl/Cmd+C/X/V/A 仍在 document 冒泡层切断 Tabby
             // （主路径是 onTextInputKeyEvent + window 捕获屏蔽；此处防漏）
-            const isMod = os__WEBPACK_IMPORTED_MODULE_4__.platform() === 'darwin' ? event.metaKey : event.ctrlKey;
+            const isMod = os__WEBPACK_IMPORTED_MODULE_5__.platform() === 'darwin' ? event.metaKey : event.ctrlKey;
             if (isMod && ['c', 'C', 'x', 'X', 'v', 'V', 'a', 'A'].includes(event.key)) {
                 const el = event.target;
                 if (el && ((_b = (_a = this.elRef) === null || _a === void 0 ? void 0 : _a.nativeElement) === null || _b === void 0 ? void 0 : _b.contains(el))) {
@@ -32709,7 +32713,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             }
             return;
         }
-        const isMod = os__WEBPACK_IMPORTED_MODULE_4__.platform() === 'darwin' ? event.metaKey : event.ctrlKey;
+        const isMod = os__WEBPACK_IMPORTED_MODULE_5__.platform() === 'darwin' ? event.metaKey : event.ctrlKey;
         if (!isMod) {
             // ★ 2026-08-26 C4：删除确认仅由对话框自身处理 Enter；document 层只兜底 Esc
             //   （此前对话框 emit + document 双通道会并行 confirmDelete）
@@ -32738,7 +32742,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                     return;
                 }
                 const navPane = this._resolveTargetPane();
-                if (this._panelHotkeyEnabled('back') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('back'))) {
+                if (this._panelHotkeyEnabled('back') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('back'))) {
                     event.preventDefault();
                     event.stopPropagation();
                     this._clearTypeAhead();
@@ -32748,7 +32752,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                         this.remoteBack();
                     return;
                 }
-                if (this._panelHotkeyEnabled('forward') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_32__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('forward'))) {
+                if (this._panelHotkeyEnabled('forward') && (0,_tabby_hotkey_util__WEBPACK_IMPORTED_MODULE_33__.matchPanelHotkeyKeys)(event, this._panelHotkeyKeys('forward'))) {
                     event.preventDefault();
                     event.stopPropagation();
                     this._clearTypeAhead();
@@ -32822,7 +32826,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         // 查看/编辑对话框打开时，不抢占 Ctrl+A/C/X/V（由文本区原生处理），
         // 但用 stopImmediatePropagation 阻断终端连接收到 Ctrl+C/X/V/A
         if (this.viewerVisible || this.editorVisible) {
-            if ((os__WEBPACK_IMPORTED_MODULE_4__.platform() === 'darwin' ? event.metaKey : event.ctrlKey) && ['c', 'C', 'x', 'X', 'v', 'V', 'a', 'A'].includes(event.key)) {
+            if ((os__WEBPACK_IMPORTED_MODULE_5__.platform() === 'darwin' ? event.metaKey : event.ctrlKey) && ['c', 'C', 'x', 'X', 'v', 'V', 'a', 'A'].includes(event.key)) {
                 event.stopImmediatePropagation();
             }
             return;
@@ -32830,7 +32834,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         // ★ 2026-09-20：剪贴板热键必须带修饰键，且焦点在面板或 owns（点过面板）时才处理
         //   避免捕获屏蔽失效时与终端双触发；也避免裸键 c/x/v/a 误触发复制
         //   （主路径已是 window 捕获 _shieldTerminalClipboardKeys；此处仅兜底）
-        const isClipboardMod = os__WEBPACK_IMPORTED_MODULE_4__.platform() === 'darwin' ? event.metaKey : event.ctrlKey;
+        const isClipboardMod = os__WEBPACK_IMPORTED_MODULE_5__.platform() === 'darwin' ? event.metaKey : event.ctrlKey;
         if (!isClipboardMod || !['c', 'C', 'x', 'X', 'v', 'V', 'a', 'A'].includes(event.key))
             return;
         if (!panelFocused && !this._panelOwnsClipboardHotkeys)
@@ -32840,167 +32844,167 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this._runPanelClipboardHotkey(event.key);
     }
     // Controller facade: named source methods, one explicit composition root.
-    _readDefaultShowHidden(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_readDefaultShowHidden", this, args); }
-    loadPathMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "loadPathMode", this, args); }
-    _readDefaultPathMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_readDefaultPathMode", this, args); }
-    _applyDefaultPathMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_applyDefaultPathMode", this, args); }
-    savePathMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "savePathMode", this, args); }
-    saveCurrentPath(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "saveCurrentPath", this, args); }
-    pathModeTitle(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "pathModeTitle", this, args); }
-    cyclePathMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "cyclePathMode", this, args); }
-    setPathMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "setPathMode", this, args); }
-    tryGetTerminalCwd(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "tryGetTerminalCwd", this, args); }
-    _startCwdSync(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_startCwdSync", this, args); }
-    _syncRemoteToTerminalCwd(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_syncRemoteToTerminalCwd", this, args); }
-    _enableCwdReporterSession(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_enableCwdReporterSession", this, args); }
-    _enableCwdReporterPermanent(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_enableCwdReporterPermanent", this, args); }
-    cycleLayoutMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "cycleLayoutMode", this, args); }
-    _loadSavedPaths(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_loadSavedPaths", this, args); }
-    _restoreSavedRemotePath(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_restoreSavedRemotePath", this, args); }
-    _loadPaneToolbarLayout(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_loadPaneToolbarLayout", this, args); }
-    ngOnInit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "ngOnInit", this, args); }
-    ngAfterViewInit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "ngAfterViewInit", this, args); }
-    ngOnDestroy(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "ngOnDestroy", this, args); }
-    _applyFontSize(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_applyFontSize", this, args); }
-    _applyAutoTheme(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_applyAutoTheme", this, args); }
-    close(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "close", this, args); }
-    _readBehaviorConfig(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_readBehaviorConfig", this, args); }
-    _loadPanelGeometry(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_loadPanelGeometry", this, args); }
-    _persistPanelGeometry(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_persistPanelGeometry", this, args); }
-    minimize(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "minimize", this, args); }
-    connect(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "connect", this, args); }
-    disconnect(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "disconnect", this, args); }
-    getDefaultRemotePath(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "getDefaultRemotePath", this, args); }
-    refreshLocal(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "refreshLocal", this, args); }
-    refreshRemote(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "refreshRemote", this, args); }
-    get _openOnClick() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "_openOnClick", this); }
-    get _openUnsupportedInSystem() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "_openUnsupportedInSystem", this); }
-    get showTextLineNumbers() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "showTextLineNumbers", this); }
-    get textCaretShape() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "textCaretShape", this); }
-    get _defaultUploadPath() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "_defaultUploadPath", this); }
-    get _defaultDownloadPath() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "_defaultDownloadPath", this); }
-    get _iconResourceDir() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "_iconResourceDir", this); }
-    get _fileTypeIcons() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "_fileTypeIcons", this); }
-    get _disabledIconSvgs() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "_disabledIconSvgs", this); }
-    get _folderIconSvg() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "_folderIconSvg", this); }
-    get _panelHotkeys() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "_panelHotkeys", this); }
-    _activateEntry(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_activateEntry", this, args); }
-    onLocalEntryDblClick(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "onLocalEntryDblClick", this, args); }
-    onRemoteEntryDblClick(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "onRemoteEntryDblClick", this, args); }
-    get contextMenuOrder() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "contextMenuOrder", this); }
-    get contextMenuDisabledEntries() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "contextMenuDisabledEntries", this); }
-    onContextMenuAction(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "onContextMenuAction", this, args); }
-    onDrop(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "onDrop", this, args); }
-    _doUpload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_doUpload", this, args); }
-    _doUploadRaw(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_doUploadRaw", this, args); }
-    _doDownload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_doDownload", this, args); }
-    _doDownloadRaw(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_doDownloadRaw", this, args); }
-    trackTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "trackTransfer", this, args); }
-    cancelTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "cancelTransfer", this, args); }
-    pauseTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "pauseTransfer", this, args); }
-    resumeTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "resumeTransfer", this, args); }
-    clearTransfers(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "clearTransfers", this, args); }
-    openPermDialog(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "openPermDialog", this, args); }
-    confirmPermDialog(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "confirmPermDialog", this, args); }
-    _remoteEntryExists(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_remoteEntryExists", this, args); }
-    openInputDialog(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "openInputDialog", this, args); }
-    cancelInputDialog(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "cancelInputDialog", this, args); }
-    confirmInputDialog(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "confirmInputDialog", this, args); }
-    confirmDelete(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "confirmDelete", this, args); }
-    clearLog(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "clearLog", this, args); }
-    showTopNotification(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "showTopNotification", this, args); }
-    canViewEntry(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "canViewEntry", this, args); }
-    canEditEntry(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "canEditEntry", this, args); }
-    ctxDownload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "ctxDownload", this, args); }
-    _streamDownloadOne(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_streamDownloadOne", this, args); }
-    _runQueuedDownload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_runQueuedDownload", this, args); }
-    _streamUploadOne(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_streamUploadOne", this, args); }
-    _runQueuedUpload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_runQueuedUpload", this, args); }
-    ctxClipboardPaste(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "ctxClipboardPaste", this, args); }
-    onPanelMouseDown(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "onPanelMouseDown", this, args); }
-    onGlobalKeyDown(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "onGlobalKeyDown", this, args); }
-    _customHasPartial(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customHasPartial", this, args); }
-    _customPartialStatus(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customPartialStatus", this, args); }
-    _customPendingEditUpload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customPendingEditUpload", this, args); }
-    _customRetrySavedEditUpload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customRetrySavedEditUpload", this, args); }
-    _customResumeLocalForEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customResumeLocalForEdit", this, args); }
-    _customAutoResumeTransfers(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customAutoResumeTransfers", this, args); }
-    _customDiscardPartial(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customDiscardPartial", this, args); }
-    _customSetCreatedFilePermissions(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customSetCreatedFilePermissions", this, args); }
-    _customQueueEditTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customQueueEditTransfer", this, args); }
-    _customDownloadForEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customDownloadForEdit", this, args); }
-    _customUploadForEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customUploadForEdit", this, args); }
-    _customPersistEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customPersistEdit", this, args); }
-    _customBlockResumedEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customBlockResumedEdit", this, args); }
-    _customResumeUploadedEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customResumeUploadedEdit", this, args); }
-    _customEditStatus(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customEditStatus", this, args); }
-    _customRestoreEdits(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customRestoreEdits", this, args); }
-    customRetryEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customRetryEdit", this, args); }
-    customOpenEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customOpenEdit", this, args); }
-    customStopEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customStopEdit", this, args); }
-    ctxEditFile(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "ctxEditFile", this, args); }
-    _customExternalEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customExternalEdit", this, args); }
-    _customSyncExternal(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customSyncExternal", this, args); }
-    _customRememberFolder(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customRememberFolder", this, args); }
-    _customSuggestPaths(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customSuggestPaths", this, args); }
-    get customLocalPathProvider() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "customLocalPathProvider", this); }
-    get customRemotePathProvider() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "customRemotePathProvider", this); }
-    get customCwdState() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "customCwdState", this); }
-    get customCwdTooltip() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "customCwdTooltip", this); }
-    _customCwdExec(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customCwdExec", this, args); }
-    customSyncNow(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customSyncNow", this, args); }
-    _customLoadTransfers(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customLoadTransfers", this, args); }
-    _customRunTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customRunTransfer", this, args); }
-    _customHookFolderTransfers(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customHookFolderTransfers", this, args); }
-    _customCaptureQueued(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customCaptureQueued", this, args); }
-    customRetryTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customRetryTransfer", this, args); }
-    customCancelTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customCancelTransfer", this, args); }
-    customClearFinishedTransfers(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customClearFinishedTransfers", this, args); }
-    get customEditRows() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "customEditRows", this); }
-    get customTransferRows() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "customTransferRows", this); }
-    get customHistoryOwner() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "customHistoryOwner", this); }
-    get customHistoryRecoveryRows() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "customHistoryRecoveryRows", this); }
-    customLogTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customLogTransfer", this, args); }
-    customCanRetryTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customCanRetryTransfer", this, args); }
-    get customActivityCount() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "customActivityCount", this); }
-    customTrackActivity(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customTrackActivity", this, args); }
-    customActivityName(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customActivityName", this, args); }
-    customTransferDetails(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customTransferDetails", this, args); }
-    _customActivityTick(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customActivityTick", this, args); }
-    get customSidebarPinned() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "customSidebarPinned", this); }
-    get customSidebarMode() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "customSidebarMode", this); }
-    toggleCustomSidebarPin(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "toggleCustomSidebarPin", this, args); }
-    toggleCustomSidebarMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "toggleCustomSidebarMode", this, args); }
-    get customSidebarFull() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "customSidebarFull", this); }
-    toggleCustomSidebarFull(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "toggleCustomSidebarFull", this, args); }
-    customRecentFolders(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customRecentFolders", this, args); }
-    _customRecordRecent(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customRecordRecent", this, args); }
-    _customStopRecent(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customStopRecent", this, args); }
-    _customArmRecent(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customArmRecent", this, args); }
-    _customVisitRecent(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customVisitRecent", this, args); }
-    _customRecentFileAction(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customRecentFileAction", this, args); }
-    _customDeferDrop(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customDeferDrop", this, args); }
-    _customUploadLocalPaths(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customUploadLocalPaths", this, args); }
-    customPasteImage(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customPasteImage", this, args); }
-    _customStageDropFile(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customStageDropFile", this, args); }
-    customContextMouseUp(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customContextMouseUp", this, args); }
-    _customDeferContextAction(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customDeferContextAction", this, args); }
-    _customContextDownload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customContextDownload", this, args); }
-    _customDownloadToDirectory(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customDownloadToDirectory", this, args); }
-    _customOpenWithFile(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customOpenWithFile", this, args); }
-    _customPickApplication(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customPickApplication", this, args); }
-    _customLaunchApplication(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customLaunchApplication", this, args); }
-    ctxOpenWith(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "ctxOpenWith", this, args); }
-    ctxCopyFileName(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "ctxCopyFileName", this, args); }
-    ctxOpenTerminalHere(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "ctxOpenTerminalHere", this, args); }
-    get customInlineOwner() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.readFeature)("Panel", "customInlineOwner", this); }
-    _customInlineUpdate(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "_customInlineUpdate", this, args); }
-    customInlineCancel(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customInlineCancel", this, args); }
-    customInlineValue(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customInlineValue", this, args); }
-    customInlineCommit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_0__.invokeFeature)("Panel", "customInlineCommit", this, args); }
-    get _customTraceClipboard() { var _a; const fn = (_a = _features_api__WEBPACK_IMPORTED_MODULE_0__.featureApis.Panel) === null || _a === void 0 ? void 0 : _a._customTraceClipboard; return typeof fn === "function" ? fn.bind(this) : undefined; }
-    get _customTraceTransfer() { var _a; const fn = (_a = _features_api__WEBPACK_IMPORTED_MODULE_0__.featureApis.Panel) === null || _a === void 0 ? void 0 : _a._customTraceTransfer; return typeof fn === "function" ? fn.bind(this) : undefined; }
-    get _customTraceQueueEntry() { var _a; const fn = (_a = _features_api__WEBPACK_IMPORTED_MODULE_0__.featureApis.Panel) === null || _a === void 0 ? void 0 : _a._customTraceQueueEntry; return typeof fn === "function" ? fn.bind(this) : undefined; }
+    _readDefaultShowHidden(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_readDefaultShowHidden", this, args); }
+    loadPathMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "loadPathMode", this, args); }
+    _readDefaultPathMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_readDefaultPathMode", this, args); }
+    _applyDefaultPathMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_applyDefaultPathMode", this, args); }
+    savePathMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "savePathMode", this, args); }
+    saveCurrentPath(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "saveCurrentPath", this, args); }
+    pathModeTitle(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "pathModeTitle", this, args); }
+    cyclePathMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "cyclePathMode", this, args); }
+    setPathMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "setPathMode", this, args); }
+    tryGetTerminalCwd(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "tryGetTerminalCwd", this, args); }
+    _startCwdSync(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_startCwdSync", this, args); }
+    _syncRemoteToTerminalCwd(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_syncRemoteToTerminalCwd", this, args); }
+    _enableCwdReporterSession(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_enableCwdReporterSession", this, args); }
+    _enableCwdReporterPermanent(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_enableCwdReporterPermanent", this, args); }
+    cycleLayoutMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "cycleLayoutMode", this, args); }
+    _loadSavedPaths(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_loadSavedPaths", this, args); }
+    _restoreSavedRemotePath(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_restoreSavedRemotePath", this, args); }
+    _loadPaneToolbarLayout(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_loadPaneToolbarLayout", this, args); }
+    ngOnInit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "ngOnInit", this, args); }
+    ngAfterViewInit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "ngAfterViewInit", this, args); }
+    ngOnDestroy(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "ngOnDestroy", this, args); }
+    _applyFontSize(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_applyFontSize", this, args); }
+    _applyAutoTheme(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_applyAutoTheme", this, args); }
+    close(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "close", this, args); }
+    _readBehaviorConfig(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_readBehaviorConfig", this, args); }
+    _loadPanelGeometry(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_loadPanelGeometry", this, args); }
+    _persistPanelGeometry(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_persistPanelGeometry", this, args); }
+    minimize(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "minimize", this, args); }
+    connect(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "connect", this, args); }
+    disconnect(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "disconnect", this, args); }
+    getDefaultRemotePath(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "getDefaultRemotePath", this, args); }
+    refreshLocal(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "refreshLocal", this, args); }
+    refreshRemote(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "refreshRemote", this, args); }
+    get _openOnClick() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "_openOnClick", this); }
+    get _openUnsupportedInSystem() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "_openUnsupportedInSystem", this); }
+    get showTextLineNumbers() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "showTextLineNumbers", this); }
+    get textCaretShape() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "textCaretShape", this); }
+    get _defaultUploadPath() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "_defaultUploadPath", this); }
+    get _defaultDownloadPath() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "_defaultDownloadPath", this); }
+    get _iconResourceDir() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "_iconResourceDir", this); }
+    get _fileTypeIcons() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "_fileTypeIcons", this); }
+    get _disabledIconSvgs() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "_disabledIconSvgs", this); }
+    get _folderIconSvg() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "_folderIconSvg", this); }
+    get _panelHotkeys() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "_panelHotkeys", this); }
+    _activateEntry(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_activateEntry", this, args); }
+    onLocalEntryDblClick(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "onLocalEntryDblClick", this, args); }
+    onRemoteEntryDblClick(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "onRemoteEntryDblClick", this, args); }
+    get contextMenuOrder() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "contextMenuOrder", this); }
+    get contextMenuDisabledEntries() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "contextMenuDisabledEntries", this); }
+    onContextMenuAction(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "onContextMenuAction", this, args); }
+    onDrop(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "onDrop", this, args); }
+    _doUpload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_doUpload", this, args); }
+    _doUploadRaw(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_doUploadRaw", this, args); }
+    _doDownload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_doDownload", this, args); }
+    _doDownloadRaw(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_doDownloadRaw", this, args); }
+    trackTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "trackTransfer", this, args); }
+    cancelTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "cancelTransfer", this, args); }
+    pauseTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "pauseTransfer", this, args); }
+    resumeTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "resumeTransfer", this, args); }
+    clearTransfers(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "clearTransfers", this, args); }
+    openPermDialog(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "openPermDialog", this, args); }
+    confirmPermDialog(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "confirmPermDialog", this, args); }
+    _remoteEntryExists(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_remoteEntryExists", this, args); }
+    openInputDialog(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "openInputDialog", this, args); }
+    cancelInputDialog(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "cancelInputDialog", this, args); }
+    confirmInputDialog(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "confirmInputDialog", this, args); }
+    confirmDelete(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "confirmDelete", this, args); }
+    clearLog(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "clearLog", this, args); }
+    showTopNotification(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "showTopNotification", this, args); }
+    canViewEntry(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "canViewEntry", this, args); }
+    canEditEntry(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "canEditEntry", this, args); }
+    ctxDownload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "ctxDownload", this, args); }
+    _streamDownloadOne(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_streamDownloadOne", this, args); }
+    _runQueuedDownload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_runQueuedDownload", this, args); }
+    _streamUploadOne(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_streamUploadOne", this, args); }
+    _runQueuedUpload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_runQueuedUpload", this, args); }
+    ctxClipboardPaste(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "ctxClipboardPaste", this, args); }
+    onPanelMouseDown(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "onPanelMouseDown", this, args); }
+    onGlobalKeyDown(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "onGlobalKeyDown", this, args); }
+    _customHasPartial(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customHasPartial", this, args); }
+    _customPartialStatus(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customPartialStatus", this, args); }
+    _customPendingEditUpload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customPendingEditUpload", this, args); }
+    _customRetrySavedEditUpload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customRetrySavedEditUpload", this, args); }
+    _customResumeLocalForEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customResumeLocalForEdit", this, args); }
+    _customAutoResumeTransfers(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customAutoResumeTransfers", this, args); }
+    _customDiscardPartial(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customDiscardPartial", this, args); }
+    _customSetCreatedFilePermissions(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customSetCreatedFilePermissions", this, args); }
+    _customQueueEditTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customQueueEditTransfer", this, args); }
+    _customDownloadForEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customDownloadForEdit", this, args); }
+    _customUploadForEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customUploadForEdit", this, args); }
+    _customPersistEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customPersistEdit", this, args); }
+    _customBlockResumedEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customBlockResumedEdit", this, args); }
+    _customResumeUploadedEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customResumeUploadedEdit", this, args); }
+    _customEditStatus(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customEditStatus", this, args); }
+    _customRestoreEdits(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customRestoreEdits", this, args); }
+    customRetryEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customRetryEdit", this, args); }
+    customOpenEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customOpenEdit", this, args); }
+    customStopEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customStopEdit", this, args); }
+    ctxEditFile(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "ctxEditFile", this, args); }
+    _customExternalEdit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customExternalEdit", this, args); }
+    _customSyncExternal(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customSyncExternal", this, args); }
+    _customRememberFolder(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customRememberFolder", this, args); }
+    _customSuggestPaths(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customSuggestPaths", this, args); }
+    get customLocalPathProvider() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "customLocalPathProvider", this); }
+    get customRemotePathProvider() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "customRemotePathProvider", this); }
+    get customCwdState() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "customCwdState", this); }
+    get customCwdTooltip() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "customCwdTooltip", this); }
+    _customCwdExec(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customCwdExec", this, args); }
+    customSyncNow(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customSyncNow", this, args); }
+    _customLoadTransfers(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customLoadTransfers", this, args); }
+    _customRunTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customRunTransfer", this, args); }
+    _customHookFolderTransfers(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customHookFolderTransfers", this, args); }
+    _customCaptureQueued(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customCaptureQueued", this, args); }
+    customRetryTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customRetryTransfer", this, args); }
+    customCancelTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customCancelTransfer", this, args); }
+    customClearFinishedTransfers(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customClearFinishedTransfers", this, args); }
+    get customEditRows() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "customEditRows", this); }
+    get customTransferRows() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "customTransferRows", this); }
+    get customHistoryOwner() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "customHistoryOwner", this); }
+    get customHistoryRecoveryRows() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "customHistoryRecoveryRows", this); }
+    customLogTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customLogTransfer", this, args); }
+    customCanRetryTransfer(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customCanRetryTransfer", this, args); }
+    get customActivityCount() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "customActivityCount", this); }
+    customTrackActivity(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customTrackActivity", this, args); }
+    customActivityName(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customActivityName", this, args); }
+    customTransferDetails(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customTransferDetails", this, args); }
+    _customActivityTick(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customActivityTick", this, args); }
+    get customSidebarPinned() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "customSidebarPinned", this); }
+    get customSidebarMode() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "customSidebarMode", this); }
+    toggleCustomSidebarPin(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "toggleCustomSidebarPin", this, args); }
+    toggleCustomSidebarMode(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "toggleCustomSidebarMode", this, args); }
+    get customSidebarFull() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "customSidebarFull", this); }
+    toggleCustomSidebarFull(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "toggleCustomSidebarFull", this, args); }
+    customRecentFolders(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customRecentFolders", this, args); }
+    _customRecordRecent(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customRecordRecent", this, args); }
+    _customStopRecent(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customStopRecent", this, args); }
+    _customArmRecent(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customArmRecent", this, args); }
+    _customVisitRecent(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customVisitRecent", this, args); }
+    _customRecentFileAction(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customRecentFileAction", this, args); }
+    _customDeferDrop(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customDeferDrop", this, args); }
+    _customUploadLocalPaths(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customUploadLocalPaths", this, args); }
+    customPasteImage(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customPasteImage", this, args); }
+    _customStageDropFile(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customStageDropFile", this, args); }
+    customContextMouseUp(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customContextMouseUp", this, args); }
+    _customDeferContextAction(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customDeferContextAction", this, args); }
+    _customContextDownload(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customContextDownload", this, args); }
+    _customDownloadToDirectory(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customDownloadToDirectory", this, args); }
+    _customOpenWithFile(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customOpenWithFile", this, args); }
+    _customPickApplication(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customPickApplication", this, args); }
+    _customLaunchApplication(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customLaunchApplication", this, args); }
+    ctxOpenWith(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "ctxOpenWith", this, args); }
+    ctxCopyFileName(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "ctxCopyFileName", this, args); }
+    ctxOpenTerminalHere(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "ctxOpenTerminalHere", this, args); }
+    get customInlineOwner() { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.readFeature)("Panel", "customInlineOwner", this); }
+    _customInlineUpdate(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "_customInlineUpdate", this, args); }
+    customInlineCancel(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customInlineCancel", this, args); }
+    customInlineValue(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customInlineValue", this, args); }
+    customInlineCommit(...args) { return (0,_features_api__WEBPACK_IMPORTED_MODULE_1__.invokeFeature)("Panel", "customInlineCommit", this, args); }
+    get _customTraceClipboard() { var _a; const fn = (_a = _features_api__WEBPACK_IMPORTED_MODULE_1__.featureApis.Panel) === null || _a === void 0 ? void 0 : _a._customTraceClipboard; return typeof fn === "function" ? fn.bind(this) : undefined; }
+    get _customTraceTransfer() { var _a; const fn = (_a = _features_api__WEBPACK_IMPORTED_MODULE_1__.featureApis.Panel) === null || _a === void 0 ? void 0 : _a._customTraceTransfer; return typeof fn === "function" ? fn.bind(this) : undefined; }
+    get _customTraceQueueEntry() { var _a; const fn = (_a = _features_api__WEBPACK_IMPORTED_MODULE_1__.featureApis.Panel) === null || _a === void 0 ? void 0 : _a._customTraceQueueEntry; return typeof fn === "function" ? fn.bind(this) : undefined; }
 };
 // ========== 常量 ==========
 // 远程目录条目超过此数视为"超大目录"，跳过按条目 stat 的 owner 补全（B7 缓解）
@@ -33037,42 +33041,42 @@ SftpFloatingPanel._CTX_HOTKEYS_NEED_ENTRY = new Set([
     'openLocal', 'viewFile', 'editFile', 'details', 'copyPath',
 ]);
 __decorate([
-    (0,_angular_core__WEBPACK_IMPORTED_MODULE_6__.HostListener)('document:mousedown', ['$event']),
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_7__.HostListener)('document:mousedown', ['$event']),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [MouseEvent]),
     __metadata("design:returntype", void 0)
 ], SftpFloatingPanel.prototype, "onDocumentMouseDownForMenu", null);
 __decorate([
-    (0,_angular_core__WEBPACK_IMPORTED_MODULE_6__.HostListener)('keydown', ['$event']),
-    (0,_angular_core__WEBPACK_IMPORTED_MODULE_6__.HostListener)('keyup', ['$event']),
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_7__.HostListener)('keydown', ['$event']),
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_7__.HostListener)('keyup', ['$event']),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [KeyboardEvent]),
     __metadata("design:returntype", void 0)
 ], SftpFloatingPanel.prototype, "onTextInputKeyEvent", null);
 __decorate([
-    (0,_angular_core__WEBPACK_IMPORTED_MODULE_6__.HostListener)("mouseup", ["$event"]),
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_7__.HostListener)("mouseup", ["$event"]),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Object)
 ], SftpFloatingPanel.prototype, "customContextMouseUp", null);
 SftpFloatingPanel = SftpFloatingPanel_1 = __decorate([
-    (0,_angular_core__WEBPACK_IMPORTED_MODULE_6__.Component)({
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_7__.Component)({
         selector: 'sftp-plus-panel',
         template: __webpack_require__(/*! ./sftp-floating-panel.component.view.html */ "./src/sftp/sftp-floating-panel.component.view.html"),
-        encapsulation: _angular_core__WEBPACK_IMPORTED_MODULE_6__.ViewEncapsulation.None,
+        encapsulation: _angular_core__WEBPACK_IMPORTED_MODULE_7__.ViewEncapsulation.None,
         styles: [__webpack_require__(/*! ./sftp-floating-panel.component.view.css */ "./src/sftp/sftp-floating-panel.component.view.css")],
         // ★ 2026-08-24：tabindex=-1 让面板根可程序化聚焦（不可 Tab 切入），
         //   点击面板时 focus(root) 把焦点拉进面板 DOM 内，onGlobalKeyDown 的
         //   panelFocused（Backspace 历史后退 / Ctrl 拦截）才能正常判定
         host: { 'attr.tabindex': '-1' },
     }),
-    __param(5, (0,_angular_core__WEBPACK_IMPORTED_MODULE_6__.Optional)()),
-    __param(5, (0,_angular_core__WEBPACK_IMPORTED_MODULE_6__.Inject)('BOOTSTRAP_DATA')),
-    __metadata("design:paramtypes", [_angular_core__WEBPACK_IMPORTED_MODULE_6__.ChangeDetectorRef,
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__.ElementRef,
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__.NgZone,
-        tabby_core__WEBPACK_IMPORTED_MODULE_7__.ThemesService,
-        _angular_core__WEBPACK_IMPORTED_MODULE_6__.Injector, Object])
+    __param(5, (0,_angular_core__WEBPACK_IMPORTED_MODULE_7__.Optional)()),
+    __param(5, (0,_angular_core__WEBPACK_IMPORTED_MODULE_7__.Inject)('BOOTSTRAP_DATA')),
+    __metadata("design:paramtypes", [_angular_core__WEBPACK_IMPORTED_MODULE_7__.ChangeDetectorRef,
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__.ElementRef,
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__.NgZone,
+        tabby_core__WEBPACK_IMPORTED_MODULE_8__.ThemesService,
+        _angular_core__WEBPACK_IMPORTED_MODULE_7__.Injector, Object])
 ], SftpFloatingPanel);
 
 
@@ -36960,6 +36964,7 @@ module.exports = function installClipboardUpload({apis,Panel, electron, stagingR
 (module, __unused_webpack_exports, __webpack_require__) {
 
 module.exports = function installContextMenu({apis,Panel,Angular,Platform,Menu,Registry,Settings}) {
+    const sendTerminalCommand=__webpack_require__(/*! ../runtime/terminal-command.cjs */ "./src/runtime/terminal-command.cjs");
     if(Menu&&Registry){
         Registry.editFile.labelKey='file.open';
         Object.assign(Registry,{openWith:{labelKey:'Open with…',category:'open'},openTerminalHere:{labelKey:'Open terminal here',category:'open'},copyFileName:{labelKey:'Copy file name',category:'panel'}});
@@ -37136,7 +37141,7 @@ module.exports = function installContextMenu({apis,Panel,Angular,Platform,Menu,R
             if(!target||/[\x00-\x1f\x7f]/.test(target))throw Error('This folder path contains terminal control characters');
             if(this._destroyed||!this.connected||this.sftpSession!==session||this.terminalRef!==terminal)return false;
             const quoted="'"+target.replace(/'/g,"'\\''")+"'";
-            terminal.sendInput('cd -- '+quoted+'\n');
+            if(!sendTerminalCommand(terminal,'cd -- '+quoted))return false;
             terminal.emitFocused?.();terminal.frontend?.focus?.();return true;
         });
     };
@@ -37157,6 +37162,7 @@ module.exports = function installContextMenu({apis,Panel,Angular,Platform,Menu,R
 (module, __unused_webpack_exports, __webpack_require__) {
 
 // CWD tracking before Tabby's OSC middleware (preserves paths containing '=' and chunk boundaries).
+const sendTerminalCommand=__webpack_require__(/*! ../runtime/terminal-command.cjs */ "./src/runtime/terminal-command.cjs");
 module.exports = function installCwd({apis,Panel, reporter}) {
     const watchers=new WeakMap();
     const debugFile=(__webpack_require__(/*! path */ "path").join)(process.env.APPDATA || '', 'tabby','custom-sftp-plus','path-mode-debug.json');
@@ -37246,7 +37252,7 @@ module.exports = function installCwd({apis,Panel, reporter}) {
         if(!this.terminalRef?.sendInput)return false;
         watch(this);
         const command=reportOnly?'if command -v __sftp_plus_cwd_report >/dev/null 2>&1; then __sftp_plus_cwd_report; else '+reporter.session+'; fi':reporter.session;
-        try{this.terminalRef.sendInput('\x05\x15'+command+'\n');this._customReporterSession=this.terminalRef.session||this.terminalRef;if(!setup(this))rememberSetup(this,'session');return true;}catch(e){this.showToast?.('CWD setup failed: '+e.message);return false;}
+        try{if(!sendTerminalCommand(this.terminalRef,command))return false;this._customReporterSession=this.terminalRef.session||this.terminalRef;if(!setup(this))rememberSetup(this,'session');return true;}catch(e){this.showToast?.('CWD setup failed: '+e.message);return false;}
     };
     apis.Panel._enableCwdReporterPermanent=async function(){
         if(!this.sshSession)return false;
@@ -37789,6 +37795,7 @@ module.exports = function installKeyboardEvents({apis,Panel}) {
 (module, __unused_webpack_exports, __webpack_require__) {
 
 module.exports = function installNavigation({apis, Panel, Settings, FilePane, I18n, CwdDialog, Angular, execRemote, reporter }) {
+    const sendTerminalCommand=__webpack_require__(/*! ../runtime/terminal-command.cjs */ "./src/runtime/terminal-command.cjs");
     const fs = __webpack_require__(/*! fs */ "fs");
     const path = __webpack_require__(/*! path */ "path");
     const originalTranslate = apis.I18n.t;
@@ -38079,7 +38086,7 @@ module.exports = function installNavigation({apis, Panel, Settings, FilePane, I1
     };
     apis.Panel._enableCwdReporterSession = function () {
         if (!this.terminalRef?.sendInput) return false;
-        try { this.terminalRef.sendInput(reporter.session + '\n'); this._customReporterSession = this.terminalRef.session || this.terminalRef; return true; } catch { return false; }
+        try { if(!sendTerminalCommand(this.terminalRef,reporter.session))return false; this._customReporterSession = this.terminalRef.session || this.terminalRef; return true; } catch { return false; }
     };
     apis.Panel._enableCwdReporterPermanent = async function () {
         if (!this.sshSession) return false;
@@ -39126,6 +39133,32 @@ module.exports=function createContext(){
 
 /***/ },
 
+/***/ "./src/runtime/terminal-command.cjs"
+/*!******************************************!*\
+  !*** ./src/runtime/terminal-command.cjs ***!
+  \******************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
+
+const policy=(__webpack_require__(/*! ../../transfer-policy.json */ "./transfer-policy.json").terminalCommands);
+// Readline/Emacs: move across the complete input buffer, append a sentinel, then
+// park it with backward-kill-word. This covers embedded newlines as well as screen wraps.
+// Even an empty draft then
+// owns the kill buffer, so restoring cannot accidentally yank an older deleted command.
+// Yank restores the whole buffer; one backspace removes only our trailing sentinel.
+module.exports=function sendTerminalCommand(terminal,command){
+    if(!terminal?.sendInput)return false;
+    if(terminal.alternateScreenActive || terminal.frontend?.isAlternateScreenActive?.())throw new Error('Return to the shell prompt before running this terminal command');
+    const text=String(command).replace(/[\r\n]+$/,'');
+    if(!text)return false;
+    if(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(text))throw new Error('Terminal command contains unsupported control characters');
+    const line=/[\r\n\t]/.test(text)?'eval "$(printf \'%s\' \''+Buffer.from(text).toString('base64')+'\' | base64 -d)"':text;
+    terminal.sendInput(policy.park+line+policy.submit+policy.restore);
+    return true;
+};
+
+
+/***/ },
+
 /***/ "./src/runtime/windows-open-with.cjs"
 /*!*******************************************!*\
   !*** ./src/runtime/windows-open-with.cjs ***!
@@ -39162,7 +39195,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"names":{"mix":"vscode_hex.svg","karm
 (module) {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.5","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.6","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off","test:terminal":"node test-native-terminal.cjs"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
 
 /***/ },
 
@@ -39184,7 +39217,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"Panel":["_readDefaultShowHidden","lo
 (module) {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"newFileMode":"0764","symlinkDepthLimit":32,"dropDiagnostics":{"enabledMarker":"enable-drop-trace","file":"drop-trace.jsonl","heartbeatMs":1000,"maxRecords":15000,"maxPendingRecords":256,"methods":["onDrop","_customDeferDrop","_customStageDropFile","_customUploadLocalPaths","_streamUploadOne","_pumpUploadQueue","_runQueuedUpload","uploadPathToRemote","_doUpload","refreshRemote","_safeDetect","customPasteImage","ctxClipboardPaste","_streamDownloadOne","_pumpDownloadQueue","_runQueuedDownload","_doDownload","_doUploadRaw","_doDownloadRaw","_customQueueEditTransfer","_customDownloadForEdit","_customUploadForEdit","_customDownloadToDirectory","trackTransfer","pauseTransfer","resumeTransfer","cancelTransfer","toggleCustomSidebarPin","toggleCustomSidebarMode","toggleCustomSidebarFull","_scheduleLayoutRefresh","closeContextMenu","ctxNewFile"],"flushBeforeMethods":["_customUploadLocalPaths","_streamUploadOne","_runQueuedUpload","uploadPathToRemote","_doUpload","_streamDownloadOne","_runQueuedDownload","_doDownload","_doUploadRaw","_doDownloadRaw","_customQueueEditTransfer","_customDownloadForEdit","_customUploadForEdit","_customDownloadToDirectory"],"maxErrorFrames":8,"heartbeatMaxSpans":16,"chunkTraceLimit":32,"criticalSyncPhases":["clipboard:key:capture","clipboard:key:capture-route","clipboard:key-route","runtime:zone:error","runtime:window:error","runtime:promise:error","toggleCustomSidebarPin:start","toggleCustomSidebarPin:error","toggleCustomSidebarPin:end","_safeDetect:error","sidebar:pin:start","sidebar:pin:config:start","sidebar:pin:config:return","sidebar:pin:layout:start","sidebar:pin:layout:end","sidebar:pin:detect:start","sidebar:pin:detect:end","sidebar:pin:resize:start","sidebar:pin:resize:end","sidebar:pin:end","sidebar:pin:error"]},"tabbyDiagnostics":{"enabledMarker":"enable-tabby-trace","file":"tabby-runtime.jsonl","backupFile":"tabby-runtime.previous.jsonl","channel":"sftp-plus-plus:diagnostic-heartbeat","heartbeatMs":2000,"rendererHeartbeatMs":1000,"maxBytes":2097152,"maxRecords":20000,"maxMetrics":16,"maxErrorFrames":8},"windowsOpenWith":{"executable":"System32/WindowsPowerShell/v1.0/powershell.exe","script":"windows-open-with.ps1","arguments":["-NoProfile","-NonInteractive","-ExecutionPolicy","Bypass","-WindowStyle","Hidden","-File"],"flags":4,"cancelExitCode":2},"newFileOpenFlags":42,"fileList":{"pageSize":200},"externalEdit":{"remoteChangeAction":"overwrite","restoreWatchers":false}}');
+module.exports = /*#__PURE__*/JSON.parse('{"newFileMode":"0764","symlinkDepthLimit":32,"dropDiagnostics":{"enabledMarker":"enable-drop-trace","file":"drop-trace.jsonl","heartbeatMs":1000,"maxRecords":15000,"maxPendingRecords":256,"methods":["onDrop","_customDeferDrop","_customStageDropFile","_customUploadLocalPaths","_streamUploadOne","_pumpUploadQueue","_runQueuedUpload","uploadPathToRemote","_doUpload","refreshRemote","_safeDetect","customPasteImage","ctxClipboardPaste","_streamDownloadOne","_pumpDownloadQueue","_runQueuedDownload","_doDownload","_doUploadRaw","_doDownloadRaw","_customQueueEditTransfer","_customDownloadForEdit","_customUploadForEdit","_customDownloadToDirectory","trackTransfer","pauseTransfer","resumeTransfer","cancelTransfer","toggleCustomSidebarPin","toggleCustomSidebarMode","toggleCustomSidebarFull","_scheduleLayoutRefresh","closeContextMenu","ctxNewFile"],"flushBeforeMethods":["_customUploadLocalPaths","_streamUploadOne","_runQueuedUpload","uploadPathToRemote","_doUpload","_streamDownloadOne","_runQueuedDownload","_doDownload","_doUploadRaw","_doDownloadRaw","_customQueueEditTransfer","_customDownloadForEdit","_customUploadForEdit","_customDownloadToDirectory"],"maxErrorFrames":8,"heartbeatMaxSpans":16,"chunkTraceLimit":32,"criticalSyncPhases":["clipboard:key:capture","clipboard:key:capture-route","clipboard:key-route","runtime:zone:error","runtime:window:error","runtime:promise:error","toggleCustomSidebarPin:start","toggleCustomSidebarPin:error","toggleCustomSidebarPin:end","_safeDetect:error","sidebar:pin:start","sidebar:pin:config:start","sidebar:pin:config:return","sidebar:pin:layout:start","sidebar:pin:layout:end","sidebar:pin:detect:start","sidebar:pin:detect:end","sidebar:pin:resize:start","sidebar:pin:resize:end","sidebar:pin:end","sidebar:pin:error"]},"tabbyDiagnostics":{"enabledMarker":"enable-tabby-trace","file":"tabby-runtime.jsonl","backupFile":"tabby-runtime.previous.jsonl","channel":"sftp-plus-plus:diagnostic-heartbeat","heartbeatMs":2000,"rendererHeartbeatMs":1000,"maxBytes":2097152,"maxRecords":20000,"maxMetrics":16,"maxErrorFrames":8},"windowsOpenWith":{"executable":"System32/WindowsPowerShell/v1.0/powershell.exe","script":"windows-open-with.ps1","arguments":["-NoProfile","-NonInteractive","-ExecutionPolicy","Bypass","-WindowStyle","Hidden","-File"],"flags":4,"cancelExitCode":2},"newFileOpenFlags":42,"fileList":{"pageSize":200},"externalEdit":{"remoteChangeAction":"overwrite","restoreWatchers":false},"terminalCommands":{"park":"\\u001b999999\\u001bf#\\u001b999999\\u001b\\b","submit":"\\r","restore":"\\u0019\\b"}}');
 
 /***/ }
 

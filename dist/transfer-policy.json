@@ -119,5 +119,10 @@
   "externalEdit": {
     "remoteChangeAction": "overwrite",
     "restoreWatchers": false
+  },
+  "terminalCommands": {
+    "park": "\u001b999999\u001bf#\u001b999999\u001b\b",
+    "submit": "\r",
+    "restore": "\u0019\b"
   }
 }
