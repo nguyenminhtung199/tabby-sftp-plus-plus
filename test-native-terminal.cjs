@@ -10,7 +10,7 @@ const pty=require(path.join(process.env.LOCALAPPDATA,cfg.ptyRelative));
   await wait(/SFTP_COMMAND_TEST>/,0);
   child.write(String.raw`set -o emacs; __sftp_load() { READLINE_LINE=$(cat "$SFTP_TEST_SEED"); READLINE_POINT=$(printf '%s' "$READLINE_LINE" | wc -m); }; bind -x '"\C-x\C-l":__sftp_load'; __sftp_dump() { printf '%s\0%s' "$READLINE_LINE" "$PWD" > "$SFTP_TEST_DUMP"; printf '\033]777;DUMPED\007'; }; bind -x '"\C-x\C-b":__sftp_dump'; printf '\033]777;READY\007'`+'\r');
   await wait(/\x1b\]777;READY\x07/,0);
-  const terminal={sendInput:text=>child.write(text)};
+  const terminal={alternateScreenActive:true,frontend:{isAlternateScreenActive:()=>true},sendInput:text=>child.write(text)};
   const drafts=['',"echo unfinished 'quote",'printf tiếng-Việt 日本語', 'echo '+ 'long'.repeat(65), 'echo one\necho two'];
   for(const [index,draft] of drafts.entries()){
    let offset=transcript.length;child.write('\x03');await wait(/SFTP_COMMAND_TEST>/,offset);
@@ -28,7 +28,7 @@ const pty=require(path.join(process.env.LOCALAPPDATA,cfg.ptyRelative));
   send(terminal,"printf '%s' ''\nprintf '\\033]777;DONE="+done+"\\007'");
   await wait(new RegExp('\\x1b\\]777;DONE='+done+'\\x07'),last);
   const offset=transcript.length;child.write('\x18\x02');await wait(/\x1b\]777;DUMPED\x07/,offset);assert.equal((await fs.readFile(dump,'utf8')).split('\0')[0],drafts.at(-1)+'x','back-to-back CWD setup and multiline plugin command preserve draft');
-  let writes=0;assert.throws(()=>send({alternateScreenActive:true,sendInput:()=>writes++},'cd /'),/shell prompt/);assert.equal(writes,0);assert.throws(()=>send({sendInput:()=>writes++},'cd /\x03'),/control characters/);assert.equal(writes,0);
+  let writes=0;assert.equal(send({alternateScreenActive:true,frontend:{isAlternateScreenActive:()=>true},sendInput:()=>writes++},'cd /'),true);assert.equal(writes,1);writes=0;assert.throws(()=>send({sendInput:()=>writes++},'cd /\x03'),/control characters/);assert.equal(writes,0);
   console.log('PASS: real Bash PTY restores empty, quoted, Unicode, wrapped and multiline drafts after command injection.');
  }finally{child?.kill();}
 })().catch(e=>{console.error(e.stack);process.exitCode=1;});

@@ -6,7 +6,8 @@ const policy=require('../../transfer-policy.json').terminalCommands;
 // Yank restores the whole buffer; one backspace removes only our trailing sentinel.
 module.exports=function sendTerminalCommand(terminal,command){
     if(!terminal?.sendInput)return false;
-    if(terminal.alternateScreenActive || terminal.frontend?.isAlternateScreenActive?.())throw new Error('Return to the shell prompt before running this terminal command');
+    // screen/tmux can keep the outer terminal in its alternate buffer while a shell
+    // is ready inside. The buffer flag cannot identify the foreground program.
     const text=String(command).replace(/[\r\n]+$/,'');
     if(!text)return false;
     if(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(text))throw new Error('Terminal command contains unsupported control characters');

@@ -1,6 +1,6 @@
 {
   "name": "tabby-sftp-plus-plus",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.",
   "keywords": [
     "tabby-plugin",
@@ -18,7 +18,8 @@
     "test:native": "node scripts/test-native.cjs",
     "diagnostics:on": "node scripts/diagnostics-control.cjs on",
     "diagnostics:off": "node scripts/diagnostics-control.cjs off",
-    "test:terminal": "node test-native-terminal.cjs"
+    "test:terminal": "node test-native-terminal.cjs",
+    "test:screen": "node test-screen-terminal.cjs"
   },
   "files": [
     "dist"

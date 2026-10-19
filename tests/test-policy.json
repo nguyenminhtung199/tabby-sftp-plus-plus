@@ -63,5 +63,19 @@
     "seedFile": "seed.txt",
     "historyFile": "/dev/null"
   },
-  "terminalCommandSource": "src/runtime/terminal-command.cjs"
+  "terminalCommandSource": "src/runtime/terminal-command.cjs",
+  "terminalScreen": {
+    "executable": "C:/Windows/System32/wsl.exe",
+    "distribution": "Ubuntu",
+    "screen": "screen",
+    "shell": "/bin/bash",
+    "configFile": "screenrc",
+    "sessionPrefix": "sftp-plugin-test-",
+    "config": [
+      "startup_message off",
+      "altscreen on"
+    ],
+    "locale": "C.UTF-8",
+    "timeoutMs": 30000
+  }
 }

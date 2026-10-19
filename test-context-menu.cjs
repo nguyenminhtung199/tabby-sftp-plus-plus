@@ -107,7 +107,7 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  copy.selectedRemote=[{name:'first file.py',fullPath:'/a/first file.py'},{fullPath:'/b/second.txt'}];
  assert.equal(await copy.onContextMenuAction('copyFileName'),true);assert.equal(copied,'first file.py\nsecond.txt');
  const terminalPanel=panel();const commands=[];let focused=0;
- terminalPanel.terminalRef={sendInput:command=>commands.push(command),emitFocused:()=>focused++};
+ terminalPanel.terminalRef={alternateScreenActive:true,frontend:{isAlternateScreenActive:()=>true},sendInput:command=>commands.push(command),emitFocused:()=>focused++};
  terminalPanel.contextMenuEntry={name:'file.py',fullPath:"/tmp/a b/o'neil/file.py"};
  assert.equal(await terminalPanel.onContextMenuAction('openTerminalHere'),true);
  assert.equal(commands[0],terminalEnvelope("cd -- '/tmp/a b/o'\\''neil'"));assert.equal(focused,1);
