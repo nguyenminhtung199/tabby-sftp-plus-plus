@@ -8,13 +8,15 @@ module.exports = function installFileIcons({apis,FilePane,theme={names:{},extens
     apis.FilePane.iconSrc=function(entry){
         if(!entry||entry.isDirectory||!this.bundledIconDir)return original.call(this,entry);
         const name=path.basename(entry.linkTarget&&!entry.isSymlink?entry.linkTarget:entry.name||'').toLowerCase();
+        // Text files use their extension icon, including requirements.txt and named theme overrides.
+        if(name.endsWith('.txt'))return original.call(this,entry);
         let icon=null;
         if(/^(?:dockerfile|containerfile)(?:[.-].*)?$/.test(name)||/\.dockerfile$/.test(name))icon='docker.svg';
         else if(/^(?:docker-compose|compose)(?:[.-].*)?\.ya?ml$/.test(name))icon='docker-compose.svg';
         else if(/^\.env(?:\..*)?$/.test(name))icon='env.svg';
         else if(['.gitignore','.gitattributes','.gitmodules'].includes(name))icon='git.svg';
         else if(/^nginx(?:\..*)?\.conf$/.test(name)||name==='nginx.conf')icon='nginx.svg';
-        else if(['requirements.txt','pipfile','pipfile.lock','pyproject.toml','poetry.lock'].includes(name))icon='python.svg';
+        else if(['pipfile','pipfile.lock','pyproject.toml','poetry.lock'].includes(name))icon='python.svg';
         icon=theme.names[name]||icon;
         if(!icon){const ext=suffixes.find(ext=>name.endsWith('.'+ext));if(ext)icon=theme.extensions[ext];}
         if(!icon||(this.disabledIconSvgs||[]).includes(icon))return original.call(this,entry);
