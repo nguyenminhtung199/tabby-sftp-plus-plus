@@ -2917,7 +2917,7 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
         /** 插件版本号（webpack 构建时内联 package.json） */
         this.pkgVersion = (__webpack_require__(/*! ../../package.json */ "./package.json").version);
         /** 构建时间（webpack 每次 build 时注入，用于确认是否已重新打包） */
-        this.pkgBuildTime =  true ? "2026-10-19T02:05:49.151Z" : 0;
+        this.pkgBuildTime =  true ? "2026-10-19T02:10:43.574Z" : 0;
         /** 主题颜色标签 key 映射（统一走 .po 翻译） */
         this.themeLabelKeys = {
             '': 'theme.auto',
@@ -38978,7 +38978,8 @@ const policy=(__webpack_require__(/*! ../../transfer-policy.json */ "./transfer-
 // Yank restores the whole buffer; one backspace removes only our trailing sentinel.
 module.exports=function sendTerminalCommand(terminal,command){
     if(!terminal?.sendInput)return false;
-    if(terminal.alternateScreenActive || terminal.frontend?.isAlternateScreenActive?.())throw new Error('Return to the shell prompt before running this terminal command');
+    // screen/tmux can keep the outer terminal in its alternate buffer while a shell
+    // is ready inside. The buffer flag cannot identify the foreground program.
     const text=String(command).replace(/[\r\n]+$/,'');
     if(!text)return false;
     if(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(text))throw new Error('Terminal command contains unsupported control characters');
@@ -39026,7 +39027,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"names":{"mix":"vscode_hex.svg","karm
 (module) {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.7","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off","test:terminal":"node test-native-terminal.cjs"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.8","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off","test:terminal":"node test-native-terminal.cjs","test:screen":"node test-screen-terminal.cjs"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
 
 /***/ },
 
