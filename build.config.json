@@ -15,6 +15,7 @@
     "test-context-menu.cjs",
     "test-inline-edit.cjs",
     "test-keyboard-events.cjs",
-    "test-data-safety.cjs"
+    "test-data-safety.cjs",
+    "test-folder-merge.cjs"
   ]
 }

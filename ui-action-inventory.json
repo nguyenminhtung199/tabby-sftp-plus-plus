@@ -1,7 +1,7 @@
 [
   {
     "selector": "sftp-plus-panel",
-    "eventCount": 215,
+    "eventCount": 217,
     "actions": [
       "addBookmark",
       "applyLocalFilter",
@@ -26,6 +26,7 @@
       "customSyncNow",
       "cycleLayoutMode",
       "cyclePathMode",
+      "dismissToast",
       "exportLog",
       "goToLocalPathInput",
       "goToRemotePathInput",
@@ -205,7 +206,7 @@
   },
   {
     "selector": "sftp-file-pane",
-    "eventCount": 88,
+    "eventCount": 94,
     "actions": [
       "blurPathInput",
       "changeListPage",

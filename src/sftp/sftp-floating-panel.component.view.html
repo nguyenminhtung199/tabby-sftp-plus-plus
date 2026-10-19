@@ -7,7 +7,7 @@
       [class.resizing]="panelResizing">
       <div class="sftp-toast" *ngIf="toastMessage"
         (mouseenter)="onToastMouseEnter()"
-        (mouseleave)="onToastMouseLeave()">{{ toastMessage }}</div>
+        (mouseleave)="onToastMouseLeave()" role="alert"><span>{{ toastMessage }}</span><button type="button" title="Dismiss notification" aria-label="Dismiss notification" (mousedown)="$event.preventDefault(); $event.stopPropagation()" (click)="dismissToast()">×</button></div>
       <!-- 缩放手柄层（仅浮动模式、未最大化时显示；pointer-events 仅手柄自身捕获） -->
       <div class="resize-layer" *ngIf="displayMode !== 'workspace' && panelDraggable && !panelMaximized">
         <div class="resize-handle rh-n" (mousedown)="onResizeStart($event, 'n')"></div>

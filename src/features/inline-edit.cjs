@@ -3,7 +3,7 @@ module.exports = function installInlineEdit({apis,Panel,FilePane,Angular}) {
  let sequence=0;
  Object.defineProperty(apis.Panel,'customInlineOwner',{get(){return this;},configurable:true});
  apis.Panel._customInlineUpdate=function(patch){if(this._customInlineEdit)this._customInlineEdit={...this._customInlineEdit,...patch};this._safeDetect?.();};
- apis.Panel.customInlineCancel=function(){if(this._inputBusy)return;this._customInlineEdit=null;cancel.call(this);this._safeDetect?.();};
+ apis.Panel.customInlineCancel=function(){this._customInlineEdit=null;cancel.call(this);this._safeDetect?.();};
  apis.Panel.openInputDialog=function(mode,title,placeholder,value,target,remote){
   if(this._inputBusy)return;
   if(!/^(local|remote)-(mkdir|touch|rename)$/.test(mode)){this.customInlineCancel();return open.apply(this,arguments);}
@@ -19,10 +19,14 @@ module.exports = function installInlineEdit({apis,Panel,FilePane,Angular}) {
  apis.Panel.customInlineCommit=async function(){
   const edit=this._customInlineEdit;if(!edit||edit.busy||this._inputBusy)return;
   if(this._destroyed||this[edit.pane+'Path']!==edit.folder||(edit.pane==='remote'&&(!this.connected||this.sftpSession!==edit.session))){this.customInlineCancel();return;}
-  if(!edit.value.trim()){this._customInlineUpdate({error:'Enter a name.'});return;}
+  if(!edit.value.trim()){this._customInlineUpdate({error:'Enter a name.',focusRevision:(edit.focusRevision||0)+1});this.showToast?.('Enter a name.');return;}
   // Preserve the existing name validation, collision checks, SSH operations and 0764 creation policy.
+  this.inputDialogMode=edit.mode;
+  this.inputDialogTargetPath=edit.mode.endsWith('rename')?(edit.pane==='local'?edit.originalPath:''):edit.folder;
+  this.inputDialogRemotePath=edit.mode==='remote-rename'?edit.originalPath:null;
   this.inputDialogValue=edit.value;this._customInlineUpdate({busy:true,error:''});
-  try{await confirm.call(this);}finally{if(this._customInlineEdit?.id===edit.id)this._customInlineUpdate({busy:false,error:this._customInlineEdit.error||'Could not save this name. Check the notification and try again.'});else this._safeDetect?.();}
+  try{await confirm.call(this);}catch(error){if(this._customInlineEdit?.id===edit.id)this._customInlineUpdate({error:error.message||String(error)});}
+  finally{if(this._customInlineEdit?.id===edit.id){const error=this._customInlineEdit.error||'Could not save this name. Try again or press Escape to cancel.';this._customInlineUpdate({busy:false,error,focusRevision:(edit.focusRevision||0)+1});this.showToast?.(error);}else this._safeDetect?.();}
  };
  const destroy=apis.Panel.ngOnDestroy;
  apis.Panel.ngOnDestroy=function(...args){this._customInlineEdit=null;return destroy?.apply(this,args);};
@@ -32,9 +36,10 @@ module.exports = function installInlineEdit({apis,Panel,FilePane,Angular}) {
  const checked=apis.FilePane.ngAfterViewChecked;
  apis.FilePane.ngAfterViewChecked=function(...args){
   const result=checked?.apply(this,args),edit=this.customInlineEdit;
-  if(!edit||this._customInlineFocused===edit.id)return result;
+  const focusKey=edit&&edit.id+':'+(edit.focusRevision||0);
+  if(!edit||edit.busy||this._customInlineFocused===focusKey)return result;
   const input=this.hostRef?.nativeElement?.querySelector('.custom-inline-name');if(!input)return result;
-  this._customInlineFocused=edit.id;
+  this._customInlineFocused=focusKey;
   const focus=()=>{if(this.customInlineEdit?.id!==edit.id||!input.isConnected)return;input.closest('.entry')?.scrollIntoView?.({block:'nearest'});input.focus();const dot=edit.value.lastIndexOf('.');input.setSelectionRange(0,edit.originalPath&&!edit.isDirectory&&dot>0?dot:edit.value.length);};
   const outside=this.customInlineOwner?.zone?.runOutsideAngular;
   const schedule=()=>{this._customInlineFocusTimer=setTimeout(focus,0);};outside?outside.call(this.customInlineOwner.zone,schedule):schedule();return result;

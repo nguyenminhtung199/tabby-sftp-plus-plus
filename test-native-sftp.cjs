@@ -1,5 +1,6 @@
 const assert=require('assert/strict'),fs=require('fs/promises'),path=require('path'),crypto=require('crypto');
 const {Server,utils}=require('ssh2'),status=utils.sftp.STATUS_CODE;
+const fsSyncRead=file=>require('fs').readFileSync(file,'utf8');
 const Module=require('module'),load=Module._load,nativeRoot=process.env.SFTP_TEST_RUSSH_ROOT;
 if(!nativeRoot)throw Error('Set SFTP_TEST_RUSSH_ROOT to the installed russh directory');
 // Tabby 1.0.231 uses RxJS 7; Angular 9 bundle tests retain their RxJS 6 dependency.
@@ -45,6 +46,14 @@ let ssh,sftp;const deadline=setTimeout(()=>{console.error('native SFTP fixture t
  require('./tests/helpers/feature-fixture.cjs')(require('./src/features/transfer-engine.cjs'))({Panel});
  const traceRoot=path.join(root,'trace'),cfg=require('./transfer-policy.json').dropDiagnostics;await fs.mkdir(traceRoot,{recursive:true});await fs.writeFile(path.join(traceRoot,cfg.enabledMarker),'enabled');const diagnostic=require('./tests/helpers/feature-fixture.cjs')(require('./src/features/drop-diagnostics.cjs'))({Panel,root:traceRoot});
  require('./tests/helpers/feature-fixture.cjs')(require('./src/features/clipboard-safety.cjs'))({Panel});
+ // Exercise the actual inline rename controller against installed russh and the loopback SFTP server.
+ const harness=fsSyncRead('test-context-menu.cjs').split('(async()=>{')[0],fixture=new Module(path.join(__dirname,'native-inline-harness.cjs'),module);fixture.filename=path.join(__dirname,'native-inline-harness.cjs');fixture.paths=module.paths;fixture._compile(harness+'\nmodule.exports=Panel;',fixture.filename);
+ const nativePanel=Object.create(fixture.exports.prototype);Object.assign(nativePanel,{connected:true,remotePath:'/fixture',selectedLocal:[],sftpSession:adapter,_safeDetect(){},showToast(message){this.toast=message;},refreshRemote:async()=>true,i18n:{t:key=>key}});
+ files.set('/fixture/rename-source.txt',{data:Buffer.from('rename preserves bytes'),mode:0o750});nativePanel.selectedRemote=[{name:'rename-source.txt',fullPath:'/fixture/rename-source.txt'}];nativePanel.remoteRename();nativePanel.customInlineValue('rename-target.txt');await nativePanel.customInlineCommit();
+ assert.equal(nativePanel._customInlineEdit,null);assert.equal(files.has('/fixture/rename-source.txt'),false);assert.equal(files.get('/fixture/rename-target.txt').data.toString(),'rename preserves bytes');assert.equal(files.get('/fixture/rename-target.txt').mode,0o750);
+ nativePanel.selectedRemote=[{name:'rename-target.txt',fullPath:'/fixture/rename-target.txt'}];nativePanel.remoteRename();await nativePanel.customInlineCommit();assert.equal(nativePanel._customInlineEdit,null,'unchanged name does not fail native rename');
+ await adapter.unlink('/fixture/rename-target.txt');
+ console.log('PASS: actual inline remote rename through russh preserves bytes/mode and accepts unchanged names.');
  const p=new Panel(),local=path.join(root,'edit.txt');await fs.writeFile(local,'edited content');
  for(let i=0;i<8;i++){
   const remote='/fixture/file'+i;

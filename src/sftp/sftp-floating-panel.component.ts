@@ -6921,7 +6921,9 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     // chmod 不走文件名净化
     const val = mode === 'remote-chmod' ? rawVal : (safeEntryName(rawVal) || '')
     if (mode !== 'remote-chmod' && !val) {
-      this.showToast(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name', 3000)
+      const message = this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name'
+      if (this._customInlineEdit) this._customInlineUpdate({ error: message })
+      this.showToast(message, 3000)
       return
     }
 
@@ -6940,7 +6942,9 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
         case 'local-rename': {
           const newPath = safeJoinUnder(this.localPath, val, false)
           if (!newPath) { this.showToast(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name', 3000); break }
-          if (newPath !== tp) {
+          const sameLocalFile = process.platform === 'win32' && path.resolve(newPath).toLowerCase() === path.resolve(tp!).toLowerCase()
+            && await fs.stat(tp!, { bigint: true }).then(async source => { const target = await fs.stat(newPath, { bigint: true }).catch(() => null); return !!target && source.ino !== BigInt(0) && source.ino === target.ino && source.dev === target.dev })
+          if (newPath !== tp && !sameLocalFile) {
             let exType: 'file' | 'dir' | null = null
             try { const st = await fs.stat(newPath); exType = st.isDirectory() ? 'dir' : 'file' } catch { /* 不存在 */ }
             if (exType === 'dir') { this._showInputConflict('dir-dup', val); break }
@@ -6984,7 +6988,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
             if (r.isDirectory) { this._showInputConflict('dir-dup', val); break }
             if (r.exists) { this._showInputConflict('file-dup', val); break }
           }
-          await this.sftpSession.rename(rp!, newPath); this.cancelInputDialog(); await this.refreshRemote(); break
+          if (newPath !== rp) await this.sftpSession.rename(rp!, newPath); this.cancelInputDialog(); await this.refreshRemote(); break
         }
         case 'remote-chmod':
           if (!this.sftpSession) return
@@ -6996,6 +7000,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     } catch (e) {
       log.error('Operation failed', e)
       const reason = (e as Error)?.message || String(e)
+      if (this._customInlineEdit) this._customInlineUpdate({ error: reason })
       const mode = this.inputDialogMode || ''
       // 失败时不关闭对话框，便于用户改个名字/路径立即重试
       if (mode.includes('rename')) {
@@ -7024,7 +7029,9 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       : kind === 'file-when-mkdir' ? 'input.fileWhenMkdir'
       : 'input.dirWhenTouch'
     // ★ 统一用面板顶部 toast，不关对话框
-    this.showToast(this.i18n.t(key, { val }), 3000)
+    const message = this.i18n.t(key, { val })
+    if (this._customInlineEdit) this._customInlineUpdate({ error: message })
+    this.showToast(message, 3000)
   }
 
   async _base_confirmDelete(): Promise<void> {
@@ -7359,6 +7366,13 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
   private _notifyPathCopied(count: number): void {
     this.showToast(this.i18n.t('notify.pathCopied', { n: count }))
+  }
+
+  dismissToast(): void {
+    if (this.toastTimer) clearTimeout(this.toastTimer)
+    this.toastTimer = null
+    this.toastMessage = ''
+    this._toastHovering = false
   }
 
   /** 面板顶部轻提示（替代 Tabby 底部通知） */
@@ -8655,6 +8669,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
         // 如果 Esc 已被子组件（对话框、输入框等）preventDefault 处理，
         // 不再让面板接管，避免对话框关完后又把面板也关了
         if (event.defaultPrevented) return
+        if (this._customInlineEdit) { event.preventDefault(); this.customInlineCancel(); return }
         if (this.viewerVisible) {
           event.preventDefault()
           this.closeViewer()

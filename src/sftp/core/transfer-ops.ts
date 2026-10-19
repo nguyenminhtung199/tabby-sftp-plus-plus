@@ -167,33 +167,6 @@ function foldSettled(settled: PromiseSettledResult<boolean>[]): { success: boole
   return { success, firstErr }
 }
 
-/**
- * ★ 2026-09-29：仅 TAR 模式下「打包通道不适用」的告知 —— 当前唯一触发场景是**目标已存在**。
- *
- * 与 tar 通道内 _decline（通道不可用/失败）区分：这不是失败。目标已存在时，这一**次自动流程**
- * 只能先走逐文件通道（增量必须经过目录冲突检测），传输会正常完成、只是没打包。
- *
- * 为什么必须提示：用户既然选了「仅 TAR」，只看到传输记录标着 ⇄SFTP 时无从判断这是
- * 「设置没生效」还是「本次不适用」，只能来问（实测）。提示里同时给出解法——
- * 在目录冲突提示中选择「覆盖」，或在传输前先删除目标目录/文件。
- *
- * ★ 2026-09-29（三）修正提示的**后半句前提**：此前「选『覆盖』即可打包」对**上传**方向是假的
- * ——上传的覆盖出口（MergeLocalDirUseCase）当时没有任何打包入口，用户照做仍是 ⇄SFTP，
- * 于是提示与行为不符。现已让 MergeLocalDirUseCase 先试打包通道，两端的这句解法都成立。
- *
- * 仅 tarOnly 触发：其余模式本就是按规模与条件择路，走逐文件是预期行为，不需要解释。
- */
-function notifyTarOnlyInapplicable(
-  ports: TransferUseCasePorts,
-  name: string,
-  target: string,
-  direction: 'upload' | 'download',
-): void {
-  if (ports.tarChannelMode !== 'tarOnly') return
-  try {
-    ports.notifyTarOnlyInapplicable?.(name, 'targetExists', `${direction} target already exists: ${target}`)
-  } catch { /* 提示失败绝不影响传输本身 */ }
-}
 
 ﻿/**
  * 下载用例（单文件 + 目录递归）
@@ -250,11 +223,11 @@ export class DownloadDirUseCase {
         log.info('[download-dir] tar channel fell back, starting standard file-by-file transfer:', remoteSrc)
       } else if (targetExists) {
         // ★ 2026-09-26：把「为什么没走打包加速」写进日志 —— 否则用户只能看到 ⇄SFTP 标签，无从判断
-        log.info('[download-dir] tar channel skipped (local target exists, overwrite not confirmed):', localDir)
+        log.info('[download-dir] tar channel skipped (existing target requires per-file conflict checks):', localDir)
         // ★ 2026-09-29：仅 TAR 模式下必须让用户知道 —— 这种「不适用」不是降级（增量下载必须走
         //   逐文件通道，冲突检测依赖它），但选了「仅」却只看到 ⇄SFTP 标签，用户无从判断是
         //   「设置没生效」还是「这次不适用」，只能来问（实测）。提示文案含解法：选「覆盖」或先删目标。
-        notifyTarOnlyInapplicable(this.ports, base, localDir, 'download')
+        // Existing directories require per-file conflict decisions, including tar-only preference.
       }
       // ★ 2026-09-28：目录下载始终预扫描得真实总量（移除快速模式后进度永远有百分比）
       let totalSize = 0
@@ -398,7 +371,7 @@ export class DownloadDirUseCase {
         this.ports.folder.finish(ctx, ok)
       }
     }
-    return success
+    return success && !ctx?.hadConflict
   }
 }
 
@@ -423,41 +396,8 @@ export class DownloadOneUseCase {
       }
       const localDir = path.join(localBase, safeName)
 
-      // SFTP 服务器对目录的 stat 经常返回 1970-01-01 等无效修改时间，而 readdir/payload 中的 modified 是正确的。
-      // 因此优先信任 payload 的 modified，仅当无效时才用 stat 兜底，并且 stat 结果也要过滤 epoch 时间。
-      let remoteSize = file.size ?? 0
-      let remoteMtime = entryMtimeToMsOrUndefined(file)
-      log.info('[download-one] dir initial modified:', file.modified, 'remoteMtime:', remoteMtime, 'path:', file.fullPath)
-      if (remoteMtime == null) {
-        try {
-          const st = await this.ports.sftp.stat(file.fullPath)
-          log.info('[download-one] dir stat fallback result:', st)
-          if (st) {
-            const stMtime = entryMtimeToMsOrUndefined(st)
-            if (stMtime != null) remoteMtime = stMtime
-            remoteSize = Number(st.size ?? st.attrs?.size ?? remoteSize)
-          }
-        } catch (e) {
-          log.warn('[download-one] stat for dir conflict failed:', file.fullPath, e)
-        }
-      }
-      if (remoteMtime == null) remoteMtime = 0
-      log.info('[download-one] dir final remoteMtime:', remoteMtime)
-
-      if (await this.ports.localFs.pathExists(localDir)) {
-        this.ports.conflictQueue.enqueue({
-          localPath: localDir,
-          remoteDir: path.posix.dirname(file.fullPath),
-          fileName: safeName,
-          remotePath: file.fullPath,
-          localStat: { size: 0, mtimeMs: Date.now() } as Stats,
-          direction: 'download',
-          isDirectory: true,
-          remoteFileSize: remoteSize,
-          remoteFileMtime: remoteMtime,
-        })
-        return
-      }
+      const existing = await this.ports.localFs.lstat(localDir)
+      if (existing && (!existing.isDirectory() || existing.isSymbolicLink())) throw new Error('Cannot merge a folder into an existing file or link: ' + localDir)
       await this.downloadOne.downloadDir(file.fullPath, localBase)
       return
     }
@@ -824,26 +764,14 @@ export class UploadPathUseCase {
       const base = path.basename(localPath)
       // ★ 2026-08-11：tar 打包通道——仅当远端目标不存在（全新上传）时启用；
       //   success 传输成功；failed 中止；fallback 则平滑回退到常规逐文件流式传输
-      if (this.ports.tarChannel && !(await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, true))) {
-        // ★ 2026-09-29（三）：此处 mergeIntoExisting 恒为 false —— 目标不存在才走到这里，
-        //   走的必然是「原子 mv 搬入」。目标**已存在**时不在这里强行打包：先弹目录冲突让用户
-        //   确认（跳过/重命名/覆盖），用户选「覆盖」后由 MergeLocalDirUseCase → 打包通道
-        //   的 mergeIntoExisting=true 分支接手（见 _tryTarUpload），此时才允许合并覆盖。
+      if (this.ports.tarChannel && !(await this.ports.conflictDetection.checkRemotePathExists(remoteTarget))) {
+        // Archive only fresh targets. Existing directories need individual file conflict choices.
         const r = await this.ports.tarChannel.tryUploadDir(localPath, remoteTarget, this.ports.folder, base, false, this.ports.tarChannelMode)
         if (r === 'success') return true
         // ★ 2026-09-29：仅 TAR 模式下 'failed' 既可能是用户中止，也可能是打包通道不可用
         //   （此时通道内已提示原因与解决方法、并把进度条目收尾为失败），一律不再回退。
         if (r === 'failed') return false
         log.info('[upload-dir] tar channel fell back, starting standard file-by-file transfer:', localPath)
-      } else if (this.ports.tarChannel && this.ports.tarChannelMode === 'tarOnly') {
-        // ★ 2026-09-29：给「仅 TAR 却走了逐文件」留下取证锚点 —— 这种情形不是回退，而是
-        //   打包上传通道在**本次自动流程**里不适用（它要求远端目标不存在；目标已存在时必须先让
-        //   用户确认冲突处理方式，目录冲突检测依赖逐文件通道）。仅 TAR 的说明文案里写明了这个例外。
-        log.info('[upload-dir] tar-only mode, but remote target already exists; per-file channel is the only option:', remoteTarget)
-        // ★ 2026-09-29（三）：文案里「选『覆盖』即可让打包通道接管」这句现在**真的成立**了 ——
-        //   覆盖出口 MergeLocalDirUseCase 已接入打包通道（见 _tryTarUpload）。此前上传侧没有任何
-        //   打包入口，用户照着提示选了覆盖却依旧 ⇄SFTP（实测质问）。
-        notifyTarOnlyInapplicable(this.ports, base, remoteTarget, 'upload')
       }
       // ★ 2026-09-28：目录上传始终预扫描得真实总量（移除快速模式后进度永远有百分比）
       let totalSize = 0
@@ -852,74 +780,20 @@ export class UploadPathUseCase {
       totalSize = s.size
       itemCount = s.count
       ctx = this.ports.folder.start(base, 'upload', remoteTarget, localPath, totalSize, itemCount)
-      if (await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, true)) {
-        let remoteFileSize: number | undefined
-        let remoteFileMtime: number | undefined
 
-        // 目录的 sftp.stat 通常拿不到真实修改时间（常见返回 1970-01-01），优先从父目录 listing 中找目标目录项
-        try {
-          const entries = await this.ports.sftp.readdir(remoteDir)
-          const found = entries.find(e => e.name === base)
-          if (found) {
-            const sz = found.size ?? found.attrs?.size
-            remoteFileSize = sz != null ? Number(sz) : undefined
-            remoteFileMtime = entryMtimeToMsOrUndefined(found)
-            log.info('[upload-dir] readdir remote dir', remoteTarget, 'size:', remoteFileSize, 'mtime:', remoteFileMtime)
-          }
-        } catch (e) {
-          log.warn('[upload-dir] readdir remote dir failed:', remoteTarget, e)
-        }
-
-        // readdir 找不到或 modified 无效时，再尝试 stat 兜底
-        if (remoteFileMtime == null) {
-          try {
-            const rstat = await this.ports.sftp.stat(remoteTarget)
-            if (rstat) {
-              if (remoteFileSize == null) remoteFileSize = rstat.size ?? rstat.attrs?.size
-              remoteFileMtime = parseRemoteMtime(rstat)
-              log.info('[upload-dir] stat fallback remote dir', remoteTarget, 'size:', remoteFileSize, 'mtime:', remoteFileMtime)
-            }
-          } catch (e) {
-            log.warn('[upload-dir] stat remote dir failed:', remoteTarget, e)
-          }
-        }
-
-        // ★ 2026-09-17：冲突对话框展示「目录内容总大小」；fs.Stats.size 对目录无意义（Windows 常为 0）
-        let localContentSize = totalSize
-        if (localContentSize <= 0) {
-          try {
-            const s = await this.ports.localFs.scanDir(localPath)
-            localContentSize = s.size
-            if (itemCount <= 0) itemCount = s.count
-          } catch (e) {
-            log.warn('[upload-dir] scan local dir size for conflict failed:', localPath, e)
-          }
-        }
-
-        this.ports.conflictQueue.enqueue({
-          localPath,
-          remoteDir,
-          fileName: base,
-          remotePath: remoteTarget,
-          localStat: { size: localContentSize, mtimeMs: st.mtimeMs } as Stats,
-          direction: 'upload',
-          isDirectory: true,
-          remoteFileSize,
-          remoteFileMtime,
-          // ★ 2026-08-11：携带来源传输 ctx，覆盖/重命名成功后翻正被误记失败的记录
-          transferCtx: ctx,
-          // ★ 2026-09-18 issue #15 修复：携带内容摘要供对话框展示
-          localDigest: null,
-          remoteDigest: null,
-        })
-        this.ports.folder.markHadConflict(ctx)
-        this.ports.conflictQueue.showDialog()
-        this.ports.folder.finish(ctx, false)
-        return false
-      }
     }
 
-    try { await this.ports.sftp.mkdir(remoteTarget) } catch {}
+    // Same-named directories merge; files are checked individually below.
+    if (await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, false)) {
+      if (ctx && isTop) this.ports.folder.finish(ctx, false)
+      throw new Error('Cannot merge a folder into an existing file: ' + remoteTarget)
+    }
+    try { await this.ports.sftp.mkdir(remoteTarget) } catch (error) {
+      if (!await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, true)) {
+        if (ctx && isTop) this.ports.folder.finish(ctx, false)
+        throw error
+      }
+    }
     // ★ 2026-08-10：目录内文件级并发（issue #10）——原 for await 串行改为递归各层
     //   共享的限制器池；暂停/中止门控在每个任务占槽前检查，已在途文件传完即停
     const limiter = inLimiter ?? new ConcurrencyLimiter(clampDirConcurrency(this.dirConcurrency?.()))
@@ -969,7 +843,7 @@ export class UploadPathUseCase {
         this.ports.folder.finish(ctx, ok)
       }
     }
-    return success
+    return success && !ctx?.hadConflict
   }
 
   private async _uploadFile(

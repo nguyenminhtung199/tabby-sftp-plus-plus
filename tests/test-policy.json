@@ -18,7 +18,8 @@
     "test-shared-ui-diagnostics.cjs",
     "test-transfer-ui.cjs",
     "test-ui-actions.cjs",
-    "test-source-architecture.cjs"
+    "test-source-architecture.cjs",
+    "test-folder-merge.cjs"
   ],
   "renderer": {
     "timeoutMs": 30000,

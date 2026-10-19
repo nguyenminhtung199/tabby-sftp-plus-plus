@@ -140,41 +140,8 @@ export class PasteUseCase {
         : path.posix.join(destPath, safeName)
 
       if (entry.isDirectory) {
-        if (source === 'local' && destPane === 'remote') {
-          if (await this.ports.conflict.checkRemotePathExists(destFilePath, true)) {
-            const st = await this.ports.fs.statLocal(entry.fullPath ?? '')
-            // ★ 2026-09-17：与拖拽上传一致，从父目录 listing 取远程目录真实 mtime
-            //   （sftp.stat 对目录常返回 epoch，不填则冲突框显示 1970-01-01）
-            const remoteMeta = await this._remoteListingMeta(destPath, safeName)
-            // 本地目录 fs.Stats.size 无意义；预扫内容总大小，冲突框可直接展示免二次扫描
-            let localContentSize = 0
-            const localPath = entry.fullPath ?? ''
-            if (localPath && this.ports.fs.scanLocalDir) {
-              try {
-                const scanned = await this.ports.fs.scanLocalDir(localPath)
-                localContentSize = scanned?.size ?? 0
-              } catch (e) {
-                log.warn('[paste] scanLocalDir for conflict failed:', localPath, e)
-              }
-            }
-            this.ports.conflict.enqueue({
-              localPath,
-              remoteDir: destPath,
-              fileName: safeName,
-              remotePath: destFilePath,
-              localStat: {
-                size: localContentSize,
-                mtimeMs: st?.mtimeMs ?? Date.now(),
-              } as Stats,
-              direction: 'upload',
-              isDirectory: true,
-              remoteFileSize: remoteMeta.size,
-              remoteFileMtime: remoteMeta.mtimeMs,
-              entryKey: pasteEntryKey(entry),
-              mode,
-            })
-          }
-        } else if (source === destPane) {
+        // Cross-pane directories use the recursive upload/download file conflict checks.
+        if (source === destPane) {
           // ★ 2026-09-21 P1 修复：同面板粘贴目录此前直接 continue，不做同名预检——
           //   execute 会径直 copyLocalDir/copyRemoteDir 合并进已存在的同名目录并覆盖同名文件，
           //   既无对话框也无提示（同面板的「文件」是走下面 checkDestExists 的，只有目录漏了）。
@@ -194,26 +161,6 @@ export class PasteUseCase {
               samePaneSource: source,
               remoteFileSize: entry.size ?? 0,
               remoteFileMtime: entry.mtimeMs ?? Date.now(),
-              entryKey: pasteEntryKey(entry),
-              mode,
-            })
-          }
-        } else if (source === 'remote' && destPane === 'local') {
-          if (await this.ports.fs.localDirExists(destFilePath)) {
-            const remoteMeta = await this._remoteListingMeta(
-              path.posix.dirname(entry.fullPath ?? ''),
-              safeName,
-            )
-            this.ports.conflict.enqueue({
-              localPath: destFilePath,
-              remoteDir: path.posix.dirname(entry.fullPath ?? ''),
-              fileName: safeName,
-              remotePath: entry.fullPath ?? '',
-              localStat: { size: 0, mtimeMs: Date.now() } as Stats,
-              direction: 'download',
-              isDirectory: true,
-              remoteFileSize: remoteMeta.size ?? entry.size,
-              remoteFileMtime: remoteMeta.mtimeMs ?? entry.mtimeMs,
               entryKey: pasteEntryKey(entry),
               mode,
             })
@@ -393,22 +340,6 @@ export class PasteUseCase {
     if (entry.isDirectory) {
       // ★ 2026-07-25：直接使用已净化的 destFilePath（剥离了目录组件与 ..）
       const destDir = destFilePath
-      if (await this.ports.fs.localDirExists(destDir)) {
-        this.ports.conflict.enqueue({
-          localPath: destDir,
-          remoteDir: path.posix.dirname(srcPath),
-          fileName: entry.name,
-            remotePath: srcPath,
-            localStat: { size: 0, mtimeMs: Date.now() } as Stats,
-            direction: 'download',
-            isDirectory: true,
-            entryKey: pasteEntryKey(entry),
-            mode,
-        })
-        this.ports.conflict.setOriginalTotal(this.ports.conflict.queueLength())
-        this.ports.conflict.showDialog()
-        return
-      }
       const ok = await this.ports.transfer.downloadDirectory(srcPath, destPath)
       // ★ 2026-08-26 H1：必须以传输成功为准；仅「目标目录存在」不足以证明完整成功
       if (mode === 'cut' && this.ports.ui.hasSftpSession()) {

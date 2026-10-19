@@ -1512,10 +1512,16 @@
 
 .sftp-root .custom-inline-cell { overflow:visible; min-width:0; white-space:normal; }
 .sftp-root .custom-inline-name { box-sizing:border-box; width:100%; min-width:0; padding:2px 4px; border:1px solid var(--_primary,currentColor); border-radius:2px; color:var(--_text,inherit); background:var(--_input-bg,var(--_bg)); font:inherit; line-height:inherit; outline-offset:1px; }
-.sftp-root .custom-inline-name:disabled { opacity:.65; }
-.sftp-root .custom-inline-error { display:block; font-size:11px; color:var(--_danger,#ff8f8f); white-space:normal; }
+.sftp-root .custom-inline-name[readonly] { opacity:.65; }
+.sftp-root .custom-inline-cell { position:relative; }
+.sftp-root .custom-inline-name { padding-right:22px; }
+.sftp-root .custom-inline-name.custom-inline-invalid { border-color:var(--_danger,#ff8f8f); }
+.sftp-root .custom-inline-cancel { position:absolute; right:2px; top:0; bottom:0; border:0; background:transparent; color:inherit; cursor:pointer; width:20px; padding:0; }
 .sftp-root .custom-inline-draft { background:var(--_input-bg); }
 
 .sftp-root .pane-pagination { display:flex; flex:0 0 auto; align-items:center; justify-content:center; gap:8px; padding:4px 10px; font-size:12px; }
 .sftp-root .pane-pagination button { color:inherit; background:transparent; border:1px solid rgba(128,128,128,.35); border-radius:4px; cursor:pointer; min-width:28px; }
 .sftp-root .pane-pagination button:disabled { opacity:.4; cursor:default; }
+
+.sftp-root .sftp-toast { top:42px; bottom:auto; display:flex; align-items:center; gap:10px; }
+.sftp-root .sftp-toast button { border:0; background:transparent; color:inherit; cursor:pointer; font-size:16px; padding:0 2px; }
