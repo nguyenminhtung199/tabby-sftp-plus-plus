@@ -16,10 +16,11 @@ import { PanelTransferRuntime } from './sftp/core/transfer-coordinator'
 import { DownloadOneUseCase, DownloadDirUseCase, UploadPathUseCase } from './sftp/core/transfer-ops'
 import { PasteUseCase } from './sftp/core/paste'
 import { featureApis } from './features/api'
+import { NavigationMemory } from './sftp/core/navigation-memory'
 import { SftpTransferLogService } from './services/sftp-transfer-log.service'
 import { computeSelection } from './sftp/core/selection'
 import { setDateFormatPattern } from './sftp/core/file-utils'
-export const testing={featureApis,TransferLogService:SftpTransferLogService,computeSelection,setDateFormatPattern,Panel:SftpFloatingPanel,FilePane: SftpFilePaneComponent,Menu:SftpContextMenuComponent,LogDialog:SftpTransferLogDialogComponent,PanelRubberBand,PanelFileDnd,PanelTransferRuntime,DownloadOneUseCase,DownloadDirUseCase,UploadPathUseCase,PasteUseCase}
+export const testing={featureApis,NavigationMemory,TransferLogService:SftpTransferLogService,computeSelection,setDateFormatPattern,Panel:SftpFloatingPanel,FilePane: SftpFilePaneComponent,Menu:SftpContextMenuComponent,LogDialog:SftpTransferLogDialogComponent,PanelRubberBand,PanelFileDnd,PanelTransferRuntime,DownloadOneUseCase,DownloadDirUseCase,UploadPathUseCase,PasteUseCase}
 
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'

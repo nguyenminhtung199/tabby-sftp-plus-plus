@@ -422,6 +422,7 @@ export class SftpFilePaneComponent {
   private listListenerCleanup: (() => void) | null = null
   // Selection callbacks keep a stable identity; the state reference explicitly invalidates this view.
   @Input() selectionState: any[] = []
+  @Input() navigationReturnPath = ''
   @Input() cellRevision = 0
   @Input() transientMenuVisible = false
   private pageGroupHeaders = new Map<number, any>()
@@ -506,6 +507,7 @@ export class SftpFilePaneComponent {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.entries || changes.groupRows) this.indexListPages()
     if (changes.pathInput || changes.filterActive || changes.sortBy || changes.sortAsc) this.listPage = 0
+    if (changes.navigationReturnPath && this.navigationReturnPath) this.revealListKey(this.navigationReturnPath)
     if (changes.navFocusKey && this.navFocusKey) this.revealListKey(this.navFocusKey)
     if (this.customInlineEdit?.originalPath) this.revealListKey(this.customInlineEdit.originalPath)
     this.rebuildListPage()

@@ -1,6 +1,6 @@
 {
   "name": "tabby-sftp-plus-plus",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "description": "SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.",
   "keywords": [
     "tabby-plugin",

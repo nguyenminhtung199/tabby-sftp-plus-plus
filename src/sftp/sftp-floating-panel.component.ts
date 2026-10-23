@@ -1,3 +1,5 @@
+import { NavigationMemory } from './core/navigation-memory'
+import { fileList as fileListPolicy } from '../../transfer-policy.json'
 import sendTerminalCommand from '../runtime/terminal-command.cjs'
 import { featureApis, invokeFeature, readFeature, writeFeature } from "../features/api"
 ﻿/**
@@ -3651,6 +3653,69 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     return Number.isNaN(n) ? undefined : n
   }
 
+  localNavigationReturnPath = ''
+  remoteNavigationReturnPath = ''
+  private _navigationMemories: Partial<Record<'local' | 'remote', NavigationMemory>> = {}
+  private _navigationPendingReturn: Partial<Record<'local' | 'remote', { folder: string; scope: unknown; item?: string }>> = {}
+
+  private _navigationScope(side: 'local' | 'remote'): unknown {
+    if (side === 'local') return 'local'
+    const profile = this.profile || this.terminalRef?.profile
+    const options = profile?.options
+    return options?.host || profile?.id ? JSON.stringify([profile?.id, options?.host, options?.port, options?.username || options?.user]) : this.sftpSession
+  }
+
+  private _navigationMemory(side: 'local' | 'remote'): NavigationMemory {
+    this._navigationMemories ||= {}
+    return this._navigationMemories[side] ||= new NavigationMemory(fileListPolicy.navigationMemoryLimit)
+  }
+
+  private _rememberNavigationItem(side: 'local' | 'remote', entry: { fullPath?: string }): void {
+    const folder = side === 'local' ? this.localPath : this.remotePath
+    const api = side === 'local' ? path : path.posix
+    if (!folder || !entry?.fullPath || api.resolve(api.dirname(entry.fullPath)) !== api.resolve(folder)) return
+    const memory = this._navigationMemory(side); memory.activate(this._navigationScope(side)); memory.remember(folder, entry.fullPath)
+    this._navigationPendingReturn ||= {}; delete this._navigationPendingReturn[side]
+    if (side === 'local') { this.localNavigationReturnPath = entry.fullPath; this._localNavFocusKey = entry.fullPath }
+    else { this.remoteNavigationReturnPath = entry.fullPath; this._remoteNavFocusKey = entry.fullPath }
+  }
+
+  private _prepareNavigationReturn(side: 'local' | 'remote', previous: string | null, folder: string): boolean {
+    const memory = this._navigationMemory(side), scope = this._navigationScope(side), changedScope = memory.activate(scope)
+    if (!changedScope && previous === folder) return false
+    const api = side === 'local' ? path : path.posix
+    if (!changedScope && previous) {
+      const focus = side === 'local' ? this._localNavFocusKey : this._remoteNavFocusKey
+      const selected = side === 'local' ? this.selectedLocal : this.selectedRemote
+      const item = focus && !focus.startsWith('\u0000') ? focus : selected[selected.length - 1]?.fullPath
+      if (item && api.resolve(api.dirname(item)) === api.resolve(previous)) memory.remember(previous, item)
+    }
+    const item = memory.get(folder) || (!changedScope && previous && api.resolve(api.dirname(previous)) === api.resolve(folder) ? previous : undefined)
+    this._navigationPendingReturn ||= {}; this._navigationPendingReturn[side] = { folder, scope, item }
+    if (side === 'local') this.localNavigationReturnPath = ''
+    else this.remoteNavigationReturnPath = ''
+    return true
+  }
+
+  private _restoreNavigationReturn(side: 'local' | 'remote', folder: string): void {
+    const pending = this._navigationPendingReturn?.[side]
+    if (!pending || pending.folder !== folder || pending.scope !== this._navigationScope(side) || this._destroyed) return
+    delete this._navigationPendingReturn[side]
+    const list: Array<{ fullPath: string }> = side === 'local' ? this.getFilteredLocalEntries() : this.getFilteredRemoteEntries()
+    const entry = pending.item && list.find(e => e.fullPath === pending.item)
+    if (!entry) return
+    const rows = side === 'local' ? this.getLocalGroupRows() : this.getRemoteGroupRows()
+    const group = rows?.find(row => row.kind === 'header' && row.collapsed && row.items?.some(e => e.fullPath === entry.fullPath))
+    if (group?.bucketKey) {
+      if (side === 'local') { this._localCollapsedGroups.delete(group.bucketKey); this._localCollapsedVersion++ }
+      else { this._remoteCollapsedGroups.delete(group.bucketKey); this._remoteCollapsedVersion++ }
+    }
+    if (side === 'local') this.localNavigationReturnPath = entry.fullPath
+    else this.remoteNavigationReturnPath = entry.fullPath
+    this._safeDetect()
+    this._scrollEntryIntoView(side, entry, 'center')
+  }
+
   // ========== 本地文件 ==========
   async _base_refreshLocal(): Promise<void> {
     this.localPathInput = this.localPath
@@ -3662,7 +3727,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     const requestedPath = this.localPath
     // ★ 2026-09-21 P0 修复：目录切换即丢弃选择（详见 _dropSelection）。必须在 await 之前同步执行，
     //   否则 listing 期间用户按 Delete 仍会命中上一个目录的残留项。
-    if (this._lastLocalListedPath !== requestedPath) {
+    if (this._prepareNavigationReturn('local', this._lastLocalListedPath, requestedPath)) {
       this._lastLocalListedPath = requestedPath
       this._dropSelection('local')
     }
@@ -3740,6 +3805,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
         this._invalidateLocalCache()
         // 同目录刷新：外部已删除/重命名的条目从选择中剔除
         this._pruneSelection('local')
+        this._restoreNavigationReturn('local', requestedPath)
       })
       if (needOwner) {
         void this._enrichLocalOwnerNames(entries)
@@ -3801,6 +3867,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     if (side === 'local') {
       const parent = path.dirname(this.localPath)
       if (parent !== this.localPath) {
+        const memory = this._navigationMemory('local'); memory.activate(this._navigationScope('local')); memory.remember(parent, this.localPath)
         this._pushLocalNav(parent); this.localPath = parent; this.localPathInput = parent
         this.saveCurrentPath(); void this.refreshLocal()
       }
@@ -3808,6 +3875,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       if (!this.connected || this.remotePath === '/') return
       const next = path.posix.dirname(this.remotePath)
       const dest = next === '.' ? '/' : next
+      const memory = this._navigationMemory('remote'); memory.activate(this._navigationScope('remote')); memory.remember(dest, this.remotePath)
       this._pushRemoteNav(dest); this.remotePath = dest; this.remotePathInput = this.remotePath
       this.saveCurrentPath(); void this.refreshRemote()
     }
@@ -3874,7 +3942,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
     const snapshotPath = this.remotePath
     // ★ 2026-09-21 P0 修复：目录切换即丢弃选择（详见 _dropSelection），须在 await 之前同步执行
-    if (this._lastRemoteListedPath !== snapshotPath) {
+    if (this._prepareNavigationReturn('remote', this._lastRemoteListedPath, snapshotPath)) {
       this._lastRemoteListedPath = snapshotPath
       this._dropSelection('remote')
     }
@@ -3893,6 +3961,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
         this._invalidateRemoteCache()
         // 同目录刷新：远端已删除/重命名的条目从选择中剔除
         this._pruneSelection('remote')
+        this._restoreNavigationReturn('remote', snapshotPath)
       })
       if (this._remoteNeedsEnrich()) {
         void this._enrichRemoteMetadata(snapshotPath, entries, refreshGen)
@@ -4360,6 +4429,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     if (this.selectedRemote.length > 0) this.selectedRemote = []
     const r = computeSelection(this.selectedLocal, entry, event, idx, this.localLastSelectedIndex, this.getFilteredLocalEntries(), this._localSelectedPaths)
     this.selectedLocal = r.selection; this.localLastSelectedIndex = r.lastIndex
+    this._rememberNavigationItem('local', entry)
     this.syncPaneSelectionVisual('local')
     this._safeDetect()
   }
@@ -4653,6 +4723,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     if (this.selectedLocal.length > 0) this.selectedLocal = []
     const r = computeSelection(this.selectedRemote, entry, event, idx, this.remoteLastSelectedIndex, this.getFilteredRemoteEntries(), this._remoteSelectedPaths)
     this.selectedRemote = r.selection; this.remoteLastSelectedIndex = r.lastIndex
+    this._rememberNavigationItem('remote', entry)
     this.syncPaneSelectionVisual('remote')
     this._safeDetect()
   }
@@ -5033,6 +5104,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     // isDirectory 优先，mode 位作为兜底
     if (!e.isDirectory && !this.isDirByMode(e.mode)) return
     // ★ 2026-08-24：Windows .lnk 指向目录时，进入目标路径而非 .lnk 文件路径
+    this._rememberNavigationItem('local', e)
     const targetPath = e.linkTarget || e.fullPath
     this._pushLocalNav(targetPath)
     this.localPath = targetPath
@@ -5061,6 +5133,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       isDir = await this._resolveRemoteSymlinkIsDir(e.fullPath)
     }
     if (!isDir) return
+    this._rememberNavigationItem('remote', e)
     this._pushRemoteNav(e.fullPath)
     this.remotePath = e.fullPath
     this.remotePathInput = e.fullPath

@@ -114,7 +114,8 @@
   },
   "newFileOpenFlags": 42,
   "fileList": {
-    "pageSize": 200
+    "pageSize": 200,
+    "navigationMemoryLimit": 200
   },
   "externalEdit": {
     "remoteChangeAction": "overwrite",
