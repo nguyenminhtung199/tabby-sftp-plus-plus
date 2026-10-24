@@ -1969,7 +1969,7 @@ const EXPORT_CATEGORY_FIELDS = {
     ],
     transfer: [
         'transferUploadConcurrency', 'transferDownloadConcurrency', 'transferChannelMode',
-        'conflictDigestEnabled', 'conflictAutoSkipSameContent',
+        'conflictDigestEnabled',
         'conflictDigestMaxSizeMB', 'conflictDigestAlgo',
         'defaultUploadPath', 'defaultDownloadPath',
     ],
@@ -2103,7 +2103,7 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
         this.platformService = platformService;
         this.hostApp = hostApp;
         this.pkgVersion = (__webpack_require__(/*! ../../package.json */ "./package.json").version);
-        this.pkgBuildTime =  true ? "2026-10-24T14:10:20.780Z" : 0;
+        this.pkgBuildTime =  true ? "2026-10-24T15:19:36.629Z" : 0;
         this.themeLabelKeys = {
             '': 'theme.auto',
             dark: 'theme.dark',
@@ -2174,7 +2174,6 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
         this.downloadConcurrency = 3;
         this.transferChannelMode = 'smart';
         this.conflictDigestEnabled = true;
-        this.conflictAutoSkipSameContent = true;
         this.conflictDigestMaxSizeMB = 256;
         this.defaultUploadPath = '';
         this.defaultDownloadPath = '';
@@ -2836,8 +2835,6 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
             }
             if (cfg.conflictDigestEnabled !== undefined)
                 this.conflictDigestEnabled = cfg.conflictDigestEnabled !== false;
-            if (cfg.conflictAutoSkipSameContent !== undefined)
-                this.conflictAutoSkipSameContent = cfg.conflictAutoSkipSameContent !== false;
             if (cfg.conflictDigestMaxSizeMB !== undefined) {
                 this.conflictDigestMaxSizeMB = this._clampDigestMaxMB(cfg.conflictDigestMaxSizeMB);
             }
@@ -2977,7 +2974,6 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
             target.transferDownloadConcurrency = this.downloadConcurrency;
             target.transferChannelMode = this.transferChannelMode;
             target.conflictDigestEnabled = this.conflictDigestEnabled;
-            target.conflictAutoSkipSameContent = this.conflictAutoSkipSameContent;
             target.conflictDigestMaxSizeMB = this.conflictDigestMaxSizeMB;
             target.defaultUploadPath = this.defaultUploadPath;
             target.defaultDownloadPath = this.defaultDownloadPath;
@@ -3735,11 +3731,6 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
         this._saveToConfig();
         this.notifyPanels();
     }
-    toggleConflictAutoSkip() {
-        this.conflictAutoSkipSameContent = !this.conflictAutoSkipSameContent;
-        this._saveToConfig();
-        this.notifyPanels();
-    }
     _clampDigestMaxMB(v) {
         const mb = Number(v);
         if (!Number.isFinite(mb) || mb <= 0)
@@ -3993,7 +3984,7 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
         return out;
     }
     _base_collectAllData() {
-        var _a, _b, _c, _d, _e, _f, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15;
+        var _a, _b, _c, _d, _e, _f, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14;
         const data = {};
         if ((_a = this.configService) === null || _a === void 0 ? void 0 : _a.store) {
             try {
@@ -4021,29 +4012,28 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
                     data.transferDownloadConcurrency = (_w = cfg.transferDownloadConcurrency) !== null && _w !== void 0 ? _w : 3;
                     data.transferChannelMode = (_x = cfg.transferChannelMode) !== null && _x !== void 0 ? _x : 'smart';
                     data.conflictDigestEnabled = (_y = cfg.conflictDigestEnabled) !== null && _y !== void 0 ? _y : true;
-                    data.conflictAutoSkipSameContent = (_z = cfg.conflictAutoSkipSameContent) !== null && _z !== void 0 ? _z : true;
-                    data.conflictDigestMaxSizeMB = (_0 = cfg.conflictDigestMaxSizeMB) !== null && _0 !== void 0 ? _0 : 256;
+                    data.conflictDigestMaxSizeMB = (_z = cfg.conflictDigestMaxSizeMB) !== null && _z !== void 0 ? _z : 256;
                     data.conflictDigestAlgo = cfg.conflictDigestAlgo === 'sha256' ? 'sha256' : 'sha1';
-                    data.defaultUploadPath = (_1 = cfg.defaultUploadPath) !== null && _1 !== void 0 ? _1 : '';
-                    data.defaultDownloadPath = (_2 = cfg.defaultDownloadPath) !== null && _2 !== void 0 ? _2 : '';
-                    data.iconResourceDir = (_3 = cfg.iconResourceDir) !== null && _3 !== void 0 ? _3 : '';
-                    data.fileTypeIcons = (_4 = cfg.fileTypeIcons) !== null && _4 !== void 0 ? _4 : [];
-                    data.disabledIconSvgs = (_5 = cfg.disabledIconSvgs) !== null && _5 !== void 0 ? _5 : [];
-                    data.folderIconSvg = (_6 = cfg.folderIconSvg) !== null && _6 !== void 0 ? _6 : 'folder.svg';
-                    data.openOnClick = (_7 = cfg.openOnClick) !== null && _7 !== void 0 ? _7 : 'double';
-                    data.openUnsupportedInSystem = (_8 = cfg.openUnsupportedInSystem) !== null && _8 !== void 0 ? _8 : true;
-                    data.editableFileExtensions = (_9 = cfg.editableFileExtensions) !== null && _9 !== void 0 ? _9 : [];
+                    data.defaultUploadPath = (_0 = cfg.defaultUploadPath) !== null && _0 !== void 0 ? _0 : '';
+                    data.defaultDownloadPath = (_1 = cfg.defaultDownloadPath) !== null && _1 !== void 0 ? _1 : '';
+                    data.iconResourceDir = (_2 = cfg.iconResourceDir) !== null && _2 !== void 0 ? _2 : '';
+                    data.fileTypeIcons = (_3 = cfg.fileTypeIcons) !== null && _3 !== void 0 ? _3 : [];
+                    data.disabledIconSvgs = (_4 = cfg.disabledIconSvgs) !== null && _4 !== void 0 ? _4 : [];
+                    data.folderIconSvg = (_5 = cfg.folderIconSvg) !== null && _5 !== void 0 ? _5 : 'folder.svg';
+                    data.openOnClick = (_6 = cfg.openOnClick) !== null && _6 !== void 0 ? _6 : 'double';
+                    data.openUnsupportedInSystem = (_7 = cfg.openUnsupportedInSystem) !== null && _7 !== void 0 ? _7 : true;
+                    data.editableFileExtensions = (_8 = cfg.editableFileExtensions) !== null && _8 !== void 0 ? _8 : [];
                     data.allowViewEditAllFiles = resolveAllowViewEditAllFiles(cfg);
                     data.allowEditAllFiles = data.allowViewEditAllFiles;
                     data.allowViewAllAsText = data.allowViewEditAllFiles;
                     data.showTextLineNumbers = cfg.showTextLineNumbers !== false;
                     data.textCaretShape = (0,_tabby_config_provider__WEBPACK_IMPORTED_MODULE_4__.normalizeCaretShape)(cfg.textCaretShape);
-                    data.contextMenuOrder = (_10 = cfg.contextMenuOrder) !== null && _10 !== void 0 ? _10 : [..._sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_14__.DEFAULT_FILE_MENU_ORDER, 'groupBy'];
-                    data.panelHotkeys = (_11 = cfg.panelHotkeys) !== null && _11 !== void 0 ? _11 : (0,_tabby_config_provider__WEBPACK_IMPORTED_MODULE_4__.defaultPanelHotkeys)();
-                    data.hideAuthorInfo = (_12 = cfg.hideAuthorInfo) !== null && _12 !== void 0 ? _12 : false;
-                    data.paneCustomOrder = (_13 = cfg.paneCustomOrder) !== null && _13 !== void 0 ? _13 : ['label', 'back', 'forward', 'up', 'refresh', 'home', 'path', 'hidden', 'filter', 'bookmark'];
-                    data.paneHiddenItems = (_14 = cfg.paneHiddenItems) !== null && _14 !== void 0 ? _14 : [];
-                    if ((_15 = cfg.bookmarks) === null || _15 === void 0 ? void 0 : _15.length)
+                    data.contextMenuOrder = (_9 = cfg.contextMenuOrder) !== null && _9 !== void 0 ? _9 : [..._sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_14__.DEFAULT_FILE_MENU_ORDER, 'groupBy'];
+                    data.panelHotkeys = (_10 = cfg.panelHotkeys) !== null && _10 !== void 0 ? _10 : (0,_tabby_config_provider__WEBPACK_IMPORTED_MODULE_4__.defaultPanelHotkeys)();
+                    data.hideAuthorInfo = (_11 = cfg.hideAuthorInfo) !== null && _11 !== void 0 ? _11 : false;
+                    data.paneCustomOrder = (_12 = cfg.paneCustomOrder) !== null && _12 !== void 0 ? _12 : ['label', 'back', 'forward', 'up', 'refresh', 'home', 'path', 'hidden', 'filter', 'bookmark'];
+                    data.paneHiddenItems = (_13 = cfg.paneHiddenItems) !== null && _13 !== void 0 ? _13 : [];
+                    if ((_14 = cfg.bookmarks) === null || _14 === void 0 ? void 0 : _14.length)
                         data.bookmarks = cfg.bookmarks;
                     if (cfg.pathMemory && Object.keys(cfg.pathMemory).length)
                         data.pathMemory = cfg.pathMemory;
@@ -4055,11 +4045,11 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
                         if (logs)
                             data.transferLogs = JSON.parse(logs);
                     }
-                    catch (_16) { }
+                    catch (_15) { }
                     return data;
                 }
             }
-            catch ( /* ignore */_17) { /* ignore */ }
+            catch ( /* ignore */_16) { /* ignore */ }
         }
         data.layoutMode = load('layoutMode', 'auto');
         data.fontSize = 13;
@@ -4091,32 +4081,31 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
         data.showTextLineNumbers = load('showTextLineNumbers', true);
         data.textCaretShape = (0,_tabby_config_provider__WEBPACK_IMPORTED_MODULE_4__.normalizeCaretShape)(load('textCaretShape', 'beam'));
         data.conflictDigestEnabled = load('conflictDigestEnabled', true);
-        data.conflictAutoSkipSameContent = load('conflictAutoSkipSameContent', true);
         data.conflictDigestMaxSizeMB = load('conflictDigestMaxSizeMB', 256);
         data.conflictDigestAlgo = load('conflictDigestAlgo', 'sha1');
         try {
             data.contextMenuOrder = JSON.parse(localStorage.getItem('sftp-plus-context-menu-order') || '[]');
         }
-        catch (_18) {
+        catch (_17) {
             data.contextMenuOrder = [];
         }
         try {
             data.contextMenuDisabled = JSON.parse(localStorage.getItem('sftp-plus-context-menu-disabled') || '[]');
         }
-        catch (_19) {
+        catch (_18) {
             data.contextMenuDisabled = [];
         }
         data.panelHotkeys = (0,_tabby_config_provider__WEBPACK_IMPORTED_MODULE_4__.defaultPanelHotkeys)();
         try {
             data.paneCustomOrder = JSON.parse(localStorage.getItem('sftp-plus-pane-custom-order') || '["label","back","forward","up","refresh","home","path","hidden","filter","bookmark"]');
         }
-        catch (_20) {
+        catch (_19) {
             data.paneCustomOrder = ['label', 'back', 'forward', 'up', 'refresh', 'home', 'path', 'hidden', 'filter', 'bookmark'];
         }
         try {
             data.paneHiddenItems = JSON.parse(localStorage.getItem('sftp-plus-pane-hidden-items') || '[]');
         }
-        catch (_21) {
+        catch (_20) {
             data.paneHiddenItems = [];
         }
         try {
@@ -4124,13 +4113,13 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
             if (bkm)
                 data.bookmarks = JSON.parse(bkm);
         }
-        catch (_22) { }
+        catch (_21) { }
         try {
             const logs = localStorage.getItem('sftp-plus-transfer-logs');
             if (logs)
                 data.transferLogs = JSON.parse(logs);
         }
-        catch (_23) { }
+        catch (_22) { }
         return data;
     }
     /** Partial backups omit unselected categories rather than resetting their settings. */
@@ -4259,8 +4248,6 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
                         target.transferChannelMode = data.transferChannelMode;
                     if (data.conflictDigestEnabled !== undefined)
                         target.conflictDigestEnabled = data.conflictDigestEnabled !== false;
-                    if (data.conflictAutoSkipSameContent !== undefined)
-                        target.conflictAutoSkipSameContent = data.conflictAutoSkipSameContent !== false;
                     if (data.conflictDigestMaxSizeMB !== undefined) {
                         target.conflictDigestMaxSizeMB = this._clampDigestMaxMB(data.conflictDigestMaxSizeMB);
                     }
@@ -5439,6 +5426,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _core_conflict__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/conflict */ "./src/sftp/core/conflict.ts");
 /* harmony import */ var _core_fs_ops__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../core/fs-ops */ "./src/sftp/core/fs-ops.ts");
 /* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../services/sftp-logger */ "./src/services/sftp-logger.ts");
+const fileOperation = __webpack_require__(/*! ../../runtime/file-operation.cjs */ "./src/runtime/file-operation.cjs");
 
 
 
@@ -5485,7 +5473,6 @@ class PanelConflictResolver {
         });
     }
     async _showConflictDialogAsync() {
-        var _a, _b, _c, _d;
         if (!this._alive)
             return;
         const item = this.host.conflictQueue[0];
@@ -5497,93 +5484,11 @@ class PanelConflictResolver {
             this._detect();
             return;
         }
-        if (!item.isDirectory) {
-            await this._ensureQueueItemDigests(item);
-            const ld = item.localDigest;
-            const rd = item.remoteDigest;
-            if (((_b = (_a = this.host).shouldAutoSkipSameContent) === null || _b === void 0 ? void 0 : _b.call(_a))
-                && ld && rd && ld === rd) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[conflict-dialog] auto-skip identical content:', item.fileName);
-                try {
-                    (_d = (_c = this.host).notifyConflictAutoSkipped) === null || _d === void 0 ? void 0 : _d.call(_c, item.fileName);
-                }
-                catch ( /* ignore */_e) { /* ignore */ }
-                await this._autoSkipHeadAndContinue();
-                return;
-            }
+        if (this.useCase.autoAction(item)) {
+            await this.useCase.processNext();
+            return;
         }
         this._presentConflictDialog(item);
-    }
-    async _autoSkipHeadAndContinue() {
-        if (!this._alive)
-            return;
-        const current = this.host.conflictQueue.shift();
-        if (!current)
-            return;
-        this.host.conflictResolvedKeys.add((0,_core_conflict__WEBPACK_IMPORTED_MODULE_2__.conflictItemKey)(current));
-        if (current.transferCtx) {
-            try {
-                this.host.discardTransferLog(current.transferCtx);
-            }
-            catch ( /* ignore */_a) { /* ignore */ }
-        }
-        if (this.host.conflictQueue.length > 0) {
-            await this._showConflictDialogAsync();
-            return;
-        }
-        this.host.conflictAllMode = 'ask';
-        this.host.conflictOriginalTotal = 1;
-        this.host.selectedLocal = [];
-        this.host.selectedRemote = [];
-        if (this.host.pendingPasteEntries.length > 0) {
-            const entries = this.host.pendingPasteEntries;
-            const destPane = this.host.pendingPasteDestPane;
-            const destPath = this.host.pendingPasteDestPath;
-            const mode = this.host.pendingPasteMode;
-            const source = this.host.pendingPasteSource;
-            const resolvedKeys = new Set(this.host.conflictResolvedKeys);
-            this.host.pendingPasteEntries = [];
-            this.host.pendingPasteDestPane = 'local';
-            this.host.pendingPasteDestPath = '';
-            this.host.pendingPasteMode = 'copy';
-            this.host.pendingPasteSource = 'local';
-            this.host.conflictResolvedKeys.clear();
-            await this.host.executePaste(entries.filter(e => !resolvedKeys.has((0,_core_conflict__WEBPACK_IMPORTED_MODULE_2__.pasteEntryKey)(e))), destPane, destPath, mode, source);
-            if (this.host.conflictQueue.length > 0) {
-                await this._showConflictDialogAsync();
-            }
-        }
-        else {
-            void this.host.refreshRemote();
-            void this.host.refreshLocal();
-        }
-        this._detect();
-    }
-    async _ensureQueueItemDigests(item) {
-        var _a, _b, _c;
-        if (item.localDigest && item.remoteDigest)
-            return;
-        if (!this.host.computeConflictDigests)
-            return;
-        const remoteFilePath = item.remotePath || path__WEBPACK_IMPORTED_MODULE_1__.posix.join(item.remoteDir, item.fileName);
-        try {
-            const { localDigest, remoteDigest } = await this.host.computeConflictDigests({
-                localPath: item.localPath,
-                remotePath: remoteFilePath,
-                localSize: Number((_a = item.localStat) === null || _a === void 0 ? void 0 : _a.size) || undefined,
-                localMtime: Number((_b = item.localStat) === null || _b === void 0 ? void 0 : _b.mtimeMs) || undefined,
-                remoteSize: item.remoteFileSize,
-                remoteMtime: item.remoteFileMtime,
-                samePaneSource: item.isSamePane ? item.samePaneSource : undefined,
-            });
-            if (localDigest)
-                item.localDigest = localDigest;
-            if (remoteDigest)
-                item.remoteDigest = remoteDigest;
-        }
-        catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('[conflict-dialog] ensure digests failed:', (_c = e === null || e === void 0 ? void 0 : e.message) !== null && _c !== void 0 ? _c : e);
-        }
     }
     _presentConflictDialog(item) {
         var _a, _b, _c, _d, _e, _f, _g, _h;
@@ -5602,6 +5507,7 @@ class PanelConflictResolver {
             direction: item.direction,
             isSamePane: (_c = item.isSamePane) !== null && _c !== void 0 ? _c : false,
             isDirectory: isDir,
+            typeMismatch: item.typeMismatch,
             localSizePending: isDir && !knownLocalContent,
             remoteSizePending: isDir,
             localDigest: (_d = item.localDigest) !== null && _d !== void 0 ? _d : null,
@@ -5679,7 +5585,7 @@ class PanelConflictResolver {
                 this.host.conflictData.remoteSizePending = false;
             }
         }
-        if (!isDir && (!item.localDigest || !item.remoteDigest) && this.host.computeConflictDigests) {
+        if (!item.typeMismatch && !isDir && (!item.localDigest || !item.remoteDigest) && this.host.computeConflictDigests) {
             const digestLocalPath = item.localPath;
             const digestRemotePath = remoteFilePath;
             void this.host.computeConflictDigests({
@@ -5717,10 +5623,12 @@ class PanelConflictResolver {
         const host = this.host;
         return {
             execution: {
+                cleanupMoveFolders: ctx => { var _a; return ((_a = host.cleanupMoveFolders) === null || _a === void 0 ? void 0 : _a.call(host, ctx)) || Promise.resolve(); },
+                isCurrentSession: session => host.sftpSession === session,
                 mergeLocalDirToRemote: (localSrc, remoteDest, reuseLogEntryId) => host.mergeLocalDirToRemote(localSrc, remoteDest, reuseLogEntryId),
                 downloadRemoteDir: (remotePath, localDestParent, localName, forceOverwrite) => host.downloadRemoteDir(remotePath, localDestParent, 'local', undefined, localName, forceOverwrite),
-                doDownload: (remotePath, localPath, mode, size) => host.doDownload(remotePath, localPath, mode, size),
-                doUpload: (remotePath, localPath) => host.doUpload(remotePath, localPath),
+                doDownload: (remotePath, localPath, mode, size, progress) => host.doDownload(remotePath, localPath, mode, size, progress),
+                doUpload: (remotePath, localPath, progress) => host.doUpload(remotePath, localPath, progress),
                 copyLocalDir: (src, dest) => host.copyLocalDir(src, dest),
                 copyLocalFile: async (src, dest) => {
                     try {
@@ -5739,11 +5647,13 @@ class PanelConflictResolver {
                 renameRemote: (src, dest) => host.renameRemote(src, dest),
                 statLocal: async (p) => {
                     try {
-                        const st = await fs_promises__WEBPACK_IMPORTED_MODULE_0__.stat(p);
+                        const st = await fs_promises__WEBPACK_IMPORTED_MODULE_0__.lstat(p);
                         return { isDirectory: st.isDirectory() };
                     }
-                    catch (_a) {
-                        return null;
+                    catch (error) {
+                        if (error.code === 'ENOENT')
+                            return null;
+                        throw error;
                     }
                 },
                 readdirRemote: async (parentDir) => {
@@ -5758,10 +5668,12 @@ class PanelConflictResolver {
                 },
                 deleteLocalRecursive: async (p) => { await (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_3__.deleteLocalRecursive)(p); },
                 deleteRemoteRecursive: async (p) => { await (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_3__.deleteRemoteRecursive)(host.sftpSession, p); },
+                updateFolderProgress: (...args) => { var _a; return (_a = host.updateFolderProgress) === null || _a === void 0 ? void 0 : _a.call(host, ...args); },
                 markTransferSucceeded: (ctx) => host.markTransferSucceeded(ctx),
                 discardTransferLog: (ctx) => host.discardTransferLog(ctx),
             },
             pendingPaste: {
+                getBatch: () => { var _a; return (_a = host.pendingPasteEntries[0]) === null || _a === void 0 ? void 0 : _a.batch; },
                 hasPendingPaste: () => host.pendingPasteEntries.length > 0,
                 restoreClipboardFromPending: () => {
                     host.clipboardEntries = host.pendingPasteEntries.slice();
@@ -5769,6 +5681,8 @@ class PanelConflictResolver {
                     host.clipboardMode = host.pendingPasteMode;
                 },
                 clearPending: () => {
+                    for (const batch of new Set(host.pendingPasteEntries.map((e) => e.batch)))
+                        fileOperation.finish(batch);
                     host.pendingPasteEntries = [];
                 },
                 resumePaste: async (resolvedKeys) => {
@@ -5782,12 +5696,19 @@ class PanelConflictResolver {
                     host.pendingPasteDestPath = '';
                     host.pendingPasteMode = 'copy';
                     host.pendingPasteSource = 'local';
-                    await host.executePaste(entries.filter(e => !resolvedKeys.has((0,_core_conflict__WEBPACK_IMPORTED_MODULE_2__.pasteEntryKey)(e))), destPane, destPath, mode, source);
+                    try {
+                        await host.executePaste(entries.filter(e => !resolvedKeys.has((0,_core_conflict__WEBPACK_IMPORTED_MODULE_2__.pasteEntryKey)(e))), destPane, destPath, mode, source, resolvedKeys);
+                    }
+                    finally {
+                        for (const batch of new Set(entries.map((e) => e.batch)))
+                            fileOperation.finish(batch);
+                    }
                 },
             },
             queue: {
                 shift: () => host.conflictQueue.shift(),
                 clear: () => { host.conflictQueue = []; },
+                replace: items => { host.conflictQueue = items; },
                 length: () => host.conflictQueue.length,
                 snapshot: () => host.conflictQueue.slice(),
                 markResolved: (key) => { host.conflictResolvedKeys.add(key); },
@@ -5799,6 +5720,9 @@ class PanelConflictResolver {
                 resetOriginalTotal: () => { host.conflictOriginalTotal = 1; },
             },
             ui: {
+                reportError: (name, error) => { var _a; return (_a = host.notifyConflictError) === null || _a === void 0 ? void 0 : _a.call(host, name, error); },
+                onResolved: (item, action) => { var _a; return (_a = host.onConflictResolved) === null || _a === void 0 ? void 0 : _a.call(host, item, action); },
+                cancelBatch: batch => { var _a; return (_a = host.cancelBatch) === null || _a === void 0 ? void 0 : _a.call(host, batch); },
                 hideDialog: () => { host.showConflictDialog = false; },
                 clearSelection: () => {
                     host.selectedLocal = [];
@@ -9886,6 +9810,16 @@ let SftpTransferQueueComponent = class SftpTransferQueueComponent {
             ? `⬆ ${this.i18n.t('transfer.upload')}：${local} → ${remote}`
             : `⬇ ${this.i18n.t('transfer.download')}：${remote} → ${local}`;
     }
+    phaseLabel(t) {
+        if (!t.isFolder)
+            return '';
+        if (t.waitingForServer)
+            return 'Waiting for server…';
+        return { preparing: 'Preparing folder…', scanning: 'Scanning files…', checking: 'Checking existing files…', extracting: 'Extracting files…', waiting: 'Waiting for file conflict decisions…' }[t.phase || ''] || '';
+    }
+    indeterminate(t) {
+        return !!t.isFolder && (['preparing', 'scanning', 'checking', 'extracting', 'waiting'].includes(t.phase || '') || (!(t.bytesTotal > 0) && !(t.itemCount > 0)));
+    }
     modeOf(t) {
         if (t.queued || t.skippedAsDuplicate)
             return null;
@@ -11982,25 +11916,28 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   parseRemoteMtime: () => (/* binding */ parseRemoteMtime),
 /* harmony export */   pasteEntryKey: () => (/* binding */ pasteEntryKey)
 /* harmony export */ });
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! path */ "path");
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! fs/promises */ "fs/promises");
-/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(fs_promises__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _transfer_types__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./transfer-types */ "./src/sftp/core/transfer-types.ts");
-/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../services/sftp-logger */ "./src/services/sftp-logger.ts");
+/* harmony import */ var _transfer_progress__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./transfer-progress */ "./src/sftp/core/transfer-progress.ts");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! fs/promises */ "fs/promises");
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(fs_promises__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _transfer_types__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./transfer-types */ "./src/sftp/core/transfer-types.ts");
+/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../services/sftp-logger */ "./src/services/sftp-logger.ts");
+
+const fileOperation = __webpack_require__(/*! ../../runtime/file-operation.cjs */ "./src/runtime/file-operation.cjs");
 
 
 
 
 function conflictItemKey(item) {
-    var _a;
-    return (_a = item.entryKey) !== null && _a !== void 0 ? _a : `${item.direction}|${item.remotePath}|${item.localPath}`;
+    var _a, _b;
+    return (_a = item.entryKey) !== null && _a !== void 0 ? _a : `${((_b = item.batch) === null || _b === void 0 ? void 0 : _b.id) || ''}|${item.direction}|${item.remotePath}|${item.localPath}`;
 }
 function pasteEntryKey(e) {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     const pane = (_a = e.sourcePane) !== null && _a !== void 0 ? _a : 'local';
-    const p = pane === 'remote' ? ((_b = e.remotePath) !== null && _b !== void 0 ? _b : e.name) : ((_c = e.fullPath) !== null && _c !== void 0 ? _c : e.name);
-    return `${pane}|${p}`;
+    const p = (_c = (_b = e.fullPath) !== null && _b !== void 0 ? _b : e.remotePath) !== null && _c !== void 0 ? _c : e.name;
+    return `${((_d = e.batch) === null || _d === void 0 ? void 0 : _d.id) || ''}|${pane}|${p}`;
 }
 function normalizeConflictAction(action) {
     if (action === 'overwrite-all')
@@ -12014,17 +11951,11 @@ function normalizeConflictAction(action) {
     }
     return { action: 'skip', allMode: null };
 }
-let _renameCounter = 0;
-function buildConflictRenameName(fileName) {
-    const ext = path__WEBPACK_IMPORTED_MODULE_0__.extname(fileName);
-    const nameNoExt = path__WEBPACK_IMPORTED_MODULE_0__.basename(fileName, ext);
-    const suffix = Date.now().toString(36).toUpperCase() + (++_renameCounter).toString(36).toUpperCase() + Math.floor(Math.random() * 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
-    return `${nameNoExt}_${suffix}${ext}`;
+function buildConflictRenameName(fileName, index = 2) {
+    const ext = path__WEBPACK_IMPORTED_MODULE_1__.extname(fileName), base = path__WEBPACK_IMPORTED_MODULE_1__.basename(fileName, ext);
+    return base + ' (' + index + ')' + ext;
 }
-function buildConflictRenameDirName(dirName) {
-    const suffix = Date.now().toString(36).toUpperCase() + (++_renameCounter).toString(36).toUpperCase() + Math.floor(Math.random() * 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
-    return `${dirName}_${suffix}`;
-}
+function buildConflictRenameDirName(name, index = 2) { return name + ' (' + index + ')'; }
 const EPOCH_THRESHOLD_MS = 86400000;
 function parseRemoteMtime(st) {
     var _a, _b, _c, _d, _e, _f;
@@ -12048,30 +11979,55 @@ class ConflictResolveUseCase {
     constructor(ports) {
         this.ports = ports;
         this._processing = false;
+        this.legacyActions = new WeakMap();
         this._ctxHadSuccess = new Set();
     }
+    autoAction(item) {
+        var _a;
+        const action = ((_a = item.batch) === null || _a === void 0 ? void 0 : _a.decision) || this.legacyActions.get(item) || 'ask';
+        return action === 'ask' || (action === 'overwrite' && item.typeMismatch) ? null : action;
+    }
     async resolve(action) {
+        var _a, _b, _c, _d;
         if (this._processing)
             return;
         this._processing = true;
         try {
             this.ports.ui.hideDialog();
             const { action: normalized, allMode } = normalizeConflictAction(action);
-            if (allMode)
-                this.ports.queue.setAllMode(allMode);
             const current = this.ports.queue.shift();
             if (!current) {
                 await this._drainQueue();
                 return;
             }
+            if (allMode) {
+                this.ports.queue.setAllMode(allMode);
+                if (current.batch)
+                    current.batch.decision = allMode;
+                else
+                    for (const item of [current, ...this.ports.queue.snapshot()])
+                        if (!item.batch)
+                            this.legacyActions.set(item, allMode);
+            }
+            let outcome = normalized;
             let shouldContinue = true;
             try {
                 shouldContinue = await this.applyAction(current, normalized);
             }
             catch (e) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.error('Conflict resolve failed for item', current.fileName, e);
+                outcome = 'error';
+                if (current.transferCtx) {
+                    current.transferCtx.failed = true;
+                    this._flipTransferLog(current, true);
+                }
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.error('Conflict resolve failed for item', current.fileName, e);
+                (_b = (_a = this.ports.ui).reportError) === null || _b === void 0 ? void 0 : _b.call(_a, current.fileName, e);
             }
-            if (shouldContinue)
+            finally {
+                fileOperation.settle(current);
+                (_d = (_c = this.ports.ui).onResolved) === null || _d === void 0 ? void 0 : _d.call(_c, current, outcome);
+            }
+            if (shouldContinue || this.ports.queue.length())
                 await this._drainQueue();
         }
         finally {
@@ -12079,6 +12035,7 @@ class ConflictResolveUseCase {
         }
     }
     async _drainQueue() {
+        var _a, _b, _c, _d;
         if (this.ports.queue.length() === 0) {
             this.ports.queue.resetAllMode();
             this.ports.queue.resetOriginalTotal();
@@ -12096,116 +12053,200 @@ class ConflictResolveUseCase {
             }
             return;
         }
-        if (this.ports.queue.getAllMode() !== 'ask') {
-            const item = this.ports.queue.shift();
-            const mode = this.ports.queue.getAllMode();
-            if (item && mode !== 'ask') {
-                try {
-                    await this.applyAction(item, mode);
-                }
-                catch (e) {
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.error('Conflict resolve failed for item', item.fileName, e);
-                }
+        while (this.ports.queue.length() > 0) {
+            const head = this.ports.queue.snapshot()[0];
+            const mode = head && this.autoAction(head);
+            if (!mode) {
+                this.ports.ui.showNextDialog();
+                return;
             }
-            await this._drainQueue();
-            return;
+            const item = this.ports.queue.shift();
+            let outcome = mode;
+            try {
+                await this.applyAction(item, mode);
+            }
+            catch (error) {
+                outcome = 'error';
+                if (item.transferCtx) {
+                    item.transferCtx.failed = true;
+                    this._flipTransferLog(item, true);
+                }
+                ;
+                (_b = (_a = this.ports.ui).reportError) === null || _b === void 0 ? void 0 : _b.call(_a, item.fileName, error);
+            }
+            finally {
+                fileOperation.settle(item);
+                (_d = (_c = this.ports.ui).onResolved) === null || _d === void 0 ? void 0 : _d.call(_c, item, outcome);
+            }
         }
-        this.ports.ui.showNextDialog();
+        await this._drainQueue();
     }
     async applyAction(item, action) {
-        var _a, _b;
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         this.ports.queue.markResolved(conflictItemKey(item));
         const exec = this.ports.execution;
+        if (action !== 'cancel' && (((_a = item.batch) === null || _a === void 0 ? void 0 : _a.cancelled) || ((_c = (_b = item.transferCtx) === null || _b === void 0 ? void 0 : _b.t) === null || _c === void 0 ? void 0 : _c._aborted)))
+            throw new Error('Transfer cancelled; source retained.');
+        if (action !== 'cancel' && ((_d = item.transferCtx) === null || _d === void 0 ? void 0 : _d.session) && exec.isCurrentSession && !exec.isCurrentSession(item.transferCtx.session))
+            throw new Error('The SFTP session changed; source retained.');
         switch (action) {
             case 'cancel': {
+                const cancelled = this.ports.queue.snapshot().filter(q => !item.batch || q.batch === item.batch);
+                if (item.batch) {
+                    item.batch.cancelled = true;
+                    (_f = (_e = this.ports.ui).cancelBatch) === null || _f === void 0 ? void 0 : _f.call(_e, item.batch);
+                }
                 this._discardConflictTransferLog(item, true);
-                for (const q of this.ports.queue.snapshot())
+                for (const q of cancelled) {
                     this._discardConflictTransferLog(q, true);
+                    fileOperation.settle(q);
+                    (_h = (_g = this.ports.ui).onResolved) === null || _h === void 0 ? void 0 : _h.call(_g, q, 'cancel');
+                }
                 this._ctxHadSuccess.clear();
-                this.ports.queue.clear();
-                this.ports.pendingPaste.restoreClipboardFromPending();
-                this.ports.pendingPaste.clearPending();
-                this.ports.queue.clearResolvedKeys();
+                if (item.batch && this.ports.queue.replace)
+                    this.ports.queue.replace(this.ports.queue.snapshot().filter(q => q.batch !== item.batch));
+                else
+                    this.ports.queue.clear();
+                this.ports.queue.resetAllMode();
+                if (!item.batch || !this.ports.pendingPaste.getBatch || this.ports.pendingPaste.getBatch() === item.batch) {
+                    this.ports.pendingPaste.restoreClipboardFromPending();
+                    this.ports.pendingPaste.clearPending();
+                }
+                if (!item.batch)
+                    this.ports.queue.clearResolvedKeys();
                 return false;
             }
             case 'skip':
+                if (item.transferCtx)
+                    (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderSkipped)({ updateProgress: (...args) => { var _a, _b; return (_b = (_a = this.ports.execution).updateFolderProgress) === null || _b === void 0 ? void 0 : _b.call(_a, args[0], args[1], args[2], args[3], args[4]); } }, item.transferCtx, item.fileName, item.direction === 'upload' ? item.localStat.size : item.remoteFileSize || 0);
+                await this.cleanupMoveFolders(item);
                 this._finalizeSharedCtxOnSkip(item);
                 return true;
             case 'overwrite':
+                if (item.typeMismatch)
+                    throw new Error('A file cannot replace a folder, or a folder replace a file. Choose Keep both or Skip.');
                 if (item.isSamePane) {
                     const outcome = await this._samePaneOverwrite(item);
+                    if (outcome === 'failed')
+                        throw new Error('Could not replace the destination; source retained.');
                     if (outcome === 'copied')
                         await this._deleteSourceIfCut(item, true);
                 }
                 else if (item.isDirectory) {
                     let ok;
                     if (item.direction === 'upload') {
-                        ok = await exec.mergeLocalDirToRemote(item.localPath, item.remotePath, (_a = item.transferCtx) === null || _a === void 0 ? void 0 : _a.logEntryId);
+                        ok = await exec.mergeLocalDirToRemote(item.localPath, item.remotePath);
                     }
                     else {
-                        ok = await exec.downloadRemoteDir(item.remotePath, path__WEBPACK_IMPORTED_MODULE_0__.dirname(item.localPath), undefined, true);
-                        this._flipTransferLog(item, ok);
+                        ok = await exec.downloadRemoteDir(item.remotePath, path__WEBPACK_IMPORTED_MODULE_1__.dirname(item.localPath), undefined, true);
                     }
+                    if (!ok)
+                        throw new Error('Folder transfer did not finish; source retained.');
                     await this._deleteSourceIfCut(item, ok);
+                    await this.cleanupMoveFolders(item);
+                    this._flipTransferLog(item, ok);
                 }
                 else if (item.direction === 'download') {
-                    const ok = await exec.doDownload(item.remotePath, item.localPath, 0o644, item.remoteFileSize);
+                    const ok = await this.transferFile(item, item.remotePath, item.localPath);
                     await this._deleteSourceIfCut(item, ok);
+                    await this.cleanupMoveFolders(item);
                     this._flipTransferLog(item, ok);
                 }
                 else {
-                    const ok = await exec.doUpload(item.remotePath, item.localPath);
+                    const ok = await this.transferFile(item, item.remotePath, item.localPath);
                     await this._deleteSourceIfCut(item, ok);
+                    await this.cleanupMoveFolders(item);
                     this._flipTransferLog(item, ok);
                 }
+                await this.cleanupMoveFolders(item);
                 return true;
             case 'rename': {
                 if (item.isSamePane) {
-                    const newName = item.isDirectory
-                        ? buildConflictRenameDirName(item.fileName)
-                        : buildConflictRenameName(item.fileName);
+                    const newName = await this.availableName(item);
                     const outcome = await this._samePaneRename(item, newName);
+                    if (outcome === 'failed')
+                        throw new Error('Could not keep both files; source retained.');
                     if (outcome === 'copied')
                         await this._deleteSourceIfCut(item, true);
                     return true;
                 }
                 if (item.isDirectory) {
-                    const newName = buildConflictRenameDirName(item.fileName);
+                    const newName = await this.availableName(item);
                     let ok;
                     if (item.direction === 'upload') {
-                        const newRemote = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(item.remoteDir, newName);
-                        ok = await exec.mergeLocalDirToRemote(item.localPath, newRemote, (_b = item.transferCtx) === null || _b === void 0 ? void 0 : _b.logEntryId);
+                        const newRemote = path__WEBPACK_IMPORTED_MODULE_1__.posix.join(item.remoteDir, newName);
+                        ok = await exec.mergeLocalDirToRemote(item.localPath, newRemote);
                     }
                     else {
-                        ok = await exec.downloadRemoteDir(item.remotePath, path__WEBPACK_IMPORTED_MODULE_0__.dirname(item.localPath), newName, true);
-                        this._flipTransferLog(item, ok);
+                        ok = await exec.downloadRemoteDir(item.remotePath, path__WEBPACK_IMPORTED_MODULE_1__.dirname(item.localPath), newName, true);
                     }
+                    if (!ok)
+                        throw new Error('Folder transfer did not finish; source retained.');
                     await this._deleteSourceIfCut(item, ok);
+                    await this.cleanupMoveFolders(item);
+                    this._flipTransferLog(item, ok);
                     return true;
                 }
-                const newName = buildConflictRenameName(item.fileName);
+                const newName = await this.availableName(item);
                 if (item.direction === 'download') {
-                    const newLocal = path__WEBPACK_IMPORTED_MODULE_0__.join(path__WEBPACK_IMPORTED_MODULE_0__.dirname(item.localPath), newName);
-                    const ok = await exec.doDownload(item.remotePath, newLocal, 0o644, item.remoteFileSize);
+                    const newLocal = path__WEBPACK_IMPORTED_MODULE_1__.join(path__WEBPACK_IMPORTED_MODULE_1__.dirname(item.localPath), newName);
+                    const ok = await this.transferFile(item, item.remotePath, newLocal);
                     await this._deleteSourceIfCut(item, ok);
+                    await this.cleanupMoveFolders(item);
                     this._flipTransferLog(item, ok);
                 }
                 else {
-                    const newRemote = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(item.remoteDir, newName);
-                    const ok = await exec.doUpload(newRemote, item.localPath);
+                    const newRemote = path__WEBPACK_IMPORTED_MODULE_1__.posix.join(item.remoteDir, newName);
+                    const ok = await this.transferFile(item, newRemote, item.localPath);
                     await this._deleteSourceIfCut(item, ok);
+                    await this.cleanupMoveFolders(item);
                     this._flipTransferLog(item, ok);
                 }
+                await this.cleanupMoveFolders(item);
                 return true;
             }
         }
     }
+    async availableName(item) {
+        const local = item.isSamePane ? item.samePaneSource === 'local' : item.direction === 'download';
+        const api = local ? path__WEBPACK_IMPORTED_MODULE_1__ : path__WEBPACK_IMPORTED_MODULE_1__.posix, folder = local || item.isSamePane ? api.dirname(item.localPath) : item.remoteDir;
+        const remoteNames = local ? null : new Set((await this.ports.execution.readdirRemote(folder)).map(e => e.name));
+        for (let index = 2; index < 10000; index++) {
+            const name = item.isDirectory ? buildConflictRenameDirName(item.fileName, index) : buildConflictRenameName(item.fileName, index);
+            if (local ? !await this.ports.execution.statLocal(api.join(folder, name)) : !remoteNames.has(name))
+                return name;
+        }
+        throw new Error('Could not find an unused copy name.');
+    }
+    async transferFile(item, remote, local) {
+        const folder = { updateProgress: (ctx, bytes, name, done, size) => { var _a, _b; return (_b = (_a = this.ports.execution).updateFolderProgress) === null || _b === void 0 ? void 0 : _b.call(_a, ctx, bytes, name, done, size); } };
+        const size = item.direction === 'upload' ? item.localStat.size : item.remoteFileSize || 0;
+        const progress = (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderFileProgress)(folder, item.transferCtx, local + '|' + remote, item.fileName, size);
+        let ok = false;
+        try {
+            ok = item.direction === 'upload' ? await this.ports.execution.doUpload(remote, local, item.transferCtx ? progress.report : undefined) : await this.ports.execution.doDownload(remote, local, 0o644, item.remoteFileSize, item.transferCtx ? progress.report : undefined);
+        }
+        finally {
+            progress.finish(ok);
+        }
+        if (!ok) {
+            if (item.transferCtx)
+                item.transferCtx.failed = true;
+            throw new Error('File transfer did not finish; source retained.');
+        }
+        return ok;
+    }
+    async cleanupMoveFolders(item) {
+        var _a, _b, _c;
+        if (((_a = item.transferCtx) === null || _a === void 0 ? void 0 : _a.moveSource) && !this._remainingSharedCtxCount(item))
+            await ((_c = (_b = this.ports.execution).cleanupMoveFolders) === null || _c === void 0 ? void 0 : _c.call(_b, item.transferCtx));
+    }
     _remainingSharedCtxCount(item) {
-        var _a;
+        var _a, _b;
         const id = (_a = item.transferCtx) === null || _a === void 0 ? void 0 : _a.logEntryId;
         if (id == null || id === '')
             return 0;
-        return this.ports.queue.snapshot().filter(q => { var _a; return ((_a = q.transferCtx) === null || _a === void 0 ? void 0 : _a.logEntryId) === id; }).length;
+        return this.ports.queue.snapshot().filter(q => { var _a; return ((_a = q.transferCtx) === null || _a === void 0 ? void 0 : _a.logEntryId) === id; }).length + (((_b = item.transferCtx) === null || _b === void 0 ? void 0 : _b.producing) ? 1 : 0);
     }
     _flipTransferLog(item, ok) {
         if (!ok || !item.transferCtx)
@@ -12228,15 +12269,12 @@ class ConflictResolveUseCase {
         if (this._remainingSharedCtxCount(item) > 0)
             return;
         const id = item.transferCtx.logEntryId;
-        if (id && this._ctxHadSuccess.has(id)) {
-            try {
-                this.ports.execution.markTransferSucceeded(item.transferCtx);
-            }
-            catch ( /* ignore */_a) { /* ignore */ }
-            this._ctxHadSuccess.delete(id);
-            return;
+        try {
+            this.ports.execution.markTransferSucceeded(item.transferCtx);
         }
-        this._discardConflictTransferLog(item, true);
+        catch ( /* ignore */_a) { /* ignore */ }
+        if (id)
+            this._ctxHadSuccess.delete(id);
     }
     _discardConflictTransferLog(item, force = false) {
         if (!item.transferCtx)
@@ -12263,7 +12301,7 @@ class ConflictResolveUseCase {
         if (item.mode !== 'cut')
             return;
         if (!transferOk) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.warn('Cut source delete skipped: transfer not completed', item.fileName);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('Cut source delete skipped: transfer not completed', item.fileName);
             return;
         }
         const exec = this.ports.execution;
@@ -12297,7 +12335,8 @@ class ConflictResolveUseCase {
             }
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.error('Cut source delete failed', item.remotePath, e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.error('Cut source delete failed', item.remotePath, e);
+            throw e;
         }
     }
     async _samePaneOverwrite(item) {
@@ -12305,7 +12344,7 @@ class ConflictResolveUseCase {
         const dest = item.localPath;
         const exec = this.ports.execution;
         const sameFile = item.samePaneSource === 'local'
-            ? path__WEBPACK_IMPORTED_MODULE_0__.resolve(src) === path__WEBPACK_IMPORTED_MODULE_0__.resolve(dest)
+            ? path__WEBPACK_IMPORTED_MODULE_1__.resolve(src) === path__WEBPACK_IMPORTED_MODULE_1__.resolve(dest)
             : src === dest;
         if (sameFile)
             return 'failed';
@@ -12321,7 +12360,7 @@ class ConflictResolveUseCase {
                 return 'copied';
             }
             catch (e) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.error('Same-pane overwrite failed', e);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.error('Same-pane overwrite failed', e);
                 return 'failed';
             }
         }
@@ -12334,7 +12373,7 @@ class ConflictResolveUseCase {
                     return 'moved';
                 }
                 catch (e) {
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('same-pane dir cut: rename failed, falling back to copy+delete:', src, '->', dest, e);
+                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('same-pane dir cut: rename failed, falling back to copy+delete:', src, '->', dest, e);
                 }
             }
             if (item.mode === 'cut' && !item.isDirectory) {
@@ -12366,8 +12405,8 @@ class ConflictResolveUseCase {
                     }
                 }
             }
-            const parentDir = path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(src);
-            const baseName = path__WEBPACK_IMPORTED_MODULE_0__.posix.basename(src);
+            const parentDir = path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname(src);
+            const baseName = path__WEBPACK_IMPORTED_MODULE_1__.posix.basename(src);
             const parentEntries = await exec.readdirRemote(parentDir);
             const srcEntry = parentEntries.find(e => e.name === baseName);
             if (!srcEntry)
@@ -12377,17 +12416,17 @@ class ConflictResolveUseCase {
             return 'copied';
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.error('Same-pane remote overwrite failed', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.error('Same-pane remote overwrite failed', e);
             return 'failed';
         }
     }
     async _samePaneRename(item, newName) {
         const src = item.remotePath;
-        const destDir = path__WEBPACK_IMPORTED_MODULE_0__.dirname(item.localPath);
-        const dest = path__WEBPACK_IMPORTED_MODULE_0__.join(destDir, newName);
+        const destDir = path__WEBPACK_IMPORTED_MODULE_1__.dirname(item.localPath);
+        const dest = path__WEBPACK_IMPORTED_MODULE_1__.join(destDir, newName);
         const exec = this.ports.execution;
         const sameFile = item.samePaneSource === 'local'
-            ? path__WEBPACK_IMPORTED_MODULE_0__.resolve(src) === path__WEBPACK_IMPORTED_MODULE_0__.resolve(dest)
+            ? path__WEBPACK_IMPORTED_MODULE_1__.resolve(src) === path__WEBPACK_IMPORTED_MODULE_1__.resolve(dest)
             : src === dest;
         if (sameFile)
             return 'failed';
@@ -12396,7 +12435,7 @@ class ConflictResolveUseCase {
                 const st = await exec.statLocal(src);
                 if (!st)
                     return 'failed';
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('_samePaneRename local:', { src, dest, isDir: st.isDirectory });
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('_samePaneRename local:', { src, dest, isDir: st.isDirectory });
                 if (st.isDirectory)
                     await exec.copyLocalDir(src, dest);
                 else
@@ -12404,21 +12443,21 @@ class ConflictResolveUseCase {
                 return 'copied';
             }
             catch (e) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.error('Same-pane rename failed', e);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.error('Same-pane rename failed', e);
                 return 'failed';
             }
         }
         if (!exec.hasSftpSession())
             return 'failed';
         try {
-            const destRemote = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(item.localPath), newName);
+            const destRemote = path__WEBPACK_IMPORTED_MODULE_1__.posix.join(path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname(item.localPath), newName);
             if (item.mode === 'cut' && item.isDirectory) {
                 try {
                     await exec.renameRemote(src, destRemote);
                     return 'moved';
                 }
                 catch (e) {
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('same-pane dir cut-rename failed, falling back to copy+delete:', src, '->', destRemote, e);
+                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('same-pane dir cut-rename failed, falling back to copy+delete:', src, '->', destRemote, e);
                 }
             }
             if (item.mode === 'cut' && !item.isDirectory) {
@@ -12450,8 +12489,8 @@ class ConflictResolveUseCase {
                     }
                 }
             }
-            const parentDir = path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(src);
-            const baseName = path__WEBPACK_IMPORTED_MODULE_0__.posix.basename(src);
+            const parentDir = path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname(src);
+            const baseName = path__WEBPACK_IMPORTED_MODULE_1__.posix.basename(src);
             const parentEntries = await exec.readdirRemote(parentDir);
             const srcEntry = parentEntries.find(e => e.name === baseName);
             if (!srcEntry)
@@ -12461,13 +12500,13 @@ class ConflictResolveUseCase {
             return 'copied';
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.error('Same-pane remote rename failed', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.error('Same-pane remote rename failed', e);
             return 'failed';
         }
     }
 }
 class SftpConflictDetector {
-    constructor(getSession, mtimeToleranceMs = _transfer_types__WEBPACK_IMPORTED_MODULE_2__.DEFAULT_MTIME_TOLERANCE_MS, digest = null, isAutoSkipSameContent = () => true, onAutoSkipped = () => { }) {
+    constructor(getSession, mtimeToleranceMs = _transfer_types__WEBPACK_IMPORTED_MODULE_3__.DEFAULT_MTIME_TOLERANCE_MS, digest = null, isAutoSkipSameContent = () => false, onAutoSkipped = () => { }) {
         this.getSession = getSession;
         this.mtimeToleranceMs = mtimeToleranceMs;
         this.digest = digest;
@@ -12493,6 +12532,7 @@ class SftpConflictDetector {
                     map.set(e.name, {
                         size: size != null && Number.isFinite(size) ? size : undefined,
                         mtime: parseRemoteMtime(e),
+                        isDirectory: typeof e.isDirectory === 'function' ? e.isDirectory() : !!e.isDirectory,
                     });
                 }
             }
@@ -12514,25 +12554,40 @@ class SftpConflictDetector {
         return p;
     }
     async checkUploadConflict(remotePath, localPath, localSize, localMtime) {
-        var _a, _b;
+        var _a, _b, _c, _d, _e, _f;
         const session = this.getSession();
         if (!session)
             return { kind: 'no-conflict' };
-        const parentDir = path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(remotePath);
-        const fileName = path__WEBPACK_IMPORTED_MODULE_0__.basename(remotePath);
+        const parentDir = path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname(remotePath);
+        const fileName = path__WEBPACK_IMPORTED_MODULE_1__.basename(remotePath);
         let remoteSize;
         let remoteMtime;
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('[check-upload-conflict] remotePath:', remotePath, 'localSize:', localSize, 'localMtime:', localMtime);
-        const listing = await this._getDirListing(parentDir);
-        const found = listing.get(fileName);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[check-upload-conflict] remotePath:', remotePath, 'localSize:', localSize, 'localMtime:', localMtime);
+        let found;
+        if (session.stat) {
+            try {
+                const st = await session.stat(remotePath);
+                const isDirectory = typeof st.isDirectory === 'function' ? st.isDirectory() : (_a = st.isDirectory) !== null && _a !== void 0 ? _a : ((Number(st.mode || ((_b = st.attrs) === null || _b === void 0 ? void 0 : _b.mode)) || 0) & 0o170000) === 0o040000;
+                found = { size: (_c = st.size) !== null && _c !== void 0 ? _c : (_d = st.attrs) === null || _d === void 0 ? void 0 : _d.size, mtime: parseRemoteMtime(st), isDirectory };
+            }
+            catch (error) {
+                if (error.code === 'ENOENT' || /no such file|not found|does not exist/i.test(error.message))
+                    return { kind: 'no-conflict' };
+                throw error;
+            }
+        }
+        else
+            found = (await this._getDirListing(parentDir)).get(fileName);
+        if (found === null || found === void 0 ? void 0 : found.isDirectory)
+            return { kind: 'conflict', info: { ...(0,_transfer_types__WEBPACK_IMPORTED_MODULE_3__.buildUploadConflictInfo)(remotePath, localPath, fileName, localSize, localMtime, 0, 0), typeMismatch: true } };
         if (found) {
             remoteSize = found.size;
             remoteMtime = found.mtime;
             if ((remoteSize == null || remoteMtime == null) && session.stat) {
                 try {
                     const st = await session.stat(remotePath);
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('[check-upload-conflict] stat fallback result:', JSON.stringify(st));
-                    const sz = (_a = st === null || st === void 0 ? void 0 : st.size) !== null && _a !== void 0 ? _a : (_b = st === null || st === void 0 ? void 0 : st.attrs) === null || _b === void 0 ? void 0 : _b.size;
+                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[check-upload-conflict] stat fallback result:', JSON.stringify(st));
+                    const sz = (_e = st === null || st === void 0 ? void 0 : st.size) !== null && _e !== void 0 ? _e : (_f = st === null || st === void 0 ? void 0 : st.attrs) === null || _f === void 0 ? void 0 : _f.size;
                     const szNum = sz != null ? Number(sz) : undefined;
                     if (remoteSize == null && szNum != null && Number.isFinite(szNum) && szNum >= 0)
                         remoteSize = szNum;
@@ -12543,69 +12598,64 @@ class SftpConflictDetector {
                     }
                 }
                 catch (e) {
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.warn('[check-upload-conflict] stat fallback failed:', e);
+                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('[check-upload-conflict] stat fallback failed:', e);
                 }
             }
         }
         else {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('[check-upload-conflict] not in parent listing (remote file absent):', fileName);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[check-upload-conflict] not in parent listing (remote file absent):', fileName);
         }
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('[check-upload-conflict] final remoteSize:', remoteSize, 'remoteMtime:', remoteMtime);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[check-upload-conflict] final remoteSize:', remoteSize, 'remoteMtime:', remoteMtime);
         if (remoteSize == null) {
             if (found) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.warn('[check-upload-conflict] remote file exists but size unknown, forcing conflict:', remotePath);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('[check-upload-conflict] remote file exists but size unknown, forcing conflict:', remotePath);
                 return {
                     kind: 'conflict',
-                    info: (0,_transfer_types__WEBPACK_IMPORTED_MODULE_2__.buildUploadConflictInfo)(remotePath, localPath, fileName, localSize, localMtime, Number.NaN, Number.NaN),
+                    info: (0,_transfer_types__WEBPACK_IMPORTED_MODULE_3__.buildUploadConflictInfo)(remotePath, localPath, fileName, localSize, localMtime, Number.NaN, Number.NaN),
                 };
             }
             return { kind: 'no-conflict' };
         }
         const rs = remoteSize;
         const rm = remoteMtime !== null && remoteMtime !== void 0 ? remoteMtime : 0;
-        if ((0,_transfer_types__WEBPACK_IMPORTED_MODULE_2__.filesAreSame)(localSize, localMtime, rs, rm, this.mtimeToleranceMs)) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('[check-upload-conflict] size+mtime same, auto-skipped:', remotePath);
-            this.onAutoSkipped({ direction: 'upload', localPath, remotePath, digest: null });
-            return { kind: 'auto-skipped', digest: null };
-        }
-        const digest = await this._resolveDigest(localPath, remotePath, localSize, localMtime, rs, rm);
-        if (this.isAutoSkipSameContent() && (0,_transfer_types__WEBPACK_IMPORTED_MODULE_2__.isContentIdentical)(digest)) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('[check-upload-conflict] content identical, auto-skipped:', remotePath);
+        const digest = this.isAutoSkipSameContent() ? await this._resolveDigest(localPath, remotePath, localSize, localMtime, rs, rm) : null;
+        if (this.isAutoSkipSameContent() && (0,_transfer_types__WEBPACK_IMPORTED_MODULE_3__.isContentIdentical)(digest)) {
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[check-upload-conflict] content identical, auto-skipped:', remotePath);
             this.onAutoSkipped({ direction: 'upload', localPath, remotePath, digest: digest !== null && digest !== void 0 ? digest : null });
             return { kind: 'auto-skipped', digest: digest !== null && digest !== void 0 ? digest : null };
         }
-        return { kind: 'conflict', info: (0,_transfer_types__WEBPACK_IMPORTED_MODULE_2__.buildUploadConflictInfo)(remotePath, localPath, fileName, localSize, localMtime, rs, rm, digest) };
+        return { kind: 'conflict', info: (0,_transfer_types__WEBPACK_IMPORTED_MODULE_3__.buildUploadConflictInfo)(remotePath, localPath, fileName, localSize, localMtime, rs, rm, digest) };
     }
     async checkLocalConflict(localPath, remotePath, remoteSize, remoteMtime) {
         try {
-            const lst = await fs_promises__WEBPACK_IMPORTED_MODULE_1__.lstat(localPath);
+            const lst = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.lstat(localPath);
             if (lst.isSymbolicLink()) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('[check-local-conflict] local path is a symlink, forcing conflict:', localPath);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[check-local-conflict] local path is a symlink, forcing conflict:', localPath);
                 return {
                     kind: 'conflict',
-                    info: (0,_transfer_types__WEBPACK_IMPORTED_MODULE_2__.buildDownloadConflictInfo)(localPath, remotePath, remoteSize, remoteMtime, lst.size, lst.mtimeMs),
+                    info: { ...(0,_transfer_types__WEBPACK_IMPORTED_MODULE_3__.buildDownloadConflictInfo)(localPath, remotePath, remoteSize, remoteMtime, lst.size, lst.mtimeMs), typeMismatch: true },
                 };
             }
-            const st = await fs_promises__WEBPACK_IMPORTED_MODULE_1__.stat(localPath);
-            if ((0,_transfer_types__WEBPACK_IMPORTED_MODULE_2__.filesAreSame)(st.size, st.mtimeMs, remoteSize, remoteMtime, this.mtimeToleranceMs)) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('[check-local-conflict] size+mtime same, auto-skipped:', localPath);
-                this.onAutoSkipped({ direction: 'download', localPath, remotePath, digest: null });
-                return { kind: 'auto-skipped', digest: null };
-            }
-            const digest = await this._resolveDigest(localPath, remotePath, st.size, st.mtimeMs, remoteSize, remoteMtime);
-            if (this.isAutoSkipSameContent() && (0,_transfer_types__WEBPACK_IMPORTED_MODULE_2__.isContentIdentical)(digest)) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('[check-local-conflict] content identical, auto-skipped:', remotePath);
+            const st = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(localPath);
+            if (st.isDirectory())
+                return { kind: 'conflict', info: { ...(0,_transfer_types__WEBPACK_IMPORTED_MODULE_3__.buildDownloadConflictInfo)(localPath, remotePath, remoteSize, remoteMtime, 0, 0), typeMismatch: true } };
+            const digest = this.isAutoSkipSameContent() ? await this._resolveDigest(localPath, remotePath, st.size, st.mtimeMs, remoteSize, remoteMtime) : null;
+            if (this.isAutoSkipSameContent() && (0,_transfer_types__WEBPACK_IMPORTED_MODULE_3__.isContentIdentical)(digest)) {
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[check-local-conflict] content identical, auto-skipped:', remotePath);
                 this.onAutoSkipped({ direction: 'download', localPath, remotePath, digest: digest !== null && digest !== void 0 ? digest : null });
                 return { kind: 'auto-skipped', digest: digest !== null && digest !== void 0 ? digest : null };
             }
-            return { kind: 'conflict', info: (0,_transfer_types__WEBPACK_IMPORTED_MODULE_2__.buildDownloadConflictInfo)(localPath, remotePath, remoteSize, remoteMtime, st.size, st.mtimeMs, digest) };
+            return { kind: 'conflict', info: (0,_transfer_types__WEBPACK_IMPORTED_MODULE_3__.buildDownloadConflictInfo)(localPath, remotePath, remoteSize, remoteMtime, st.size, st.mtimeMs, digest) };
         }
-        catch (_a) { }
+        catch (error) {
+            if (error.code !== 'ENOENT')
+                throw error;
+        }
         return { kind: 'no-conflict' };
     }
     async _resolveDigest(localPath, remotePath, localSize, localMtime, remoteSize, remoteMtime) {
         if (!this.digest) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('[resolveDigest] skipped: digest service not enabled');
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[resolveDigest] skipped: digest service not enabled');
             return undefined;
         }
         try {
@@ -12614,19 +12664,19 @@ class SftpConflictDetector {
                 remoteSize != null ? this.digest.remoteDigest(remotePath, remoteSize, remoteMtime) : Promise.resolve(null),
             ]);
             if (!localDigest && !remoteDigest) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('[resolveDigest] both failed for', localPath);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[resolveDigest] both failed for', localPath);
                 return undefined;
             }
             if (!localDigest || !remoteDigest) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('[resolveDigest] partial: local:', localDigest ? 'ok' : 'failed', 'remote:', remoteDigest ? 'ok' : 'failed');
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[resolveDigest] partial: local:', localDigest ? 'ok' : 'failed', 'remote:', remoteDigest ? 'ok' : 'failed');
             }
             else {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.info('[resolveDigest] computed for', localPath, 'local:', localDigest.slice(0, 8), '... remote:', remoteDigest.slice(0, 8), '...');
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[resolveDigest] computed for', localPath, 'local:', localDigest.slice(0, 8), '... remote:', remoteDigest.slice(0, 8), '...');
             }
             return { localDigest: localDigest !== null && localDigest !== void 0 ? localDigest : null, remoteDigest: remoteDigest !== null && remoteDigest !== void 0 ? remoteDigest : null };
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_3__.log.warn('[resolveDigest] failed:', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('[resolveDigest] failed:', e);
             return undefined;
         }
     }
@@ -12658,8 +12708,8 @@ class SftpConflictDetector {
                 return false;
             }
         }
-        const parentDir = path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(remotePath);
-        const name = path__WEBPACK_IMPORTED_MODULE_0__.basename(remotePath);
+        const parentDir = path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname(remotePath);
+        const name = path__WEBPACK_IMPORTED_MODULE_1__.basename(remotePath);
         try {
             const entries = await session.readdir(parentDir);
             const found = entries.find(e => e.name === name);
@@ -12890,6 +12940,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var os__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(os__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _path_utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./path-utils */ "./src/sftp/core/path-utils.ts");
 /* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../services/sftp-logger */ "./src/services/sftp-logger.ts");
+const fileOperation = __webpack_require__(/*! ../../runtime/file-operation.cjs */ "./src/runtime/file-operation.cjs");
 
 
 
@@ -12925,6 +12976,7 @@ class DropUseCase {
     async execute(input) {
         const { targetPane, rawPayload, osPaths, destDirOverride } = input;
         const ctx = this.ports.context;
+        const batch = fileOperation.create(Math.max((rawPayload === null || rawPayload === void 0 ? void 0 : rawPayload.paths.length) || osPaths.length, 1));
         if (rawPayload && isSameDirInternalDrop(rawPayload, targetPane, destDirOverride || ctx.getLocalPath(), destDirOverride || ctx.getRemotePath())) {
             this.ports.dragState.reset();
             this.ports.ui.markViewDirty();
@@ -12932,11 +12984,11 @@ class DropUseCase {
         }
         this.ports.dragState.reset();
         if (rawPayload) {
-            const handled = await this._handleInternalPayload(rawPayload, targetPane, destDirOverride);
+            const handled = await this._handleInternalPayload(rawPayload, targetPane, destDirOverride, batch);
             if (handled)
                 return;
         }
-        await this._handleOsPaths(osPaths, targetPane, destDirOverride);
+        await this._handleOsPaths(osPaths, targetPane, destDirOverride, batch);
     }
     async _tryBatchUpload(paths, remoteDir) {
         if (paths.length < 2)
@@ -12952,7 +13004,7 @@ class DropUseCase {
             return false;
         }
     }
-    async _handleInternalPayload(payload, targetPane, destDirOverride) {
+    async _handleInternalPayload(payload, targetPane, destDirOverride, batch) {
         const ctx = this.ports.context;
         if (!ctx.isConnected() || !ctx.hasSftpSession())
             return false;
@@ -12969,7 +13021,7 @@ class DropUseCase {
             }
             await Promise.all(payload.paths.map(async (p) => {
                 try {
-                    await this.ports.transfer.streamUploadOne(p.fullPath, remoteDir);
+                    await this.ports.transfer.streamUploadOne(p.fullPath, remoteDir, batch);
                 }
                 catch (e) {
                     _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.error('Upload failed for', p.fullPath, e);
@@ -12989,7 +13041,7 @@ class DropUseCase {
             await Promise.all(payload.paths.map(async (p, i) => {
                 _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.info('[drop] downloading remote entry #' + i + ':', p.name, p.remotePath, 'isDir:', p.isDirectory);
                 try {
-                    await this.ports.transfer.downloadRemoteEntry(p, localDir);
+                    await this.ports.transfer.downloadRemoteEntry(p, localDir, batch);
                 }
                 catch (e) {
                     _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.error('Download failed for', p.remotePath, e);
@@ -13005,16 +13057,11 @@ class DropUseCase {
         }
         return false;
     }
-    async _handleOsPaths(osPaths, targetPane, destDirOverride) {
+    async _handleOsPaths(osPaths, targetPane, destDirOverride, batch) {
         if (!osPaths.length)
             return;
         const ctx = this.ports.context;
         const localDest = destDirOverride || ctx.getLocalPath();
-        if (targetPane === 'local' && isOsDropIntoSameLocalDir(osPaths, localDest)) {
-            this.ports.dragState.reset();
-            this.ports.ui.markViewDirty();
-            return;
-        }
         if (targetPane === 'remote') {
             if (!ctx.isConnected() || !ctx.hasSftpSession())
                 return;
@@ -13028,7 +13075,7 @@ class DropUseCase {
             }
             await Promise.all(osPaths.map(async (p) => {
                 try {
-                    await this.ports.transfer.streamUploadOne(p, remoteDir);
+                    await this.ports.transfer.streamUploadOne(p, remoteDir, batch);
                 }
                 catch (e) {
                     _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.error('Upload failed for', p, e);
@@ -13085,9 +13132,9 @@ class PanelDropAdapter {
             },
             transfer: {
                 uploadToRemote: (remoteDir, localPath) => host.uploadPathToRemote(remoteDir, localPath),
-                streamUploadOne: (localPath, destRemoteDir) => host.streamUploadOne(localPath, destRemoteDir),
+                streamUploadOne: (localPath, destRemoteDir, batch) => host.streamUploadOne(localPath, destRemoteDir, batch),
                 tryUploadBatch: (localPaths, remoteDir) => host.tryUploadBatch ? host.tryUploadBatch(localPaths, remoteDir) : Promise.resolve(false),
-                downloadRemoteEntry: (entry, destLocalDir) => host.streamDownloadOne(this._toSftpFile(entry), destLocalDir),
+                downloadRemoteEntry: (entry, destLocalDir, batch) => host.streamDownloadOne(this._toSftpFile(entry), destLocalDir, batch),
             },
             pane: {
                 refreshLocal: async () => { await host.refreshLocal(); },
@@ -13100,7 +13147,7 @@ class PanelDropAdapter {
                 showConflictDialog: () => host.showConflictDialog(),
             },
             filesystem: {
-                copyIntoLocalDir: (sources, destDir) => this._copyIntoLocalDir(sources, destDir),
+                copyIntoLocalDir: (sources, destDir) => host.copyLocalPaths ? host.copyLocalPaths(sources, destDir) : this._copyIntoLocalDir(sources, destDir),
             },
             notify: {
                 copyFailed: (fileName) => this._notifyCopyFailed(fileName),
@@ -14539,6 +14586,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(fs_promises__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _fs_ops__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./fs-ops */ "./src/sftp/core/fs-ops.ts");
 /* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../services/sftp-logger */ "./src/services/sftp-logger.ts");
+const fileOperation = __webpack_require__(/*! ../../runtime/file-operation.cjs */ "./src/runtime/file-operation.cjs");
 
 
 
@@ -14550,7 +14598,7 @@ class PasteUseCase {
         this.ports = ports;
     }
     async scanConflicts(entries, destPane, destPath, source, mode) {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+        var _a, _b, _c, _d, _e, _f;
         for (const entry of entries) {
             const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(entry.name);
             if (!safeName) {
@@ -14560,28 +14608,22 @@ class PasteUseCase {
             const destFilePath = destPane === 'local'
                 ? path__WEBPACK_IMPORTED_MODULE_0__.join(destPath, safeName)
                 : path__WEBPACK_IMPORTED_MODULE_0__.posix.join(destPath, safeName);
+            if (source === destPane && entry.fullPath) {
+                const api = source === 'local' ? path__WEBPACK_IMPORTED_MODULE_0__ : path__WEBPACK_IMPORTED_MODULE_0__.posix;
+                if (api.resolve(entry.fullPath) === api.resolve(destFilePath))
+                    continue;
+                if (entry.isDirectory && (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.isPathInside)(entry.fullPath, destFilePath, source === 'remote'))
+                    throw new Error('Cannot copy or move a folder into itself.');
+            }
             if (entry.isDirectory) {
-                // Cross-pane directories use the recursive upload/download file conflict checks.
-                if (source === destPane) {
-                    const exists = await this.ports.conflict.checkDestExists(destPane, destFilePath);
-                    if (exists) {
-                        const srcPath = (_a = entry.fullPath) !== null && _a !== void 0 ? _a : '';
-                        const destStat = { size: (_b = entry.size) !== null && _b !== void 0 ? _b : 0, mtimeMs: (_c = entry.mtimeMs) !== null && _c !== void 0 ? _c : Date.now() };
-                        this.ports.conflict.enqueue({
-                            localPath: destFilePath,
-                            remoteDir: destPane === 'remote' ? destPath : path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(srcPath),
-                            fileName: safeName,
-                            remotePath: srcPath,
-                            localStat: destStat,
-                            direction: 'upload',
-                            isDirectory: true,
-                            isSamePane: true,
-                            samePaneSource: source,
-                            remoteFileSize: (_d = entry.size) !== null && _d !== void 0 ? _d : 0,
-                            remoteFileMtime: (_e = entry.mtimeMs) !== null && _e !== void 0 ? _e : Date.now(),
-                            entryKey: (0,_conflict__WEBPACK_IMPORTED_MODULE_1__.pasteEntryKey)(entry),
-                            mode,
-                        });
+                if (source === destPane && await this.ports.conflict.checkDestExists(destPane, destFilePath)) {
+                    const destination = await this.destinationEntry(destPane, destFilePath);
+                    if ((destination === null || destination === void 0 ? void 0 : destination.isDirectory) && !destination.isSymlink) {
+                        await this.scanConflicts(await this.children(entry, source), destPane, destFilePath, source, mode);
+                    }
+                    else {
+                        const conflict = this._buildFileConflictItem(entry, destPane, destPath, source, destFilePath, true, 'upload', { size: 0, mtimeMs: 0 }, mode);
+                        fileOperation.enqueue(this.ports.conflict, { ...conflict, isDirectory: true, typeMismatch: true }, entry.batch);
                     }
                 }
                 continue;
@@ -14608,19 +14650,19 @@ class PasteUseCase {
                         const found = remoteEntries.find(e => e.name === name);
                         if (found) {
                             destStat = {
-                                size: (_h = (_f = found.size) !== null && _f !== void 0 ? _f : (_g = found.attrs) === null || _g === void 0 ? void 0 : _g.size) !== null && _h !== void 0 ? _h : 0,
-                                mtimeMs: (_j = (0,_conflict__WEBPACK_IMPORTED_MODULE_1__.parseRemoteMtime)(found)) !== null && _j !== void 0 ? _j : Date.now(),
+                                size: (_c = (_a = found.size) !== null && _a !== void 0 ? _a : (_b = found.attrs) === null || _b === void 0 ? void 0 : _b.size) !== null && _c !== void 0 ? _c : 0,
+                                mtimeMs: (_d = (0,_conflict__WEBPACK_IMPORTED_MODULE_1__.parseRemoteMtime)(found)) !== null && _d !== void 0 ? _d : Date.now(),
                             };
                         }
                     }
-                    catch ( /* ignore */_m) { /* ignore */ }
+                    catch ( /* ignore */_g) { /* ignore */ }
                 }
             }
             else if (destPane === 'remote') {
                 const meta = await this._remoteListingMeta(destPath, safeName);
                 destStat = {
-                    size: (_k = meta.size) !== null && _k !== void 0 ? _k : 0,
-                    mtimeMs: (_l = meta.mtimeMs) !== null && _l !== void 0 ? _l : Date.now(),
+                    size: (_e = meta.size) !== null && _e !== void 0 ? _e : 0,
+                    mtimeMs: (_f = meta.mtimeMs) !== null && _f !== void 0 ? _f : Date.now(),
                 };
             }
             else if (destPane === 'local') {
@@ -14628,16 +14670,70 @@ class PasteUseCase {
                 if (st)
                     destStat = st;
             }
-            this.ports.conflict.enqueue(this._buildFileConflictItem(entry, destPane, destPath, source, destFilePath, isSamePane, direction, destStat, mode));
+            const destination = await this.destinationEntry(destPane, destFilePath);
+            fileOperation.enqueue(this.ports.conflict, { ...this._buildFileConflictItem(entry, destPane, destPath, source, destFilePath, isSamePane, direction, destStat, mode), typeMismatch: !!(destination === null || destination === void 0 ? void 0 : destination.isDirectory) || !!(destination === null || destination === void 0 ? void 0 : destination.isSymlink) }, entry.batch);
         }
         return this.ports.conflict.queueLength() > 0;
     }
-    async execute(entries, destPane, destPath, mode, source) {
+    async destinationEntry(side, fullPath) {
         var _a;
+        if (side === 'local') {
+            const stat = await this.ports.fs.statLocal(fullPath);
+            return stat ? { name: path__WEBPACK_IMPORTED_MODULE_0__.basename(fullPath), fullPath, isDirectory: stat.isDirectory(), isSymlink: (_a = stat.isSymbolicLink) === null || _a === void 0 ? void 0 : _a.call(stat), size: stat.size, mtimeMs: stat.mtimeMs } : null;
+        }
+        const entry = (await this.ports.fs.readdirRemote(path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(fullPath))).find(e => e.name === path__WEBPACK_IMPORTED_MODULE_0__.posix.basename(fullPath));
+        return entry ? { ...entry, name: entry.name, fullPath, isDirectory: !!entry.isDirectory } : null;
+    }
+    async children(entry, side) {
+        const entries = side === 'local' ? await this.ports.fs.listLocalEntries(entry.fullPath) :
+            (await this.ports.fs.readdirRemote(entry.fullPath)).map(child => ({ ...child, fullPath: path__WEBPACK_IMPORTED_MODULE_0__.posix.join(entry.fullPath, child.name), isDirectory: !!child.isDirectory }));
+        return [...entries].filter(child => !child.isSymlink).map(child => ({ ...child, sourcePane: side, batch: entry.batch }));
+    }
+    async prepare(entries, side, folder, mode, source) {
+        const api = side === 'local' ? path__WEBPACK_IMPORTED_MODULE_0__ : path__WEBPACK_IMPORTED_MODULE_0__.posix, result = [];
+        for (const entry of entries) {
+            let name = entry.name;
+            if (mode === 'copy' && side === source && entry.fullPath && (side === 'local' && process.platform === 'win32' ? api.resolve(entry.fullPath).toLowerCase() === api.resolve(api.join(folder, name)).toLowerCase() : api.resolve(entry.fullPath) === api.resolve(api.join(folder, name)))) {
+                const ext = entry.isDirectory ? '' : api.extname(name), base = name.slice(0, name.length - ext.length);
+                let index = 1;
+                do {
+                    name = base + ' - Copy' + (index === 1 ? '' : ' (' + index + ')') + ext;
+                    index++;
+                } while (await this.ports.conflict.checkDestExists(side, api.join(folder, name)));
+            }
+            result.push({ ...entry, name });
+        }
+        return result;
+    }
+    async mergeSamePane(entry, side, parent, mode, resolved) {
+        var _a, _b, _c;
+        if (resolved.has((0,_conflict__WEBPACK_IMPORTED_MODULE_1__.pasteEntryKey)(entry)) || ((_a = entry.batch) === null || _a === void 0 ? void 0 : _a.cancelled))
+            return;
+        const api = side === 'local' ? path__WEBPACK_IMPORTED_MODULE_0__ : path__WEBPACK_IMPORTED_MODULE_0__.posix, destination = api.join(parent, entry.name);
+        if (api.resolve(entry.fullPath) === api.resolve(destination))
+            return;
+        if (entry.isDirectory && await this.ports.conflict.checkDestExists(side, destination)) {
+            if ((0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.isPathInside)(entry.fullPath, destination, side === 'remote'))
+                throw new Error('Cannot copy or move a folder into itself.');
+            const target = await this.destinationEntry(side, destination);
+            if (!(target === null || target === void 0 ? void 0 : target.isDirectory) || target.isSymlink)
+                throw new Error('Destination type changed; choose Keep both or Skip.');
+            for (const child of await this.children(entry, side))
+                await this.mergeSamePane(child, side, destination, mode, resolved);
+            if (mode === 'cut')
+                await ((_c = (_b = this.ports.fs).removeEmptyDirectory) === null || _c === void 0 ? void 0 : _c.call(_b, side, entry.fullPath));
+            return;
+        }
+        await this._pasteSamePane(entry, entry.fullPath, destination, side, mode);
+    }
+    async execute(entries, destPane, destPath, mode, source, resolvedKeys = new Set()) {
+        var _a, _b;
         let failed = 0;
         for (const entry of entries) {
             try {
-                const srcPath = (_a = entry.fullPath) !== null && _a !== void 0 ? _a : '';
+                if (resolvedKeys.has((0,_conflict__WEBPACK_IMPORTED_MODULE_1__.pasteEntryKey)(entry)) || ((_a = entry.batch) === null || _a === void 0 ? void 0 : _a.cancelled))
+                    continue;
+                const srcPath = (_b = entry.fullPath) !== null && _b !== void 0 ? _b : '';
                 if (!srcPath)
                     continue;
                 const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(entry.name);
@@ -14649,7 +14745,7 @@ class PasteUseCase {
                     ? path__WEBPACK_IMPORTED_MODULE_0__.join(destPath, safeName)
                     : path__WEBPACK_IMPORTED_MODULE_0__.posix.join(destPath, safeName);
                 if (source === destPane) {
-                    await this._pasteSamePane(entry, srcPath, destFilePath, destPane, mode);
+                    await this.mergeSamePane(entry, destPane, destPath, mode, resolvedKeys);
                 }
                 else if (source === 'local' && destPane === 'remote') {
                     await this._pasteLocalToRemote(entry, srcPath, destPath, destFilePath, mode);
@@ -14710,15 +14806,9 @@ class PasteUseCase {
     }
     async _pasteLocalToRemote(entry, srcPath, destPath, destFilePath, mode) {
         if (entry.isDirectory) {
-            const ok = await this.ports.transfer.uploadDirectory(srcPath, destPath);
-            if (mode === 'cut') {
-                if (!ok)
-                    throw new Error('Cut-paste aborted: directory upload not completed: ' + srcPath);
-                if (!await this.ports.conflict.checkRemotePathExists(destFilePath, true)) {
-                    throw new Error('Cut-paste aborted: destination directory not found: ' + destFilePath);
-                }
-                await this.ports.fs.deleteLocalRecursive(srcPath);
-            }
+            const ok = await this.ports.transfer.uploadDirectory(srcPath, destPath, entry.batch, mode === 'cut');
+            if (!ok && this.ports.conflict.queueLength() === 0)
+                throw new Error('Folder upload did not complete; remaining source files retained.');
         }
         else {
             const ok = await this.ports.transfer.uploadFile(destFilePath, srcPath);
@@ -14732,15 +14822,9 @@ class PasteUseCase {
     async _pasteRemoteToLocal(entry, srcPath, destPath, destFilePath, mode) {
         if (entry.isDirectory) {
             const destDir = destFilePath;
-            const ok = await this.ports.transfer.downloadDirectory(srcPath, destPath);
-            if (mode === 'cut' && this.ports.ui.hasSftpSession()) {
-                if (!ok)
-                    throw new Error('Cut-paste aborted: directory download not completed: ' + srcPath);
-                if (!await this.ports.fs.localDirExists(destFilePath)) {
-                    throw new Error('Cut-paste aborted: destination directory not found: ' + destFilePath);
-                }
-                await this.ports.fs.deleteRemoteRecursive(srcPath);
-            }
+            const ok = await this.ports.transfer.downloadDirectory(srcPath, destPath, entry.batch, mode === 'cut');
+            if (!ok && this.ports.conflict.queueLength() === 0)
+                throw new Error('Folder download did not complete; remaining source files retained.');
         }
         else {
             const ok = await this.ports.transfer.downloadFile(srcPath, destFilePath, entry.mode, entry.size);
@@ -14807,17 +14891,29 @@ class PanelPasteAdapter {
         this.useCase = new PasteUseCase(this._buildPorts());
     }
     async paste(entries, destPane, destPath, mode, source) {
-        const hasConflicts = await this.useCase.scanConflicts(entries, destPane, destPath, source, mode);
-        if (hasConflicts) {
-            this.host.savePendingPaste(entries, destPane, destPath, mode, source);
-            this.host.setConflictOriginalTotal(this.host.getConflictQueueLength());
-            this.host.showConflictDialog();
-            return;
+        if (this.host.getConflictQueueLength())
+            throw new Error('Resolve the current file conflicts before starting another paste.');
+        const batch = fileOperation.create();
+        entries = await this.useCase.prepare(entries.map(entry => ({ ...entry, sourcePane: source, batch })), destPane, destPath, mode, source);
+        let deferred = false;
+        try {
+            const hasConflicts = await this.useCase.scanConflicts(entries, destPane, destPath, source, mode);
+            if (hasConflicts) {
+                deferred = true;
+                this.host.savePendingPaste(entries, destPane, destPath, mode, source);
+                this.host.setConflictOriginalTotal(this.host.getConflictQueueLength());
+                this.host.showConflictDialog();
+                return;
+            }
+            await this.useCase.execute(entries, destPane, destPath, mode, source);
         }
-        await this.useCase.execute(entries, destPane, destPath, mode, source);
+        finally {
+            if (!deferred)
+                fileOperation.finish(batch);
+        }
     }
-    executePaste(entries, destPane, destPath, mode, source) {
-        return this.useCase.execute(entries, destPane, destPath, mode, source);
+    executePaste(entries, destPane, destPath, mode, source, resolvedKeys = new Set()) {
+        return this.useCase.execute(entries, destPane, destPath, mode, source, resolvedKeys);
     }
     _buildPorts() {
         const host = this.host;
@@ -14840,8 +14936,8 @@ class PanelPasteAdapter {
             transfer: {
                 uploadFile: (remotePath, localPath) => host.uploadFile(remotePath, localPath),
                 downloadFile: (remotePath, localPath, mode, size) => host.downloadFile(remotePath, localPath, mode, size),
-                uploadDirectory: (localSrc, remoteDestParent) => host.uploadDirectory(localSrc, remoteDestParent),
-                downloadDirectory: (remoteSrc, localDestParent) => host.downloadDirectory(remoteSrc, localDestParent),
+                uploadDirectory: (localSrc, remoteDestParent, batch, moveSource) => host.uploadDirectory(localSrc, remoteDestParent, batch, moveSource),
+                downloadDirectory: (remoteSrc, localDestParent, batch, moveSource) => host.downloadDirectory(remoteSrc, localDestParent, batch, moveSource),
             },
             notify: {
                 error: (key, params) => {
@@ -14865,15 +14961,49 @@ class PanelPasteAdapter {
                     }
                     catch (_a) { }
                     _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('copyLocalFile:', src, '->', dest);
-                    return fs_promises__WEBPACK_IMPORTED_MODULE_3__.copyFile(src, dest);
+                    return fs_promises__WEBPACK_IMPORTED_MODULE_3__.copyFile(src, dest, 1);
                 },
-                renameLocal: (src, dest) => fs_promises__WEBPACK_IMPORTED_MODULE_3__.rename(src, dest),
+                renameLocal: async (src, dest) => {
+                    try {
+                        await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rename(src, dest);
+                    }
+                    catch (error) {
+                        if (error.code !== 'EXDEV')
+                            throw error;
+                        const stat = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(src);
+                        if (stat.isDirectory())
+                            await (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.copyLocalDir)(src, dest);
+                        else
+                            await fs_promises__WEBPACK_IMPORTED_MODULE_3__.copyFile(src, dest, 1);
+                        await (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.deleteLocalRecursive)(src);
+                    }
+                },
                 copyRemoteDir: (src, dest, isDir) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.copyRemoteDir)(src, dest, isDir, remoteCopyDeps),
                 renameRemote: (src, dest) => host.renameRemote(src, dest),
                 deleteLocalRecursive: (p) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.deleteLocalRecursive)(p),
                 deleteRemoteRecursive: (p) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.deleteRemoteRecursive)(host.sftpSession, p),
                 localDirExists: (p) => fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(p).then(() => true).catch(() => false),
-                statLocal: (p) => fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(p).catch(() => null),
+                statLocal: (p) => fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(p).catch(error => { if (error.code === 'ENOENT')
+                    return null; throw error; }),
+                listLocalEntries: async (folder) => {
+                    const entries = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readdir(folder, { withFileTypes: true });
+                    return Promise.all(entries.map(async (entry) => { const fullPath = path__WEBPACK_IMPORTED_MODULE_0__.join(folder, entry.name), stat = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(fullPath); return { name: entry.name, fullPath, isDirectory: stat.isDirectory(), isSymlink: stat.isSymbolicLink(), size: stat.size, mtimeMs: stat.mtimeMs }; }));
+                },
+                removeEmptyDirectory: async (side, folder) => {
+                    try {
+                        if (side === 'local')
+                            await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rmdir(folder);
+                        else {
+                            if ((await host.sftpSession.readdir(folder)).some((e) => e.name !== '.' && e.name !== '..'))
+                                return;
+                            await host.sftpSession.rmdir(folder);
+                        }
+                    }
+                    catch (error) {
+                        if (!['ENOTEMPTY', 'EEXIST', 'ENOENT'].includes(error.code) && !/not empty|no such file/i.test(error.message))
+                            throw error;
+                    }
+                },
                 scanLocalDir: host.scanLocalDir
                     ? (p) => host.scanLocalDir(p)
                     : undefined,
@@ -14883,6 +15013,9 @@ class PanelPasteAdapter {
                         var _a, _b, _c, _d, _e, _f;
                         return ({
                             name: e.name,
+                            isDirectory: !!e.isDirectory,
+                            isSymlink: !!e.isSymlink || (typeof e.isSymbolicLink === 'function' ? e.isSymbolicLink() : !!e.isSymbolicLink),
+                            mode: e.mode,
                             size: (_a = e.size) !== null && _a !== void 0 ? _a : (_b = e.attrs) === null || _b === void 0 ? void 0 : _b.size,
                             modified: (_c = e.modified) !== null && _c !== void 0 ? _c : (_d = e.attrs) === null || _d === void 0 ? void 0 : _d.modified,
                             mtime: (_e = e.mtime) !== null && _e !== void 0 ? _e : (_f = e.attrs) === null || _f === void 0 ? void 0 : _f.mtime,
@@ -14895,11 +15028,13 @@ class PanelPasteAdapter {
                 checkDestExists: async (pane, filePath) => {
                     if (pane === 'local') {
                         try {
-                            await fs_promises__WEBPACK_IMPORTED_MODULE_3__.access(filePath);
+                            await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(filePath);
                             return true;
                         }
-                        catch (_a) {
-                            return false;
+                        catch (error) {
+                            if (error.code === 'ENOENT')
+                                return false;
+                            throw error;
                         }
                     }
                     if (!host.sftpSession)
@@ -14910,8 +15045,10 @@ class PanelPasteAdapter {
                         const entries = await host.sftpSession.readdir(dir);
                         return entries.some((e) => e.name === name);
                     }
-                    catch (_b) {
-                        return false;
+                    catch (error) {
+                        if (error.code === 'ENOENT' || /no such file|not found/i.test(error.message))
+                            return false;
+                        throw error;
                     }
                 },
                 checkRemotePathExists: (remotePath, expectDir) => host.checkRemotePathExists(remotePath, expectDir),
@@ -15463,18 +15600,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   TarChannel: () => (/* binding */ TarChannel)
 /* harmony export */ });
-/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! child_process */ "child_process");
-/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! fs */ "fs");
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! fs/promises */ "fs/promises");
-/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(fs_promises__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! os */ "os");
-/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(os__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! path */ "path");
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _fs_ops__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./fs-ops */ "./src/sftp/core/fs-ops.ts");
-/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../services/sftp-logger */ "./src/services/sftp-logger.ts");
+/* harmony import */ var _transfer_progress__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./transfer-progress */ "./src/sftp/core/transfer-progress.ts");
+/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! child_process */ "child_process");
+/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! fs */ "fs");
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! fs/promises */ "fs/promises");
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(fs_promises__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! os */ "os");
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(os__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _fs_ops__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./fs-ops */ "./src/sftp/core/fs-ops.ts");
+/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../services/sftp-logger */ "./src/services/sftp-logger.ts");
+
 
 
 
@@ -15541,12 +15680,12 @@ function resolveLocalTarCmd() {
         return localTarCmdCache;
     if (process.platform === 'win32') {
         const root = process.env.SystemRoot || process.env.windir || 'C:\\Windows';
-        const candidate = path__WEBPACK_IMPORTED_MODULE_4__.join(root, 'System32', 'tar.exe');
-        if ((0,fs__WEBPACK_IMPORTED_MODULE_1__.existsSync)(candidate)) {
+        const candidate = path__WEBPACK_IMPORTED_MODULE_5__.join(root, 'System32', 'tar.exe');
+        if ((0,fs__WEBPACK_IMPORTED_MODULE_2__.existsSync)(candidate)) {
             localTarCmdCache = candidate;
             return candidate;
         }
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn('tar channel: System32\\tar.exe not found, falling back to PATH tar:', candidate);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn('tar channel: System32\\tar.exe not found, falling back to PATH tar:', candidate);
     }
     localTarCmdCache = 'tar';
     return 'tar';
@@ -15572,7 +15711,7 @@ function runLocalTar(args) {
         };
         const text = () => chunks.join('').trim();
         try {
-            const child = (0,child_process__WEBPACK_IMPORTED_MODULE_0__.spawn)(resolveLocalTarCmd(), args, { stdio: ['ignore', 'ignore', 'pipe'] });
+            const child = (0,child_process__WEBPACK_IMPORTED_MODULE_1__.spawn)(resolveLocalTarCmd(), args, { stdio: ['ignore', 'ignore', 'pipe'] });
             (_a = child.stderr) === null || _a === void 0 ? void 0 : _a.on('data', take);
             child.on('error', (e) => { var _a; return done({ ok: false, code: null, output: `spawn failed: ${(_a = e === null || e === void 0 ? void 0 : e.message) !== null && _a !== void 0 ? _a : e}` }); });
             child.on('close', (code) => done({ ok: code === 0, code, output: text() }));
@@ -15603,7 +15742,7 @@ async function detectLocalTarFlavor() {
             resolve(s);
         } };
         try {
-            const child = (0,child_process__WEBPACK_IMPORTED_MODULE_0__.spawn)(resolveLocalTarCmd(), ['--version'], { stdio: ['ignore', 'pipe', 'pipe'] });
+            const child = (0,child_process__WEBPACK_IMPORTED_MODULE_1__.spawn)(resolveLocalTarCmd(), ['--version'], { stdio: ['ignore', 'pipe', 'pipe'] });
             const take = (b) => { if (chunks.join('').length < 2000)
                 chunks.push(b.toString('utf8')); };
             (_a = child.stdout) === null || _a === void 0 ? void 0 : _a.on('data', take);
@@ -15624,42 +15763,42 @@ async function detectLocalTarFlavor() {
     return localTarFlavorCache;
 }
 async function assertExtractedUnderRoot(root) {
-    const rootReal = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.realpath(root).catch(() => path__WEBPACK_IMPORTED_MODULE_4__.resolve(root));
-    const prefix = rootReal.endsWith(path__WEBPACK_IMPORTED_MODULE_4__.sep) ? rootReal : rootReal + path__WEBPACK_IMPORTED_MODULE_4__.sep;
+    const rootReal = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.realpath(root).catch(() => path__WEBPACK_IMPORTED_MODULE_5__.resolve(root));
+    const prefix = rootReal.endsWith(path__WEBPACK_IMPORTED_MODULE_5__.sep) ? rootReal : rootReal + path__WEBPACK_IMPORTED_MODULE_5__.sep;
     const walk = async (dir) => {
         let entries;
         try {
-            entries = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(dir, { withFileTypes: true });
+            entries = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readdir(dir, { withFileTypes: true });
         }
         catch (_a) {
             return false;
         }
         for (const e of entries) {
-            const full = path__WEBPACK_IMPORTED_MODULE_4__.join(dir, e.name);
+            const full = path__WEBPACK_IMPORTED_MODULE_5__.join(dir, e.name);
             if (e.isSymbolicLink()) {
                 let target;
                 try {
-                    target = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readlink(full);
+                    target = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readlink(full);
                 }
                 catch (_b) {
                     return false;
                 }
-                const resolved = path__WEBPACK_IMPORTED_MODULE_4__.resolve(path__WEBPACK_IMPORTED_MODULE_4__.dirname(full), target);
+                const resolved = path__WEBPACK_IMPORTED_MODULE_5__.resolve(path__WEBPACK_IMPORTED_MODULE_5__.dirname(full), target);
                 if (resolved !== rootReal && !resolved.startsWith(prefix)) {
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn('tar channel: symlink target escapes sandbox, rejected:', full, '->', target);
+                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn('tar channel: symlink target escapes sandbox, rejected:', full, '->', target);
                     return false;
                 }
                 continue;
             }
             let real;
             try {
-                real = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.realpath(full);
+                real = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.realpath(full);
             }
             catch (_c) {
                 return false;
             }
             if (real !== rootReal && !real.startsWith(prefix)) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn('tar channel: zip-slip rejected path:', real);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn('tar channel: zip-slip rejected path:', real);
                 return false;
             }
             if (e.isDirectory()) {
@@ -15676,14 +15815,14 @@ async function containsSymlink(root, depth = 0) {
         return true;
     let names;
     try {
-        names = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(root);
+        names = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readdir(root);
     }
     catch (_a) {
         return true;
     }
     for (const name of names) {
-        const full = path__WEBPACK_IMPORTED_MODULE_4__.join(root, name);
-        const st = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.lstat(full).catch(() => null);
+        const full = path__WEBPACK_IMPORTED_MODULE_5__.join(root, name);
+        const st = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(full).catch(() => null);
         if (!st)
             return true;
         if (st.isSymbolicLink())
@@ -15696,22 +15835,22 @@ async function containsSymlink(root, depth = 0) {
 const STAGING_DIR_NAME = '.sftp-plus-tmp';
 async function resolveStagingRoot(nearDir) {
     var _a;
-    const candidate = path__WEBPACK_IMPORTED_MODULE_4__.join(nearDir, STAGING_DIR_NAME);
+    const candidate = path__WEBPACK_IMPORTED_MODULE_5__.join(nearDir, STAGING_DIR_NAME);
     try {
-        await fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdir(candidate, { recursive: true });
+        await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdir(candidate, { recursive: true });
         return candidate;
     }
     catch (e) {
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn(`tar channel: staging dir unusable near target, falling back to system temp: ${candidate} :: ${String((_a = e === null || e === void 0 ? void 0 : e.message) !== null && _a !== void 0 ? _a : e)}`);
-        return os__WEBPACK_IMPORTED_MODULE_3__.tmpdir();
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn(`tar channel: staging dir unusable near target, falling back to system temp: ${candidate} :: ${String((_a = e === null || e === void 0 ? void 0 : e.message) !== null && _a !== void 0 ? _a : e)}`);
+        return os__WEBPACK_IMPORTED_MODULE_4__.tmpdir();
     }
 }
 async function cleanupStaging(root, subDir) {
     if (subDir)
-        await fs_promises__WEBPACK_IMPORTED_MODULE_2__.rm(subDir, { recursive: true, force: true }).catch(() => { });
-    if (!root || root === os__WEBPACK_IMPORTED_MODULE_3__.tmpdir())
+        await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rm(subDir, { recursive: true, force: true }).catch(() => { });
+    if (!root || root === os__WEBPACK_IMPORTED_MODULE_4__.tmpdir())
         return;
-    await fs_promises__WEBPACK_IMPORTED_MODULE_2__.rmdir(root).catch(() => { });
+    await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rmdir(root).catch(() => { });
 }
 function makeTempName(baseName, kind) {
     return `${sanitizeNameSegment(baseName)}.sftp-plus-${kind}-${Math.random().toString(36).slice(2, 8)}`;
@@ -15727,42 +15866,42 @@ function sanitizeNameSegment(name) {
     return Array.from(cleaned).slice(0, 40).join('');
 }
 function buildRemoteUploadLanding(opts) {
-    const extractDirEntry = path__WEBPACK_IMPORTED_MODULE_4__.posix.join(opts.remoteExtractDir, opts.expectedBase);
+    const extractDirEntry = path__WEBPACK_IMPORTED_MODULE_5__.posix.join(opts.remoteExtractDir, opts.expectedBase);
     const placeStep = opts.mergeIntoExisting
-        ? `&& mkdir -p ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(opts.remoteTarget)} ` +
-            `&& cp -a ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(extractDirEntry + '/.')} ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(opts.remoteTarget + '/')} `
-        : `&& test ! -e ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(opts.remoteTarget)} ` +
-            `&& mv ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(extractDirEntry)} ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(opts.remoteTarget)} `;
+        ? `&& mkdir -p ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTarget)} ` +
+            `&& cp -a ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(extractDirEntry + '/.')} ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTarget + '/')} `
+        : `&& test ! -e ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTarget)} ` +
+            `&& mv ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(extractDirEntry)} ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTarget)} `;
     return {
-        cmd: `! tar tzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(opts.remoteTar)} | grep -E '(^/|(^|/)\\.\\.((/|$)))' >/dev/null ` +
-            `&& mkdir -p ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(opts.remoteExtractDir)} ` +
-            `&& tar xzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(opts.remoteTar)} -C ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(opts.remoteExtractDir)} ` +
-            `&& test -e ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(extractDirEntry)} ` +
+        cmd: `! tar tzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTar)} | grep -E '(^/|(^|/)\\.\\.((/|$)))' >/dev/null ` +
+            `&& mkdir -p ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteExtractDir)} ` +
+            `&& tar xzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTar)} -C ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteExtractDir)} ` +
+            `&& test -e ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(extractDirEntry)} ` +
             placeStep +
-            `&& rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(opts.remoteExtractDir)} ` +
+            `&& rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteExtractDir)} ` +
             `&& printf '${TAR_OK}\\n'`,
         retryOnEmpty: opts.mergeIntoExisting,
     };
 }
 function buildRemoteUploadBatchLanding(opts) {
-    const at = (base, n) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(path__WEBPACK_IMPORTED_MODULE_4__.posix.join(base, n));
+    const at = (base, n) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(path__WEBPACK_IMPORTED_MODULE_5__.posix.join(base, n));
     const entryChecks = opts.names.map(n => `&& test -e ${at(opts.remoteExtractDir, n)} `).join('');
     const targetChecks = opts.names.map(n => `&& test ! -e ${at(opts.remoteDir, n)} `).join('');
     const moves = opts.names.map(n => `&& mv ${at(opts.remoteExtractDir, n)} ${at(opts.remoteDir, n)} `).join('');
-    return (`! tar tzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(opts.remoteTar)} | grep -E '(^/|(^|/)\\.\\.((/|$)))' >/dev/null ` +
-        `&& mkdir -p ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(opts.remoteExtractDir)} ` +
-        `&& tar xzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(opts.remoteTar)} -C ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(opts.remoteExtractDir)} ` +
+    return (`! tar tzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTar)} | grep -E '(^/|(^|/)\\.\\.((/|$)))' >/dev/null ` +
+        `&& mkdir -p ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteExtractDir)} ` +
+        `&& tar xzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTar)} -C ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteExtractDir)} ` +
         entryChecks +
         targetChecks +
         moves +
-        `&& rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(opts.remoteExtractDir)} ` +
+        `&& rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteExtractDir)} ` +
         `&& printf '${TAR_OK}\\n'`);
 }
 async function extractTarSafely(tarFile, localDest, expectedBase, stagingRoot, mergeIntoExisting = false) {
     var _a, _b;
-    const sandbox = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_4__.join(stagingRoot !== null && stagingRoot !== void 0 ? stagingRoot : os__WEBPACK_IMPORTED_MODULE_3__.tmpdir(), 'untar-')).catch(() => null);
+    const sandbox = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_5__.join(stagingRoot !== null && stagingRoot !== void 0 ? stagingRoot : os__WEBPACK_IMPORTED_MODULE_4__.tmpdir(), 'untar-')).catch(() => null);
     if (!sandbox) {
-        return { ok: false, code: 'localExtractFailed', detail: `cannot create extract sandbox under ${stagingRoot !== null && stagingRoot !== void 0 ? stagingRoot : os__WEBPACK_IMPORTED_MODULE_3__.tmpdir()}` };
+        return { ok: false, code: 'localExtractFailed', detail: `cannot create extract sandbox under ${stagingRoot !== null && stagingRoot !== void 0 ? stagingRoot : os__WEBPACK_IMPORTED_MODULE_4__.tmpdir()}` };
     }
     try {
         const flavor = await detectLocalTarFlavor();
@@ -15794,29 +15933,29 @@ async function extractTarSafely(tarFile, localDest, expectedBase, stagingRoot, m
         if (!(await assertExtractedUnderRoot(sandbox))) {
             return { ok: false, code: 'localExtractFailed', detail: `extracted tree escapes sandbox (zip-slip or symbolic link): ${localDest}` };
         }
-        const extractedDir = path__WEBPACK_IMPORTED_MODULE_4__.join(sandbox, expectedBase);
-        const st = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.lstat(extractedDir).catch(() => null);
+        const extractedDir = path__WEBPACK_IMPORTED_MODULE_5__.join(sandbox, expectedBase);
+        const st = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(extractedDir).catch(() => null);
         if (!st) {
-            const tops = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(sandbox).catch(() => []);
+            const tops = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readdir(sandbox).catch(() => []);
             const detail = `expected top-level entry missing after extract: expected="${expectedBase}" ` +
                 `got=${JSON.stringify(tops.slice(0, 3))} (tar=${flavor}): ${localDest}`;
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn('tar channel: ' + detail);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn('tar channel: ' + detail);
             return { ok: false, code: tops.length === 1 ? 'nameEncodingUnsupported' : 'localExtractFailed', detail };
         }
-        await fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdir(localDest, { recursive: true }).catch(() => { });
-        const finalDest = path__WEBPACK_IMPORTED_MODULE_4__.join(localDest, expectedBase);
+        await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdir(localDest, { recursive: true }).catch(() => { });
+        const finalDest = path__WEBPACK_IMPORTED_MODULE_5__.join(localDest, expectedBase);
         if (mergeIntoExisting) {
             const stats = { dirs: 0, files: 0, links: 0, vanished: [], failed: [] };
-            const seen = new Set([await fs_promises__WEBPACK_IMPORTED_MODULE_2__.realpath(finalDest).catch(() => finalDest)]);
+            const seen = new Set([await fs_promises__WEBPACK_IMPORTED_MODULE_3__.realpath(finalDest).catch(() => finalDest)]);
             await mergeDirInto(extractedDir, finalDest, stats, seen);
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.info(`tar channel: merge into existing dir done (dirs=${stats.dirs} files=${stats.files} ` +
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info(`tar channel: merge into existing dir done (dirs=${stats.dirs} files=${stats.files} ` +
                 `links=${stats.links} skipped=${stats.vanished.length} failed=${stats.failed.length}): ${finalDest}`);
             if (stats.vanished.length) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn(`tar channel: merge skipped ${stats.vanished.length} entries (source vanished after listing): ` +
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn(`tar channel: merge skipped ${stats.vanished.length} entries (source vanished after listing): ` +
                     stats.vanished.slice(0, 5).join(' | '));
             }
             if (stats.failed.length) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn(`tar channel: merge failed ${stats.failed.length} entries, refill via per-file channel: ` +
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn(`tar channel: merge failed ${stats.failed.length} entries, refill via per-file channel: ` +
                     stats.failed.slice(0, 5).join(' | '));
                 return {
                     ok: false,
@@ -15826,17 +15965,17 @@ async function extractTarSafely(tarFile, localDest, expectedBase, stagingRoot, m
             }
             return { ok: true };
         }
-        if (await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(finalDest).then(() => true).catch(() => false)) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn('tar channel: destination already exists, abort move:', finalDest);
+        if (await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(finalDest).then(() => true).catch(() => false)) {
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn('tar channel: destination already exists, abort move:', finalDest);
             return { ok: false, code: 'localExtractFailed', detail: `destination already exists, abort move: ${finalDest}` };
         }
         try {
-            await fs_promises__WEBPACK_IMPORTED_MODULE_2__.rename(extractedDir, finalDest);
+            await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rename(extractedDir, finalDest);
         }
         catch (e) {
-            if (typeof fs_promises__WEBPACK_IMPORTED_MODULE_2__.cp === 'function') {
+            if (typeof fs_promises__WEBPACK_IMPORTED_MODULE_3__.cp === 'function') {
                 try {
-                    await fs_promises__WEBPACK_IMPORTED_MODULE_2__.cp(extractedDir, finalDest, { recursive: true, dereference: false });
+                    await fs_promises__WEBPACK_IMPORTED_MODULE_3__.cp(extractedDir, finalDest, { recursive: true, dereference: false });
                 }
                 catch (e2) {
                     return {
@@ -15857,7 +15996,7 @@ async function extractTarSafely(tarFile, localDest, expectedBase, stagingRoot, m
         return { ok: true };
     }
     finally {
-        await fs_promises__WEBPACK_IMPORTED_MODULE_2__.rm(sandbox, { recursive: true, force: true }).catch(() => { });
+        await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rm(sandbox, { recursive: true, force: true }).catch(() => { });
     }
 }
 async function mergeDirInto(src, dest, stats, seen, depth = 0) {
@@ -15866,21 +16005,21 @@ async function mergeDirInto(src, dest, stats, seen, depth = 0) {
         stats.failed.push(`depth limit reached at "${dest}"`);
         return;
     }
-    await fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdir(dest, { recursive: true }).catch(() => { });
+    await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdir(dest, { recursive: true }).catch(() => { });
     let entries;
     try {
-        entries = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readdir(src, { withFileTypes: true });
+        entries = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readdir(src, { withFileTypes: true });
     }
     catch (err) {
         stats.vanished.push(`${src} :: ${String((_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : err)}`);
         return;
     }
     for (const e of entries) {
-        const s = path__WEBPACK_IMPORTED_MODULE_4__.join(src, e.name);
-        const d = path__WEBPACK_IMPORTED_MODULE_4__.join(dest, e.name);
+        const s = path__WEBPACK_IMPORTED_MODULE_5__.join(src, e.name);
+        const d = path__WEBPACK_IMPORTED_MODULE_5__.join(dest, e.name);
         let st;
         try {
-            st = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.lstat(s);
+            st = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(s);
         }
         catch (err) {
             stats.vanished.push(`${s} :: ${String((_b = err === null || err === void 0 ? void 0 : err.message) !== null && _b !== void 0 ? _b : err)}`);
@@ -15891,7 +16030,7 @@ async function mergeDirInto(src, dest, stats, seen, depth = 0) {
             continue;
         }
         if (st.isDirectory()) {
-            const real = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.realpath(s).catch(() => s);
+            const real = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.realpath(s).catch(() => s);
             if (seen.has(real)) {
                 stats.vanished.push(`${s} (alias already merged)`);
                 continue;
@@ -15906,20 +16045,20 @@ async function mergeDirInto(src, dest, stats, seen, depth = 0) {
     }
 }
 async function copyLinkOrTarget(s, d, stats, seen, depth) {
-    const target = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.readlink(s).catch(() => null);
+    const target = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readlink(s).catch(() => null);
     if (target !== null) {
-        const dst = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.lstat(d).catch(() => null);
+        const dst = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(d).catch(() => null);
         if (dst && !dst.isDirectory())
-            await fs_promises__WEBPACK_IMPORTED_MODULE_2__.rm(d, { force: true }).catch(() => { });
-        const ok = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.symlink(target, d).then(() => true).catch(() => false);
+            await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rm(d, { force: true }).catch(() => { });
+        const ok = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.symlink(target, d).then(() => true).catch(() => false);
         if (ok) {
             stats.links++;
             return;
         }
     }
-    const rst = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(s).catch(() => null);
+    const rst = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(s).catch(() => null);
     if (rst === null || rst === void 0 ? void 0 : rst.isDirectory()) {
-        const real = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.realpath(s).catch(() => s);
+        const real = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.realpath(s).catch(() => s);
         if (seen.has(real)) {
             stats.vanished.push(`${s} (alias already merged)`);
             return;
@@ -15938,17 +16077,17 @@ async function copyLinkOrTarget(s, d, stats, seen, depth) {
 }
 async function copyEntry(s, d, stats) {
     var _a;
-    const dst = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.lstat(d).catch(() => null);
+    const dst = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(d).catch(() => null);
     if (dst) {
         if (dst.isDirectory()) {
             stats.failed.push(`"${d}" (destination is a directory, refusing to replace)`);
             return;
         }
         if (!dst.isFile())
-            await fs_promises__WEBPACK_IMPORTED_MODULE_2__.rm(d, { force: true }).catch(() => { });
+            await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rm(d, { force: true }).catch(() => { });
     }
     try {
-        await fs_promises__WEBPACK_IMPORTED_MODULE_2__.copyFile(s, d);
+        await fs_promises__WEBPACK_IMPORTED_MODULE_3__.copyFile(s, d);
     }
     catch (err) {
         const msg = String((_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : err);
@@ -15969,12 +16108,12 @@ class TarChannel {
     _decline(mode, name, code, detail, folder, ctx) {
         var _a, _b;
         if (mode !== 'tarOnly') {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn(`tar channel unavailable (${code}), fallback to per-file channel: ${detail}`);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn(`tar channel unavailable (${code}), fallback to per-file channel: ${detail}`);
             if (folder && ctx)
                 return tarRecoverableFallback(folder, ctx);
             return 'fallback';
         }
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn(`tar channel required by TAR-only mode but unusable (${code}), transfer will fail: ${detail}`);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn(`tar channel required by TAR-only mode but unusable (${code}), transfer will fail: ${detail}`);
         if (folder && ctx) {
             try {
                 folder.finish(ctx, false);
@@ -15993,7 +16132,7 @@ class TarChannel {
         const r = await runLocalTar(['--version']);
         this.localTarOk = r.ok;
         if (!r.ok)
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn(`tar channel: local tar unusable ("${resolveLocalTarCmd()}"): ${r.output}`);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn(`tar channel: local tar unusable ("${resolveLocalTarCmd()}"): ${r.output}`);
         return this.localTarOk;
     }
     async _remoteTarAvailable() {
@@ -16060,28 +16199,28 @@ class TarChannel {
         if (!verdict.ok) {
             return this._decline(mode, name, 'other', `not worthwhile (${verdict.reason}): ${localPath} -> ${remoteTarget}`);
         }
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.info(`tar channel: packed upload start (${mergeIntoExisting ? 'merge-into-existing' : 'fresh'}); ${verdict.reason}: ${localPath} -> ${remoteTarget}`);
-        const stagingRoot = await resolveStagingRoot(path__WEBPACK_IMPORTED_MODULE_4__.dirname(path__WEBPACK_IMPORTED_MODULE_4__.resolve(localPath)));
-        const tmpDir = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_4__.join(stagingRoot, 'pack-')).catch(() => null);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info(`tar channel: packed upload start (${mergeIntoExisting ? 'merge-into-existing' : 'fresh'}); ${verdict.reason}: ${localPath} -> ${remoteTarget}`);
+        const stagingRoot = await resolveStagingRoot(path__WEBPACK_IMPORTED_MODULE_5__.dirname(path__WEBPACK_IMPORTED_MODULE_5__.resolve(localPath)));
+        const tmpDir = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_5__.join(stagingRoot, 'pack-')).catch(() => null);
         if (!tmpDir) {
             return this._decline(mode, name, 'other', `local staging dir unusable (mkdtemp failed): ${stagingRoot}`);
         }
-        const tarFile = path__WEBPACK_IMPORTED_MODULE_4__.join(tmpDir, `${makeTempName(path__WEBPACK_IMPORTED_MODULE_4__.basename(localPath), 'tar')}.tar.gz`);
-        const packArgs = ['-czf', tarFile, '-C', path__WEBPACK_IMPORTED_MODULE_4__.dirname(localPath), path__WEBPACK_IMPORTED_MODULE_4__.basename(localPath)];
-        let packed = await runLocalTar(['-czf', '--format=pax', tarFile, '-C', path__WEBPACK_IMPORTED_MODULE_4__.dirname(localPath), path__WEBPACK_IMPORTED_MODULE_4__.basename(localPath)]);
+        const tarFile = path__WEBPACK_IMPORTED_MODULE_5__.join(tmpDir, `${makeTempName(path__WEBPACK_IMPORTED_MODULE_5__.basename(localPath), 'tar')}.tar.gz`);
+        const packArgs = ['-czf', tarFile, '-C', path__WEBPACK_IMPORTED_MODULE_5__.dirname(localPath), path__WEBPACK_IMPORTED_MODULE_5__.basename(localPath)];
+        let packed = await runLocalTar(['-czf', '--format=pax', tarFile, '-C', path__WEBPACK_IMPORTED_MODULE_5__.dirname(localPath), path__WEBPACK_IMPORTED_MODULE_5__.basename(localPath)]);
         if (!packed.ok)
             packed = await runLocalTar(packArgs);
         if (!packed.ok) {
             await cleanupStaging(stagingRoot, tmpDir);
             return this._decline(mode, name, 'localPackFailed', `local tar pack failed: ${localPath} (tar="${resolveLocalTarCmd()}") :: output="${packed.output.slice(0, 400)}"`);
         }
-        const tarSize = (_b = (_a = (await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(tarFile).catch(() => null))) === null || _a === void 0 ? void 0 : _a.size) !== null && _b !== void 0 ? _b : 0;
+        const tarSize = (_b = (_a = (await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(tarFile).catch(() => null))) === null || _a === void 0 ? void 0 : _a.size) !== null && _b !== void 0 ? _b : 0;
         if (tarSize <= 0) {
             await cleanupStaging(stagingRoot, tmpDir);
             return this._decline(mode, name, 'localPackFailed', `local tarball empty or unreadable: ${tarFile}`);
         }
-        const parent = path__WEBPACK_IMPORTED_MODULE_4__.posix.dirname(remoteTarget);
-        const remoteTar = path__WEBPACK_IMPORTED_MODULE_4__.posix.join(parent, `${makeTempName(path__WEBPACK_IMPORTED_MODULE_4__.posix.basename(remoteTarget), 'tar')}.tar.gz`);
+        const parent = path__WEBPACK_IMPORTED_MODULE_5__.posix.dirname(remoteTarget);
+        const remoteTar = path__WEBPACK_IMPORTED_MODULE_5__.posix.join(parent, `${makeTempName(path__WEBPACK_IMPORTED_MODULE_5__.posix.basename(remoteTarget), 'tar')}.tar.gz`);
         const realSize = await this.deps.scanLocalSize(localPath).catch(() => 0);
         const displayTotal = realSize > 0 ? realSize : tarSize;
         const disp = (b) => displayTotal === tarSize ? b : Math.round(b * displayTotal / tarSize);
@@ -16103,24 +16242,26 @@ class TarChannel {
             if (!upOk) {
                 return this._decline(mode, name, 'tarballFailed', `tarball upload failed: ${remoteTarget}`, folder, ctx);
             }
-            remoteExtractDir = path__WEBPACK_IMPORTED_MODULE_4__.posix.join(parent, makeTempName(path__WEBPACK_IMPORTED_MODULE_4__.posix.basename(remoteTarget), 'untar'));
-            const expectedBase = path__WEBPACK_IMPORTED_MODULE_4__.posix.basename(remoteTarget);
+            remoteExtractDir = path__WEBPACK_IMPORTED_MODULE_5__.posix.join(parent, makeTempName(path__WEBPACK_IMPORTED_MODULE_5__.posix.basename(remoteTarget), 'untar'));
+            const expectedBase = path__WEBPACK_IMPORTED_MODULE_5__.posix.basename(remoteTarget);
+            (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderPhase)(folder, ctx, 'extracting', name);
             const landing = buildRemoteUploadLanding({
                 remoteTar, remoteExtractDir, expectedBase, remoteTarget, mergeIntoExisting,
             });
+            (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderPhase)(folder, ctx, 'extracting', name);
             const out = await this.deps.exec(landing.cmd, REMOTE_TAR_TIMEOUT_MS, { retryOnEmpty: landing.retryOnEmpty });
             if (!new RegExp(`\\b${TAR_OK}\\b`).test(out)) {
-                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
+                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
                 return this._decline(mode, name, 'remotePackFailed', `remote extract failed: ${remoteTarget} :: output="${String(out !== null && out !== void 0 ? out : '').trim().slice(0, 400)}"`, folder, ctx);
             }
             folder.updateProgress(ctx, displayTotal, name, 1, displayTotal);
             folder.finish(ctx, true);
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.info('tar channel upload OK:', localPath, '->', remoteTarget);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info('tar channel upload OK:', localPath, '->', remoteTarget);
             return 'success';
         }
         catch (e) {
             if (remoteExtractDir) {
-                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
+                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
             }
             return this._decline(mode, name, 'other', `upload via tar channel threw: ${remoteTarget} :: ${String((_e = e === null || e === void 0 ? void 0 : e.message) !== null && _e !== void 0 ? _e : e)}`, folder, ctx);
         }
@@ -16132,21 +16273,21 @@ class TarChannel {
     async tryUploadBatch(localPaths, remoteDir, folder, name, mode = 'smart') {
         var _a, _b, _c, _d, _e, _f;
         const skip = (detail) => {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.info(`[batch-upload] batch packing not applicable, per-file channel takes over: ${detail}`);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info(`[batch-upload] batch packing not applicable, per-file channel takes over: ${detail}`);
             return 'fallback';
         };
         if (mode === 'sftpOnly')
             return 'fallback';
         if (localPaths.length < 2)
             return skip(`only ${localPaths.length} entry`);
-        const parents = [...new Set(localPaths.map(p => path__WEBPACK_IMPORTED_MODULE_4__.dirname(p)))];
+        const parents = [...new Set(localPaths.map(p => path__WEBPACK_IMPORTED_MODULE_5__.dirname(p)))];
         if (parents.length !== 1)
             return skip(`${parents.length} distinct parent dirs (multiple landing points)`);
         if (remoteDir.includes('\0') || localPaths.some(p => p.includes('\0')))
             return skip('NUL byte in path');
         const names = [];
         for (const p of localPaths) {
-            const b = path__WEBPACK_IMPORTED_MODULE_4__.basename(p);
+            const b = path__WEBPACK_IMPORTED_MODULE_5__.basename(p);
             if (!b || b === '.' || b === '..' || b.includes('/') || b.includes('\\'))
                 return skip(`unsafe entry name: ${JSON.stringify(b)}`);
             names.push(b);
@@ -16163,7 +16304,7 @@ class TarChannel {
         if (!(await this._remoteTarAvailable()))
             return skip(`remote tar unavailable (extract step): ${remoteDir}`);
         for (const p of localPaths) {
-            const st = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.lstat(p).catch(() => null);
+            const st = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(p).catch(() => null);
             if (!st)
                 return skip(`lstat failed: ${p}`);
             if (st.isSymbolicLink())
@@ -16175,13 +16316,13 @@ class TarChannel {
         const verdict = tarWorthwhile(mode, stats);
         if (!verdict.ok)
             return skip(`not worthwhile (${verdict.reason}): ${names.length} entries -> ${remoteDir}`);
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.info(`[batch-upload] packed batch upload start; ${verdict.reason}; ${names.length} entries: ${parents[0]} -> ${remoteDir}`);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info(`[batch-upload] packed batch upload start; ${verdict.reason}; ${names.length} entries: ${parents[0]} -> ${remoteDir}`);
         const stagingRoot = await resolveStagingRoot(parents[0]);
-        const tmpDir = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_4__.join(stagingRoot, 'pack-')).catch(() => null);
+        const tmpDir = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_5__.join(stagingRoot, 'pack-')).catch(() => null);
         if (!tmpDir)
             return skip(`local staging dir unusable (mkdtemp failed): ${stagingRoot}`);
-        const batchTag = `${path__WEBPACK_IMPORTED_MODULE_4__.basename(remoteDir) || 'batch'}-${names.length}`;
-        const tarFile = path__WEBPACK_IMPORTED_MODULE_4__.join(tmpDir, `${makeTempName(batchTag, 'tar')}.tar.gz`);
+        const batchTag = `${path__WEBPACK_IMPORTED_MODULE_5__.basename(remoteDir) || 'batch'}-${names.length}`;
+        const tarFile = path__WEBPACK_IMPORTED_MODULE_5__.join(tmpDir, `${makeTempName(batchTag, 'tar')}.tar.gz`);
         const packTail = ['-C', parents[0], ...names];
         let packed = await runLocalTar(['-czf', '--format=pax', tarFile, ...packTail]);
         if (!packed.ok)
@@ -16190,7 +16331,7 @@ class TarChannel {
             await cleanupStaging(stagingRoot, tmpDir);
             return skip(`local tar pack failed (tar="${resolveLocalTarCmd()}") :: output="${packed.output.slice(0, 400)}"`);
         }
-        const tarSize = (_b = (_a = (await fs_promises__WEBPACK_IMPORTED_MODULE_2__.stat(tarFile).catch(() => null))) === null || _a === void 0 ? void 0 : _a.size) !== null && _b !== void 0 ? _b : 0;
+        const tarSize = (_b = (_a = (await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(tarFile).catch(() => null))) === null || _a === void 0 ? void 0 : _a.size) !== null && _b !== void 0 ? _b : 0;
         if (tarSize <= 0) {
             await cleanupStaging(stagingRoot, tmpDir);
             return skip(`local tarball empty or unreadable: ${tarFile}`);
@@ -16198,7 +16339,7 @@ class TarChannel {
         const realSize = (_c = stats === null || stats === void 0 ? void 0 : stats.size) !== null && _c !== void 0 ? _c : 0;
         const displayTotal = realSize > 0 ? realSize : tarSize;
         const disp = (b) => displayTotal === tarSize ? b : Math.round(b * displayTotal / tarSize);
-        const remoteTar = path__WEBPACK_IMPORTED_MODULE_4__.posix.join(remoteDir, `${makeTempName(batchTag, 'tar')}.tar.gz`);
+        const remoteTar = path__WEBPACK_IMPORTED_MODULE_5__.posix.join(remoteDir, `${makeTempName(batchTag, 'tar')}.tar.gz`);
         const ctx = folder.start(name, 'upload', remoteDir, parents[0], displayTotal, names.length);
         (_d = folder.markChannelMode) === null || _d === void 0 ? void 0 : _d.call(folder, ctx, 'tar');
         if (realSize > 0)
@@ -16217,20 +16358,20 @@ class TarChannel {
             if (!upOk) {
                 return this._decline(mode, name, 'tarballFailed', `batch tarball upload failed: ${remoteDir}`, folder, ctx);
             }
-            remoteExtractDir = path__WEBPACK_IMPORTED_MODULE_4__.posix.join(remoteDir, makeTempName(batchTag, 'untar'));
+            remoteExtractDir = path__WEBPACK_IMPORTED_MODULE_5__.posix.join(remoteDir, makeTempName(batchTag, 'untar'));
             const out = await this.deps.exec(buildRemoteUploadBatchLanding({ remoteTar, remoteExtractDir, remoteDir, names }), REMOTE_TAR_TIMEOUT_MS, { retryOnEmpty: false });
             if (!new RegExp(`\\b${TAR_OK}\\b`).test(out)) {
-                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
+                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
                 return this._decline(mode, name, 'remotePackFailed', `remote extract/landing failed: ${remoteDir} :: output="${String(out !== null && out !== void 0 ? out : '').trim().slice(0, 400)}"`, folder, ctx);
             }
             folder.updateProgress(ctx, displayTotal, name, names.length, displayTotal);
             folder.finish(ctx, true);
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.info(`[batch-upload] tar channel upload OK: ${names.length} entries -> ${remoteDir}`);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info(`[batch-upload] tar channel upload OK: ${names.length} entries -> ${remoteDir}`);
             return 'success';
         }
         catch (e) {
             if (remoteExtractDir) {
-                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
+                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
             }
             return this._decline(mode, name, 'other', `batch upload via tar channel threw: ${remoteDir} :: ${String((_f = e === null || e === void 0 ? void 0 : e.message) !== null && _f !== void 0 ? _f : e)}`, folder, ctx);
         }
@@ -16241,7 +16382,7 @@ class TarChannel {
     }
     async _remoteDirStats(dir) {
         try {
-            const q = (0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(dir);
+            const q = (0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(dir);
             const out = await this.deps.exec(`find ${q} -type f -printf '%s\\n' 2>/dev/null | awk '{n++; s+=$1} END {print n+0, s+0}'`, REMOTE_STATS_TIMEOUT_MS, { retryOnEmpty: false });
             const m = String(out !== null && out !== void 0 ? out : '').trim().match(/^(\d+)\s+(\d+)$/);
             if (!m)
@@ -16268,24 +16409,24 @@ class TarChannel {
         if (!(await this._remoteTarAvailable())) {
             return this._decline(mode, name, 'remoteTarMissing', `remote tar unavailable (pack step): ${remoteSrc}`);
         }
-        const parent = path__WEBPACK_IMPORTED_MODULE_4__.posix.dirname(remoteSrc);
-        const base = path__WEBPACK_IMPORTED_MODULE_4__.posix.basename(remoteSrc);
+        const parent = path__WEBPACK_IMPORTED_MODULE_5__.posix.dirname(remoteSrc);
+        const base = path__WEBPACK_IMPORTED_MODULE_5__.posix.basename(remoteSrc);
         const dirStats = await this._remoteDirStats(remoteSrc);
         const verdict = tarWorthwhile(mode, dirStats);
         if (!verdict.ok) {
             return this._decline(mode, name, 'other', `not worthwhile (${verdict.reason}): ${remoteSrc} -> ${localDest}`);
         }
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.info(`tar channel: packed download start (mergeIntoExisting=${mergeIntoExisting}); ${verdict.reason}: ` +
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info(`tar channel: packed download start (mergeIntoExisting=${mergeIntoExisting}); ${verdict.reason}: ` +
             `${remoteSrc} -> ${localDest}`);
-        const remoteTar = path__WEBPACK_IMPORTED_MODULE_4__.posix.join(parent, `${makeTempName(base, 'tar')}.tar`);
+        const remoteTar = path__WEBPACK_IMPORTED_MODULE_5__.posix.join(parent, `${makeTempName(base, 'tar')}.tar`);
         const paxFlag = (await this._remoteTarSupportsPax()) ? '--format=pax ' : '';
-        let out = await this.deps.exec(`${await this._remoteNicePrefix()}tar cf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(remoteTar)} ${paxFlag}-C ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(parent)} ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(base)} ` +
+        let out = await this.deps.exec(`${await this._remoteNicePrefix()}tar cf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(remoteTar)} ${paxFlag}-C ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(parent)} ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(base)} ` +
             `&& printf '${TAR_OK}\\n'`, REMOTE_TAR_TIMEOUT_MS, { retryOnEmpty: true });
         if (!new RegExp(`\\b${TAR_OK}\\b`).test(out)) {
             this.deps.remoteUnlink(remoteTar).catch(() => { });
             return this._decline(mode, name, 'remotePackFailed', `remote pack failed: ${remoteSrc} (pax=${paxFlag ? 'on' : 'off'}) :: output="${String(out !== null && out !== void 0 ? out : '').trim().slice(0, 400)}"`);
         }
-        out = await this.deps.exec(`wc -c < ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.shellQuotePosix)(remoteTar)}`, undefined, { retryOnEmpty: true });
+        out = await this.deps.exec(`wc -c < ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(remoteTar)}`, undefined, { retryOnEmpty: true });
         const tarSize = parseInt(out.trim(), 10);
         if (!Number.isFinite(tarSize) || tarSize <= 0) {
             this.deps.remoteUnlink(remoteTar).catch(() => { });
@@ -16294,13 +16435,13 @@ class TarChannel {
         const realSize = await this.deps.scanRemoteSize(remoteSrc).catch(() => 0);
         const displayTotal = realSize > 0 ? realSize : tarSize;
         const disp = (b) => displayTotal === tarSize ? b : Math.round(b * displayTotal / tarSize);
-        const ctx = folder.start(name, 'download', remoteSrc, path__WEBPACK_IMPORTED_MODULE_4__.join(localDest, base), displayTotal, 1);
+        const ctx = folder.start(name, 'download', remoteSrc, path__WEBPACK_IMPORTED_MODULE_5__.join(localDest, base), displayTotal, 1);
         (_a = folder.markChannelMode) === null || _a === void 0 ? void 0 : _a.call(folder, ctx, 'tar');
         if (realSize > 0)
             (_b = folder.updateLogSize) === null || _b === void 0 ? void 0 : _b.call(folder, ctx, realSize);
         const stagingRoot = await resolveStagingRoot(localDest);
-        const tmpDir = await fs_promises__WEBPACK_IMPORTED_MODULE_2__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_4__.join(stagingRoot, 'pack-')).catch(() => null);
-        const tarFile = tmpDir ? path__WEBPACK_IMPORTED_MODULE_4__.join(tmpDir, `${makeTempName(base, 'tar')}.tar`) : null;
+        const tmpDir = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_5__.join(stagingRoot, 'pack-')).catch(() => null);
+        const tarFile = tmpDir ? path__WEBPACK_IMPORTED_MODULE_5__.join(tmpDir, `${makeTempName(base, 'tar')}.tar`) : null;
         try {
             if (folder.isAborted(ctx)) {
                 folder.finish(ctx, false);
@@ -16317,18 +16458,19 @@ class TarChannel {
             if (!dlOk) {
                 return this._decline(mode, name, 'tarballFailed', `tarball download failed: ${remoteSrc}`, folder, ctx);
             }
+            ;(0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderPhase)(folder, ctx, 'extracting', name);
             const extracted = await extractTarSafely(tarFile, localDest, base, stagingRoot, mergeIntoExisting);
             if (extracted.ok === false) {
                 return this._decline(mode, name, extracted.code, extracted.detail, folder, ctx);
             }
             if (!(realSize > 0) && !mergeIntoExisting) {
-                const extractedSize = await this.deps.scanLocalSize(path__WEBPACK_IMPORTED_MODULE_4__.join(localDest, base)).catch(() => 0);
+                const extractedSize = await this.deps.scanLocalSize(path__WEBPACK_IMPORTED_MODULE_5__.join(localDest, base)).catch(() => 0);
                 if (extractedSize > 0)
                     (_c = folder.updateLogSize) === null || _c === void 0 ? void 0 : _c.call(folder, ctx, extractedSize);
             }
             folder.updateProgress(ctx, displayTotal, name, 1, displayTotal);
             folder.finish(ctx, true);
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.info('tar channel download OK:', remoteSrc, '->', localDest);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info('tar channel download OK:', remoteSrc, '->', localDest);
             return 'success';
         }
         catch (e) {
@@ -17057,6 +17199,7 @@ async function uploadLocalFile(ctx, remotePath, localPath, opts = {}) {
     }
     (_b = ctx.activeUploadTargets) === null || _b === void 0 ? void 0 : _b.add(remotePath);
     const up = new LocalPathFileUpload(localPath);
+    const progressTimer = opts.onProgress ? setInterval(() => { var _a; return (_a = opts.onProgress) === null || _a === void 0 ? void 0 : _a.call(opts, Number(up.getCompletedBytes()) || 0); }, 250) : null;
     if (opts.track && ctx.trackTransfer) {
         ctx.trackTransfer(up, 'upload', remotePath, localPath, opts.logOperation);
     }
@@ -17097,6 +17240,8 @@ async function uploadLocalFile(ctx, remotePath, localPath, opts = {}) {
         return false;
     }
     finally {
+        if (progressTimer)
+            clearInterval(progressTimer);
         (_e = ctx.activeUploadTargets) === null || _e === void 0 ? void 0 : _e.delete(remotePath);
         if (opts.exposeCancel && ctx.cancelRef)
             unregisterCancelRef(ctx.cancelRef, up);
@@ -17411,6 +17556,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _path_utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./path-utils */ "./src/sftp/core/path-utils.ts");
 /* harmony import */ var _digest__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./digest */ "./src/sftp/core/digest.ts");
 /* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../services/sftp-logger */ "./src/services/sftp-logger.ts");
+const fileOperation = __webpack_require__(/*! ../../runtime/file-operation.cjs */ "./src/runtime/file-operation.cjs");
 
 
 
@@ -17456,7 +17602,7 @@ class PanelTransferCoordinator {
         this.downloadDirUseCase = new _transfer_ops__WEBPACK_IMPORTED_MODULE_3__.DownloadDirUseCase(ports, this._remoteStats(), () => { var _a; return (_a = host.dirDownloadConcurrency) === null || _a === void 0 ? void 0 : _a.call(host); });
         this.downloadOneUseCase = new _transfer_ops__WEBPACK_IMPORTED_MODULE_3__.DownloadOneUseCase(ports, {
             getLocalPath: () => host.localPath,
-            downloadDir: (remoteSrc, localDest) => this.downloadRemoteDir(remoteSrc, localDest),
+            downloadDir: (remoteSrc, localDest, batch) => this.downloadRemoteDir(remoteSrc, localDest, undefined, undefined, undefined, batch),
         });
         this.uploadUseCase = new _transfer_ops__WEBPACK_IMPORTED_MODULE_3__.UploadPathUseCase(ports, () => { var _a; return (_a = host.dirUploadConcurrency) === null || _a === void 0 ? void 0 : _a.call(host); });
         this.uploadBatchUseCase = new _transfer_ops__WEBPACK_IMPORTED_MODULE_3__.UploadBatchUseCase(ports);
@@ -17496,22 +17642,22 @@ class PanelTransferCoordinator {
     _releaseTransferSlot(direction, remotePath, localPath) {
         this._activeTransferSlots.delete(buildTransferSlotKey(direction, remotePath, localPath));
     }
-    uploadPathToRemote(remoteDir, localPath, top) {
+    uploadPathToRemote(remoteDir, localPath, top, batch, moveSource = false) {
         if (top) {
-            return this._runScopedFolderTask(() => this.uploadUseCase.execute(remoteDir, localPath, top));
+            return this._runScopedFolderTask(() => this.uploadUseCase.execute(remoteDir, localPath, top, undefined, fileOperation.ensure(batch), moveSource));
         }
         const slotName = path__WEBPACK_IMPORTED_MODULE_6__.basename(localPath);
         const slotRemote = path__WEBPACK_IMPORTED_MODULE_6__.posix.join(remoteDir, slotName);
         if (!this._claimTransferSlot('upload', slotRemote, localPath, slotName))
             return Promise.resolve(false);
-        return this._runScopedFolderTask(() => this.uploadUseCase.execute(remoteDir, localPath, top))
+        return this._runScopedFolderTask(() => this.uploadUseCase.execute(remoteDir, localPath, top, undefined, fileOperation.ensure(batch), moveSource))
             .finally(() => this._releaseTransferSlot('upload', slotRemote, localPath));
     }
-    streamDownloadOne(file, targetLocalDir) {
-        return this.downloadOneUseCase.execute(file, targetLocalDir);
+    streamDownloadOne(file, targetLocalDir, batch) {
+        return this.downloadOneUseCase.execute(file, targetLocalDir, fileOperation.ensure(batch));
     }
-    downloadRemoteDir(remoteSrc, localDest, top, localName, forceOverwrite) {
-        const run = () => this._runScopedFolderTask(() => this.downloadDirUseCase.execute(remoteSrc, localDest, top, localName, undefined, !!forceOverwrite));
+    downloadRemoteDir(remoteSrc, localDest, top, localName, forceOverwrite, batch, moveSource = false) {
+        const run = () => this._runScopedFolderTask(() => this.downloadDirUseCase.execute(remoteSrc, localDest, top, localName, undefined, !!forceOverwrite, fileOperation.ensure(batch), moveSource));
         if (top)
             return run();
         const slotName = localName || path__WEBPACK_IMPORTED_MODULE_6__.posix.basename(remoteSrc);
@@ -17653,6 +17799,14 @@ class PanelTransferCoordinator {
             },
             scanDir: (p) => host.scanLocalDir(p),
             pathExists: (p) => fs_promises__WEBPACK_IMPORTED_MODULE_1__.stat(p).then(() => true).catch(() => false),
+            removeFile: p => fs_promises__WEBPACK_IMPORTED_MODULE_1__.unlink(p),
+            removeEmptyDirectory: async (p) => { try {
+                await fs_promises__WEBPACK_IMPORTED_MODULE_1__.rmdir(p);
+            }
+            catch (error) {
+                if (!['ENOTEMPTY', 'EEXIST', 'ENOENT'].includes(error.code))
+                    throw error;
+            } },
             mkdirRecursive: async (p) => { try {
                 await fs_promises__WEBPACK_IMPORTED_MODULE_1__.mkdir(p, { recursive: true });
             }
@@ -17703,6 +17857,16 @@ class PanelTransferCoordinator {
                     return null;
                 }
             },
+            unlink: async (p) => { await host.sftpSession.unlink(p); },
+            rmdir: async (p) => { try {
+                if ((await host.sftpSession.readdir(p)).some((e) => e.name !== '.' && e.name !== '..'))
+                    return;
+                await host.sftpSession.rmdir(p);
+            }
+            catch (error) {
+                if (!/not empty|no such file/i.test(error.message) && !['ENOTEMPTY', 'ENOENT'].includes(error.code))
+                    throw error;
+            } },
             isSymlink: async (remotePath) => {
                 var _a, _b, _c, _d;
                 const session = host.sftpSession;
@@ -17769,7 +17933,7 @@ class PanelTransferCoordinator {
         };
         const execution = {
             uploadTopLevel: (remotePath, localPath) => host.uploadTopLevel(remotePath, localPath),
-            uploadRaw: (remotePath, localPath) => host.uploadRaw(remotePath, localPath),
+            uploadRaw: (remotePath, localPath, onProgress) => host.uploadRaw(remotePath, localPath, onProgress),
             downloadTopLevel: (remotePath, localPath, mode, size) => host.downloadTopLevel(remotePath, localPath, mode, size),
             downloadRaw: (remotePath, localPath, mode, size, onProgress) => host.downloadRaw(remotePath, localPath, mode, size, onProgress),
         };
@@ -17811,6 +17975,22 @@ class PanelTransferRuntime {
                 this.host.cdr.detectChanges();
             }
             catch ( /* destroyed view */_a) { /* destroyed view */ }
+        }
+    }
+    watchFolder(entry) {
+        if (this._transferMeta.has(entry))
+            return;
+        const now = Date.now();
+        this._transferMeta.set(entry, { prevBytes: entry.bytesDone || 0, prevTime: now, startTime: now, lastProgressTime: now });
+        this._trackedTransferCount++;
+        this._startTransferTimer();
+    }
+    unwatchFolder(entry) {
+        if (this._transferMeta.delete(entry))
+            this._trackedTransferCount--;
+        if (this._trackedTransferCount <= 0) {
+            this._trackedTransferCount = 0;
+            this._stopTransferTimer();
         }
     }
     _queuedCancelKey(direction, localPath, remotePath) {
@@ -18138,6 +18318,23 @@ class PanelTransferRuntime {
             if (!meta)
                 continue;
             const t = entry.transfer;
+            if (entry.isFolder && !t) {
+                const now = Date.now(), bytes = entry.bytesDone || 0;
+                const transmitting = !entry.paused && entry.phase === 'transferring';
+                if (!transmitting || bytes > meta.prevBytes)
+                    meta.lastProgressTime = now;
+                const waiting = transmitting && now - meta.lastProgressTime >= SPEED_STALL_ZERO_MS;
+                if (entry.waitingForServer !== waiting) {
+                    entry.waitingForServer = waiting;
+                    needsDetect = true;
+                }
+                if (waiting) {
+                    entry.speed = SPEED_STALL_ZERO_TEXT;
+                    entry.speedBps = 0;
+                }
+                meta.prevBytes = bytes;
+                continue;
+            }
             try {
                 if (!this.host.connected) {
                     try {
@@ -18496,12 +18693,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   UploadBatchUseCase: () => (/* binding */ UploadBatchUseCase),
 /* harmony export */   UploadPathUseCase: () => (/* binding */ UploadPathUseCase)
 /* harmony export */ });
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! path */ "path");
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _path_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./path-utils */ "./src/sftp/core/path-utils.ts");
-/* harmony import */ var _concurrency__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./concurrency */ "./src/sftp/core/concurrency.ts");
-/* harmony import */ var _transfer_adapters__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./transfer-adapters */ "./src/sftp/core/transfer-adapters.ts");
-/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../services/sftp-logger */ "./src/services/sftp-logger.ts");
+/* harmony import */ var _transfer_progress__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./transfer-progress */ "./src/sftp/core/transfer-progress.ts");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _path_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./path-utils */ "./src/sftp/core/path-utils.ts");
+/* harmony import */ var _concurrency__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./concurrency */ "./src/sftp/core/concurrency.ts");
+/* harmony import */ var _transfer_adapters__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./transfer-adapters */ "./src/sftp/core/transfer-adapters.ts");
+/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../services/sftp-logger */ "./src/services/sftp-logger.ts");
+const fileOperation = __webpack_require__(/*! ../../runtime/file-operation.cjs */ "./src/runtime/file-operation.cjs");
+
 
 
 
@@ -18543,9 +18743,10 @@ function entryMtimeToMsOrUndefined(e) {
     return undefined;
 }
 async function dirGate(folder, ctx) {
+    var _a;
     if (!ctx)
         return true;
-    if (folder.isAborted(ctx))
+    if (((_a = ctx.batch) === null || _a === void 0 ? void 0 : _a.cancelled) || folder.isAborted(ctx))
         return false;
     await folder.waitWhilePaused(ctx);
     if (folder.isAborted(ctx))
@@ -18578,55 +18779,90 @@ class DownloadDirUseCase {
         this.remoteStats = remoteStats;
         this.dirConcurrency = dirConcurrency;
     }
-    async execute(remoteSrc, localDest, topCtx, localName, inLimiter, forceOverwrite = false) {
-        var _a;
+    async execute(remoteSrc, localDest, topCtx, localName, inLimiter, forceOverwrite = false, batch, moveSource = false) {
+        var _a, _b, _c, _d, _e;
         if (!this.ports.sftp.hasSession())
             return false;
-        const rawBase = localName || path__WEBPACK_IMPORTED_MODULE_0__.posix.basename(remoteSrc);
-        const base = (0,_path_utils__WEBPACK_IMPORTED_MODULE_1__.safeEntryName)(rawBase);
+        const rawBase = localName || path__WEBPACK_IMPORTED_MODULE_1__.posix.basename(remoteSrc);
+        const base = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(rawBase);
         if (!base) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('skip download dir with unsafe name:', rawBase);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('skip download dir with unsafe name:', rawBase);
             return false;
         }
-        const localDir = path__WEBPACK_IMPORTED_MODULE_0__.join(localDest, base);
+        const localDir = path__WEBPACK_IMPORTED_MODULE_1__.join(localDest, base);
         const isTop = !topCtx;
         let ctx = topCtx;
+        const existing = await this.ports.localFs.lstat(localDir);
+        if (existing && (!existing.isDirectory() || existing.isSymbolicLink())) {
+            fileOperation.enqueue(this.ports.conflictQueue, { localPath: localDir, remotePath: remoteSrc, remoteDir: path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname(remoteSrc), fileName: base, localStat: existing, direction: 'download', isDirectory: true, typeMismatch: true, transferCtx: ctx, mode: (ctx === null || ctx === void 0 ? void 0 : ctx.moveSource) ? 'cut' : undefined }, (ctx === null || ctx === void 0 ? void 0 : ctx.batch) || batch);
+            if (ctx)
+                this.ports.folder.markHadConflict(ctx);
+            this.ports.conflictQueue.showDialog();
+            return !isTop;
+        }
         if (isTop) {
             const targetExists = await this.ports.localFs.pathExists(localDir);
-            if (this.ports.tarChannel && (!targetExists || forceOverwrite)) {
+            if (!moveSource && this.ports.tarChannel && (!targetExists || forceOverwrite)) {
                 const r = await this.ports.tarChannel.tryDownloadDir(remoteSrc, localDest, this.ports.folder, base, targetExists, this.ports.tarChannelMode);
                 if (r === 'success')
                     return true;
                 if (r === 'failed')
                     return false;
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[download-dir] tar channel fell back, starting standard file-by-file transfer:', remoteSrc);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('[download-dir] tar channel fell back, starting standard file-by-file transfer:', remoteSrc);
             }
             else if (targetExists) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[download-dir] tar channel skipped (existing target requires per-file conflict checks):', localDir);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('[download-dir] tar channel skipped (existing target requires per-file conflict checks):', localDir);
                 // Existing directories require per-file conflict decisions, including tar-only preference.
             }
             let totalSize = 0;
             let itemCount = 0;
-            const s = await this.remoteStats.scanDir(remoteSrc);
-            totalSize = s.size;
-            itemCount = s.count;
-            ctx = this.ports.folder.start(base, 'download', remoteSrc, localDir, totalSize, itemCount);
+            ctx = this.ports.folder.start(base, 'download', remoteSrc, localDir, 0, 0);
+            ctx.moveSource = moveSource;
+            ctx.sourceDirectories = [];
+            ctx.batch = batch;
+            if (ctx.t)
+                ctx.t.batch = batch;
+            ctx.producing = true;
+            (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderPhase)(this.ports.folder, ctx, 'scanning', remoteSrc);
+            try {
+                const stats = await this.remoteStats.scanDir(remoteSrc);
+                totalSize = stats.size;
+                itemCount = stats.count;
+                if (ctx.t) {
+                    ctx.t.bytesTotal = totalSize;
+                    ctx.t.itemCount = itemCount;
+                }
+                (_b = (_a = this.ports.folder).updateLogSize) === null || _b === void 0 ? void 0 : _b.call(_a, ctx, totalSize);
+            }
+            catch (error) {
+                ctx.producing = false;
+                ctx.failed = true;
+                this.ports.folder.finish(ctx, false);
+                throw error;
+            }
+            if (this.ports.folder.isAborted(ctx)) {
+                ctx.producing = false;
+                this.ports.folder.finish(ctx, false);
+                return false;
+            }
         }
+        if (ctx === null || ctx === void 0 ? void 0 : ctx.moveSource)
+            ctx.sourceDirectories.push(remoteSrc);
         let success = true;
-        const limiter = inLimiter !== null && inLimiter !== void 0 ? inLimiter : new _concurrency__WEBPACK_IMPORTED_MODULE_2__.ConcurrencyLimiter((0,_concurrency__WEBPACK_IMPORTED_MODULE_2__.clampDirConcurrency)((_a = this.dirConcurrency) === null || _a === void 0 ? void 0 : _a.call(this)));
+        const limiter = inLimiter !== null && inLimiter !== void 0 ? inLimiter : new _concurrency__WEBPACK_IMPORTED_MODULE_3__.ConcurrencyLimiter((0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.clampDirConcurrency)((_c = this.dirConcurrency) === null || _c === void 0 ? void 0 : _c.call(this)));
         try {
             await this.ports.localFs.mkdirRecursive(localDir);
             const entries = await this.ports.sftp.readdir(remoteSrc);
             const tasks = entries.map(async (entry) => {
-                const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_1__.safeEntryName)(entry.name);
+                const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(entry.name);
                 if (!safeName) {
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('skip unsafe entry name:', entry.name);
+                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('skip unsafe entry name:', entry.name);
                     return true;
                 }
-                const remoteP = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(remoteSrc, safeName);
-                const localP = path__WEBPACK_IMPORTED_MODULE_0__.join(localDir, safeName);
+                const remoteP = path__WEBPACK_IMPORTED_MODULE_1__.posix.join(remoteSrc, safeName);
+                const localP = path__WEBPACK_IMPORTED_MODULE_1__.join(localDir, safeName);
                 if (entry.isSymlink || await this.ports.sftp.isSymlink(remoteP)) {
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('skip symlink during folder download:', entry.name);
+                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('skip symlink during folder download:', entry.name);
                     return true;
                 }
                 if (entry.isDirectory) {
@@ -18635,7 +18871,7 @@ class DownloadDirUseCase {
                     return this.execute(remoteP, localDir, ctx, undefined, limiter, forceOverwrite);
                 }
                 return gatedDirTask(this.ports.folder, ctx, limiter, async () => {
-                    var _a, _b;
+                    var _a, _b, _c, _d;
                     const sz = entry.size || 0;
                     let remoteMtime = (_a = entryMtimeToMsOrUndefined(entry)) !== null && _a !== void 0 ? _a : 0;
                     if (remoteMtime === 0) {
@@ -18645,20 +18881,25 @@ class DownloadDirUseCase {
                                 remoteMtime = (_b = entryMtimeToMsOrUndefined(st)) !== null && _b !== void 0 ? _b : 0;
                         }
                         catch (e) {
-                            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('stat fallback for folder download conflict failed:', remoteP, e);
+                            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('stat fallback for folder download conflict failed:', remoteP, e);
                         }
                     }
+                    if (ctx)
+                        (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderPhase)(this.ports.folder, ctx, 'checking', safeName);
                     if (!forceOverwrite) {
                         const conflictResult = await this.ports.conflictDetection.checkLocalConflict(localP, remoteP, sz, remoteMtime);
                         if (conflictResult.kind === 'auto-skipped') {
-                            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[download-dir] auto-skipped (content identical):', remoteP);
+                            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('[download-dir] auto-skipped (content identical):', remoteP);
+                            ctx && (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderSkipped)(this.ports.folder, ctx, safeName, sz);
                             return true;
                         }
                         if (conflictResult.kind === 'conflict') {
                             const conflictInfo = conflictResult.info;
-                            this.ports.conflictQueue.enqueue({
+                            fileOperation.enqueue(this.ports.conflictQueue, {
+                                mode: (ctx === null || ctx === void 0 ? void 0 : ctx.moveSource) ? 'cut' : undefined,
+                                typeMismatch: conflictInfo.typeMismatch,
                                 localPath: localP,
-                                remoteDir: path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(remoteP),
+                                remoteDir: path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname(remoteP),
                                 fileName: safeName,
                                 remotePath: remoteP,
                                 localStat: { size: conflictInfo.localSize, mtimeMs: conflictInfo.localMtime },
@@ -18668,64 +18909,44 @@ class DownloadDirUseCase {
                                 transferCtx: ctx,
                                 localDigest: conflictInfo.localDigest,
                                 remoteDigest: conflictInfo.remoteDigest,
-                            });
+                            }, (ctx === null || ctx === void 0 ? void 0 : ctx.batch) || batch);
                             if (ctx)
                                 this.ports.folder.markHadConflict(ctx);
                             this.ports.conflictQueue.showDialog();
                             return true;
                         }
                     }
-                    const liveMap = ctx ? (ctx.liveBytes || (ctx.liveBytes = new Map())) : null;
-                    const inFlightBytes = () => {
-                        if (!liveMap)
-                            return 0;
-                        let sum = 0;
-                        for (const v of liveMap.values())
-                            sum += v;
-                        return sum;
-                    };
-                    let liveReportAt = 0;
-                    const onLive = ctx && liveMap
-                        ? (bytes) => {
-                            if (bytes > 0)
-                                liveMap.set(localP, Math.max(liveMap.get(localP) || 0, bytes));
-                            const now = Date.now();
-                            if (now - liveReportAt < FOLDER_LIVE_PROGRESS_MS)
-                                return;
-                            liveReportAt = now;
-                            this.ports.folder.updateProgress(ctx, ctx.bytesDone + inFlightBytes(), safeName, ctx.itemDone, sz);
-                        }
-                        : undefined;
-                    const ok = await this.ports.execution.downloadRaw(remoteP, localP, entry.mode, entry.size, onLive);
-                    liveMap === null || liveMap === void 0 ? void 0 : liveMap.delete(localP);
-                    if (ctx && this.ports.folder.consumeAbortCurrent(ctx)) {
-                        if (!ok)
-                            return false;
+                    const progress = (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderFileProgress)(this.ports.folder, ctx, localP, safeName, sz);
+                    let ok = false;
+                    try {
+                        ok = await this.ports.execution.downloadRaw(remoteP, localP, entry.mode, entry.size, progress.report);
                     }
-                    else if (!ok) {
-                        return false;
+                    finally {
+                        progress.finish(ok);
                     }
-                    if (ctx) {
-                        if (sz > 0)
-                            ctx.bytesDone += sz;
-                        ctx.itemDone++;
-                        this.ports.folder.updateProgress(ctx, ctx.bytesDone + inFlightBytes(), safeName, ctx.itemDone, sz);
-                    }
-                    return true;
+                    if (ok && (ctx === null || ctx === void 0 ? void 0 : ctx.moveSource))
+                        await ((_d = (_c = this.ports.sftp).unlink) === null || _d === void 0 ? void 0 : _d.call(_c, remoteP));
+                    if (ctx)
+                        this.ports.folder.consumeAbortCurrent(ctx);
+                    return ok;
                 });
             });
             const folded = foldSettled(await Promise.allSettled(tasks));
             success = folded.success;
+            if (success && (ctx === null || ctx === void 0 ? void 0 : ctx.moveSource))
+                await ((_e = (_d = this.ports.sftp).rmdir) === null || _e === void 0 ? void 0 : _e.call(_d, remoteSrc));
             if (folded.firstErr != null)
                 throw folded.firstErr;
         }
         catch (e) {
             success = false;
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.error(`folder download failed: ${remoteSrc} :: ${(0,_transfer_adapters__WEBPACK_IMPORTED_MODULE_3__.errText)(e)}`);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.error(`folder download failed: ${remoteSrc} :: ${(0,_transfer_adapters__WEBPACK_IMPORTED_MODULE_4__.errText)(e)}`);
             throw e;
         }
         finally {
             if (isTop && ctx) {
+                ctx.producing = false;
+                ctx.failed || (ctx.failed = !success || this.ports.folder.isAborted(ctx));
                 const ok = success && !ctx.hadConflict && !this.ports.folder.isAborted(ctx);
                 this.ports.folder.finish(ctx, ok);
             }
@@ -18738,62 +18959,60 @@ class DownloadOneUseCase {
         this.ports = ports;
         this.downloadOne = downloadOne;
     }
-    async execute(file, targetLocalDir) {
+    async execute(file, targetLocalDir, batch) {
         var _a, _b;
         const localBase = (targetLocalDir === null || targetLocalDir === void 0 ? void 0 : targetLocalDir.trim()) || this.downloadOne.getLocalPath();
         if (file._customSaveAs && !file.isDirectory) {
-            const name = (0,_path_utils__WEBPACK_IMPORTED_MODULE_1__.safeEntryName)(file.name);
+            const name = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(file.name);
             if (!name || name !== file.name)
                 throw Error('Invalid download filename');
-            await this.ports.execution.downloadTopLevel(file.fullPath, path__WEBPACK_IMPORTED_MODULE_0__.join(localBase, name), file.mode, file.size);
+            await this.ports.execution.downloadTopLevel(file.fullPath, path__WEBPACK_IMPORTED_MODULE_1__.join(localBase, name), file.mode, file.size);
             return;
         }
         if (file.isDirectory) {
-            const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_1__.safeEntryName)(file.name);
+            const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(file.name);
             if (!safeName) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('skip download dir with unsafe name:', file.name);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('skip download dir with unsafe name:', file.name);
                 return;
             }
-            const localDir = path__WEBPACK_IMPORTED_MODULE_0__.join(localBase, safeName);
-            const existing = await this.ports.localFs.lstat(localDir);
-            if (existing && (!existing.isDirectory() || existing.isSymbolicLink()))
-                throw new Error('Cannot merge a folder into an existing file or link: ' + localDir);
-            await this.downloadOne.downloadDir(file.fullPath, localBase);
+            const localDir = path__WEBPACK_IMPORTED_MODULE_1__.join(localBase, safeName);
+            await this.downloadOne.downloadDir(file.fullPath, localBase, batch);
             return;
         }
-        const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_1__.safeEntryName)(file.name);
+        const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(file.name);
         if (!safeName) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('skip download file with unsafe name:', file.name);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('skip download file with unsafe name:', file.name);
             return;
         }
-        const localPath = path__WEBPACK_IMPORTED_MODULE_0__.join(localBase, safeName);
+        const localPath = path__WEBPACK_IMPORTED_MODULE_1__.join(localBase, safeName);
         let remoteMtime = entryMtimeToMsOrUndefined(file);
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[download-one] file.modified:', file.modified, 'initial remoteMtime:', remoteMtime, 'path:', file.fullPath);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('[download-one] file.modified:', file.modified, 'initial remoteMtime:', remoteMtime, 'path:', file.fullPath);
         if (remoteMtime == null) {
             try {
                 const st = await this.ports.sftp.stat(file.fullPath);
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[download-one] stat fallback result:', st);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('[download-one] stat fallback result:', st);
                 const stMtime = entryMtimeToMsOrUndefined(st);
                 if (stMtime != null)
                     remoteMtime = stMtime;
             }
             catch (e) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('[download-one] stat for file conflict failed:', file.fullPath, e);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('[download-one] stat for file conflict failed:', file.fullPath, e);
             }
         }
         if (remoteMtime == null)
             remoteMtime = 0;
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[download-one] final remoteMtime:', remoteMtime);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('[download-one] final remoteMtime:', remoteMtime);
         const conflictResult = await this.ports.conflictDetection.checkLocalConflict(localPath, file.fullPath, (_a = file.size) !== null && _a !== void 0 ? _a : 0, remoteMtime);
         if (conflictResult.kind === 'auto-skipped') {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[download-one] auto-skipped (content identical):', file.fullPath);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('[download-one] auto-skipped (content identical):', file.fullPath);
             return;
         }
         if (conflictResult.kind === 'conflict') {
             const conflictInfo = conflictResult.info;
-            this.ports.conflictQueue.enqueue({
+            fileOperation.enqueue(this.ports.conflictQueue, {
+                typeMismatch: conflictInfo.typeMismatch,
                 localPath,
-                remoteDir: path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(file.fullPath),
+                remoteDir: path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname(file.fullPath),
                 fileName: safeName,
                 remotePath: file.fullPath,
                 localStat: { size: conflictInfo.localSize, mtimeMs: conflictInfo.localMtime },
@@ -18802,7 +19021,7 @@ class DownloadOneUseCase {
                 remoteFileMtime: remoteMtime,
                 localDigest: conflictInfo.localDigest,
                 remoteDigest: conflictInfo.remoteDigest,
-            });
+            }, batch);
             return;
         }
         await this.ports.execution.downloadTopLevel(file.fullPath, localPath, file.mode, file.size);
@@ -18837,7 +19056,7 @@ class MergeLocalDirUseCase {
                 }
                 catch (_c) { }
             }
-            ownCtx = this.ports.folder.start(path__WEBPACK_IMPORTED_MODULE_0__.basename(localSrc), 'upload', remoteDest, localSrc, totalSize, itemCount, reuseLogEntryId);
+            ownCtx = this.ports.folder.start(path__WEBPACK_IMPORTED_MODULE_1__.basename(localSrc), 'upload', remoteDest, localSrc, totalSize, itemCount, reuseLogEntryId);
         }
         const ctx = topCtx !== null && topCtx !== void 0 ? topCtx : ownCtx;
         let success = true;
@@ -18857,13 +19076,13 @@ class MergeLocalDirUseCase {
                 }
                 if (c.isSymbolicLink)
                     continue;
-                const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_1__.safeEntryName)(c.name);
+                const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(c.name);
                 if (!safeName) {
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('skip unsafe local entry name during merge:', c.name);
+                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('skip unsafe local entry name during merge:', c.name);
                     continue;
                 }
-                const localP = path__WEBPACK_IMPORTED_MODULE_0__.join(localSrc, safeName);
-                const remoteP = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(remoteDest, safeName);
+                const localP = path__WEBPACK_IMPORTED_MODULE_1__.join(localSrc, safeName);
+                const remoteP = path__WEBPACK_IMPORTED_MODULE_1__.posix.join(remoteDest, safeName);
                 const st = await this.ports.localFs.lstat(localP);
                 if (!st)
                     continue;
@@ -18873,32 +19092,27 @@ class MergeLocalDirUseCase {
                         success = false;
                 }
                 else {
-                    const ok = await this.ports.execution.uploadRaw(remoteP, localP);
+                    const progress = (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderFileProgress)(this.ports.folder, ctx || undefined, localP, c.name, st.size);
+                    let ok = false;
+                    try {
+                        ok = await this.ports.execution.uploadRaw(remoteP, localP, progress.report);
+                    }
+                    finally {
+                        progress.finish(ok);
+                    }
                     if (ctx && ((_a = this.ports.folder) === null || _a === void 0 ? void 0 : _a.consumeAbortCurrent(ctx))) {
                         if (!ok)
                             success = false;
-                        else {
-                            ctx.itemDone++;
-                            if (st.size > 0)
-                                ctx.bytesDone += st.size;
-                            this.ports.folder.updateProgress(ctx, ctx.bytesDone, c.name, ctx.itemDone, st.size);
-                        }
                         continue;
                     }
                     if (!ok)
                         success = false;
-                    else if (ctx && this.ports.folder) {
-                        ctx.itemDone++;
-                        if (st.size > 0)
-                            ctx.bytesDone += st.size;
-                        this.ports.folder.updateProgress(ctx, ctx.bytesDone, c.name, ctx.itemDone, st.size);
-                    }
                 }
             }
         }
         catch (e) {
             success = false;
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.error(`merge local dir failed: ${localSrc} :: ${(0,_transfer_adapters__WEBPACK_IMPORTED_MODULE_3__.errText)(e)}`);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.error(`merge local dir failed: ${localSrc} :: ${(0,_transfer_adapters__WEBPACK_IMPORTED_MODULE_4__.errText)(e)}`);
             throw e;
         }
         finally {
@@ -18921,20 +19135,20 @@ class MergeLocalDirUseCase {
             exists = await probe(remoteDest, true);
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('[merge-upload] remote target probe failed, skip tar channel:', (0,_transfer_adapters__WEBPACK_IMPORTED_MODULE_3__.errText)(e));
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('[merge-upload] remote target probe failed, skip tar channel:', (0,_transfer_adapters__WEBPACK_IMPORTED_MODULE_4__.errText)(e));
             return null;
         }
         const mode = (_c = (_b = (_a = this.ports).tarChannelMode) === null || _b === void 0 ? void 0 : _b.call(_a)) !== null && _c !== void 0 ? _c : 'smart';
-        const r = await tarChannel.tryUploadDir(localSrc, remoteDest, folder, path__WEBPACK_IMPORTED_MODULE_0__.basename(localSrc), exists, mode, reuseLogEntryId);
+        const r = await tarChannel.tryUploadDir(localSrc, remoteDest, folder, path__WEBPACK_IMPORTED_MODULE_1__.basename(localSrc), exists, mode, reuseLogEntryId);
         if (r === 'success') {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info(`[merge-upload] packed by tar channel (${exists ? 'merge-into-existing' : 'fresh'}):`, localSrc, '->', remoteDest);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info(`[merge-upload] packed by tar channel (${exists ? 'merge-into-existing' : 'fresh'}):`, localSrc, '->', remoteDest);
             return true;
         }
         if (r === 'failed') {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('[merge-upload] tar channel required but unusable, merge aborted:', localSrc, '->', remoteDest);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('[merge-upload] tar channel required but unusable, merge aborted:', localSrc, '->', remoteDest);
             return false;
         }
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[merge-upload] tar channel not taken, falling back to per-file merge:', localSrc, '->', remoteDest);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('[merge-upload] tar channel not taken, falling back to per-file merge:', localSrc, '->', remoteDest);
         return null;
     }
 }
@@ -18954,29 +19168,29 @@ class UploadBatchUseCase {
             return 'fallback';
         if (localPaths.length < 2)
             return 'fallback';
-        if (new Set(localPaths.map(p => path__WEBPACK_IMPORTED_MODULE_0__.dirname(p))).size !== 1)
+        if (new Set(localPaths.map(p => path__WEBPACK_IMPORTED_MODULE_1__.dirname(p))).size !== 1)
             return 'fallback';
         for (const p of localPaths) {
-            const target = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(remoteDir, path__WEBPACK_IMPORTED_MODULE_0__.basename(p));
+            const target = path__WEBPACK_IMPORTED_MODULE_1__.posix.join(remoteDir, path__WEBPACK_IMPORTED_MODULE_1__.basename(p));
             let exists = false;
             try {
                 exists = await probe(target);
             }
             catch (e) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('[batch-upload] remote target probe failed, batch packing skipped:', (0,_transfer_adapters__WEBPACK_IMPORTED_MODULE_3__.errText)(e));
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('[batch-upload] remote target probe failed, batch packing skipped:', (0,_transfer_adapters__WEBPACK_IMPORTED_MODULE_4__.errText)(e));
                 return 'fallback';
             }
             if (exists) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[batch-upload] a target already exists, batch packing skipped (per-file flow decides):', target);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('[batch-upload] a target already exists, batch packing skipped (per-file flow decides):', target);
                 return 'fallback';
             }
         }
         const r = await tarChannel.tryUploadBatch(localPaths, remoteDir, folder, name, mode);
         if (r === 'success') {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info(`[batch-upload] packed by tar channel: ${localPaths.length} entries ->`, remoteDir);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info(`[batch-upload] packed by tar channel: ${localPaths.length} entries ->`, remoteDir);
         }
         else if (r === 'failed') {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn(`[batch-upload] tar channel required but unusable, batch aborted: ${localPaths.length} entries ->`, remoteDir);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn(`[batch-upload] tar channel required but unusable, batch aborted: ${localPaths.length} entries ->`, remoteDir);
         }
         return r;
     }
@@ -18986,7 +19200,7 @@ class UploadPathUseCase {
         this.ports = ports;
         this.dirConcurrency = dirConcurrency;
     }
-    async execute(remoteDir, localPath, topCtx, inLimiter) {
+    async execute(remoteDir, localPath, topCtx, inLimiter, batch, moveSource = false) {
         if (!this.ports.sftp.hasSession())
             return false;
         const st = await this.ports.localFs.lstat(localPath);
@@ -18994,39 +19208,74 @@ class UploadPathUseCase {
             return false;
         if (st.isSymbolicLink())
             return false;
-        const base = path__WEBPACK_IMPORTED_MODULE_0__.basename(localPath);
-        const remoteTarget = path__WEBPACK_IMPORTED_MODULE_0__.posix.join(remoteDir, base);
+        const base = path__WEBPACK_IMPORTED_MODULE_1__.basename(localPath);
+        const remoteTarget = path__WEBPACK_IMPORTED_MODULE_1__.posix.join(remoteDir, base);
         const isTop = !topCtx;
         if (st.isDirectory()) {
-            return this._uploadDirectory(remoteDir, localPath, remoteTarget, st, isTop, topCtx, inLimiter);
+            return this._uploadDirectory(remoteDir, localPath, remoteTarget, st, isTop, topCtx, inLimiter, batch, moveSource);
         }
-        return this._uploadFile(remoteDir, localPath, remoteTarget, st, isTop, topCtx);
+        return this._uploadFile(remoteDir, localPath, remoteTarget, st, isTop, topCtx, batch);
     }
-    async _uploadDirectory(remoteDir, localPath, remoteTarget, st, isTop, topCtx, inLimiter) {
-        var _a;
+    async _uploadDirectory(remoteDir, localPath, remoteTarget, st, isTop, topCtx, inLimiter, batch, moveSource = false) {
+        var _a, _b, _c, _d, _e;
         let ctx = topCtx;
+        if (await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, false)) {
+            fileOperation.enqueue(this.ports.conflictQueue, { localPath, remotePath: remoteTarget, remoteDir, fileName: path__WEBPACK_IMPORTED_MODULE_1__.basename(localPath), localStat: st, direction: 'upload', isDirectory: true, typeMismatch: true, transferCtx: ctx, mode: (ctx === null || ctx === void 0 ? void 0 : ctx.moveSource) ? 'cut' : undefined }, (ctx === null || ctx === void 0 ? void 0 : ctx.batch) || batch);
+            if (ctx)
+                this.ports.folder.markHadConflict(ctx);
+            this.ports.conflictQueue.showDialog();
+            return !isTop;
+        }
         if (isTop) {
-            const base = path__WEBPACK_IMPORTED_MODULE_0__.basename(localPath);
-            if (this.ports.tarChannel && !(await this.ports.conflictDetection.checkRemotePathExists(remoteTarget))) {
+            const base = path__WEBPACK_IMPORTED_MODULE_1__.basename(localPath);
+            if (!moveSource && this.ports.tarChannel && !(await this.ports.conflictDetection.checkRemotePathExists(remoteTarget))) {
                 // Archive only fresh targets. Existing directories need individual file conflict choices.
                 const r = await this.ports.tarChannel.tryUploadDir(localPath, remoteTarget, this.ports.folder, base, false, this.ports.tarChannelMode);
                 if (r === 'success')
                     return true;
                 if (r === 'failed')
                     return false;
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[upload-dir] tar channel fell back, starting standard file-by-file transfer:', localPath);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('[upload-dir] tar channel fell back, starting standard file-by-file transfer:', localPath);
             }
             let totalSize = 0;
             let itemCount = 0;
-            const s = await this.ports.localFs.scanDir(localPath);
-            totalSize = s.size;
-            itemCount = s.count;
-            ctx = this.ports.folder.start(base, 'upload', remoteTarget, localPath, totalSize, itemCount);
+            ctx = this.ports.folder.start(base, 'upload', remoteTarget, localPath, 0, 0);
+            ctx.moveSource = moveSource;
+            ctx.sourceDirectories = [];
+            ctx.batch = batch;
+            if (ctx.t)
+                ctx.t.batch = batch;
+            ctx.producing = true;
+            (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderPhase)(this.ports.folder, ctx, 'scanning', localPath);
+            try {
+                const stats = await this.ports.localFs.scanDir(localPath);
+                totalSize = stats.size;
+                itemCount = stats.count;
+                if (ctx.t) {
+                    ctx.t.bytesTotal = totalSize;
+                    ctx.t.itemCount = itemCount;
+                }
+                (_b = (_a = this.ports.folder).updateLogSize) === null || _b === void 0 ? void 0 : _b.call(_a, ctx, totalSize);
+            }
+            catch (error) {
+                ctx.producing = false;
+                ctx.failed = true;
+                this.ports.folder.finish(ctx, false);
+                throw error;
+            }
+            if (this.ports.folder.isAborted(ctx)) {
+                ctx.producing = false;
+                this.ports.folder.finish(ctx, false);
+                return false;
+            }
         }
         // Same-named directories merge; files are checked individually below.
         if (await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, false)) {
-            if (ctx && isTop)
+            if (ctx && isTop) {
+                ctx.producing = false;
+                ctx.failed = true;
                 this.ports.folder.finish(ctx, false);
+            }
             throw new Error('Cannot merge a folder into an existing file: ' + remoteTarget);
         }
         try {
@@ -19034,24 +19283,29 @@ class UploadPathUseCase {
         }
         catch (error) {
             if (!await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, true)) {
-                if (ctx && isTop)
+                if (ctx && isTop) {
+                    ctx.producing = false;
+                    ctx.failed = true;
                     this.ports.folder.finish(ctx, false);
+                }
                 throw error;
             }
         }
-        const limiter = inLimiter !== null && inLimiter !== void 0 ? inLimiter : new _concurrency__WEBPACK_IMPORTED_MODULE_2__.ConcurrencyLimiter((0,_concurrency__WEBPACK_IMPORTED_MODULE_2__.clampDirConcurrency)((_a = this.dirConcurrency) === null || _a === void 0 ? void 0 : _a.call(this)));
+        if (ctx === null || ctx === void 0 ? void 0 : ctx.moveSource)
+            ctx.sourceDirectories.push(localPath);
+        const limiter = inLimiter !== null && inLimiter !== void 0 ? inLimiter : new _concurrency__WEBPACK_IMPORTED_MODULE_3__.ConcurrencyLimiter((0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.clampDirConcurrency)((_c = this.dirConcurrency) === null || _c === void 0 ? void 0 : _c.call(this)));
         let success = true;
         try {
             const children = await this.ports.localFs.listChildren(localPath);
             const tasks = children
                 .filter(c => !c.isSymbolicLink)
                 .map(async (c) => {
-                const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_1__.safeEntryName)(c.name);
+                const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(c.name);
                 if (!safeName) {
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.warn('skip unsafe local entry during upload:', c.name);
+                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('skip unsafe local entry during upload:', c.name);
                     return true;
                 }
-                const childLocal = path__WEBPACK_IMPORTED_MODULE_0__.join(localPath, safeName);
+                const childLocal = path__WEBPACK_IMPORTED_MODULE_1__.join(localPath, safeName);
                 const st = await this.ports.localFs.lstat(childLocal);
                 if (!st)
                     return false;
@@ -19060,37 +19314,47 @@ class UploadPathUseCase {
                         return false;
                     return this.execute(remoteTarget, childLocal, ctx, limiter);
                 }
-                return gatedDirTask(this.ports.folder, ctx, limiter, () => this._uploadFile(remoteTarget, childLocal, path__WEBPACK_IMPORTED_MODULE_0__.posix.join(remoteTarget, safeName), st, false, ctx));
+                return gatedDirTask(this.ports.folder, ctx, limiter, () => this._uploadFile(remoteTarget, childLocal, path__WEBPACK_IMPORTED_MODULE_1__.posix.join(remoteTarget, safeName), st, false, ctx));
             });
             const folded = foldSettled(await Promise.allSettled(tasks));
             success = folded.success;
+            if (success && (ctx === null || ctx === void 0 ? void 0 : ctx.moveSource))
+                await ((_e = (_d = this.ports.localFs).removeEmptyDirectory) === null || _e === void 0 ? void 0 : _e.call(_d, localPath));
             if (folded.firstErr != null)
                 throw folded.firstErr;
         }
         catch (e) {
             success = false;
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.error(`upload dir failed: ${localPath} :: ${(0,_transfer_adapters__WEBPACK_IMPORTED_MODULE_3__.errText)(e)}`);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.error(`upload dir failed: ${localPath} :: ${(0,_transfer_adapters__WEBPACK_IMPORTED_MODULE_4__.errText)(e)}`);
             throw e;
         }
         finally {
             if (isTop && ctx) {
+                ctx.producing = false;
+                ctx.failed || (ctx.failed = !success || this.ports.folder.isAborted(ctx));
                 const ok = success && !ctx.hadConflict && !this.ports.folder.isAborted(ctx);
                 this.ports.folder.finish(ctx, ok);
             }
         }
         return success && !(ctx === null || ctx === void 0 ? void 0 : ctx.hadConflict);
     }
-    async _uploadFile(remoteDir, localPath, remoteTarget, st, isTop, topCtx) {
-        const base = path__WEBPACK_IMPORTED_MODULE_0__.basename(localPath);
+    async _uploadFile(remoteDir, localPath, remoteTarget, st, isTop, topCtx, batch, moveSource = false) {
+        var _a, _b;
+        const base = path__WEBPACK_IMPORTED_MODULE_1__.basename(localPath);
+        if (topCtx)
+            (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderPhase)(this.ports.folder, topCtx, 'checking', base);
         const conflictResult = await this.ports.conflictDetection.checkUploadConflict(remoteTarget, localPath, st.size, st.mtimeMs);
         if (conflictResult.kind === 'auto-skipped') {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[upload-file] auto-skipped (content identical):', remoteTarget);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('[upload-file] auto-skipped (content identical):', remoteTarget);
+            topCtx && (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderSkipped)(this.ports.folder, topCtx, base, st.size);
             return true;
         }
         if (conflictResult.kind === 'conflict') {
             const conflictInfo = conflictResult.info;
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_4__.log.info('[upload-one] conflict for', remoteTarget, 'remoteSize:', conflictInfo.remoteSize, 'remoteMtime:', conflictInfo.remoteMtime);
-            this.ports.conflictQueue.enqueue({
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('[upload-one] conflict for', remoteTarget, 'remoteSize:', conflictInfo.remoteSize, 'remoteMtime:', conflictInfo.remoteMtime);
+            fileOperation.enqueue(this.ports.conflictQueue, {
+                mode: (topCtx === null || topCtx === void 0 ? void 0 : topCtx.moveSource) ? 'cut' : undefined,
+                typeMismatch: conflictInfo.typeMismatch,
                 localPath,
                 remoteDir,
                 fileName: base,
@@ -19102,7 +19366,7 @@ class UploadPathUseCase {
                 transferCtx: topCtx,
                 localDigest: conflictInfo.localDigest,
                 remoteDigest: conflictInfo.remoteDigest,
-            });
+            }, (topCtx === null || topCtx === void 0 ? void 0 : topCtx.batch) || batch);
             if (topCtx)
                 this.ports.folder.markHadConflict(topCtx);
             this.ports.conflictQueue.showDialog();
@@ -19111,19 +19375,22 @@ class UploadPathUseCase {
         if (isTop) {
             return this.ports.execution.uploadTopLevel(remoteTarget, localPath);
         }
-        const ok = await this.ports.execution.uploadRaw(remoteTarget, localPath);
+        const progress = (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderFileProgress)(this.ports.folder, topCtx, localPath, base, st.size);
+        let ok = false;
+        try {
+            ok = await this.ports.execution.uploadRaw(remoteTarget, localPath, progress.report);
+        }
+        finally {
+            progress.finish(ok);
+        }
+        if (ok && (topCtx === null || topCtx === void 0 ? void 0 : topCtx.moveSource))
+            await ((_b = (_a = this.ports.localFs).removeFile) === null || _b === void 0 ? void 0 : _b.call(_a, localPath));
         if (topCtx && this.ports.folder.consumeAbortCurrent(topCtx)) {
             if (!ok)
                 return false;
         }
         else if (!ok) {
             return false;
-        }
-        if (topCtx) {
-            topCtx.itemDone++;
-            if (st.size > 0)
-                topCtx.bytesDone += st.size;
-            this.ports.folder.updateProgress(topCtx, topCtx.bytesDone, base, topCtx.itemDone, st.size);
         }
         return true;
     }
@@ -19141,10 +19408,61 @@ class UploadPathUseCase {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   folderFileProgress: () => (/* binding */ folderFileProgress),
+/* harmony export */   folderPhase: () => (/* binding */ folderPhase),
+/* harmony export */   folderSkipped: () => (/* binding */ folderSkipped),
 /* harmony export */   getTransferProgressAgeMs: () => (/* binding */ getTransferProgressAgeMs),
 /* harmony export */   markTransferProgress: () => (/* binding */ markTransferProgress),
 /* harmony export */   resetTransferProgressClock: () => (/* binding */ resetTransferProgressClock)
 /* harmony export */ });
+function folderPhase(folder, ctx, phase, item = '') {
+    var _a;
+    if (ctx.t)
+        ctx.t.phase = phase;
+    folder.updateProgress(ctx, Math.max(((_a = ctx.t) === null || _a === void 0 ? void 0 : _a.bytesDone) || 0, (ctx.skippedBytes || 0) + ctx.bytesDone + liveFolderBytes(ctx)), item, ctx.itemDone);
+}
+function liveFolderBytes(ctx) {
+    var _a;
+    let total = 0;
+    for (const bytes of ((_a = ctx.liveBytes) === null || _a === void 0 ? void 0 : _a.values()) || [])
+        total += bytes;
+    return total;
+}
+/** Shared per-folder byte accounting, including concurrently running files. */
+function folderFileProgress(folder, ctx, key, name, size) {
+    var _a;
+    if (!ctx)
+        return { report: (_bytes) => { }, finish: (_ok) => { } };
+    const live = ctx.liveBytes || (ctx.liveBytes = new Map());
+    live.set(key, 0);
+    folderPhase(folder, ctx, 'transferring', name);
+    const publish = () => folder.updateProgress(ctx, (ctx.skippedBytes || 0) + ctx.bytesDone + liveFolderBytes(ctx), name, ctx.itemDone, size);
+    const reporter = {
+        report(bytes) {
+            live.set(key, Math.max(live.get(key) || 0, Math.min(size, Math.max(0, bytes))));
+            const now = Date.now();
+            if (now - (ctx.lastLiveReportAt || 0) < 250)
+                return;
+            ctx.lastLiveReportAt = now;
+            publish();
+        },
+        finish(ok) {
+            live.delete(key);
+            if (ok) {
+                ctx.bytesDone += size;
+                ctx.itemDone++;
+            }
+            publish();
+        },
+    };
+    Object.assign(reporter.report, { cancelRef: (_a = ctx.t) === null || _a === void 0 ? void 0 : _a._taskCancelRef });
+    return reporter;
+}
+function folderSkipped(folder, ctx, name, size) {
+    ctx.skippedBytes = (ctx.skippedBytes || 0) + size;
+    ctx.itemDone++;
+    folder.updateProgress(ctx, (ctx.skippedBytes || 0) + ctx.bytesDone + liveFolderBytes(ctx), name, ctx.itemDone, size);
+}
 let _lastProgressAt = 0;
 function markTransferProgress() {
     _lastProgressAt = Date.now();
@@ -19392,6 +19710,7 @@ var __param = (undefined && undefined.__param) || function (paramIndex, decorato
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 var SftpFloatingPanel_1;
+const fileOperation = __webpack_require__(/*! ../runtime/file-operation.cjs */ "./src/runtime/file-operation.cjs");
 const { getPluginUpdater, panelHasWork } = __webpack_require__(/*! ../runtime/plugin-updater.cjs */ "./src/runtime/plugin-updater.cjs");
 
 
@@ -20686,6 +21005,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         this._dragCacheInFlight = new Set();
         this.localDragHoverHandler = (kind, event) => this._handleDragHover(kind, event, 'local');
         this.remoteDragHoverHandler = (kind, event) => this._handleDragHover(kind, event, 'remote');
+        this._folderProgressDetect = null;
         this._toastDurationMs = 2200;
         this._toastHovering = false;
         this._downloadConcurrency = 3;
@@ -20785,6 +21105,10 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             cdr: this.cdr,
             markViewDirty: () => panel._safeDetect(),
             dropTmpScope: panel._dropTmpScope,
+            copyLocalPaths: async (paths, destination) => {
+                const entries = await Promise.all(paths.map(async (fullPath) => { const stat = await fs_promises__WEBPACK_IMPORTED_MODULE_5__.lstat(fullPath); return { name: path__WEBPACK_IMPORTED_MODULE_4__.basename(fullPath), fullPath, isDirectory: stat.isDirectory(), isSymlink: stat.isSymbolicLink(), size: stat.size, mtimeMs: stat.mtimeMs }; }));
+                await panel._pasteAdapter.paste(entries, 'local', destination, 'copy', 'local');
+            },
             moveWithinPane: (payload, side, dest) => panel._moveDroppedEntries(payload, side, dest),
             get connected() { return panel.connected; },
             get sftpSession() { return panel.sftpSession; },
@@ -20800,9 +21124,9 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             hasConflictQueue: () => panel._conflictQueue.length > 0,
             resetFileDragState: () => panel._resetFileDragState(),
             uploadPathToRemote: (remoteDir, localPath) => panel.uploadPathToRemote(remoteDir, localPath),
-            streamUploadOne: (localPath, destRemoteDir) => panel._streamUploadOne(localPath, destRemoteDir),
+            streamUploadOne: (localPath, destRemoteDir, batch) => panel._streamUploadOne(localPath, destRemoteDir, batch),
             tryUploadBatch: (localPaths, remoteDir) => panel._tryBatchUpload(localPaths, remoteDir),
-            streamDownloadOne: (file, targetLocalDir) => panel._streamDownloadOne(file, targetLocalDir),
+            streamDownloadOne: (file, targetLocalDir, batch) => panel._streamDownloadOne(file, targetLocalDir, batch),
             refreshLocal: () => panel.refreshLocal(),
             refreshRemote: () => panel.refreshRemote(),
             showConflictDialog: () => panel._showConflictDialog(),
@@ -20838,22 +21162,32 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             tarChannelMode: () => panel._transferChannelMode,
             conflictDigestOptions: () => (panel._conflictDigestEnabled ? {
                 enabled: true,
-                autoSkipSameContent: panel._conflictAutoSkipSameContent,
+                autoSkipSameContent: false,
                 maxBytes: panel._conflictDigestMaxSizeMB * 1024 * 1024,
                 algo: panel._conflictDigestAlgo,
             } : null),
             downloadTarBall: (remotePath, localPath, size, onProgress, shouldAbort) => panel._downloadTarBall(remotePath, localPath, size, onProgress, shouldAbort),
             startFolderTransfer: (name, direction, remotePath, localPath, totalSize, itemCount, reuseLogEntryId) => {
                 const { transferEntry: t, startTime, logEntryId } = panel._startFolderTransfer(name, direction, remotePath, localPath, totalSize, itemCount, reuseLogEntryId);
-                return { t, startTime, logEntryId, bytesDone: 0, itemDone: 0 };
+                return { t, startTime, logEntryId, bytesDone: 0, itemDone: 0, session: panel.sftpSession };
             },
-            finishFolderTransfer: (ctx, success) => panel._finishFolderTransfer(ctx.t, ctx.startTime, ctx.logEntryId, success),
+            finishFolderTransfer: (ctx, success) => {
+                var _a, _b;
+                if (ctx.hadConflict && panel._conflictQueue.some(item => item.transferCtx === ctx) && !((_a = ctx.t) === null || _a === void 0 ? void 0 : _a._aborted)) {
+                    ctx.t.phase = 'waiting';
+                    panel._safeDetect();
+                    return;
+                }
+                panel._finishFolderTransfer(ctx.t, ctx.startTime, ctx.logEntryId, success || (!!ctx.hadConflict && !ctx.failed && !((_b = ctx.t) === null || _b === void 0 ? void 0 : _b._aborted)));
+            },
             discardFolderTransfer: (ctx) => {
+                var _a, _b;
+                (_b = (_a = panel._transferRuntime).unwatchFolder) === null || _b === void 0 ? void 0 : _b.call(_a, ctx.t);
                 panel.transfers = panel.transfers.filter(x => x !== ctx.t);
                 try {
                     panel.transferLog.remove(ctx.logEntryId);
                 }
-                catch ( /* ignore */_a) { /* ignore */ }
+                catch ( /* ignore */_c) { /* ignore */ }
                 panel._safeDetect();
             },
             markChannelMode: (ctx, mode) => {
@@ -20873,10 +21207,14 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 }
                 catch ( /* ignore */_a) { /* ignore */ }
             },
-            updateFolderProgress: (ctx, bytesDone, currentItem, itemDone, currentItemSize) => panel._updateFolderProgress(ctx.t, bytesDone, currentItem, itemDone, currentItemSize),
+            updateFolderProgress: (ctx, bytesDone, currentItem, itemDone, currentItemSize) => {
+                var _a;
+                ctx.t.bytesTransferred = ctx.t.transferMode === 'tar' ? bytesDone : ctx.bytesDone + [...(((_a = ctx.liveBytes) === null || _a === void 0 ? void 0 : _a.values()) || [])].reduce((sum, n) => sum + n, 0);
+                panel._updateFolderProgress(ctx.t, bytesDone, currentItem, itemDone, currentItemSize);
+            },
             onTransferSkipped: (info) => panel._markTransferAsSkipped(info),
             uploadTopLevel: (remotePath, localPath) => panel._doUpload(remotePath, localPath),
-            uploadRaw: (remotePath, localPath) => panel._doUploadRaw(remotePath, localPath),
+            uploadRaw: (remotePath, localPath, onProgress) => panel._doUploadRaw(remotePath, localPath, onProgress),
             downloadTopLevel: (remotePath, localPath, mode, size) => panel._doDownload(remotePath, localPath, mode, size),
             downloadRaw: (remotePath, localPath, mode, size, onProgress) => panel._doDownloadRaw(remotePath, localPath, mode, size, onProgress),
             refreshRemote: () => panel.refreshRemote(),
@@ -20892,8 +21230,8 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             scanLocalDir: (p) => panel._scanLocalDir(p),
             uploadFile: (remotePath, localPath) => panel._doUpload(remotePath, localPath),
             downloadFile: (remotePath, localPath, mode, size) => panel._doDownload(remotePath, localPath, mode, size),
-            uploadDirectory: (localSrc, remoteDestParent) => panel.uploadPathToRemote(remoteDestParent, localSrc),
-            downloadDirectory: (remoteSrc, localDestParent) => panel.downloadRemoteDir(remoteSrc, localDestParent, 'local'),
+            uploadDirectory: (localSrc, remoteDestParent, batch, moveSource) => panel.uploadPathToRemote(remoteDestParent, localSrc, undefined, batch, moveSource),
+            downloadDirectory: (remoteSrc, localDestParent, batch, moveSource) => panel._transferCoordinator.downloadRemoteDir(remoteSrc, localDestParent, undefined, undefined, undefined, batch, moveSource),
             checkRemotePathExists: (remotePath, expectDir) => panel._transferCoordinator.checkRemotePathExists(remotePath, expectDir),
             enqueueConflict: (item) => {
                 panel._conflictQueue.push(item);
@@ -20917,6 +21255,39 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             refreshRemote: () => panel.refreshRemote(),
         });
         this._conflictResolver = new _components_panel_conflict_resolver__WEBPACK_IMPORTED_MODULE_32__.PanelConflictResolver({
+            cleanupMoveFolders: async (ctx) => {
+                for (const folder of [...new Set(ctx.sourceDirectories || [])].sort((a, b) => b.length - a.length)) {
+                    try {
+                        if (ctx.t.direction === 'upload')
+                            await fs_promises__WEBPACK_IMPORTED_MODULE_5__.rmdir(folder);
+                        else {
+                            if (panel.sftpSession !== ctx.session)
+                                throw new Error('The SFTP session changed.');
+                            if ((await panel.sftpSession.readdir(folder)).length)
+                                continue;
+                            await panel.sftpSession.rmdir(folder);
+                        }
+                    }
+                    catch (error) {
+                        if (!['ENOENT', 'ENOTEMPTY', 'EEXIST'].includes(error.code) && !/no such file|not empty/i.test(error.message))
+                            throw error;
+                    }
+                }
+            },
+            notifyConflictError: (name, error) => this.showToast('Could not complete ' + name + ': ' + String((error === null || error === void 0 ? void 0 : error.message) || error), 7000),
+            onConflictResolved: (item, action) => {
+                if (item.transferCtx)
+                    return;
+                const queued = this.transfers.filter(row => row.queued && row.remotePath === item.remotePath && row.localPath === item.localPath);
+                for (const row of queued) {
+                    this.transfers = this.transfers.filter(other => other !== row);
+                    if (row.logEntryId)
+                        this.transferLog.update(row.logEntryId, { pending: false, success: false, failReason: 'cancelled', error: action === 'cancel' ? 'Cancelled' : action === 'error' ? 'Transfer failed' : 'Skipped' });
+                }
+                this._safeDetect();
+            },
+            cancelBatch: batch => { for (const row of this.transfers.filter(item => item.batch === batch))
+                this.cancelTransfer(row); },
             get sftpSession() { return panel.sftpSession; },
             get cdr() { return panel.cdr; },
             isAlive: () => panel._isAlive,
@@ -20963,23 +21334,31 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             set pendingPasteSource(v) { panel._pendingPasteSource = v; },
             refreshRemote: () => panel.refreshRemote(),
             refreshLocal: () => panel.refreshLocal(),
-            executePaste: (entries, destPane, destPath, mode, source) => panel._pasteAdapter.executePaste(entries, destPane, destPath, mode, source),
-            doDownload: (remotePath, localPath, mode, size) => panel._doDownload(remotePath, localPath, mode, size),
-            doUpload: (remotePath, localPath) => panel._doUpload(remotePath, localPath),
+            executePaste: (entries, destPane, destPath, mode, source, resolvedKeys) => panel._pasteAdapter.executePaste(entries, destPane, destPath, mode, source, resolvedKeys),
+            doDownload: (remotePath, localPath, mode, size, progress) => progress ? panel._doDownloadRaw(remotePath, localPath, mode, size, progress) : panel._doDownload(remotePath, localPath, mode, size),
+            doUpload: (remotePath, localPath, progress) => progress ? panel._doUploadRaw(remotePath, localPath, progress) : panel._doUpload(remotePath, localPath),
             downloadRemoteDir: (remoteDir, localDestDir, targetPane, top, renameTo, forceOverwrite) => panel._transferCoordinator.downloadRemoteDir(remoteDir, localDestDir, top, renameTo, forceOverwrite),
             mergeLocalDirToRemote: (localSrc, remoteDest, reuseLogEntryId) => panel._transferCoordinator.mergeLocalDirToRemote(localSrc, remoteDest, reuseLogEntryId),
-            markTransferSucceeded: (ctx) => panel._finishFolderTransfer(ctx.t, ctx.startTime, ctx.logEntryId, true),
+            updateFolderProgress: (ctx, bytes, name, done, size) => { var _a; ctx.t.bytesTransferred = ctx.bytesDone + [...(((_a = ctx.liveBytes) === null || _a === void 0 ? void 0 : _a.values()) || [])].reduce((sum, n) => sum + n, 0); panel._updateFolderProgress(ctx.t, bytes, name, done, size); },
+            markTransferSucceeded: (ctx) => { if (!ctx.producing)
+                panel._finishFolderTransfer(ctx.t, ctx.startTime, ctx.logEntryId, !ctx.failed); },
             discardTransferLog: (ctx) => {
+                var _a, _b;
+                if (ctx.producing)
+                    return;
+                (_b = (_a = panel._transferRuntime).unwatchFolder) === null || _b === void 0 ? void 0 : _b.call(_a, ctx.t);
+                panel.transfers = panel.transfers.filter(item => item !== ctx.t);
+                panel._safeDetect();
                 try {
                     panel.transferLog.remove(ctx.logEntryId);
                 }
-                catch ( /* ignore */_a) { /* ignore */ }
+                catch ( /* ignore */_c) { /* ignore */ }
             },
             copyLocalDir: (src, dest) => (0,_core_fs_ops__WEBPACK_IMPORTED_MODULE_28__.copyLocalDir)(src, dest),
             scanLocalDir: (p) => panel._scanLocalDir(p),
             scanRemoteDir: (p) => panel._scanRemoteDir(p),
             computeConflictDigests: (args) => panel._computeConflictDigests(args),
-            shouldAutoSkipSameContent: () => !!(panel._conflictDigestEnabled && panel._conflictAutoSkipSameContent),
+            shouldAutoSkipSameContent: () => false,
             notifyConflictAutoSkipped: (fileName) => {
                 try {
                     const tip = panel.i18n.t('transfer.skippedAsDuplicate');
@@ -21425,6 +21804,8 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     }
     _base_ngOnDestroy() {
         var _a, _b, _c, _d;
+        if (this._folderProgressDetect)
+            clearTimeout(this._folderProgressDetect);
         (_a = this._stopPluginUpdates) === null || _a === void 0 ? void 0 : _a.call(this);
         this._destroyed = true;
         this._cancelRemoteDragCache();
@@ -24461,10 +24842,10 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         return true;
     }
     _startFolderTransfer(name, direction, remotePath, localPath, totalSize, itemCount, reuseLogEntryId) {
-        var _a, _b, _c;
-        const taskRef = (_a = (0,_core_task_scope__WEBPACK_IMPORTED_MODULE_12__.currentTaskScope)()) !== null && _a !== void 0 ? _a : this._cancelRef;
+        var _a, _b, _c, _d, _f, _g;
+        const taskRef = { current: null, active: new Set() };
         const queuedEntries = this.transfers.filter(e => e.queued && e.direction === direction && e.localPath === localPath);
-        const queuedEntry = (_b = queuedEntries.find(e => e.remotePath === remotePath)) !== null && _b !== void 0 ? _b : queuedEntries.find(e => !e.remotePath);
+        const queuedEntry = (_a = queuedEntries.find(e => e.remotePath === remotePath)) !== null && _a !== void 0 ? _a : queuedEntries.find(e => !e.remotePath);
         if (queuedEntry) {
             if (this._transferRuntime.consumeQueuedCancel(direction, localPath, remotePath)) {
                 this.transfers = this.transfers.filter(x => x !== queuedEntry);
@@ -24472,7 +24853,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                     try {
                         this.transferLog.remove(queuedEntry.logEntryId);
                     }
-                    catch ( /* ignore */_d) { /* ignore */ }
+                    catch ( /* ignore */_h) { /* ignore */ }
                 }
                 ;
                 queuedEntry._aborted = true;
@@ -24484,7 +24865,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 transfer: null, name, remotePath,
                 percent: 0, speed: '', bytesDone: 0, bytesTotal: totalSize,
                 paused: false, queued: false,
-                isFolder: true, currentItem: '', itemCount, itemDone: 0,
+                isFolder: true, phase: 'transferring', currentItem: '', itemCount, itemDone: 0,
                 _taskCancelRef: taskRef,
                 transferMode: 'sftp',
             });
@@ -24498,6 +24879,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             this.transfersMinimized = false;
             this.transfersHidden = false;
             this._safeDetect();
+            (_c = (_b = this._transferRuntime).watchFolder) === null || _c === void 0 ? void 0 : _c.call(_b, queuedEntry);
             return { transferEntry: queuedEntry, startTime: Date.now(), logEntryId: queuedEntry.logEntryId };
         }
         const logEntry = reuseLogEntryId
@@ -24506,7 +24888,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 operation: direction,
                 localPath,
                 remotePath,
-                profileName: ((_c = this.profile) === null || _c === void 0 ? void 0 : _c.name) || undefined,
+                profileName: ((_d = this.profile) === null || _d === void 0 ? void 0 : _d.name) || undefined,
                 success: true,
                 size: totalSize,
                 duration: 0,
@@ -24523,35 +24905,46 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                     fileCount: itemCount || 0,
                 });
             }
-            catch ( /* ignore */_f) { /* ignore */ }
+            catch ( /* ignore */_j) { /* ignore */ }
         }
         const transferEntry = {
             transfer: null, direction, name, remotePath, localPath,
             percent: 0, speed: '', bytesDone: 0, bytesTotal: totalSize,
             paused: false, logEntryId: logEntry.id,
-            isFolder: true, currentItem: '', itemCount, itemDone: 0,
+            isFolder: true, phase: 'transferring', currentItem: '', itemCount, itemDone: 0,
             _taskCancelRef: taskRef,
             transferMode: 'sftp',
         };
         this.transfers.push(transferEntry);
+        (_g = (_f = this._transferRuntime).watchFolder) === null || _g === void 0 ? void 0 : _g.call(_f, transferEntry);
         this.transfersMinimized = false;
         this.transfersHidden = false;
         this._safeDetect();
         return { transferEntry, startTime: Date.now(), logEntryId: logEntry.id };
     }
+    _scheduleFolderProgressDetect() {
+        var _a;
+        if (this._folderProgressDetect || this._destroyed)
+            return;
+        const schedule = () => setTimeout(() => { this._folderProgressDetect = null; this._safeDetect(); }, 100);
+        this._folderProgressDetect = ((_a = this.zone) === null || _a === void 0 ? void 0 : _a.runOutsideAngular) ? this.zone.runOutsideAngular(schedule) : schedule();
+    }
     _updateFolderProgress(t, bytesDone, currentItem, itemDone, currentItemSize) {
+        var _a, _b;
         if (t.paused)
             return;
+        if (bytesDone > t.bytesDone)
+            t.waitingForServer = false;
         t.bytesDone = bytesDone;
         t.currentItem = currentItem;
         t.currentItemSize = currentItemSize;
         t.itemDone = itemDone;
-        t.percent = t.bytesTotal > 0 ? Math.min(100, Math.round((bytesDone / t.bytesTotal) * 100)) : 0;
+        t.percent = t.bytesTotal > 0 ? Math.min(99, (bytesDone / t.bytesTotal) * 100) : t.itemCount > 0 ? Math.min(99, itemDone / t.itemCount * 100) : 0;
         const now = Date.now();
         const lastUpdate = t._lastSpeedUpdate || 0;
         const lastBytes = t._lastBytes || 0;
         if (now - lastUpdate >= 500) {
-            const deltaBytes = bytesDone - lastBytes;
+            const deltaBytes = ((_a = t.bytesTransferred) !== null && _a !== void 0 ? _a : bytesDone) - lastBytes;
             const deltaTime = Math.max(1, now - lastUpdate);
             const baselineOk = lastUpdate > 0;
             if (!baselineOk || deltaBytes > 0)
@@ -24571,19 +24964,27 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             }
             ;
             t._lastSpeedUpdate = now;
-            t._lastBytes = bytesDone;
+            t._lastBytes = (_b = t.bytesTransferred) !== null && _b !== void 0 ? _b : bytesDone;
         }
-        this._safeDetect();
+        this._scheduleFolderProgressDetect();
     }
     _finishFolderTransfer(t, startTime, logEntryId, success) {
+        var _a, _b, _c;
+        (_b = (_a = this._transferRuntime).unwatchFolder) === null || _b === void 0 ? void 0 : _b.call(_a, t);
         this.transfers = this.transfers.filter(x => x !== t);
+        if (this._folderProgressDetect) {
+            clearTimeout(this._folderProgressDetect);
+            this._folderProgressDetect = null;
+        }
+        this._safeDetect();
         const now = Date.now();
         const patch = { success, duration: now - startTime, endTime: now, pending: false };
         if (!(t.bytesTotal > 0) && t.bytesDone > 0)
             patch.size = t.bytesDone;
+        patch.size = (_c = t.bytesTransferred) !== null && _c !== void 0 ? _c : t.bytesDone;
         this.transferLog.update(logEntryId, patch);
     }
-    async uploadPathToRemote(remoteDir, localPath, _top) {
+    async uploadPathToRemote(remoteDir, localPath, _top, batch, moveSource = false) {
         var _a;
         const slotBaseName = path__WEBPACK_IMPORTED_MODULE_4__.basename(localPath);
         const slotRemote = path__WEBPACK_IMPORTED_MODULE_4__.posix.join(remoteDir, slotBaseName);
@@ -24594,7 +24995,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         const prevRef = this._cancelRef;
         this._cancelRef = cancelRef;
         try {
-            return await (0,_core_task_scope__WEBPACK_IMPORTED_MODULE_12__.runInTaskScope)(cancelRef, () => this._transferCoordinator.uploadPathToRemote(remoteDir, localPath, _top));
+            return await (0,_core_task_scope__WEBPACK_IMPORTED_MODULE_12__.runInTaskScope)(cancelRef, () => this._transferCoordinator.uploadPathToRemote(remoteDir, localPath, _top, batch, moveSource));
         }
         finally {
             this._cancelRefs.delete(cancelRef);
@@ -24612,11 +25013,12 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             logOperation,
         });
     }
-    async _base__doUploadRaw(remotePath, localPath) {
+    async _base__doUploadRaw(remotePath, localPath, onProgress) {
         if (!this.sftpSession)
             return false;
-        return (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_11__.uploadLocalFile)(this._byteTransferCtx(), remotePath, localPath, {
+        return (0,_core_transfer_adapters__WEBPACK_IMPORTED_MODULE_11__.uploadLocalFile)(this._byteTransferCtx(onProgress === null || onProgress === void 0 ? void 0 : onProgress.cancelRef), remotePath, localPath, {
             exposeCancel: true,
+            onProgress,
         });
     }
     async _base__doDownload(remotePath, localPath, mode, size) {
@@ -24728,6 +25130,20 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     }
     _base_cancelTransfer(entry) {
         this._transferRuntime.cancelTransfer(entry);
+        const removed = this._conflictQueue.filter(item => { var _a; return ((_a = item.transferCtx) === null || _a === void 0 ? void 0 : _a.t) === entry || (!item.transferCtx && item.localPath === entry.localPath && item.remotePath === entry.remotePath); });
+        if (removed.length) {
+            const headRemoved = removed.includes(this._conflictQueue[0]);
+            this._conflictQueue = this._conflictQueue.filter(item => !removed.includes(item));
+            for (const item of removed)
+                fileOperation.settle(item);
+            if (headRemoved) {
+                this.showConflictDialog = false;
+                this.conflictData = null;
+                if (this._conflictQueue.length)
+                    this._showConflictDialog();
+            }
+            this._safeDetect();
+        }
         if (entry.queued)
             return;
         if (entry.isFolder)
@@ -26202,7 +26618,8 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             this._safeDetect();
             return;
         }
-        await Promise.all(items.map(e => this._streamUploadOne(e.fullPath, uploadDir)));
+        const batch = fileOperation.create(items.length);
+        await Promise.all(items.map(e => this._streamUploadOne(e.fullPath, uploadDir, batch)));
         await this.refreshRemote();
         this._safeDetect();
     }
@@ -26219,13 +26636,14 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         const downloadDir = await this._ensureTransferTargetDir('download', requestedDownloadDir);
         if (!downloadDir)
             return;
-        await Promise.all(items.map(p => this._streamDownloadOne(p, downloadDir)));
+        const batch = fileOperation.create(items.length);
+        await Promise.all(items.map(p => this._streamDownloadOne(p, downloadDir, batch)));
         if (this._conflictQueue.length)
             this._showConflictDialog();
         await this.refreshLocal();
         this._safeDetect();
     }
-    async _base__streamDownloadOne(p, targetLocalDir) {
+    async _base__streamDownloadOne(p, targetLocalDir, batch = fileOperation.create()) {
         var _a, _b, _c, _d;
         const safeName = (0,_core_path_utils__WEBPACK_IMPORTED_MODULE_41__.safeEntryName)(p.name);
         if (!safeName) {
@@ -26246,7 +26664,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             pending: true,
         });
         const entry = {
-            transfer: null, direction: 'download', name: safeName,
+            batch, transfer: null, direction: 'download', name: safeName,
             remotePath: p.fullPath, localPath: localTarget,
             percent: 0, speed: '', bytesDone: 0, bytesTotal: (_c = p.size) !== null && _c !== void 0 ? _c : 0,
             paused: false, queued: true, logEntryId: logEntry.id,
@@ -26285,15 +26703,20 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     }
     async _base__runQueuedDownload(item) {
         try {
+            if (item.entry.isFolder) {
+                item.entry.phase = 'preparing';
+                this._safeDetect();
+            }
             if (this.transfers.includes(item.entry)) {
                 const targetDir = item.entry.localPath ? path__WEBPACK_IMPORTED_MODULE_4__.dirname(item.entry.localPath) : undefined;
-                await this._transferCoordinator.streamDownloadOne(item.file, targetDir);
+                await this._transferCoordinator.streamDownloadOne(item.file, targetDir, item.entry.batch);
             }
         }
         catch (e) {
             _services_sftp_logger__WEBPACK_IMPORTED_MODULE_13__.log.error('Queued download failed for', item.file.fullPath, e);
         }
         finally {
+            fileOperation.finish(item.entry.batch);
             this._dlActiveCount--;
             item.finish();
             try {
@@ -26424,7 +26847,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             return false;
         }
     }
-    async _base__streamUploadOne(localPath, targetRemoteDir) {
+    async _base__streamUploadOne(localPath, targetRemoteDir, batch = fileOperation.create()) {
         var _a, _b;
         const sourceSession = this.sftpSession, capturedRemoteDir = targetRemoteDir || this.remotePath;
         const base = path__WEBPACK_IMPORTED_MODULE_4__.basename(localPath);
@@ -26459,7 +26882,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             pending: true,
         });
         const entry = {
-            transfer: null, direction: 'upload', name: safeName,
+            batch, transfer: null, direction: 'upload', name: safeName,
             remotePath: remoteTarget, localPath,
             percent: 0, speed: '', bytesDone: 0, bytesTotal: size,
             paused: false, queued: true, logEntryId: logEntry.id,
@@ -26499,13 +26922,14 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
     async _base__runQueuedUpload(item) {
         try {
             if (this.transfers.includes(item.entry)) {
-                await this.uploadPathToRemote(item.remoteDir, item.localPath);
+                await this.uploadPathToRemote(item.remoteDir, item.localPath, undefined, item.entry.batch);
             }
         }
         catch (e) {
             _services_sftp_logger__WEBPACK_IMPORTED_MODULE_13__.log.error('Queued upload failed for', item.localPath, e);
         }
         finally {
+            fileOperation.finish(item.entry.batch);
             this._upActiveCount--;
             item.finish();
             try {
@@ -26544,7 +26968,8 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         const mode = this.clipboardMode;
         const source = this.clipboardSource;
         _services_sftp_logger__WEBPACK_IMPORTED_MODULE_13__.log.info(`Paste ${entries.length} items (${mode}) from ${source} to ${destPane}`);
-        this.clipboardEntries = [];
+        if (mode === 'cut')
+            this.clipboardEntries = [];
         await this._pasteAdapter.paste(entries.map(e => {
             var _a;
             return ({
@@ -27584,7 +28009,6 @@ function defaultSftpPlusConfig() {
         "disabledIconSvgs": [],
         "folderIconSvg": "folder.svg",
         "conflictDigestEnabled": true,
-        "conflictAutoSkipSameContent": true,
         "conflictDigestMaxSizeMB": 256,
         "conflictDigestAlgo": "sha1",
         "paneCustomOrder": [
@@ -29281,7 +29705,7 @@ function notifyPanels(eventName) {
 (module) {
 
 "use strict";
-module.exports = "msgid \"\"\nmsgstr \"\"\n\"Content-Type: text/plain; charset=UTF-8\\n\"\n\"Plural-Forms: nplurals=2; plural=(n != 1);\\n\"\n\"Language: en_US\\n\"\n\nmsgid \"app.title\"\nmsgstr \"SFTP+ File Manager\"\n\nmsgid \"app.openSettings\"\nmsgstr \"Open Settings\"\n\nmsgid \"app.open\"\nmsgstr \"Open SFTP\"\n\nmsgid \"app.close\"\nmsgstr \"Close\"\n\nmsgid \"app.maximize\"\nmsgstr \"Maximize\"\n\nmsgid \"app.restore\"\nmsgstr \"Restore\"\n\nmsgid \"app.confirm\"\nmsgstr \"Confirm\"\n\nmsgid \"app.cancel\"\nmsgstr \"Cancel\"\n\nmsgid \"app.delete\"\nmsgstr \"Delete\"\n\nmsgid \"app.deleteFile\"\nmsgstr \"Delete File\"\n\nmsgid \"app.deleteFolder\"\nmsgstr \"Delete Folder\"\n\nmsgid \"app.deleteMultiple\"\nmsgstr \"Delete Multiple Items\"\n\nmsgid \"conflict.title\"\nmsgstr \"File Conflict\"\n\nmsgid \"conflict.sourceFile\"\nmsgstr \"Source File\"\n\nmsgid \"conflict.localFile\"\nmsgstr \"Local File\"\n\nmsgid \"conflict.remoteFile\"\nmsgstr \"Remote File\"\n\nmsgid \"conflict.size\"\nmsgstr \"Size\"\n\nmsgid \"conflict.modified\"\nmsgstr \"Modified\"\n\nmsgid \"conflict.path\"\nmsgstr \"Path\"\n\nmsgid \"conflict.digest\"\nmsgstr \"Digest\"\n\nmsgid \"conflict.contentIdentical\"\nmsgstr \"Content is identical — safe to skip\"\n\n# ★ 2026-09-18 issue #15+：Content differs hint\nmsgid \"conflict.contentDiffers\"\nmsgstr \"Content is different — consider overwriting\"\n\nmsgid \"conflict.cancel\"\nmsgstr \"Cancel\"\n\nmsgid \"conflict.skip\"\nmsgstr \"Skip\"\n\nmsgid \"conflict.rename\"\nmsgstr \"Rename\"\n\nmsgid \"conflict.overwrite\"\nmsgstr \"Overwrite\"\n\nmsgid \"conflict.batch\"\nmsgstr \"Batch:\"\n\nmsgid \"conflict.skipAll\"\nmsgstr \"Skip All\"\n\nmsgid \"conflict.renameAll\"\nmsgstr \"Rename All\"\n\nmsgid \"conflict.overwriteAll\"\nmsgstr \"Overwrite All\"\n\nmsgid \"conflict.existsLocal\"\nmsgstr \"Already exists locally\"\n\nmsgid \"conflict.existsRemote\"\nmsgstr \"Already exists remotely\"\n\nmsgid \"log.onlySuccess\"\nmsgstr \"Only Success\"\n\nmsgid \"log.success\"\nmsgstr \"Success\"\n\nmsgid \"log.failed\"\nmsgstr \"Failed\"\n\nmsgid \"fileType.txt\"\nmsgstr \"Text File\"\n\nmsgid \"fileType.log\"\nmsgstr \"Log File\"\n\nmsgid \"fileType.md\"\nmsgstr \"Markdown File\"\n\nmsgid \"fileType.json\"\nmsgstr \"JSON File\"\n\nmsgid \"fileType.xml\"\nmsgstr \"XML File\"\n\nmsgid \"fileType.html\"\nmsgstr \"HTML File\"\n\nmsgid \"fileType.css\"\nmsgstr \"CSS File\"\n\nmsgid \"fileType.js\"\nmsgstr \"JavaScript File\"\n\nmsgid \"fileType.ts\"\nmsgstr \"TypeScript File\"\n\nmsgid \"fileType.image\"\nmsgstr \"Image File\"\n\nmsgid \"fileType.video\"\nmsgstr \"Video File\"\n\nmsgid \"fileType.audio\"\nmsgstr \"Audio File\"\n\nmsgid \"fileType.archive\"\nmsgstr \"Archive File\"\n\nmsgid \"fileType.doc\"\nmsgstr \"Document File\"\n\nmsgid \"fileType.code\"\nmsgstr \"Code File\"\n\nmsgid \"fileType.data\"\nmsgstr \"Data File\"\n\nmsgid \"fileType.config\"\nmsgstr \"Config File\"\n\nmsgid \"fileType.cert\"\nmsgstr \"Certificate File\"\n\nmsgid \"fileType.executable\"\nmsgstr \"Executable File\"\n\nmsgid \"fileType.unknown\"\nmsgstr \"File\"\n\nmsgid \"app.deleteConfirmFile\"\nmsgstr \"Are you sure you want to delete this file?\"\n\nmsgid \"app.deleteConfirmFolder\"\nmsgstr \"Are you sure you want to delete this folder?\"\n\nmsgid \"app.deleteConfirmMultiple\"\nmsgstr \"Are you sure you want to delete these {count} items?\"\n\nmsgid \"app.trashHint\"\nmsgstr \"Move to Recycle Bin\"\n\nmsgid \"app.permDeleteHint\"\nmsgstr \"Permanently delete (cannot be undone)\"\n\nmsgid \"app.rename\"\nmsgstr \"Rename\"\n\nmsgid \"app.refresh\"\nmsgstr \"Refresh\"\n\nmsgid \"app.upload\"\nmsgstr \"Upload\"\n\nmsgid \"app.download\"\nmsgstr \"Download\"\n\nmsgid \"app.newFolder\"\nmsgstr \"New Folder\"\n\nmsgid \"app.newFile\"\nmsgstr \"New File\"\n\nmsgid \"app.loading\"\nmsgstr \"Loading...\"\n\nmsgid \"app.error\"\nmsgstr \"Error\"\n\nmsgid \"app.success\"\nmsgstr \"Success\"\n\nmsgid \"app.yes\"\nmsgstr \"Yes\"\n\nmsgid \"app.no\"\nmsgstr \"No\"\n\nmsgid \"app.all\"\nmsgstr \"All\"\n\nmsgid \"app.export\"\nmsgstr \"Export\"\n\nmsgid \"app.clear\"\nmsgstr \"Clear\"\n\nmsgid \"app.optional\"\nmsgstr \"Optional\"\n\nmsgid \"app.settings\"\nmsgstr \"Settings\"\n\nmsgid \"app.modeSwitchSsh\"\nmsgstr \"SSH\"\n\nmsgid \"app.modeSwitchSftp\"\nmsgstr \"SFTP\"\n\nmsgid \"app.backToTerminal\"\nmsgstr \"Back to Terminal\"\n\nmsgid \"filter.allOps\"\nmsgstr \"All Operations\"\n\nmsgid \"filter.allStatus\"\nmsgstr \"All Status\"\n\nmsgid \"filter.allTime\"\nmsgstr \"All Time\"\n\nmsgid \"filter.today\"\nmsgstr \"Today\"\n\nmsgid \"filter.last7Days\"\nmsgstr \"Last 7 Days\"\n\nmsgid \"filter.last30Days\"\nmsgstr \"Last 30 Days\"\n\nmsgid \"filter.customRange\"\nmsgstr \"Custom\"\n\nmsgid \"filter.dateFrom\"\nmsgstr \"From\"\n\nmsgid \"filter.dateTo\"\nmsgstr \"To\"\n\nmsgid \"pane.local\"\nmsgstr \"Local\"\n\nmsgid \"pane.remote\"\nmsgstr \"Remote\"\n\nmsgid \"pane.path\"\nmsgstr \"Path\"\n\nmsgid \"pane.up\"\nmsgstr \"Go Up\"\n\nmsgid \"pane.home\"\nmsgstr \"Home\"\n\nmsgid \"pane.go\"\nmsgstr \"Go\"\n\nmsgid \"pane.refresh\"\nmsgstr \"Refresh\"\n\nmsgid \"pane.filter\"\nmsgstr \"Filter...\"\n\nmsgid \"pane.filterBtn\"\nmsgstr \"File Filter\"\n\nmsgid \"pane.showHidden\"\nmsgstr \"Show Hidden Files\"\n\nmsgid \"pane.pinFolders\"\nmsgstr \"Pin Folders to Top\"\n\nmsgid \"view.panelBorder\"\nmsgstr \"Panel border\"\n\nmsgid \"view.colBorder\"\nmsgstr \"Show border\"\n\nmsgid \"view.zebra\"\nmsgstr \"Show zebra stripes\"\n\nmsgid \"pane.hideHidden\"\nmsgstr \"Hide Hidden Files\"\n\nmsgid \"pane.sortByName\"\nmsgstr \"Sort by Name\"\n\nmsgid \"pane.sortBySize\"\nmsgstr \"Sort by Size\"\n\nmsgid \"pane.sortByModified\"\nmsgstr \"Sort by Modified\"\n\nmsgid \"pane.selectAll\"\nmsgstr \"Select All\"\n\nmsgid \"pane.selectInvert\"\nmsgstr \"Invert Selection\"\n\nmsgid \"pane.clearSelection\"\nmsgstr \"Clear Selection\"\n\nmsgid \"pane.items\"\nmsgstr \"{count} items\"\n\nmsgid \"pane.copyPath\"\nmsgstr \"Copy Path\"\n\nmsgid \"pane.splitterHintHorizontal\"\nmsgstr \"Drag to resize left/right panes. Double-click to reset.\"\n\nmsgid \"pane.splitterHintVertical\"\nmsgstr \"Drag to resize top/bottom panes. Double-click to reset.\"\n\nmsgid \"notify.pathCopied\"\nmsgstr \"Copied {n} path(s)\"\n\nmsgid \"pane.openFolder\"\nmsgstr \"Open Folder\"\n\nmsgid \"pane.noMatch\"\nmsgstr \"No matching files\"\n\nmsgid \"pane.empty\"\nmsgstr \"Empty folder\"\n\nmsgid \"pane.errorAccess\"\nmsgstr \"Cannot access (permission denied or path not found)\"\n\nmsgid \"pane.loading\"\nmsgstr \"Loading…\"\n\nmsgid \"path.modeOff\"\nmsgstr \"Path mode: Off (click to switch: Remember, Sync)\"\n\nmsgid \"path.modeRemember\"\nmsgstr \"Path mode: Remember (restore next time)\"\n\nmsgid \"path.modeSync\"\nmsgstr \"Path mode: Sync with terminal (remote follows cwd)\"\n\nmsgid \"path.syncNoCwd\"\nmsgstr \"Terminal cwd not reported. Switch to Sync again to configure\"\n\nmsgid \"path.cwdSetupTitle\"\nmsgstr \"Enable terminal directory sync\"\n\nmsgid \"path.cwdSetupIntro\"\nmsgstr \"Tabby needs the shell to report cwd via OSC 1337 before SFTP+ can sync. Choose how to enable it:\"\n\nmsgid \"path.cwdSetupSessionHint\"\nmsgstr \"This session only: run the temporary command below in the current terminal (lost after shell restart)\"\n\nmsgid \"path.cwdSetupPermanentHint\"\nmsgstr \"Permanent: append the snippet below to the remote profile, then source it (based on detected shell)\"\n\nmsgid \"path.cwdSetupNote\"\nmsgstr \"Cancel turns path mode Off. Nothing is executed or written.\"\n\nmsgid \"path.cwdSetupSession\"\nmsgstr \"This session only\"\n\nmsgid \"path.cwdSetupPermanent\"\nmsgstr \"Write permanently\"\n\nmsgid \"path.cwdSetupDone\"\nmsgstr \"Directory reporting enabled, syncing…\"\n\nmsgid \"path.cwdSetupFailed\"\nmsgstr \"Failed to enable. Check remote permissions or shell type\"\n\nmsgid \"file.symlink\"\nmsgstr \"Symbolic link\"\n\nmsgid \"file.shortcut\"\nmsgstr \"Shortcut\"\n\nmsgid \"file.name\"\nmsgstr \"Name\"\n\nmsgid \"file.type\"\nmsgstr \"Type\"\n\nmsgid \"file.size\"\nmsgstr \"Size\"\n\nmsgid \"file.modified\"\nmsgstr \"Modified\"\n\nmsgid \"file.created\"\nmsgstr \"Created\"\n\nmsgid \"file.accessed\"\nmsgstr \"Accessed\"\n\nmsgid \"file.permissions\"\nmsgstr \"Permissions\"\n\nmsgid \"file.owner\"\nmsgstr \"Owner\"\n\nmsgid \"file.group\"\nmsgstr \"Group\"\n\nmsgid \"file.mode\"\nmsgstr \"Mode\"\n\nmsgid \"file.path\"\nmsgstr \"Path\"\n\nmsgid \"file.ext\"\nmsgstr \"Ext\"\n\nmsgid \"file.columns\"\nmsgstr \"Columns\"\n\nmsgid \"file.inaccessible\"\nmsgstr \"Inaccessible\"\n\nmsgid \"file.open\"\nmsgstr \"Open\"\n\nmsgid \"file.view\"\nmsgstr \"View\"\n\nmsgid \"file.viewAsText\"\nmsgstr \"View as Text\"\n\nmsgid \"file.edit\"\nmsgstr \"Edit\"\n\nmsgid \"file.copy\"\nmsgstr \"Copy\"\n\nmsgid \"file.copied\"\nmsgstr \"Copied\"\n\nmsgid \"file.copySelection\"\nmsgstr \"Copy Selection\"\n\nmsgid \"file.cut\"\nmsgstr \"Cut\"\n\nmsgid \"file.paste\"\nmsgstr \"Paste\"\n\nmsgid \"file.copyAll\"\nmsgstr \"Copy All\"\n\nmsgid \"file.copyImage\"\nmsgstr \"Copy Image\"\n\nmsgid \"file.copyImageAddress\"\nmsgstr \"Copy Image Address\"\n\nmsgid \"file.delete\"\nmsgstr \"Delete\"\n\nmsgid \"file.rename\"\nmsgstr \"Rename\"\n\nmsgid \"file.newFolder\"\nmsgstr \"New Folder\"\n\nmsgid \"file.newFile\"\nmsgstr \"New File\"\n\nmsgid \"file.properties\"\nmsgstr \"Properties\"\n\nmsgid \"file.openWith\"\nmsgstr \"Open With\"\n\nmsgid \"file.showInFolder\"\nmsgstr \"Show in Explorer\"\n\nmsgid \"file.openInSystem\"\nmsgstr \"Open in System\"\n\nmsgid \"file.editInSystem\"\nmsgstr \"Edit in System\"\n\nmsgid \"viewer.loading\"\nmsgstr \"Loading…\"\n\nmsgid \"viewer.loadFailed\"\nmsgstr \"Failed to load file\"\n\nmsgid \"viewer.binaryNotSupported\"\nmsgstr \"Binary file cannot be viewed or edited as text\"\n\nmsgid \"viewer.binaryShownAsText\"\nmsgstr \"Binary content shown as text (may not display correctly)\"\n\nmsgid \"viewer.tooLarge\"\nmsgstr \"File is too large to open\"\n\nmsgid \"viewer.tooLargeView\"\nmsgstr \"File is too large (over {limit}) and cannot be viewed\"\n\nmsgid \"viewer.truncatedPreview\"\nmsgstr \"File is large; showing the first {limit}. Use “Open in System” for the full file.\"\n\nmsgid \"viewer.typeNotSupported\"\nmsgstr \"This file type cannot be viewed\"\n\nmsgid \"viewer.prevImage\"\nmsgstr \"Previous image\"\n\nmsgid \"viewer.nextImage\"\nmsgstr \"Next image\"\n\nmsgid \"editor.save\"\nmsgstr \"Save\"\n\nmsgid \"editor.saving\"\nmsgstr \"Saving…\"\n\nmsgid \"editor.saveSuccess\"\nmsgstr \"Saved to server\"\n\nmsgid \"editor.saveSuccessLocal\"\nmsgstr \"Saved\"\n\nmsgid \"editor.saveFailed\"\nmsgstr \"Save failed\"\n\nmsgid \"editor.unsaved\"\nmsgstr \"You have unsaved changes. Discard them?\"\n\nmsgid \"editor.tooLarge\"\nmsgstr \"File is too large (over {limit}) and cannot be edited\"\n\nmsgid \"editor.typeNotSupported\"\nmsgstr \"This file type cannot be edited\"\n\nmsgid \"file.adjustCol\"\nmsgstr \"Fit Column Width\"\n\nmsgid \"file.adjustAllCols\"\nmsgstr \"Fit All Columns\"\n\nmsgid \"transfer.upload\"\nmsgstr \"Upload\"\n\nmsgid \"transfer.download\"\nmsgstr \"Download\"\n\nmsgid \"transfer.edit-upload\"\nmsgstr \"Edit Save\"\n\nmsgid \"transfer.edit-download\"\nmsgstr \"Edit Load\"\n\nmsgid \"transfer.progress\"\nmsgstr \"Progress\"\n\nmsgid \"transfer.speed\"\nmsgstr \"Speed\"\n\nmsgid \"transfer.remaining\"\nmsgstr \"Remaining\"\n\nmsgid \"transfer.cancel\"\nmsgstr \"Cancel\"\n\nmsgid \"transfer.closePanel\"\nmsgstr \"Close transfer panel\"\n\nmsgid \"transfer.pause\"\nmsgstr \"Pause\"\n\nmsgid \"transfer.resume\"\nmsgstr \"Resume\"\n\nmsgid \"transfer.cancelAll\"\nmsgstr \"Cancel folder\"\n\nmsgid \"transfer.cancelCurrent\"\nmsgstr \"Cancel current\"\n\nmsgid \"transfer.paused\"\nmsgstr \"Paused\"\n\nmsgid \"transfer.skippedAsDuplicate\"\nmsgstr \"Skipped · content identical\"\n\nmsgid \"transfer.inProgress\"\nmsgstr \"In Progress\"\n\nmsgid \"transfer.minimizePanel\"\nmsgstr \"Minimize\"\n\nmsgid \"transfer.hidePanel\"\nmsgstr \"Hide\"\n\nmsgid \"transfer.noActiveTransfers\"\nmsgstr \"No active transfers\"\n\nmsgid \"transfer.clearCompleted\"\nmsgstr \"Clear Completed\"\n\nmsgid \"transfer.queue\"\nmsgstr \"Transfer Queue\"\n\nmsgid \"transfer.log\"\nmsgstr \"Transfer History\"\n\nmsgid \"transfer.logEmpty\"\nmsgstr \"No transfer records yet\"\n\nmsgid \"transfer.logNoMatch\"\nmsgstr \"No matching records\"\n\nmsgid \"transfer.logCount\"\nmsgstr \"{total} records\"\n\nmsgid \"transfer.logCountFiltered\"\nmsgstr \"Showing {filtered} of {total}\"\n\nmsgid \"transfer.noTransfers\"\nmsgstr \"No active transfers\"\n\nmsgid \"transfer.clearConfirm\"\nmsgstr \"Clear finished transfer records? Records of transfers still in progress are kept.\"\n\nmsgid \"transfer.clearTitle\"\nmsgstr \"Confirm Clear\"\n\nmsgid \"transfer.replaceConfirm\"\nmsgstr \"File already exists. Replace?\"\n\nmsgid \"transfer.replaceTitle\"\nmsgstr \"Confirm Replace\"\n\nmsgid \"transfer.deleteConfirm\"\nmsgstr \"Delete {count} selected items?\"\n\nmsgid \"transfer.deleteTitle\"\nmsgstr \"Confirm Delete\"\n\nmsgid \"bookmark.title\"\nmsgstr \"Bookmarks\"\n\nmsgid \"bookmark.add\"\nmsgstr \"Add Bookmark\"\n\nmsgid \"bookmark.addLocal\"\nmsgstr \"Add Local\"\n\nmsgid \"bookmark.addGlobal\"\nmsgstr \"Add Global\"\n\nmsgid \"bookmark.addCurrentShort\"\nmsgstr \"+Local\"\n\nmsgid \"bookmark.addGlobalShort\"\nmsgstr \"+Global\"\n\nmsgid \"bookmark.remove\"\nmsgstr \"Remove Bookmark\"\n\nmsgid \"bookmark.edit\"\nmsgstr \"Edit Bookmark\"\n\nmsgid \"bookmark.noBookmarks\"\nmsgstr \"No bookmarks yet\"\n\nmsgid \"bookmark.name\"\nmsgstr \"Bookmark Name\"\n\nmsgid \"bookmark.path\"\nmsgstr \"Path\"\n\nmsgid \"bookmark.save\"\nmsgstr \"Save Bookmark\"\n\nmsgid \"bookmark.global\"\nmsgstr \"Global Bookmarks\"\n\nmsgid \"bookmark.forConnection\"\nmsgstr \"Current Bookmarks\"\nmsgid \"permission.title\"\nmsgstr \"Edit Permissions\"\n\nmsgid \"permission.owner\"\nmsgstr \"Owner\"\n\nmsgid \"permission.group\"\nmsgstr \"Group\"\n\nmsgid \"permission.others\"\nmsgstr \"Others\"\n\nmsgid \"permission.read\"\nmsgstr \"Read\"\n\nmsgid \"permission.write\"\nmsgstr \"Write\"\n\nmsgid \"permission.execute\"\nmsgstr \"Execute\"\n\nmsgid \"permission.mode\"\nmsgstr \"Mode (Octal)\"\n\nmsgid \"notify.sftpOpened\"\nmsgstr \"SFTP Opened\"\n\nmsgid \"notify.noSSHSession\"\nmsgstr \"No SSH session on current tab\"\n\nmsgid \"notify.transferComplete\"\nmsgstr \"Transfer Complete\"\n\nmsgid \"notify.transferFailed\"\nmsgstr \"Transfer Failed\"\n\nmsgid \"notify.connectionLost\"\nmsgstr \"Connection Lost\"\n\nmsgid \"notify.connected\"\nmsgstr \"Connected to\"\n\nmsgid \"notify.connecting\"\nmsgstr \"Connecting to\"\n\nmsgid \"notify.sftpConnectFailed\"\nmsgstr \"SFTP connection failed. Ensure SSH is connected and the server supports SFTP.\"\n\nmsgid \"notify.reconnectNoTerminal\"\nmsgstr \"Terminal disconnected. Please click or press any key in the terminal to reconnect.\"\n\nmsgid \"notify.reconnectFailed\"\nmsgstr \"Reconnect failed. Please click or press any key in the terminal to reconnect.\"\n\nmsgid \"settings.desc\"\nmsgstr \"Beautiful SFTP file manager: drag-drop, bookmarks, sort, transfer logs & multilingual.\"\n\nmsgid \"settings.theme\"\nmsgstr \"Theme\"\n\nmsgid \"settings.primary\"\nmsgstr \"Primary\"\n\nmsgid \"settings.bg\"\nmsgstr \"Bg\"\n\nmsgid \"settings.text\"\nmsgstr \"Text\"\n\nmsgid \"settings.border\"\nmsgstr \"Border\"\n\nmsgid \"settings.layout\"\nmsgstr \"Layout\"\n\nmsgid \"settings.font\"\nmsgstr \"Font\"\n\nmsgid \"settings.fontSize\"\nmsgstr \"Font size\"\n\nmsgid \"settings.resetFont\"\nmsgstr \"Reset font size\"\n\nmsgid \"settings.fontHint\"\nmsgstr \"Adjust text size inside the SFTP+ panel (11–18px)\"\n\nmsgid \"settings.layoutAdaptive\"\nmsgstr \"Adaptive\"\n\nmsgid \"settings.layoutAdaptiveSub\"\nmsgstr \"Auto switch by width\"\n\nmsgid \"settings.layoutHorizontal\"\nmsgstr \"Horizontal\"\n\nmsgid \"settings.layoutHorizontalSub\"\nmsgstr \"Panes side by side\"\n\nmsgid \"settings.layoutVertical\"\nmsgstr \"Vertical\"\n\nmsgid \"settings.layoutVerticalSub\"\nmsgstr \"Panes stacked\"\n\nmsgid \"settings.layoutSingle\"\nmsgstr \"Single Pane\"\n\nmsgid \"settings.layoutSingleSub\"\nmsgstr \"Remote panel only\"\n\nmsgid \"settings.toolbarLayout\"\nmsgstr \"Customize Toolbar\"\n\nmsgid \"settings.customToolbar\"\nmsgstr \"Customize Toolbar\"\n\nmsgid \"settings.toolbarLayoutHint\"\nmsgstr \"Drag to reorder and apply immediately to pane header\"\n\nmsgid \"settings.paneLabel\"\nmsgstr \"Terminal Label\"\n\nmsgid \"settings.addressBar\"\nmsgstr \"Address Bar\"\n\nmsgid \"settings.toolbar\"\nmsgstr \"Toolbar\"\n\nmsgid \"settings.toolbarItem.back\"\nmsgstr \"Back\"\n\nmsgid \"settings.toolbarItem.forward\"\nmsgstr \"Forward\"\n\nmsgid \"settings.toolbarItem.up\"\nmsgstr \"Up\"\n\nmsgid \"settings.toolbarItem.refresh\"\nmsgstr \"Refresh\"\n\nmsgid \"settings.toolbarItem.home\"\nmsgstr \"Home\"\n\nmsgid \"settings.toolbarItem.filter\"\nmsgstr \"Filter\"\n\nmsgid \"settings.toolbarItem.bookmark\"\nmsgstr \"Bookmark\"\n\nmsgid \"settings.resetLayout\"\nmsgstr \"Reset\"\n\nmsgid \"settings.tableStyle\"\nmsgstr \"Table Style\"\n\nmsgid \"settings.tableStyleHint\"\nmsgstr \"Tip: Control via file list header right-click menu\"\n\nmsgid \"settings.hideNativeBtn\"\nmsgstr \"Hide native SFTP button\"\n\nmsgid \"settings.openInNewTab\"\nmsgstr \"Open panel in new tab by default\"\n\nmsgid \"settings.singleWorkspaceInstance\"\nmsgstr \"Single instance only\"\n\nmsgid \"settings.closeBookmarkPanel\"\nmsgstr \"Close bookmark panel after selecting\"\n\nmsgid \"settings.hotkey\"\nmsgstr \"Open/Close Panel\"\n\nmsgid \"settings.hotkeyUnbound\"\nmsgstr \"Set shortcut\"\n\nmsgid \"settings.hotkeyClear\"\nmsgstr \"Clear\"\n\nmsgid \"settings.hotkeyRecording\"\nmsgstr \"Press a key combination…\"\n\nmsgid \"settings.hotkeyClickToSet\"\nmsgstr \"Click to set hotkey\"\n\nmsgid \"settings.hotkeyConflict\"\nmsgstr \"Conflicts with: {names}\"\n\nmsgid \"settings.hotkeyConflictConfirm\"\nmsgstr \"Shortcut {keys} is already used by: {names}\\nBind it to SFTP+ anyway? (Both may fire.)\"\n\nmsgid \"settings.hotkeySaved\"\nmsgstr \"Saved and synced to Tabby: {keys}\"\n\nmsgid \"settings.hotkeyCleared\"\nmsgstr \"Shortcut binding cleared\"\n\nmsgid \"settings.hotkeySaveFailed\"\nmsgstr \"Failed to save hotkey\"\n\nmsgid \"settings.hotkeyRecordTimeout\"\nmsgstr \"Recording timed out, please try again\"\n\nmsgid \"settings.other\"\nmsgstr \"Functionality\"\n\nmsgid \"settings.interaction\"\nmsgstr \"Interaction\"\nmsgid \"settings.viewerEditor\"\nmsgstr \"Viewer & editor\"\n\nmsgid \"settings.openOnClick\"\nmsgstr \"Open file/folder on\"\n\nmsgid \"settings.clickDouble\"\nmsgstr \"Double click\"\n\nmsgid \"settings.clickSingle\"\nmsgstr \"Single click\"\n\nmsgid \"settings.openOnClickHint\"\nmsgstr \"Single click opens files/folders directly; double click still works in single-click mode.\"\n\nmsgid \"settings.openUnsupportedInSystem\"\nmsgstr \"Open unsupported files with system app\"\n\nmsgid \"settings.openUnsupportedInSystemDesc\"\nmsgstr \"Files the viewer cannot handle (e.g. .pdf/.docx) will be opened with the OS default app instead of showing an \\\"unsupported\\\" message.\"\n\nmsgid \"settings.editableExtensions\"\nmsgstr \"Viewable & editable extensions\"\n\nmsgid \"settings.editableExtensionsHint\"\nmsgstr \"Space-separated. Accepts .conf, *.conf, or conf. Used as the whitelist when \\\"view & edit all\\\" is off.\"\nmsgid \"settings.allowViewEditAllFiles\"\nmsgstr \"Allow viewing and editing all file types\"\nmsgid \"settings.allowViewEditAllFilesHint\"\nmsgstr \"Ignore extension restrictions. Any file can be viewed; binary content remains protected when editing.\"\nmsgid \"settings.showTextLineNumbers\"\nmsgstr \"Viewer/editor line numbers\"\nmsgid \"settings.showTextLineNumbersHint\"\nmsgstr \"Show line numbers in the built-in viewer and editor.\"\nmsgid \"settings.transferSection\"\nmsgstr \"Transfer\"\n\nmsgid \"settings.defaultUploadPath\"\nmsgstr \"Default upload path\"\nmsgid \"settings.defaultUploadPathPh\"\nmsgstr \"Remote dir, e.g. /home/user/uploads (empty = current remote dir)\"\nmsgid \"settings.defaultDownloadPath\"\nmsgstr \"Default download path\"\nmsgid \"settings.defaultDownloadPathPh\"\nmsgstr \"Local dir, e.g. C:\\\\Downloads (empty = current local dir)\"\nmsgid \"settings.iconSettings\"\nmsgstr \"File type icons\"\nmsgid \"settings.iconResourceDir\"\nmsgstr \"Icon directory\"\nmsgid \"settings.iconResourceDirPh\"\nmsgstr \"Local dir containing the svg files, e.g. C:\\\\icons\"\nmsgid \"settings.iconSvgFile\"\nmsgstr \"SVG file\"\nmsgid \"settings.iconPreview\"\nmsgstr \"Preview\"\nmsgid \"settings.iconAdd\"\nmsgstr \"Add rule\"\nmsgid \"settings.iconDelete\"\nmsgstr \"Delete\"\nmsgid \"settings.iconDeleteConfirm\"\nmsgstr \"Delete rule \\\"{name}\\\"? This cannot be undone.\"\n\nmsgid \"settings.iconLocked\"\nmsgstr \"Locked (system default rule, cannot be deleted)\"\nmsgid \"settings.iconRuleHint\"\nmsgstr \"Map extensions to their SVG files.\"\nmsgid \"settings.builtinIcons\"\nmsgstr \"Built-in icons\"\nmsgid \"settings.builtinIconDir\"\nmsgstr \"Built-in icon directory\"\nmsgid \"settings.builtinIconDesc\"\nmsgstr \"The following SVG icons are bundled with the plugin. Drop your own svgs here to extend them.\"\nmsgid \"settings.iconEdit\"\nmsgstr \"Edit\"\nmsgid \"settings.iconDisable\"\nmsgstr \"Disable\"\nmsgid \"settings.iconEnable\"\nmsgstr \"Restore\"\nmsgid \"settings.iconAddRule\"\nmsgstr \"Add rule\"\nmsgid \"settings.iconFolderHint\"\nmsgstr \"Folder (default)\"\nmsgid \"settings.iconFileHint\"\nmsgstr \"File (default)\"\nmsgid \"settings.iconExtLockedHint\"\nmsgstr \"Default files cannot change extensions\"\nmsgid \"settings.iconSvgNameHint\"\nmsgstr \"File name\"\nmsgid \"settings.iconRuleName\"\nmsgstr \"Rule name\"\nmsgid \"settings.iconRuleNamePh\"\nmsgstr \"e.g. Scripts, Documents\"\nmsgid \"settings.iconExtLabel\"\nmsgstr \"Extensions\"\nmsgid \"settings.iconErrorExtConflict\"\nmsgstr \"Extension \\\"{ext}\\\" is already used by icon {svg}\"\nmsgid \"settings.iconErrorEmpty\"\nmsgstr \"Rule name, extension and svg file name must not be empty\"\nmsgid \"settings.iconErrorEmptyName\"\nmsgstr \"Rule name must not be empty\"\nmsgid \"settings.iconErrorNameConflict\"\nmsgstr \"Rule name \\\"{name}\\\" already exists\"\nmsgid \"settings.iconErrorNameSvgMismatch\"\nmsgstr \"Rule \\\"{name}\\\" is already bound to icon {svg}; use the same file or choose another rule name\"\nmsgid \"settings.iconErrorMissingSvg\"\nmsgstr \"The svg file was not found in the icon directory\"\nmsgid \"settings.iconErrorInvalidExt\"\nmsgstr \"Invalid extension format: \\\"{ext}\\\". Use forms like .txt or txt; separate multiple with spaces/commas\"\n\nmsgid \"settings.resetIcons\"\nmsgstr \"Reset icon settings\"\n\nmsgid \"settings.hotkeys\"\nmsgstr \"Shortcuts\"\n\nmsgid \"settings.resetPanelHotkeys\"\nmsgstr \"Reset to defaults\"\n\nmsgid \"settings.phk.delete\"\nmsgstr \"Delete\"\n\nmsgid \"settings.phk.rename\"\nmsgstr \"Rename\"\n\nmsgid \"settings.phk.refresh\"\nmsgstr \"Refresh\"\n\nmsgid \"settings.phk.up\"\nmsgstr \"Go up (parent dir)\"\n\nmsgid \"settings.phk.back\"\nmsgstr \"Back\"\n\nmsgid \"settings.panelHotkeyConflict\"\nmsgstr \"Shortcut {keys} is already used by another action\"\n\nmsgid \"settings.customContextMenu\"\nmsgstr \"Customize right-click menu\"\n\nmsgid \"settings.resetMenu\"\nmsgstr \"Reset menu order\"\n\nmsgid \"settings.data\"\nmsgstr \"Data\"\n\nmsgid \"settings.export\"\nmsgstr \"Export\"\n\nmsgid \"settings.import\"\nmsgstr \"Import\"\n\nmsgid \"settings.clearAll\"\nmsgstr \"Clear All\"\n\nmsgid \"settings.about\"\nmsgstr \"About\"\n\nmsgid \"settings.version\"\nmsgstr \"Version\"\n\nmsgid \"settings.buildTime\"\nmsgstr \"Build time\"\n\nmsgid \"settings.author\"\nmsgstr \"Author\"\n\nmsgid \"settings.githubSource\"\nmsgstr \"GitHub Source\"\n\nmsgid \"settings.npmSource\"\nmsgstr \"NPM Source\"\n\nmsgid \"settings.giveStar\"\nmsgstr \"Give a Star\"\n\nmsgid \"settings.feedback\"\nmsgstr \"Feedback\"\n\nmsgid \"settings.modifyColors\"\nmsgstr \"⚠️ Modify Colors\"\n\nmsgid \"settings.overwriteConfirm\"\nmsgstr \"You are in Auto/Preset mode. Changes will overwrite the custom color scheme. Continue?\"\n\nmsgid \"settings.overwrite\"\nmsgstr \"Overwrite\"\n\nmsgid \"settings.clearAllTitle\"\nmsgstr \"⚠️ Clear All Data\"\n\nmsgid \"settings.clearAllConfirm\"\nmsgstr \"This will delete all bookmarks, transfer logs, and settings. Cannot be undone!\"\n\nmsgid \"settings.clearAllPrompt\"\nmsgstr \"Please type DELETE to confirm:\"\n\nmsgid \"settings.clear\"\nmsgstr \"Clear\"\n\nmsgid \"settings.dark\"\nmsgstr \"Dark\"\n\nmsgid \"settings.light\"\nmsgstr \"Light\"\n\nmsgid \"settings.invalidFormat\"\nmsgstr \"Invalid data format.\"\n\nmsgid \"settings.importComplete\"\nmsgstr \"Import complete.\"\n\nmsgid \"settings.importUnavailable\"\nmsgstr \"Cannot import: ConfigService not available.\"\n\nmsgid \"settings.importFailed\"\nmsgstr \"Import failed: invalid or corrupted file.\"\n\nmsgid \"settings.dataCleared\"\nmsgstr \"All data cleared\"\n\nmsgid \"layout.mode.auto\"\nmsgstr \"Auto Layout\"\n\nmsgid \"layout.mode.horizontal\"\nmsgstr \"Horizontal Layout\"\n\nmsgid \"layout.mode.vertical\"\nmsgstr \"Vertical Layout\"\n\nmsgid \"layout.mode.single\"\nmsgstr \"Single Pane (Remote Only)\"\n\nmsgid \"layout.override.tooNarrow\"\nmsgstr \"Panel too narrow for side-by-side; temporarily using top-bottom layout\"\n\nmsgid \"layout.override.tooShort\"\nmsgstr \"Panel too short for top-bottom; temporarily using side-by-side layout\"\n\nmsgid \"layout.override.tooCramped\"\nmsgstr \"Panel too small for dual panes; temporarily using single pane\"\n\nmsgid \"layout.override.reasonNarrow\"\nmsgstr \"too narrow\"\n\nmsgid \"layout.override.reasonShort\"\nmsgstr \"too short\"\n\nmsgid \"layout.override.reasonCramped\"\nmsgstr \"too small\"\n\nmsgid \"layout.override.title\"\nmsgstr \"{preferred} → {actual} ({reason})\"\n\nmsgid \"notify.closeWithTransfers\"\nmsgstr \"{count} transfer(s) in progress. Closing the panel will interrupt all transfers. Continue?\"\n\nmsgid \"type.folder\"\nmsgstr \"Folder\"\n\nmsgid \"type.file\"\nmsgstr \"File\"\n\nmsgid \"pane.exclFolders\"\nmsgstr \", excl. folders\"\n\nmsgid \"pane.selectedInfo\"\nmsgstr \" — Selected {n} items ({size})\"\n\nmsgid \"fail.cancelled\"\nmsgstr \"Cancelled\"\n\nmsgid \"fail.interrupted\"\nmsgstr \"Disconnected\"\n\nmsgid \"fail.unknown\"\nmsgstr \"Failed\"\n\nmsgid \"notify.uploadFailed\"\nmsgstr \"Upload failed: {name}\"\n\nmsgid \"notify.downloadFailed\"\nmsgstr \"Download failed: {name}\"\n\nmsgid \"op.renameFailed\"\nmsgstr \"Rename failed: {reason}\"\n\nmsgid \"op.mkdirFailed\"\nmsgstr \"Create dir failed: {reason}\"\n\nmsgid \"op.touchFailed\"\nmsgstr \"Create file failed: {reason}\"\n\nmsgid \"op.chmodFailed\"\nmsgstr \"Chmod failed: {reason}\"\n\nmsgid \"op.failed\"\nmsgstr \"Operation failed: {reason}\"\n\nmsgid \"op.cannotCopyIntoSelf\"\nmsgstr \"Cannot copy a folder into itself or its subfolder: {name}\"\n\nmsgid \"notify.deleteFailed\"\nmsgstr \"{n} item(s) failed to delete (maybe in use or no permission)\"\n\nmsgid \"notify.trashFailed\"\nmsgstr \"{n} item(s) failed to move to Recycle Bin (not deleted; try Shift+Delete for permanent)\"\n\nmsgid \"input.dirExists\"\nmsgstr \"Directory already exists: {val}\"\n\nmsgid \"input.fileExists\"\nmsgstr \"File already exists: {val}\"\n\nmsgid \"input.fileWhenMkdir\"\nmsgstr \"A file named \\\"{val}\\\" already exists, cannot create directory\"\n\nmsgid \"input.dirWhenTouch\"\nmsgstr \"A directory named \\\"{val}\\\" already exists, cannot create file\"\n\nmsgid \"notify.notConnectedUpload\"\nmsgstr \"Not connected, cannot upload\"\n\nmsgid \"notify.notConnectedDownload\"\nmsgstr \"Not connected, cannot download\"\n\nmsgid \"notify.copied\"\nmsgstr \"Copied {n} item(s)\"\n\nmsgid \"notify.cut\"\nmsgstr \"Cut {n} item(s)\"\n\nmsgid \"status.disconnected\"\nmsgstr \"Disconnected\"\n\nmsgid \"status.reconnecting\"\nmsgstr \"Reconnecting…\"\n\nmsgid \"status.reconnect\"\nmsgstr \"Reconnect\"\n\nmsgid \"app.restoreDefaultSize\"\nmsgstr \"Restore default panel size\"\n\nmsgid \"notify.pasteFailed\"\nmsgstr \"Paste failed\"\n\nmsgid \"notify.copyFailed\"\nmsgstr \"Copy failed: {name}\"\n\nmsgid \"theme.auto\"\nmsgstr \"Auto\"\n\nmsgid \"theme.dark\"\nmsgstr \"Dark\"\n\nmsgid \"theme.light\"\nmsgstr \"Light\"\n\nmsgid \"theme.blue\"\nmsgstr \"Blue\"\n\nmsgid \"theme.green\"\nmsgstr \"Green\"\n\nmsgid \"theme.purple\"\nmsgstr \"Purple\"\n\nmsgid \"theme.red\"\nmsgstr \"Red\"\n\nmsgid \"theme.custom\"\nmsgstr \"Custom\"\n\nmsgid \"pane.back\"\nmsgstr \"Back\"\n\nmsgid \"pane.forward\"\nmsgstr \"Forward\"\n\nmsgid \"filter.apply\"\nmsgstr \"Apply\"\n\nmsgid \"filter.clear\"\nmsgstr \"Clear\"\n\nmsgid \"hotkey.togglePanel\"\nmsgstr \"Open SFTP+ panel\"\n\nmsgid \"conflict.targetFileExists\"\nmsgstr \"Target file (exists)\"\n\nmsgid \"transfer.success\"\nmsgstr \"Success\"\n\n\nmsgid \"conflict.existsSamePane\"\nmsgstr \"A file with the same name already exists at the target location\"\n\nmsgid \"settings.dateFormat\"\nmsgstr \"Custom time format\"\n\nmsgid \"settings.dateFormatHint\"\nmsgstr \"Tokens: YYYY / YY / MM / DD / HH / hh / mm / ss / A (empty = default)\"\n\nmsgid \"settings.dateFormatPreview\"\nmsgstr \"Preview\"\n\nmsgid \"settings.dateFormatReset\"\nmsgstr \"Reset to default\"\n\nmsgid \"settings.defaultPathMode\"\nmsgstr \"Default path mode\"\n\nmsgid \"settings.pathModeOff\"\nmsgstr \"Off\"\n\nmsgid \"settings.pathModeRemember\"\nmsgstr \"Remember path\"\n\nmsgid \"settings.pathModeSync\"\nmsgstr \"Sync with terminal\"\n\nmsgid \"settings.defaultShowHidden\"\nmsgstr \"Show hidden files by default\"\n\nmsgid \"settings.uploadConcurrency\"\nmsgstr \"Concurrent uploads\"\n\nmsgid \"settings.downloadConcurrency\"\nmsgstr \"Concurrent downloads\"\n\nmsgid \"transfer.queued\"\nmsgstr \"Queued\"\n\n\nmsgid \"settings.fastMode\"\nmsgstr \"Fast Transfer Mode\"\n\nmsgid \"settings.fastModeDesc\"\nmsgstr \"Skip the size pre-scan and start directory transfers immediately: faster start, but total size and percentage progress cannot be calculated during the transfer (only transferred bytes are shown)\"\n\nmsgid \"settings.tarAcceleration\"\nmsgstr \"TAR Transfer Acceleration\"\n\nmsgid \"settings.tarAccelerationDesc\"\nmsgstr \"Automatically package folder transfers with tar to dramatically speed up small files; falls back smoothly to normal transfer if unsupported or failed\"\n\nmsgid \"settings.conflictDigest\"\nmsgstr \"Content Digest on Conflict\"\n\nmsgid \"settings.conflictDigestDesc\"\nmsgstr \"When size matches but modification time differs, compute a content digest to tell whether the file really changed (e.g. after switching Git branches). Requires shell access on the remote host; falls back to the old behavior when unavailable\"\n\nmsgid \"settings.conflictAutoSkip\"\nmsgstr \"Auto-skip Identical Content\"\n\nmsgid \"settings.conflictAutoSkipDesc\"\nmsgstr \"If both digests are available and equal, treat it as no conflict and skip silently instead of prompting\"\n\nmsgid \"settings.conflictDigestMaxSize\"\nmsgstr \"Digest Size Limit (MB)\"\n\nmsgid \"settings.conflictDigestMaxSizeDesc\"\nmsgstr \"Files larger than this are not digested and are always treated as conflicts, to avoid slowing down conflict detection\"\n\nmsgid \"file.sizeCalculate\"\nmsgstr \"Calculate\"\n\nmsgid \"file.sizeCalculating\"\nmsgstr \"Calculating…\"\n\nmsgid \"file.sizeCalcFailed\"\nmsgstr \"Calculation failed\"\n\nmsgid \"file.folderSizeDetail\"\nmsgstr \"{size} ({count} files)\"\n\nmsgid \"file.fileProperties\"\nmsgstr \"File properties\"\n\nmsgid \"file.folderProperties\"\nmsgstr \"Folder properties\"\n\nmsgid \"settings.hideAuthorInfo\"\nmsgstr \"Hide plugin author info\"\n\nmsgid \"settings.hideAuthorConfirmText\"\nmsgstr \"Before hiding the author info, please star the plugin repository to show your support. The repository page has been opened in your browser. Your star is what keeps me developing — thank you for your support! 🙏\"\n\nmsgid \"settings.starredConfirm\"\nmsgstr \"I've starred it\"\n\nmsgid \"file.location\"\nmsgstr \"Location\"\n\nmsgid \"settings.phk.forward\"\nmsgstr \"Forward\"\n\nmsgid \"settings.mouseBack\"\nmsgstr \"Mouse back button\"\n\nmsgid \"settings.mouseForward\"\nmsgstr \"Mouse forward button\"\n\nmsgid \"settings.hotkeyAdd\"\nmsgstr \"Add shortcut\"\n\nmsgid \"settings.hotkeyDuplicate\"\nmsgstr \"This shortcut is already bound to this action\"\n\nmsgid \"settings.hotkeyMouseHint\"\nmsgstr \"Mouse side-button binding, click to re-record\"\n\nmsgid \"settings.occupied.title\"\nmsgstr \"Occupied shortcuts\"\n\nmsgid \"settings.occupied.hint\"\nmsgstr \"These keys are reserved by SFTP+ and cannot be changed. Avoid them when assigning shortcuts above. Conflicts with Tabby global hotkeys (e.g. Alt+Enter = fullscreen) will prompt for confirmation when binding.\"\n\nmsgid \"settings.occupied.groupPanel\"\nmsgstr \"Panel\"\n\nmsgid \"settings.occupied.groupViewer\"\nmsgstr \"Viewer\"\n\nmsgid \"settings.occupied.groupDialog\"\nmsgstr \"Dialogs\"\n\nmsgid \"settings.occupied.moveSelection\"\nmsgstr \"Move selection up / down\"\n\nmsgid \"settings.occupied.multiSelect\"\nmsgstr \"Multi-select with click\"\n\nmsgid \"settings.occupied.typeAhead\"\nmsgstr \"Type a name prefix to jump to the match\"\n\nmsgid \"settings.occupied.prevNextImage\"\nmsgstr \"Previous / next image\"\n\nmsgid \"settings.occupied.closeDialog\"\nmsgstr \"Close dialog / viewer / panel\"\n\nmsgid \"settings.occupied.confirmDelete\"\nmsgstr \"Confirm deletion\"\n\nmsgid \"log.modeFast\"\nmsgstr \"Fast mode\"\n\nmsgid \"log.modeTar\"\nmsgstr \"Tar packing\"\n\nmsgid \"log.modeSftp\"\nmsgstr \"SFTP\"\n\nmsgid \"log.fileCount\"\nmsgstr \"{n} files\"\n\nmsgid \"settings.customBookmarkPanel\"\nmsgstr \"Customize bookmark panel\"\n\nmsgid \"settings.resetBookmarkPanel\"\nmsgstr \"Reset bookmark panel\"\n\nmsgid \"settings.bookmarkGroupByScope\"\nmsgstr \"Bookmark grouping\"\nmsgid \"settings.bookmarkGroupByScopeHint\"\nmsgstr \"When on, bookmarks are shown in Current / Global sections. When off, they mix freely and can be reordered across scopes.\"\nmsgid \"settings.bookmarkGroupOrderHint\"\nmsgstr \"Drag to set which group appears first: connection or global\"\n\nmsgid \"settings.bookmarkFlatHint\"\nmsgstr \"With grouping off, global bookmarks show a Global badge next to the name and can be freely mixed with current bookmarks.\"\nmsgid \"bookmark.globalBadge\"\nmsgstr \"Global\"\n\nmsgid \"bookmark.locate\"\nmsgstr \"Locate current bookmark\"\n\nmsgid \"bookmark.locateNone\"\nmsgstr \"No bookmark for current path\"\n\nmsgid \"editor.remoteChanged\"\nmsgstr \"The remote file has been modified. Overwrite the version on the server?\"\n\nmsgid \"notify.sftpRecovered\"\nmsgstr \"SFTP session recovered; please retry interrupted transfers\"\n\nmsgid \"perm.modeUnknown\"\nmsgstr \"Cannot read permissions; cancelled\"\n\nmsgid \"permission.chmodFailed\"\nmsgstr \"Failed to change permissions\"\n\nmsgid \"settings.reportBug\"\nmsgstr \"Report a Bug\"\n\nmsgid \"settings.featureRequest\"\nmsgstr \"Feature Request\"\n\nmsgid \"notify.duplicateTransfer\"\nmsgstr \"{name} is already in the transfer queue — duplicate request ignored\"\n\nmsgid \"transfer.etaRemaining\"\nmsgstr \"{time} left\"\n\nmsgid \"app.dirMissingTitle\"\nmsgstr \"Target directory does not exist\"\n\nmsgid \"app.dirMissingText\"\nmsgstr \"The target directory for this transfer does not exist. Create it?\"\n\nmsgid \"app.dirMissingCreate\"\nmsgstr \"Create and transfer\"\n\nmsgid \"app.dirMissingFallback\"\nmsgstr \"Use current directory\"\n\nmsgid \"app.dirMissingCancel\"\nmsgstr \"Cancel\"\n\nmsgid \"app.dirCreated\"\nmsgstr \"Directory created: {dir}\"\n\nmsgid \"app.mkdirpFailed\"\nmsgstr \"Failed to create directory: {reason}\"\n\nmsgid \"app.targetNotDir\"\nmsgstr \"Target path is not a directory: {dir}\"\n\nmsgid \"pane.groupBy\"\nmsgstr \"Group by\"\n\nmsgid \"group.none\"\nmsgstr \"None\"\n\nmsgid \"group.name\"\nmsgstr \"Name\"\n\nmsgid \"group.modified\"\nmsgstr \"Date modified\"\n\nmsgid \"group.type\"\nmsgstr \"Type\"\n\nmsgid \"group.size\"\nmsgstr \"Size\"\n\nmsgid \"group.expand\"\nmsgstr \"Expand\"\n\nmsgid \"group.collapse\"\nmsgstr \"Collapse\"\n\nmsgid \"group.today\"\nmsgstr \"Today\"\n\nmsgid \"group.yesterday\"\nmsgstr \"Yesterday\"\n\nmsgid \"group.thisWeek\"\nmsgstr \"Earlier this week\"\n\nmsgid \"group.thisMonth\"\nmsgstr \"Earlier this month\"\n\nmsgid \"group.earlierThisYear\"\nmsgstr \"Earlier this year\"\n\nmsgid \"group.longAgo\"\nmsgstr \"A long time ago\"\n\nmsgid \"group.folder\"\nmsgstr \"Folder\"\n\nmsgid \"group.noExt\"\nmsgstr \"Other files\"\n\nmsgid \"group.typeFiles\"\nmsgstr \"files\"\n\nmsgid \"group.sizeTiny\"\nmsgstr \"Tiny (0-16 KB)\"\n\nmsgid \"group.sizeSmall\"\nmsgstr \"Small (16 KB - 1 MB)\"\n\nmsgid \"group.sizeMedium\"\nmsgstr \"Medium (1-128 MB)\"\n\nmsgid \"group.sizeLarge\"\nmsgstr \"Large (128 MB - 1 GB)\"\n\nmsgid \"group.sizeHuge\"\nmsgstr \"Huge (1-4 GB)\"\n\nmsgid \"group.sizeSuper\"\nmsgstr \"Enormous (>4 GB)\"\n\nmsgid \"group.digit\"\nmsgstr \"0-9\"\n\nmsgid \"group.a2h\"\nmsgstr \"A-H\"\n\nmsgid \"group.i2p\"\nmsgstr \"I-P\"\n\nmsgid \"group.q2z\"\nmsgstr \"Q-Z\"\n\nmsgid \"group.pyAF\"\nmsgstr \"Pinyin A-F\"\n\nmsgid \"group.pyGL\"\nmsgstr \"Pinyin G-L\"\n\nmsgid \"group.pyMS\"\nmsgstr \"Pinyin M-S\"\n\nmsgid \"group.pyTZ\"\nmsgstr \"Pinyin T-Z\"\n\nmsgid \"group.other\"\nmsgstr \"Other\"\n\nmsgid \"group.toggleAll\"\nmsgstr \"Expand/collapse all groups\"\n\nmsgid \"group.expandAll\"\nmsgstr \"Expand all\"\n\nmsgid \"group.collapseAll\"\nmsgstr \"Collapse all\"\n\nmsgid \"settings.enableItem\"\nmsgstr \"Enable item\"\n\nmsgid \"settings.channelMode\"\nmsgstr \"Transfer channel mode\"\n\nmsgid \"settings.channelModeDesc\"\nmsgstr \"Choose how folder transfers use tar packaging (TAR) vs file-by-file (SFTP)\"\n\nmsgid \"settings.channelMode.smart\"\nmsgstr \"Smart\"\n\nmsgid \"settings.channelMode.sftpOnly\"\nmsgstr \"SFTP only\"\n\nmsgid \"settings.channelMode.tarOnly\"\nmsgstr \"TAR only\"\n\nmsgid \"settings.channelMode.preferSftp\"\nmsgstr \"Prefer SFTP\"\n\nmsgid \"settings.channelMode.preferTar\"\nmsgstr \"Prefer TAR\"\n\nmsgid \"settings.channelMode.smartDesc\"\nmsgstr \"Auto-pick best channel by folder size and file count\"\n\nmsgid \"settings.channelMode.sftpOnlyDesc\"\nmsgstr \"Always transfer file by file; never use tar packing and no size-based routing\"\n\nmsgid \"settings.channelMode.tarOnlyDesc\"\nmsgstr \"Always use tar packing with no size-based routing; when packing is unavailable or fails, report the error instead of falling back to file-by-file. When the destination already exists the first attempt still goes file-by-file so conflicts can be detected; choosing Overwrite or Rename in the conflict prompt then continues with tar packing. A single file is always transferred file by file\"\n\nmsgid \"settings.channelMode.preferSftpDesc\"\nmsgstr \"Use tar only when clearly beneficial (requires many more files)\"\n\nmsgid \"settings.channelMode.preferTarDesc\"\nmsgstr \"Pack unless clearly worse (huge files); loose threshold\"\n\nmsgid \"notify.tarOnlyFailed\"\nmsgstr \"TAR-only mode: cannot transfer {name} - {reason}. Change Transfer channel mode to Smart / Prefer TAR in Settings, or fix the environment and retry\"\n\nmsgid \"tarchan.reason.localTarMissing\"\nmsgstr \"no usable tar command on this computer\"\n\nmsgid \"tarchan.reason.remoteTarMissing\"\nmsgstr \"no usable tar command on the remote server\"\n\nmsgid \"tarchan.reason.symlinkUnsupported\"\nmsgstr \"the folder contains symbolic links, which the packing channel does not support\"\n\nmsgid \"tarchan.reason.packFailed\"\nmsgstr \"packing or extracting the archive failed\"\n\nmsgid \"tarchan.reason.tarballFailed\"\nmsgstr \"transferring the archive file failed\"\n\nmsgid \"tarchan.reason.other\"\nmsgstr \"the packing channel is unavailable, see the log for details\"\n\nmsgid \"notify.tarOnlyInapplicable\"\nmsgstr \"TAR-only mode: {name} is not using the packed channel - {reason}. To send it as one archive, choose Overwrite in the directory conflict prompt, or delete the destination first and retry\"\n\nmsgid \"tarchan.reason.targetExists\"\nmsgstr \"the destination already exists, and an incremental transfer can only go through the per-file channel\"\n\nmsgid \"tarchan.reason.localPackFailed\"\nmsgstr \"packing the folder on this computer failed, possibly due to disk space or permissions\"\n\nmsgid \"tarchan.reason.remotePackFailed\"\nmsgstr \"packing or extracting on the remote server failed, possibly due to disk space or permissions\"\n\nmsgid \"tarchan.reason.localExtractFailed\"\nmsgstr \"extracting the archive on this computer failed, see the log for details\"\n\nmsgid \"tarchan.reason.nameEncodingUnsupported\"\nmsgstr \"the file names on the remote server cannot be decoded on this computer; switch to Smart or Prefer SFTP mode, or upgrade the tar command on the server\"\n\nmsgid \"transfer.batchUpload\"\nmsgstr \"{n} items from {dir}\"\n\nmsgid \"settings.exportPickHint\"\nmsgstr \"Choose what to include in the export file.\"\n\nmsgid \"settings.exportSelectAll\"\nmsgstr \"Select All\"\n\nmsgid \"settings.exportDeselectAll\"\nmsgstr \"Clear Selection\"\n\nmsgid \"settings.exportCatBookmarkData\"\nmsgstr \"Bookmark data\"\n\nmsgid \"settings.hotkeyWheelHint\"\nmsgstr \"Wheel binding, click to re-record (the list can no longer be scrolled with the wheel)\"\n\nmsgid \"settings.panelHotkeyWheelBareWarning\"\nmsgstr \"Bound to {keys}; the file list can no longer be scrolled with the wheel (add Alt)\"\n\nmsgid \"settings.textCaretShape\"\nmsgstr \"Viewer/editor caret shape\"\nmsgid \"settings.textCaretShapeHint\"\nmsgstr \"Shape of the caret drawn in the viewer. The three options mirror the cursor of the Tabby terminal. The editor uses the system caret.\"\nmsgid \"settings.caretShapeBlock\"\nmsgstr \"Block\"\nmsgid \"settings.caretShapeBeam\"\nmsgstr \"Vertical bar\"\nmsgid \"settings.caretShapeUnderline\"\nmsgstr \"Underline\"\n\nmsgid \"pane.firstPage\"\nmsgstr \"First page\"\n\nmsgid \"pane.previousPage\"\nmsgstr \"Previous page\"\n\nmsgid \"pane.nextPage\"\nmsgstr \"Next page\"\n\nmsgid \"pane.lastPage\"\nmsgstr \"Last page\"\n";
+module.exports = "msgid \"\"\nmsgstr \"\"\n\"Content-Type: text/plain; charset=UTF-8\\n\"\n\"Plural-Forms: nplurals=2; plural=(n != 1);\\n\"\n\"Language: en_US\\n\"\n\nmsgid \"app.title\"\nmsgstr \"SFTP+ File Manager\"\n\nmsgid \"app.openSettings\"\nmsgstr \"Open Settings\"\n\nmsgid \"app.open\"\nmsgstr \"Open SFTP\"\n\nmsgid \"app.close\"\nmsgstr \"Close\"\n\nmsgid \"app.maximize\"\nmsgstr \"Maximize\"\n\nmsgid \"app.restore\"\nmsgstr \"Restore\"\n\nmsgid \"app.confirm\"\nmsgstr \"Confirm\"\n\nmsgid \"app.cancel\"\nmsgstr \"Cancel\"\n\nmsgid \"app.delete\"\nmsgstr \"Delete\"\n\nmsgid \"app.deleteFile\"\nmsgstr \"Delete File\"\n\nmsgid \"app.deleteFolder\"\nmsgstr \"Delete Folder\"\n\nmsgid \"app.deleteMultiple\"\nmsgstr \"Delete Multiple Items\"\n\nmsgid \"conflict.title\"\nmsgstr \"File Conflict\"\n\nmsgid \"conflict.sourceFile\"\nmsgstr \"Source File\"\n\nmsgid \"conflict.localFile\"\nmsgstr \"Local File\"\n\nmsgid \"conflict.remoteFile\"\nmsgstr \"Remote File\"\n\nmsgid \"conflict.size\"\nmsgstr \"Size\"\n\nmsgid \"conflict.modified\"\nmsgstr \"Modified\"\n\nmsgid \"conflict.path\"\nmsgstr \"Path\"\n\nmsgid \"conflict.digest\"\nmsgstr \"Digest\"\n\nmsgid \"conflict.contentIdentical\"\nmsgstr \"Content is identical — safe to skip\"\n\n# ★ 2026-09-18 issue #15+：Content differs hint\nmsgid \"conflict.contentDiffers\"\nmsgstr \"Content is different — consider overwriting\"\n\nmsgid \"conflict.cancel\"\nmsgstr \"Cancel\"\n\nmsgid \"conflict.skip\"\nmsgstr \"Skip\"\n\nmsgid \"conflict.rename\"\nmsgstr \"Keep both\"\n\nmsgid \"conflict.overwrite\"\nmsgstr \"Replace\"\n\nmsgid \"conflict.batch\"\nmsgstr \"Batch:\"\n\nmsgid \"conflict.skipAll\"\nmsgstr \"Skip all\"\n\nmsgid \"conflict.renameAll\"\nmsgstr \"Keep both for all\"\n\nmsgid \"conflict.overwriteAll\"\nmsgstr \"Replace all\"\n\nmsgid \"conflict.existsLocal\"\nmsgstr \"Already exists locally\"\n\nmsgid \"conflict.existsRemote\"\nmsgstr \"Already exists remotely\"\n\nmsgid \"log.onlySuccess\"\nmsgstr \"Only Success\"\n\nmsgid \"log.success\"\nmsgstr \"Success\"\n\nmsgid \"log.failed\"\nmsgstr \"Failed\"\n\nmsgid \"fileType.txt\"\nmsgstr \"Text File\"\n\nmsgid \"fileType.log\"\nmsgstr \"Log File\"\n\nmsgid \"fileType.md\"\nmsgstr \"Markdown File\"\n\nmsgid \"fileType.json\"\nmsgstr \"JSON File\"\n\nmsgid \"fileType.xml\"\nmsgstr \"XML File\"\n\nmsgid \"fileType.html\"\nmsgstr \"HTML File\"\n\nmsgid \"fileType.css\"\nmsgstr \"CSS File\"\n\nmsgid \"fileType.js\"\nmsgstr \"JavaScript File\"\n\nmsgid \"fileType.ts\"\nmsgstr \"TypeScript File\"\n\nmsgid \"fileType.image\"\nmsgstr \"Image File\"\n\nmsgid \"fileType.video\"\nmsgstr \"Video File\"\n\nmsgid \"fileType.audio\"\nmsgstr \"Audio File\"\n\nmsgid \"fileType.archive\"\nmsgstr \"Archive File\"\n\nmsgid \"fileType.doc\"\nmsgstr \"Document File\"\n\nmsgid \"fileType.code\"\nmsgstr \"Code File\"\n\nmsgid \"fileType.data\"\nmsgstr \"Data File\"\n\nmsgid \"fileType.config\"\nmsgstr \"Config File\"\n\nmsgid \"fileType.cert\"\nmsgstr \"Certificate File\"\n\nmsgid \"fileType.executable\"\nmsgstr \"Executable File\"\n\nmsgid \"fileType.unknown\"\nmsgstr \"File\"\n\nmsgid \"app.deleteConfirmFile\"\nmsgstr \"Are you sure you want to delete this file?\"\n\nmsgid \"app.deleteConfirmFolder\"\nmsgstr \"Are you sure you want to delete this folder?\"\n\nmsgid \"app.deleteConfirmMultiple\"\nmsgstr \"Are you sure you want to delete these {count} items?\"\n\nmsgid \"app.trashHint\"\nmsgstr \"Move to Recycle Bin\"\n\nmsgid \"app.permDeleteHint\"\nmsgstr \"Permanently delete (cannot be undone)\"\n\nmsgid \"app.rename\"\nmsgstr \"Rename\"\n\nmsgid \"app.refresh\"\nmsgstr \"Refresh\"\n\nmsgid \"app.upload\"\nmsgstr \"Upload\"\n\nmsgid \"app.download\"\nmsgstr \"Download\"\n\nmsgid \"app.newFolder\"\nmsgstr \"New Folder\"\n\nmsgid \"app.newFile\"\nmsgstr \"New File\"\n\nmsgid \"app.loading\"\nmsgstr \"Loading...\"\n\nmsgid \"app.error\"\nmsgstr \"Error\"\n\nmsgid \"app.success\"\nmsgstr \"Success\"\n\nmsgid \"app.yes\"\nmsgstr \"Yes\"\n\nmsgid \"app.no\"\nmsgstr \"No\"\n\nmsgid \"app.all\"\nmsgstr \"All\"\n\nmsgid \"app.export\"\nmsgstr \"Export\"\n\nmsgid \"app.clear\"\nmsgstr \"Clear\"\n\nmsgid \"app.optional\"\nmsgstr \"Optional\"\n\nmsgid \"app.settings\"\nmsgstr \"Settings\"\n\nmsgid \"app.modeSwitchSsh\"\nmsgstr \"SSH\"\n\nmsgid \"app.modeSwitchSftp\"\nmsgstr \"SFTP\"\n\nmsgid \"app.backToTerminal\"\nmsgstr \"Back to Terminal\"\n\nmsgid \"filter.allOps\"\nmsgstr \"All Operations\"\n\nmsgid \"filter.allStatus\"\nmsgstr \"All Status\"\n\nmsgid \"filter.allTime\"\nmsgstr \"All Time\"\n\nmsgid \"filter.today\"\nmsgstr \"Today\"\n\nmsgid \"filter.last7Days\"\nmsgstr \"Last 7 Days\"\n\nmsgid \"filter.last30Days\"\nmsgstr \"Last 30 Days\"\n\nmsgid \"filter.customRange\"\nmsgstr \"Custom\"\n\nmsgid \"filter.dateFrom\"\nmsgstr \"From\"\n\nmsgid \"filter.dateTo\"\nmsgstr \"To\"\n\nmsgid \"pane.local\"\nmsgstr \"Local\"\n\nmsgid \"pane.remote\"\nmsgstr \"Remote\"\n\nmsgid \"pane.path\"\nmsgstr \"Path\"\n\nmsgid \"pane.up\"\nmsgstr \"Go Up\"\n\nmsgid \"pane.home\"\nmsgstr \"Home\"\n\nmsgid \"pane.go\"\nmsgstr \"Go\"\n\nmsgid \"pane.refresh\"\nmsgstr \"Refresh\"\n\nmsgid \"pane.filter\"\nmsgstr \"Filter...\"\n\nmsgid \"pane.filterBtn\"\nmsgstr \"File Filter\"\n\nmsgid \"pane.showHidden\"\nmsgstr \"Show Hidden Files\"\n\nmsgid \"pane.pinFolders\"\nmsgstr \"Pin Folders to Top\"\n\nmsgid \"view.panelBorder\"\nmsgstr \"Panel border\"\n\nmsgid \"view.colBorder\"\nmsgstr \"Show border\"\n\nmsgid \"view.zebra\"\nmsgstr \"Show zebra stripes\"\n\nmsgid \"pane.hideHidden\"\nmsgstr \"Hide Hidden Files\"\n\nmsgid \"pane.sortByName\"\nmsgstr \"Sort by Name\"\n\nmsgid \"pane.sortBySize\"\nmsgstr \"Sort by Size\"\n\nmsgid \"pane.sortByModified\"\nmsgstr \"Sort by Modified\"\n\nmsgid \"pane.selectAll\"\nmsgstr \"Select All\"\n\nmsgid \"pane.selectInvert\"\nmsgstr \"Invert Selection\"\n\nmsgid \"pane.clearSelection\"\nmsgstr \"Clear Selection\"\n\nmsgid \"pane.items\"\nmsgstr \"{count} items\"\n\nmsgid \"pane.copyPath\"\nmsgstr \"Copy Path\"\n\nmsgid \"pane.splitterHintHorizontal\"\nmsgstr \"Drag to resize left/right panes. Double-click to reset.\"\n\nmsgid \"pane.splitterHintVertical\"\nmsgstr \"Drag to resize top/bottom panes. Double-click to reset.\"\n\nmsgid \"notify.pathCopied\"\nmsgstr \"Copied {n} path(s)\"\n\nmsgid \"pane.openFolder\"\nmsgstr \"Open Folder\"\n\nmsgid \"pane.noMatch\"\nmsgstr \"No matching files\"\n\nmsgid \"pane.empty\"\nmsgstr \"Empty folder\"\n\nmsgid \"pane.errorAccess\"\nmsgstr \"Cannot access (permission denied or path not found)\"\n\nmsgid \"pane.loading\"\nmsgstr \"Loading…\"\n\nmsgid \"path.modeOff\"\nmsgstr \"Path mode: Off (click to switch: Remember, Sync)\"\n\nmsgid \"path.modeRemember\"\nmsgstr \"Path mode: Remember (restore next time)\"\n\nmsgid \"path.modeSync\"\nmsgstr \"Path mode: Sync with terminal (remote follows cwd)\"\n\nmsgid \"path.syncNoCwd\"\nmsgstr \"Terminal cwd not reported. Switch to Sync again to configure\"\n\nmsgid \"path.cwdSetupTitle\"\nmsgstr \"Enable terminal directory sync\"\n\nmsgid \"path.cwdSetupIntro\"\nmsgstr \"Tabby needs the shell to report cwd via OSC 1337 before SFTP+ can sync. Choose how to enable it:\"\n\nmsgid \"path.cwdSetupSessionHint\"\nmsgstr \"This session only: run the temporary command below in the current terminal (lost after shell restart)\"\n\nmsgid \"path.cwdSetupPermanentHint\"\nmsgstr \"Permanent: append the snippet below to the remote profile, then source it (based on detected shell)\"\n\nmsgid \"path.cwdSetupNote\"\nmsgstr \"Cancel turns path mode Off. Nothing is executed or written.\"\n\nmsgid \"path.cwdSetupSession\"\nmsgstr \"This session only\"\n\nmsgid \"path.cwdSetupPermanent\"\nmsgstr \"Write permanently\"\n\nmsgid \"path.cwdSetupDone\"\nmsgstr \"Directory reporting enabled, syncing…\"\n\nmsgid \"path.cwdSetupFailed\"\nmsgstr \"Failed to enable. Check remote permissions or shell type\"\n\nmsgid \"file.symlink\"\nmsgstr \"Symbolic link\"\n\nmsgid \"file.shortcut\"\nmsgstr \"Shortcut\"\n\nmsgid \"file.name\"\nmsgstr \"Name\"\n\nmsgid \"file.type\"\nmsgstr \"Type\"\n\nmsgid \"file.size\"\nmsgstr \"Size\"\n\nmsgid \"file.modified\"\nmsgstr \"Modified\"\n\nmsgid \"file.created\"\nmsgstr \"Created\"\n\nmsgid \"file.accessed\"\nmsgstr \"Accessed\"\n\nmsgid \"file.permissions\"\nmsgstr \"Permissions\"\n\nmsgid \"file.owner\"\nmsgstr \"Owner\"\n\nmsgid \"file.group\"\nmsgstr \"Group\"\n\nmsgid \"file.mode\"\nmsgstr \"Mode\"\n\nmsgid \"file.path\"\nmsgstr \"Path\"\n\nmsgid \"file.ext\"\nmsgstr \"Ext\"\n\nmsgid \"file.columns\"\nmsgstr \"Columns\"\n\nmsgid \"file.inaccessible\"\nmsgstr \"Inaccessible\"\n\nmsgid \"file.open\"\nmsgstr \"Open\"\n\nmsgid \"file.view\"\nmsgstr \"View\"\n\nmsgid \"file.viewAsText\"\nmsgstr \"View as Text\"\n\nmsgid \"file.edit\"\nmsgstr \"Edit\"\n\nmsgid \"file.copy\"\nmsgstr \"Copy\"\n\nmsgid \"file.copied\"\nmsgstr \"Copied\"\n\nmsgid \"file.copySelection\"\nmsgstr \"Copy Selection\"\n\nmsgid \"file.cut\"\nmsgstr \"Cut\"\n\nmsgid \"file.paste\"\nmsgstr \"Paste\"\n\nmsgid \"file.copyAll\"\nmsgstr \"Copy All\"\n\nmsgid \"file.copyImage\"\nmsgstr \"Copy Image\"\n\nmsgid \"file.copyImageAddress\"\nmsgstr \"Copy Image Address\"\n\nmsgid \"file.delete\"\nmsgstr \"Delete\"\n\nmsgid \"file.rename\"\nmsgstr \"Rename\"\n\nmsgid \"file.newFolder\"\nmsgstr \"New Folder\"\n\nmsgid \"file.newFile\"\nmsgstr \"New File\"\n\nmsgid \"file.properties\"\nmsgstr \"Properties\"\n\nmsgid \"file.openWith\"\nmsgstr \"Open With\"\n\nmsgid \"file.showInFolder\"\nmsgstr \"Show in Explorer\"\n\nmsgid \"file.openInSystem\"\nmsgstr \"Open in System\"\n\nmsgid \"file.editInSystem\"\nmsgstr \"Edit in System\"\n\nmsgid \"viewer.loading\"\nmsgstr \"Loading…\"\n\nmsgid \"viewer.loadFailed\"\nmsgstr \"Failed to load file\"\n\nmsgid \"viewer.binaryNotSupported\"\nmsgstr \"Binary file cannot be viewed or edited as text\"\n\nmsgid \"viewer.binaryShownAsText\"\nmsgstr \"Binary content shown as text (may not display correctly)\"\n\nmsgid \"viewer.tooLarge\"\nmsgstr \"File is too large to open\"\n\nmsgid \"viewer.tooLargeView\"\nmsgstr \"File is too large (over {limit}) and cannot be viewed\"\n\nmsgid \"viewer.truncatedPreview\"\nmsgstr \"File is large; showing the first {limit}. Use “Open in System” for the full file.\"\n\nmsgid \"viewer.typeNotSupported\"\nmsgstr \"This file type cannot be viewed\"\n\nmsgid \"viewer.prevImage\"\nmsgstr \"Previous image\"\n\nmsgid \"viewer.nextImage\"\nmsgstr \"Next image\"\n\nmsgid \"editor.save\"\nmsgstr \"Save\"\n\nmsgid \"editor.saving\"\nmsgstr \"Saving…\"\n\nmsgid \"editor.saveSuccess\"\nmsgstr \"Saved to server\"\n\nmsgid \"editor.saveSuccessLocal\"\nmsgstr \"Saved\"\n\nmsgid \"editor.saveFailed\"\nmsgstr \"Save failed\"\n\nmsgid \"editor.unsaved\"\nmsgstr \"You have unsaved changes. Discard them?\"\n\nmsgid \"editor.tooLarge\"\nmsgstr \"File is too large (over {limit}) and cannot be edited\"\n\nmsgid \"editor.typeNotSupported\"\nmsgstr \"This file type cannot be edited\"\n\nmsgid \"file.adjustCol\"\nmsgstr \"Fit Column Width\"\n\nmsgid \"file.adjustAllCols\"\nmsgstr \"Fit All Columns\"\n\nmsgid \"transfer.upload\"\nmsgstr \"Upload\"\n\nmsgid \"transfer.download\"\nmsgstr \"Download\"\n\nmsgid \"transfer.edit-upload\"\nmsgstr \"Edit Save\"\n\nmsgid \"transfer.edit-download\"\nmsgstr \"Edit Load\"\n\nmsgid \"transfer.progress\"\nmsgstr \"Progress\"\n\nmsgid \"transfer.speed\"\nmsgstr \"Speed\"\n\nmsgid \"transfer.remaining\"\nmsgstr \"Remaining\"\n\nmsgid \"transfer.cancel\"\nmsgstr \"Cancel\"\n\nmsgid \"transfer.closePanel\"\nmsgstr \"Close transfer panel\"\n\nmsgid \"transfer.pause\"\nmsgstr \"Pause\"\n\nmsgid \"transfer.resume\"\nmsgstr \"Resume\"\n\nmsgid \"transfer.cancelAll\"\nmsgstr \"Cancel folder\"\n\nmsgid \"transfer.cancelCurrent\"\nmsgstr \"Cancel current\"\n\nmsgid \"transfer.paused\"\nmsgstr \"Paused\"\n\nmsgid \"transfer.skippedAsDuplicate\"\nmsgstr \"Skipped · content identical\"\n\nmsgid \"transfer.inProgress\"\nmsgstr \"In Progress\"\n\nmsgid \"transfer.minimizePanel\"\nmsgstr \"Minimize\"\n\nmsgid \"transfer.hidePanel\"\nmsgstr \"Hide\"\n\nmsgid \"transfer.noActiveTransfers\"\nmsgstr \"No active transfers\"\n\nmsgid \"transfer.clearCompleted\"\nmsgstr \"Clear Completed\"\n\nmsgid \"transfer.queue\"\nmsgstr \"Transfer Queue\"\n\nmsgid \"transfer.log\"\nmsgstr \"Transfer History\"\n\nmsgid \"transfer.logEmpty\"\nmsgstr \"No transfer records yet\"\n\nmsgid \"transfer.logNoMatch\"\nmsgstr \"No matching records\"\n\nmsgid \"transfer.logCount\"\nmsgstr \"{total} records\"\n\nmsgid \"transfer.logCountFiltered\"\nmsgstr \"Showing {filtered} of {total}\"\n\nmsgid \"transfer.noTransfers\"\nmsgstr \"No active transfers\"\n\nmsgid \"transfer.clearConfirm\"\nmsgstr \"Clear finished transfer records? Records of transfers still in progress are kept.\"\n\nmsgid \"transfer.clearTitle\"\nmsgstr \"Confirm Clear\"\n\nmsgid \"transfer.replaceConfirm\"\nmsgstr \"File already exists. Replace?\"\n\nmsgid \"transfer.replaceTitle\"\nmsgstr \"Confirm Replace\"\n\nmsgid \"transfer.deleteConfirm\"\nmsgstr \"Delete {count} selected items?\"\n\nmsgid \"transfer.deleteTitle\"\nmsgstr \"Confirm Delete\"\n\nmsgid \"bookmark.title\"\nmsgstr \"Bookmarks\"\n\nmsgid \"bookmark.add\"\nmsgstr \"Add Bookmark\"\n\nmsgid \"bookmark.addLocal\"\nmsgstr \"Add Local\"\n\nmsgid \"bookmark.addGlobal\"\nmsgstr \"Add Global\"\n\nmsgid \"bookmark.addCurrentShort\"\nmsgstr \"+Local\"\n\nmsgid \"bookmark.addGlobalShort\"\nmsgstr \"+Global\"\n\nmsgid \"bookmark.remove\"\nmsgstr \"Remove Bookmark\"\n\nmsgid \"bookmark.edit\"\nmsgstr \"Edit Bookmark\"\n\nmsgid \"bookmark.noBookmarks\"\nmsgstr \"No bookmarks yet\"\n\nmsgid \"bookmark.name\"\nmsgstr \"Bookmark Name\"\n\nmsgid \"bookmark.path\"\nmsgstr \"Path\"\n\nmsgid \"bookmark.save\"\nmsgstr \"Save Bookmark\"\n\nmsgid \"bookmark.global\"\nmsgstr \"Global Bookmarks\"\n\nmsgid \"bookmark.forConnection\"\nmsgstr \"Current Bookmarks\"\nmsgid \"permission.title\"\nmsgstr \"Edit Permissions\"\n\nmsgid \"permission.owner\"\nmsgstr \"Owner\"\n\nmsgid \"permission.group\"\nmsgstr \"Group\"\n\nmsgid \"permission.others\"\nmsgstr \"Others\"\n\nmsgid \"permission.read\"\nmsgstr \"Read\"\n\nmsgid \"permission.write\"\nmsgstr \"Write\"\n\nmsgid \"permission.execute\"\nmsgstr \"Execute\"\n\nmsgid \"permission.mode\"\nmsgstr \"Mode (Octal)\"\n\nmsgid \"notify.sftpOpened\"\nmsgstr \"SFTP Opened\"\n\nmsgid \"notify.noSSHSession\"\nmsgstr \"No SSH session on current tab\"\n\nmsgid \"notify.transferComplete\"\nmsgstr \"Transfer Complete\"\n\nmsgid \"notify.transferFailed\"\nmsgstr \"Transfer Failed\"\n\nmsgid \"notify.connectionLost\"\nmsgstr \"Connection Lost\"\n\nmsgid \"notify.connected\"\nmsgstr \"Connected to\"\n\nmsgid \"notify.connecting\"\nmsgstr \"Connecting to\"\n\nmsgid \"notify.sftpConnectFailed\"\nmsgstr \"SFTP connection failed. Ensure SSH is connected and the server supports SFTP.\"\n\nmsgid \"notify.reconnectNoTerminal\"\nmsgstr \"Terminal disconnected. Please click or press any key in the terminal to reconnect.\"\n\nmsgid \"notify.reconnectFailed\"\nmsgstr \"Reconnect failed. Please click or press any key in the terminal to reconnect.\"\n\nmsgid \"settings.desc\"\nmsgstr \"Beautiful SFTP file manager: drag-drop, bookmarks, sort, transfer logs & multilingual.\"\n\nmsgid \"settings.theme\"\nmsgstr \"Theme\"\n\nmsgid \"settings.primary\"\nmsgstr \"Primary\"\n\nmsgid \"settings.bg\"\nmsgstr \"Bg\"\n\nmsgid \"settings.text\"\nmsgstr \"Text\"\n\nmsgid \"settings.border\"\nmsgstr \"Border\"\n\nmsgid \"settings.layout\"\nmsgstr \"Layout\"\n\nmsgid \"settings.font\"\nmsgstr \"Font\"\n\nmsgid \"settings.fontSize\"\nmsgstr \"Font size\"\n\nmsgid \"settings.resetFont\"\nmsgstr \"Reset font size\"\n\nmsgid \"settings.fontHint\"\nmsgstr \"Adjust text size inside the SFTP+ panel (11–18px)\"\n\nmsgid \"settings.layoutAdaptive\"\nmsgstr \"Adaptive\"\n\nmsgid \"settings.layoutAdaptiveSub\"\nmsgstr \"Auto switch by width\"\n\nmsgid \"settings.layoutHorizontal\"\nmsgstr \"Horizontal\"\n\nmsgid \"settings.layoutHorizontalSub\"\nmsgstr \"Panes side by side\"\n\nmsgid \"settings.layoutVertical\"\nmsgstr \"Vertical\"\n\nmsgid \"settings.layoutVerticalSub\"\nmsgstr \"Panes stacked\"\n\nmsgid \"settings.layoutSingle\"\nmsgstr \"Single Pane\"\n\nmsgid \"settings.layoutSingleSub\"\nmsgstr \"Remote panel only\"\n\nmsgid \"settings.toolbarLayout\"\nmsgstr \"Customize Toolbar\"\n\nmsgid \"settings.customToolbar\"\nmsgstr \"Customize Toolbar\"\n\nmsgid \"settings.toolbarLayoutHint\"\nmsgstr \"Drag to reorder and apply immediately to pane header\"\n\nmsgid \"settings.paneLabel\"\nmsgstr \"Terminal Label\"\n\nmsgid \"settings.addressBar\"\nmsgstr \"Address Bar\"\n\nmsgid \"settings.toolbar\"\nmsgstr \"Toolbar\"\n\nmsgid \"settings.toolbarItem.back\"\nmsgstr \"Back\"\n\nmsgid \"settings.toolbarItem.forward\"\nmsgstr \"Forward\"\n\nmsgid \"settings.toolbarItem.up\"\nmsgstr \"Up\"\n\nmsgid \"settings.toolbarItem.refresh\"\nmsgstr \"Refresh\"\n\nmsgid \"settings.toolbarItem.home\"\nmsgstr \"Home\"\n\nmsgid \"settings.toolbarItem.filter\"\nmsgstr \"Filter\"\n\nmsgid \"settings.toolbarItem.bookmark\"\nmsgstr \"Bookmark\"\n\nmsgid \"settings.resetLayout\"\nmsgstr \"Reset\"\n\nmsgid \"settings.tableStyle\"\nmsgstr \"Table Style\"\n\nmsgid \"settings.tableStyleHint\"\nmsgstr \"Tip: Control via file list header right-click menu\"\n\nmsgid \"settings.hideNativeBtn\"\nmsgstr \"Hide native SFTP button\"\n\nmsgid \"settings.openInNewTab\"\nmsgstr \"Open panel in new tab by default\"\n\nmsgid \"settings.singleWorkspaceInstance\"\nmsgstr \"Single instance only\"\n\nmsgid \"settings.closeBookmarkPanel\"\nmsgstr \"Close bookmark panel after selecting\"\n\nmsgid \"settings.hotkey\"\nmsgstr \"Open/Close Panel\"\n\nmsgid \"settings.hotkeyUnbound\"\nmsgstr \"Set shortcut\"\n\nmsgid \"settings.hotkeyClear\"\nmsgstr \"Clear\"\n\nmsgid \"settings.hotkeyRecording\"\nmsgstr \"Press a key combination…\"\n\nmsgid \"settings.hotkeyClickToSet\"\nmsgstr \"Click to set hotkey\"\n\nmsgid \"settings.hotkeyConflict\"\nmsgstr \"Conflicts with: {names}\"\n\nmsgid \"settings.hotkeyConflictConfirm\"\nmsgstr \"Shortcut {keys} is already used by: {names}\\nBind it to SFTP+ anyway? (Both may fire.)\"\n\nmsgid \"settings.hotkeySaved\"\nmsgstr \"Saved and synced to Tabby: {keys}\"\n\nmsgid \"settings.hotkeyCleared\"\nmsgstr \"Shortcut binding cleared\"\n\nmsgid \"settings.hotkeySaveFailed\"\nmsgstr \"Failed to save hotkey\"\n\nmsgid \"settings.hotkeyRecordTimeout\"\nmsgstr \"Recording timed out, please try again\"\n\nmsgid \"settings.other\"\nmsgstr \"Functionality\"\n\nmsgid \"settings.interaction\"\nmsgstr \"Interaction\"\nmsgid \"settings.viewerEditor\"\nmsgstr \"Viewer & editor\"\n\nmsgid \"settings.openOnClick\"\nmsgstr \"Open file/folder on\"\n\nmsgid \"settings.clickDouble\"\nmsgstr \"Double click\"\n\nmsgid \"settings.clickSingle\"\nmsgstr \"Single click\"\n\nmsgid \"settings.openOnClickHint\"\nmsgstr \"Single click opens files/folders directly; double click still works in single-click mode.\"\n\nmsgid \"settings.openUnsupportedInSystem\"\nmsgstr \"Open unsupported files with system app\"\n\nmsgid \"settings.openUnsupportedInSystemDesc\"\nmsgstr \"Files the viewer cannot handle (e.g. .pdf/.docx) will be opened with the OS default app instead of showing an \\\"unsupported\\\" message.\"\n\nmsgid \"settings.editableExtensions\"\nmsgstr \"Viewable & editable extensions\"\n\nmsgid \"settings.editableExtensionsHint\"\nmsgstr \"Space-separated. Accepts .conf, *.conf, or conf. Used as the whitelist when \\\"view & edit all\\\" is off.\"\nmsgid \"settings.allowViewEditAllFiles\"\nmsgstr \"Allow viewing and editing all file types\"\nmsgid \"settings.allowViewEditAllFilesHint\"\nmsgstr \"Ignore extension restrictions. Any file can be viewed; binary content remains protected when editing.\"\nmsgid \"settings.showTextLineNumbers\"\nmsgstr \"Viewer/editor line numbers\"\nmsgid \"settings.showTextLineNumbersHint\"\nmsgstr \"Show line numbers in the built-in viewer and editor.\"\nmsgid \"settings.transferSection\"\nmsgstr \"Transfer\"\n\nmsgid \"settings.defaultUploadPath\"\nmsgstr \"Default upload path\"\nmsgid \"settings.defaultUploadPathPh\"\nmsgstr \"Remote dir, e.g. /home/user/uploads (empty = current remote dir)\"\nmsgid \"settings.defaultDownloadPath\"\nmsgstr \"Default download path\"\nmsgid \"settings.defaultDownloadPathPh\"\nmsgstr \"Local dir, e.g. C:\\\\Downloads (empty = current local dir)\"\nmsgid \"settings.iconSettings\"\nmsgstr \"File type icons\"\nmsgid \"settings.iconResourceDir\"\nmsgstr \"Icon directory\"\nmsgid \"settings.iconResourceDirPh\"\nmsgstr \"Local dir containing the svg files, e.g. C:\\\\icons\"\nmsgid \"settings.iconSvgFile\"\nmsgstr \"SVG file\"\nmsgid \"settings.iconPreview\"\nmsgstr \"Preview\"\nmsgid \"settings.iconAdd\"\nmsgstr \"Add rule\"\nmsgid \"settings.iconDelete\"\nmsgstr \"Delete\"\nmsgid \"settings.iconDeleteConfirm\"\nmsgstr \"Delete rule \\\"{name}\\\"? This cannot be undone.\"\n\nmsgid \"settings.iconLocked\"\nmsgstr \"Locked (system default rule, cannot be deleted)\"\nmsgid \"settings.iconRuleHint\"\nmsgstr \"Map extensions to their SVG files.\"\nmsgid \"settings.builtinIcons\"\nmsgstr \"Built-in icons\"\nmsgid \"settings.builtinIconDir\"\nmsgstr \"Built-in icon directory\"\nmsgid \"settings.builtinIconDesc\"\nmsgstr \"The following SVG icons are bundled with the plugin. Drop your own svgs here to extend them.\"\nmsgid \"settings.iconEdit\"\nmsgstr \"Edit\"\nmsgid \"settings.iconDisable\"\nmsgstr \"Disable\"\nmsgid \"settings.iconEnable\"\nmsgstr \"Restore\"\nmsgid \"settings.iconAddRule\"\nmsgstr \"Add rule\"\nmsgid \"settings.iconFolderHint\"\nmsgstr \"Folder (default)\"\nmsgid \"settings.iconFileHint\"\nmsgstr \"File (default)\"\nmsgid \"settings.iconExtLockedHint\"\nmsgstr \"Default files cannot change extensions\"\nmsgid \"settings.iconSvgNameHint\"\nmsgstr \"File name\"\nmsgid \"settings.iconRuleName\"\nmsgstr \"Rule name\"\nmsgid \"settings.iconRuleNamePh\"\nmsgstr \"e.g. Scripts, Documents\"\nmsgid \"settings.iconExtLabel\"\nmsgstr \"Extensions\"\nmsgid \"settings.iconErrorExtConflict\"\nmsgstr \"Extension \\\"{ext}\\\" is already used by icon {svg}\"\nmsgid \"settings.iconErrorEmpty\"\nmsgstr \"Rule name, extension and svg file name must not be empty\"\nmsgid \"settings.iconErrorEmptyName\"\nmsgstr \"Rule name must not be empty\"\nmsgid \"settings.iconErrorNameConflict\"\nmsgstr \"Rule name \\\"{name}\\\" already exists\"\nmsgid \"settings.iconErrorNameSvgMismatch\"\nmsgstr \"Rule \\\"{name}\\\" is already bound to icon {svg}; use the same file or choose another rule name\"\nmsgid \"settings.iconErrorMissingSvg\"\nmsgstr \"The svg file was not found in the icon directory\"\nmsgid \"settings.iconErrorInvalidExt\"\nmsgstr \"Invalid extension format: \\\"{ext}\\\". Use forms like .txt or txt; separate multiple with spaces/commas\"\n\nmsgid \"settings.resetIcons\"\nmsgstr \"Reset icon settings\"\n\nmsgid \"settings.hotkeys\"\nmsgstr \"Shortcuts\"\n\nmsgid \"settings.resetPanelHotkeys\"\nmsgstr \"Reset to defaults\"\n\nmsgid \"settings.phk.delete\"\nmsgstr \"Delete\"\n\nmsgid \"settings.phk.rename\"\nmsgstr \"Rename\"\n\nmsgid \"settings.phk.refresh\"\nmsgstr \"Refresh\"\n\nmsgid \"settings.phk.up\"\nmsgstr \"Go up (parent dir)\"\n\nmsgid \"settings.phk.back\"\nmsgstr \"Back\"\n\nmsgid \"settings.panelHotkeyConflict\"\nmsgstr \"Shortcut {keys} is already used by another action\"\n\nmsgid \"settings.customContextMenu\"\nmsgstr \"Customize right-click menu\"\n\nmsgid \"settings.resetMenu\"\nmsgstr \"Reset menu order\"\n\nmsgid \"settings.data\"\nmsgstr \"Data\"\n\nmsgid \"settings.export\"\nmsgstr \"Export\"\n\nmsgid \"settings.import\"\nmsgstr \"Import\"\n\nmsgid \"settings.clearAll\"\nmsgstr \"Clear All\"\n\nmsgid \"settings.about\"\nmsgstr \"About\"\n\nmsgid \"settings.version\"\nmsgstr \"Version\"\n\nmsgid \"settings.buildTime\"\nmsgstr \"Build time\"\n\nmsgid \"settings.author\"\nmsgstr \"Author\"\n\nmsgid \"settings.githubSource\"\nmsgstr \"GitHub Source\"\n\nmsgid \"settings.npmSource\"\nmsgstr \"NPM Source\"\n\nmsgid \"settings.giveStar\"\nmsgstr \"Give a Star\"\n\nmsgid \"settings.feedback\"\nmsgstr \"Feedback\"\n\nmsgid \"settings.modifyColors\"\nmsgstr \"⚠️ Modify Colors\"\n\nmsgid \"settings.overwriteConfirm\"\nmsgstr \"You are in Auto/Preset mode. Changes will overwrite the custom color scheme. Continue?\"\n\nmsgid \"settings.overwrite\"\nmsgstr \"Overwrite\"\n\nmsgid \"settings.clearAllTitle\"\nmsgstr \"⚠️ Clear All Data\"\n\nmsgid \"settings.clearAllConfirm\"\nmsgstr \"This will delete all bookmarks, transfer logs, and settings. Cannot be undone!\"\n\nmsgid \"settings.clearAllPrompt\"\nmsgstr \"Please type DELETE to confirm:\"\n\nmsgid \"settings.clear\"\nmsgstr \"Clear\"\n\nmsgid \"settings.dark\"\nmsgstr \"Dark\"\n\nmsgid \"settings.light\"\nmsgstr \"Light\"\n\nmsgid \"settings.invalidFormat\"\nmsgstr \"Invalid data format.\"\n\nmsgid \"settings.importComplete\"\nmsgstr \"Import complete.\"\n\nmsgid \"settings.importUnavailable\"\nmsgstr \"Cannot import: ConfigService not available.\"\n\nmsgid \"settings.importFailed\"\nmsgstr \"Import failed: invalid or corrupted file.\"\n\nmsgid \"settings.dataCleared\"\nmsgstr \"All data cleared\"\n\nmsgid \"layout.mode.auto\"\nmsgstr \"Auto Layout\"\n\nmsgid \"layout.mode.horizontal\"\nmsgstr \"Horizontal Layout\"\n\nmsgid \"layout.mode.vertical\"\nmsgstr \"Vertical Layout\"\n\nmsgid \"layout.mode.single\"\nmsgstr \"Single Pane (Remote Only)\"\n\nmsgid \"layout.override.tooNarrow\"\nmsgstr \"Panel too narrow for side-by-side; temporarily using top-bottom layout\"\n\nmsgid \"layout.override.tooShort\"\nmsgstr \"Panel too short for top-bottom; temporarily using side-by-side layout\"\n\nmsgid \"layout.override.tooCramped\"\nmsgstr \"Panel too small for dual panes; temporarily using single pane\"\n\nmsgid \"layout.override.reasonNarrow\"\nmsgstr \"too narrow\"\n\nmsgid \"layout.override.reasonShort\"\nmsgstr \"too short\"\n\nmsgid \"layout.override.reasonCramped\"\nmsgstr \"too small\"\n\nmsgid \"layout.override.title\"\nmsgstr \"{preferred} → {actual} ({reason})\"\n\nmsgid \"notify.closeWithTransfers\"\nmsgstr \"{count} transfer(s) in progress. Closing the panel will interrupt all transfers. Continue?\"\n\nmsgid \"type.folder\"\nmsgstr \"Folder\"\n\nmsgid \"type.file\"\nmsgstr \"File\"\n\nmsgid \"pane.exclFolders\"\nmsgstr \", excl. folders\"\n\nmsgid \"pane.selectedInfo\"\nmsgstr \" — Selected {n} items ({size})\"\n\nmsgid \"fail.cancelled\"\nmsgstr \"Cancelled\"\n\nmsgid \"fail.interrupted\"\nmsgstr \"Disconnected\"\n\nmsgid \"fail.unknown\"\nmsgstr \"Failed\"\n\nmsgid \"notify.uploadFailed\"\nmsgstr \"Upload failed: {name}\"\n\nmsgid \"notify.downloadFailed\"\nmsgstr \"Download failed: {name}\"\n\nmsgid \"op.renameFailed\"\nmsgstr \"Rename failed: {reason}\"\n\nmsgid \"op.mkdirFailed\"\nmsgstr \"Create dir failed: {reason}\"\n\nmsgid \"op.touchFailed\"\nmsgstr \"Create file failed: {reason}\"\n\nmsgid \"op.chmodFailed\"\nmsgstr \"Chmod failed: {reason}\"\n\nmsgid \"op.failed\"\nmsgstr \"Operation failed: {reason}\"\n\nmsgid \"op.cannotCopyIntoSelf\"\nmsgstr \"Cannot copy a folder into itself or its subfolder: {name}\"\n\nmsgid \"notify.deleteFailed\"\nmsgstr \"{n} item(s) failed to delete (maybe in use or no permission)\"\n\nmsgid \"notify.trashFailed\"\nmsgstr \"{n} item(s) failed to move to Recycle Bin (not deleted; try Shift+Delete for permanent)\"\n\nmsgid \"input.dirExists\"\nmsgstr \"Directory already exists: {val}\"\n\nmsgid \"input.fileExists\"\nmsgstr \"File already exists: {val}\"\n\nmsgid \"input.fileWhenMkdir\"\nmsgstr \"A file named \\\"{val}\\\" already exists, cannot create directory\"\n\nmsgid \"input.dirWhenTouch\"\nmsgstr \"A directory named \\\"{val}\\\" already exists, cannot create file\"\n\nmsgid \"notify.notConnectedUpload\"\nmsgstr \"Not connected, cannot upload\"\n\nmsgid \"notify.notConnectedDownload\"\nmsgstr \"Not connected, cannot download\"\n\nmsgid \"notify.copied\"\nmsgstr \"Copied {n} item(s)\"\n\nmsgid \"notify.cut\"\nmsgstr \"Cut {n} item(s)\"\n\nmsgid \"status.disconnected\"\nmsgstr \"Disconnected\"\n\nmsgid \"status.reconnecting\"\nmsgstr \"Reconnecting…\"\n\nmsgid \"status.reconnect\"\nmsgstr \"Reconnect\"\n\nmsgid \"app.restoreDefaultSize\"\nmsgstr \"Restore default panel size\"\n\nmsgid \"notify.pasteFailed\"\nmsgstr \"Paste failed\"\n\nmsgid \"notify.copyFailed\"\nmsgstr \"Copy failed: {name}\"\n\nmsgid \"theme.auto\"\nmsgstr \"Auto\"\n\nmsgid \"theme.dark\"\nmsgstr \"Dark\"\n\nmsgid \"theme.light\"\nmsgstr \"Light\"\n\nmsgid \"theme.blue\"\nmsgstr \"Blue\"\n\nmsgid \"theme.green\"\nmsgstr \"Green\"\n\nmsgid \"theme.purple\"\nmsgstr \"Purple\"\n\nmsgid \"theme.red\"\nmsgstr \"Red\"\n\nmsgid \"theme.custom\"\nmsgstr \"Custom\"\n\nmsgid \"pane.back\"\nmsgstr \"Back\"\n\nmsgid \"pane.forward\"\nmsgstr \"Forward\"\n\nmsgid \"filter.apply\"\nmsgstr \"Apply\"\n\nmsgid \"filter.clear\"\nmsgstr \"Clear\"\n\nmsgid \"hotkey.togglePanel\"\nmsgstr \"Open SFTP+ panel\"\n\nmsgid \"conflict.targetFileExists\"\nmsgstr \"Target file (exists)\"\n\nmsgid \"transfer.success\"\nmsgstr \"Success\"\n\n\nmsgid \"conflict.existsSamePane\"\nmsgstr \"A file with the same name already exists at the target location\"\n\nmsgid \"settings.dateFormat\"\nmsgstr \"Custom time format\"\n\nmsgid \"settings.dateFormatHint\"\nmsgstr \"Tokens: YYYY / YY / MM / DD / HH / hh / mm / ss / A (empty = default)\"\n\nmsgid \"settings.dateFormatPreview\"\nmsgstr \"Preview\"\n\nmsgid \"settings.dateFormatReset\"\nmsgstr \"Reset to default\"\n\nmsgid \"settings.defaultPathMode\"\nmsgstr \"Default path mode\"\n\nmsgid \"settings.pathModeOff\"\nmsgstr \"Off\"\n\nmsgid \"settings.pathModeRemember\"\nmsgstr \"Remember path\"\n\nmsgid \"settings.pathModeSync\"\nmsgstr \"Sync with terminal\"\n\nmsgid \"settings.defaultShowHidden\"\nmsgstr \"Show hidden files by default\"\n\nmsgid \"settings.uploadConcurrency\"\nmsgstr \"Concurrent uploads\"\n\nmsgid \"settings.downloadConcurrency\"\nmsgstr \"Concurrent downloads\"\n\nmsgid \"transfer.queued\"\nmsgstr \"Queued\"\n\n\nmsgid \"settings.fastMode\"\nmsgstr \"Fast Transfer Mode\"\n\nmsgid \"settings.fastModeDesc\"\nmsgstr \"Skip the size pre-scan and start directory transfers immediately: faster start, but total size and percentage progress cannot be calculated during the transfer (only transferred bytes are shown)\"\n\nmsgid \"settings.tarAcceleration\"\nmsgstr \"TAR Transfer Acceleration\"\n\nmsgid \"settings.tarAccelerationDesc\"\nmsgstr \"Automatically package folder transfers with tar to dramatically speed up small files; falls back smoothly to normal transfer if unsupported or failed\"\n\nmsgid \"settings.conflictDigest\"\nmsgstr \"Content Digest on Conflict\"\n\nmsgid \"settings.conflictDigestDesc\"\nmsgstr \"When size matches but modification time differs, compute a content digest to tell whether the file really changed (e.g. after switching Git branches). Requires shell access on the remote host; falls back to the old behavior when unavailable\"\n\nmsgid \"settings.conflictAutoSkip\"\nmsgstr \"Auto-skip Identical Content\"\n\nmsgid \"settings.conflictAutoSkipDesc\"\nmsgstr \"If both digests are available and equal, treat it as no conflict and skip silently instead of prompting\"\n\nmsgid \"settings.conflictDigestMaxSize\"\nmsgstr \"Digest Size Limit (MB)\"\n\nmsgid \"settings.conflictDigestMaxSizeDesc\"\nmsgstr \"Files larger than this are not digested and are always treated as conflicts, to avoid slowing down conflict detection\"\n\nmsgid \"file.sizeCalculate\"\nmsgstr \"Calculate\"\n\nmsgid \"file.sizeCalculating\"\nmsgstr \"Calculating…\"\n\nmsgid \"file.sizeCalcFailed\"\nmsgstr \"Calculation failed\"\n\nmsgid \"file.folderSizeDetail\"\nmsgstr \"{size} ({count} files)\"\n\nmsgid \"file.fileProperties\"\nmsgstr \"File properties\"\n\nmsgid \"file.folderProperties\"\nmsgstr \"Folder properties\"\n\nmsgid \"settings.hideAuthorInfo\"\nmsgstr \"Hide plugin author info\"\n\nmsgid \"settings.hideAuthorConfirmText\"\nmsgstr \"Before hiding the author info, please star the plugin repository to show your support. The repository page has been opened in your browser. Your star is what keeps me developing — thank you for your support! 🙏\"\n\nmsgid \"settings.starredConfirm\"\nmsgstr \"I've starred it\"\n\nmsgid \"file.location\"\nmsgstr \"Location\"\n\nmsgid \"settings.phk.forward\"\nmsgstr \"Forward\"\n\nmsgid \"settings.mouseBack\"\nmsgstr \"Mouse back button\"\n\nmsgid \"settings.mouseForward\"\nmsgstr \"Mouse forward button\"\n\nmsgid \"settings.hotkeyAdd\"\nmsgstr \"Add shortcut\"\n\nmsgid \"settings.hotkeyDuplicate\"\nmsgstr \"This shortcut is already bound to this action\"\n\nmsgid \"settings.hotkeyMouseHint\"\nmsgstr \"Mouse side-button binding, click to re-record\"\n\nmsgid \"settings.occupied.title\"\nmsgstr \"Occupied shortcuts\"\n\nmsgid \"settings.occupied.hint\"\nmsgstr \"These keys are reserved by SFTP+ and cannot be changed. Avoid them when assigning shortcuts above. Conflicts with Tabby global hotkeys (e.g. Alt+Enter = fullscreen) will prompt for confirmation when binding.\"\n\nmsgid \"settings.occupied.groupPanel\"\nmsgstr \"Panel\"\n\nmsgid \"settings.occupied.groupViewer\"\nmsgstr \"Viewer\"\n\nmsgid \"settings.occupied.groupDialog\"\nmsgstr \"Dialogs\"\n\nmsgid \"settings.occupied.moveSelection\"\nmsgstr \"Move selection up / down\"\n\nmsgid \"settings.occupied.multiSelect\"\nmsgstr \"Multi-select with click\"\n\nmsgid \"settings.occupied.typeAhead\"\nmsgstr \"Type a name prefix to jump to the match\"\n\nmsgid \"settings.occupied.prevNextImage\"\nmsgstr \"Previous / next image\"\n\nmsgid \"settings.occupied.closeDialog\"\nmsgstr \"Close dialog / viewer / panel\"\n\nmsgid \"settings.occupied.confirmDelete\"\nmsgstr \"Confirm deletion\"\n\nmsgid \"log.modeFast\"\nmsgstr \"Fast mode\"\n\nmsgid \"log.modeTar\"\nmsgstr \"Tar packing\"\n\nmsgid \"log.modeSftp\"\nmsgstr \"SFTP\"\n\nmsgid \"log.fileCount\"\nmsgstr \"{n} files\"\n\nmsgid \"settings.customBookmarkPanel\"\nmsgstr \"Customize bookmark panel\"\n\nmsgid \"settings.resetBookmarkPanel\"\nmsgstr \"Reset bookmark panel\"\n\nmsgid \"settings.bookmarkGroupByScope\"\nmsgstr \"Bookmark grouping\"\nmsgid \"settings.bookmarkGroupByScopeHint\"\nmsgstr \"When on, bookmarks are shown in Current / Global sections. When off, they mix freely and can be reordered across scopes.\"\nmsgid \"settings.bookmarkGroupOrderHint\"\nmsgstr \"Drag to set which group appears first: connection or global\"\n\nmsgid \"settings.bookmarkFlatHint\"\nmsgstr \"With grouping off, global bookmarks show a Global badge next to the name and can be freely mixed with current bookmarks.\"\nmsgid \"bookmark.globalBadge\"\nmsgstr \"Global\"\n\nmsgid \"bookmark.locate\"\nmsgstr \"Locate current bookmark\"\n\nmsgid \"bookmark.locateNone\"\nmsgstr \"No bookmark for current path\"\n\nmsgid \"editor.remoteChanged\"\nmsgstr \"The remote file has been modified. Overwrite the version on the server?\"\n\nmsgid \"notify.sftpRecovered\"\nmsgstr \"SFTP session recovered; please retry interrupted transfers\"\n\nmsgid \"perm.modeUnknown\"\nmsgstr \"Cannot read permissions; cancelled\"\n\nmsgid \"permission.chmodFailed\"\nmsgstr \"Failed to change permissions\"\n\nmsgid \"settings.reportBug\"\nmsgstr \"Report a Bug\"\n\nmsgid \"settings.featureRequest\"\nmsgstr \"Feature Request\"\n\nmsgid \"notify.duplicateTransfer\"\nmsgstr \"{name} is already in the transfer queue — duplicate request ignored\"\n\nmsgid \"transfer.etaRemaining\"\nmsgstr \"{time} left\"\n\nmsgid \"app.dirMissingTitle\"\nmsgstr \"Target directory does not exist\"\n\nmsgid \"app.dirMissingText\"\nmsgstr \"The target directory for this transfer does not exist. Create it?\"\n\nmsgid \"app.dirMissingCreate\"\nmsgstr \"Create and transfer\"\n\nmsgid \"app.dirMissingFallback\"\nmsgstr \"Use current directory\"\n\nmsgid \"app.dirMissingCancel\"\nmsgstr \"Cancel\"\n\nmsgid \"app.dirCreated\"\nmsgstr \"Directory created: {dir}\"\n\nmsgid \"app.mkdirpFailed\"\nmsgstr \"Failed to create directory: {reason}\"\n\nmsgid \"app.targetNotDir\"\nmsgstr \"Target path is not a directory: {dir}\"\n\nmsgid \"pane.groupBy\"\nmsgstr \"Group by\"\n\nmsgid \"group.none\"\nmsgstr \"None\"\n\nmsgid \"group.name\"\nmsgstr \"Name\"\n\nmsgid \"group.modified\"\nmsgstr \"Date modified\"\n\nmsgid \"group.type\"\nmsgstr \"Type\"\n\nmsgid \"group.size\"\nmsgstr \"Size\"\n\nmsgid \"group.expand\"\nmsgstr \"Expand\"\n\nmsgid \"group.collapse\"\nmsgstr \"Collapse\"\n\nmsgid \"group.today\"\nmsgstr \"Today\"\n\nmsgid \"group.yesterday\"\nmsgstr \"Yesterday\"\n\nmsgid \"group.thisWeek\"\nmsgstr \"Earlier this week\"\n\nmsgid \"group.thisMonth\"\nmsgstr \"Earlier this month\"\n\nmsgid \"group.earlierThisYear\"\nmsgstr \"Earlier this year\"\n\nmsgid \"group.longAgo\"\nmsgstr \"A long time ago\"\n\nmsgid \"group.folder\"\nmsgstr \"Folder\"\n\nmsgid \"group.noExt\"\nmsgstr \"Other files\"\n\nmsgid \"group.typeFiles\"\nmsgstr \"files\"\n\nmsgid \"group.sizeTiny\"\nmsgstr \"Tiny (0-16 KB)\"\n\nmsgid \"group.sizeSmall\"\nmsgstr \"Small (16 KB - 1 MB)\"\n\nmsgid \"group.sizeMedium\"\nmsgstr \"Medium (1-128 MB)\"\n\nmsgid \"group.sizeLarge\"\nmsgstr \"Large (128 MB - 1 GB)\"\n\nmsgid \"group.sizeHuge\"\nmsgstr \"Huge (1-4 GB)\"\n\nmsgid \"group.sizeSuper\"\nmsgstr \"Enormous (>4 GB)\"\n\nmsgid \"group.digit\"\nmsgstr \"0-9\"\n\nmsgid \"group.a2h\"\nmsgstr \"A-H\"\n\nmsgid \"group.i2p\"\nmsgstr \"I-P\"\n\nmsgid \"group.q2z\"\nmsgstr \"Q-Z\"\n\nmsgid \"group.pyAF\"\nmsgstr \"Pinyin A-F\"\n\nmsgid \"group.pyGL\"\nmsgstr \"Pinyin G-L\"\n\nmsgid \"group.pyMS\"\nmsgstr \"Pinyin M-S\"\n\nmsgid \"group.pyTZ\"\nmsgstr \"Pinyin T-Z\"\n\nmsgid \"group.other\"\nmsgstr \"Other\"\n\nmsgid \"group.toggleAll\"\nmsgstr \"Expand/collapse all groups\"\n\nmsgid \"group.expandAll\"\nmsgstr \"Expand all\"\n\nmsgid \"group.collapseAll\"\nmsgstr \"Collapse all\"\n\nmsgid \"settings.enableItem\"\nmsgstr \"Enable item\"\n\nmsgid \"settings.channelMode\"\nmsgstr \"Transfer channel mode\"\n\nmsgid \"settings.channelModeDesc\"\nmsgstr \"Choose how folder transfers use tar packaging (TAR) vs file-by-file (SFTP)\"\n\nmsgid \"settings.channelMode.smart\"\nmsgstr \"Smart\"\n\nmsgid \"settings.channelMode.sftpOnly\"\nmsgstr \"SFTP only\"\n\nmsgid \"settings.channelMode.tarOnly\"\nmsgstr \"TAR only\"\n\nmsgid \"settings.channelMode.preferSftp\"\nmsgstr \"Prefer SFTP\"\n\nmsgid \"settings.channelMode.preferTar\"\nmsgstr \"Prefer TAR\"\n\nmsgid \"settings.channelMode.smartDesc\"\nmsgstr \"Auto-pick best channel by folder size and file count\"\n\nmsgid \"settings.channelMode.sftpOnlyDesc\"\nmsgstr \"Always transfer file by file; never use tar packing and no size-based routing\"\n\nmsgid \"settings.channelMode.tarOnlyDesc\"\nmsgstr \"Always use tar packing with no size-based routing; when packing is unavailable or fails, report the error instead of falling back to file-by-file. When the destination already exists the first attempt still goes file-by-file so conflicts can be detected; choosing Overwrite or Rename in the conflict prompt then continues with tar packing. A single file is always transferred file by file\"\n\nmsgid \"settings.channelMode.preferSftpDesc\"\nmsgstr \"Use tar only when clearly beneficial (requires many more files)\"\n\nmsgid \"settings.channelMode.preferTarDesc\"\nmsgstr \"Pack unless clearly worse (huge files); loose threshold\"\n\nmsgid \"notify.tarOnlyFailed\"\nmsgstr \"TAR-only mode: cannot transfer {name} - {reason}. Change Transfer channel mode to Smart / Prefer TAR in Settings, or fix the environment and retry\"\n\nmsgid \"tarchan.reason.localTarMissing\"\nmsgstr \"no usable tar command on this computer\"\n\nmsgid \"tarchan.reason.remoteTarMissing\"\nmsgstr \"no usable tar command on the remote server\"\n\nmsgid \"tarchan.reason.symlinkUnsupported\"\nmsgstr \"the folder contains symbolic links, which the packing channel does not support\"\n\nmsgid \"tarchan.reason.packFailed\"\nmsgstr \"packing or extracting the archive failed\"\n\nmsgid \"tarchan.reason.tarballFailed\"\nmsgstr \"transferring the archive file failed\"\n\nmsgid \"tarchan.reason.other\"\nmsgstr \"the packing channel is unavailable, see the log for details\"\n\nmsgid \"notify.tarOnlyInapplicable\"\nmsgstr \"TAR-only mode: {name} is not using the packed channel - {reason}. To send it as one archive, choose Overwrite in the directory conflict prompt, or delete the destination first and retry\"\n\nmsgid \"tarchan.reason.targetExists\"\nmsgstr \"the destination already exists, and an incremental transfer can only go through the per-file channel\"\n\nmsgid \"tarchan.reason.localPackFailed\"\nmsgstr \"packing the folder on this computer failed, possibly due to disk space or permissions\"\n\nmsgid \"tarchan.reason.remotePackFailed\"\nmsgstr \"packing or extracting on the remote server failed, possibly due to disk space or permissions\"\n\nmsgid \"tarchan.reason.localExtractFailed\"\nmsgstr \"extracting the archive on this computer failed, see the log for details\"\n\nmsgid \"tarchan.reason.nameEncodingUnsupported\"\nmsgstr \"the file names on the remote server cannot be decoded on this computer; switch to Smart or Prefer SFTP mode, or upgrade the tar command on the server\"\n\nmsgid \"transfer.batchUpload\"\nmsgstr \"{n} items from {dir}\"\n\nmsgid \"settings.exportPickHint\"\nmsgstr \"Choose what to include in the export file.\"\n\nmsgid \"settings.exportSelectAll\"\nmsgstr \"Select All\"\n\nmsgid \"settings.exportDeselectAll\"\nmsgstr \"Clear Selection\"\n\nmsgid \"settings.exportCatBookmarkData\"\nmsgstr \"Bookmark data\"\n\nmsgid \"settings.hotkeyWheelHint\"\nmsgstr \"Wheel binding, click to re-record (the list can no longer be scrolled with the wheel)\"\n\nmsgid \"settings.panelHotkeyWheelBareWarning\"\nmsgstr \"Bound to {keys}; the file list can no longer be scrolled with the wheel (add Alt)\"\n\nmsgid \"settings.textCaretShape\"\nmsgstr \"Viewer/editor caret shape\"\nmsgid \"settings.textCaretShapeHint\"\nmsgstr \"Shape of the caret drawn in the viewer. The three options mirror the cursor of the Tabby terminal. The editor uses the system caret.\"\nmsgid \"settings.caretShapeBlock\"\nmsgstr \"Block\"\nmsgid \"settings.caretShapeBeam\"\nmsgstr \"Vertical bar\"\nmsgid \"settings.caretShapeUnderline\"\nmsgstr \"Underline\"\n\nmsgid \"pane.firstPage\"\nmsgstr \"First page\"\n\nmsgid \"pane.previousPage\"\nmsgstr \"Previous page\"\n\nmsgid \"pane.nextPage\"\nmsgstr \"Next page\"\n\nmsgid \"pane.lastPage\"\nmsgstr \"Last page\"\n";
 
 /***/ },
 
@@ -29303,7 +29727,7 @@ module.exports = "    .sftp-settings-page { padding:20px; max-width:600px; }\n  
 (module) {
 
 "use strict";
-module.exports = "    <div class=\"sftp-settings-page\">\n      <h3 class=\"ss-title\">SFTP++</h3>\n      <p class=\"ss-desc\">{{ i18n.t('settings.desc') }}</p>\n\n\n      <div class=\"ss-section\">\n        <label class=\"ss-label\">{{ i18n.t('settings.theme') }}</label>\n        <div class=\"ss-color-row\">\n          <label *ngFor=\"let c of colorThemes\"\n            [class.ss-color-active]=\"theme === c.value\"\n            class=\"ss-color-swatch\"\n            (click)=\"setTheme(c.value)\">\n            <span class=\"ss-color-swatch-name\">{{ themeLabel(c) }}</span>\n            <span class=\"ss-color-swatch-preview\" [style.background]=\"swatchPreviewBg(c)\">\n              <span class=\"ss-cp-pane\">\n                <span class=\"ss-cp-header\" [style.background]=\"swatchCustomSurface(c)\" [style.color]=\"swatchCustomText(c)\">\n                  <span class=\"ss-cp-hdot\" [style.background]=\"swatchCustomText(c)\"></span>\n                  <span class=\"ss-cp-hdot\" [style.background]=\"swatchCustomText(c)\"></span>\n                  <span class=\"ss-cp-hdot\" [style.background]=\"swatchCustomText(c)\"></span>\n                  <span class=\"ss-cp-hpath\" [style.background]=\"swatchCustomBorder ? swatchCustomBorder(c) : ''\"></span>\n                </span>\n                <span class=\"ss-cp-rows\" [style.borderColor]=\"swatchCustomBorder ? swatchCustomBorder(c) : ''\">\n                  <span class=\"ss-cp-row\">\n                    <span class=\"ss-cp-icon\" [style.background]=\"swatchCustomPrimary(c)\"></span>\n                    <span class=\"ss-cp-fname\" [style.background]=\"swatchCustomText(c)\"></span>\n                    <span class=\"ss-cp-fsize\" [style.background]=\"swatchCustomMuted(c)\"></span>\n                  </span>\n                  <span class=\"ss-cp-row\">\n                    <span class=\"ss-cp-icon\" [style.background]=\"swatchCustomPrimary(c)\"></span>\n                    <span class=\"ss-cp-fname\" [style.background]=\"swatchCustomText(c)\"></span>\n                    <span class=\"ss-cp-fsize\" [style.background]=\"swatchCustomMuted(c)\"></span>\n                  </span>\n                  <span class=\"ss-cp-row\">\n                    <span class=\"ss-cp-icon\" [style.background]=\"swatchCustomPrimary(c)\"></span>\n                    <span class=\"ss-cp-fname\" [style.background]=\"swatchCustomText(c)\"></span>\n                    <span class=\"ss-cp-fsize\" [style.background]=\"swatchCustomMuted(c)\"></span>\n                  </span>\n                </span>\n              </span>\n            </span>\n          </label>\n        </div>\n\n\n        <div class=\"ss-scheme-preview\" *ngFor=\"let c of colorThemes\" [hidden]=\"theme !== c.value\">\n          <div class=\"ss-color-fields\">\n            <div class=\"ss-color-field\">\n              <label>{{ i18n.t('settings.primary') }}</label>\n              <input type=\"color\" [ngModel]=\"themePrimary\" (change)=\"onColorChange('primary', $event.target.value)\" class=\"ss-color-input\" />\n              <span class=\"ss-color-val\">{{ themePrimary }}</span>\n            </div>\n            <div class=\"ss-color-field\">\n              <label>{{ i18n.t('settings.bg') }}</label>\n              <input type=\"color\" [ngModel]=\"themeBg\" (change)=\"onColorChange('bg', $event.target.value)\" class=\"ss-color-input\" />\n              <span class=\"ss-color-val\">{{ themeBg }}</span>\n            </div>\n            <div class=\"ss-color-field\">\n              <label>{{ i18n.t('settings.text') }}</label>\n              <input type=\"color\" [ngModel]=\"themeText\" (change)=\"onColorChange('text', $event.target.value)\" class=\"ss-color-input\" />\n              <span class=\"ss-color-val\">{{ themeText }}</span>\n            </div>\n            <div class=\"ss-color-field\">\n              <label>{{ i18n.t('settings.border') }}</label>\n              <input type=\"color\" [ngModel]=\"themeBorder\" (change)=\"onColorChange('border', $event.target.value)\" class=\"ss-color-input\" />\n              <span class=\"ss-color-val\">{{ themeBorder }}</span>\n            </div>\n          </div>\n        </div>\n      </div>\n\n\n      <div class=\"ss-section\">\n        <label class=\"ss-label\">{{ i18n.t('settings.layout') }}</label>\n\n        <div class=\"ss-layout-row\">\n\n          <div class=\"ss-layout-card\" [class.ss-layout-active]=\"layoutMode === 'auto'\" (click)=\"setLayoutMode('auto')\">\n            <div class=\"ss-layout-icon\">\n              <svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\">\n                <rect x=\"2\" y=\"2\" width=\"9\" height=\"9\" rx=\"1.5\"/>\n                <rect x=\"13\" y=\"2\" width=\"9\" height=\"9\" rx=\"1.5\"/>\n                <rect x=\"2\" y=\"13\" width=\"9\" height=\"9\" rx=\"1.5\"/>\n                <rect x=\"13\" y=\"13\" width=\"9\" height=\"9\" rx=\"1.5\"/>\n              </svg>\n            </div>\n            <span class=\"ss-layout-text\">{{ i18n.t('settings.layoutAdaptive') }}</span>\n            <span class=\"ss-layout-sub\">{{ i18n.t('settings.layoutAdaptiveSub') }}</span>\n          </div>\n\n          <div class=\"ss-layout-card\" [class.ss-layout-active]=\"layoutMode === 'horizontal'\" (click)=\"setLayoutMode('horizontal')\">\n            <div class=\"ss-layout-icon\">\n              <svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\">\n                <rect x=\"2\" y=\"2\" width=\"9\" height=\"20\" rx=\"1.5\"/>\n                <rect x=\"13\" y=\"2\" width=\"9\" height=\"20\" rx=\"1.5\"/>\n              </svg>\n            </div>\n            <span class=\"ss-layout-text\">{{ i18n.t('settings.layoutHorizontal') }}</span>\n            <span class=\"ss-layout-sub\">{{ i18n.t('settings.layoutHorizontalSub') }}</span>\n          </div>\n\n          <div class=\"ss-layout-card\" [class.ss-layout-active]=\"layoutMode === 'vertical'\" (click)=\"setLayoutMode('vertical')\">\n            <div class=\"ss-layout-icon\">\n              <svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\">\n                <rect x=\"2\" y=\"2\" width=\"20\" height=\"9\" rx=\"1.5\"/>\n                <rect x=\"2\" y=\"13\" width=\"20\" height=\"9\" rx=\"1.5\"/>\n              </svg>\n            </div>\n            <span class=\"ss-layout-text\">{{ i18n.t('settings.layoutVertical') }}</span>\n            <span class=\"ss-layout-sub\">{{ i18n.t('settings.layoutVerticalSub') }}</span>\n          </div>\n\n          <div class=\"ss-layout-card\" [class.ss-layout-active]=\"layoutMode === 'single'\" (click)=\"setLayoutMode('single')\">\n            <div class=\"ss-layout-icon\">\n              <svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\">\n                <rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"1.5\"/>\n                <circle cx=\"16\" cy=\"12\" r=\"2.5\" fill=\"currentColor\" stroke=\"none\"/>\n              </svg>\n            </div>\n            <span class=\"ss-layout-text\">{{ i18n.t('settings.layoutSingle') }}</span>\n            <span class=\"ss-layout-sub\">{{ i18n.t('settings.layoutSingleSub') }}</span>\n          </div>\n        </div>\n\n\n        <div class=\"ss-sub-head\" style=\"margin-top:16px;\">\n          <div class=\"ss-sub-label\" style=\"margin:0;\">{{ i18n.t('settings.customToolbar') }}</div>\n          <button class=\"ss-reset-icon-btn\" (click)=\"resetPaneLayout()\" [title]=\"i18n.t('settings.resetLayout')\">\n            <svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n              <path d=\"M13 8a5 5 0 1 1-1.8-3.85\"/>\n              <path d=\"M13 3.5v2.9h-2.9\"/>\n            </svg>\n          </button>\n        </div>\n        <div class=\"ss-layout-preview\">\n          <div class=\"ss-layout-chip\"\n            *ngFor=\"let item of paneCustomOrder\"\n            draggable=\"true\"\n            [class.dragging]=\"draggingCustomItem === item\"\n            [class.hidden]=\"isPaneItemHidden(item)\"\n            (dragstart)=\"onCustomDragStart(item, $event)\"\n            (dragover)=\"onCustomDragOver(item, $event)\"\n            (drop)=\"onCustomDrop(item, $event)\"\n            (dragend)=\"onCustomDragEnd()\">\n            <input type=\"checkbox\" class=\"ss-chip-check\" [checked]=\"!isPaneItemHidden(item)\"\n              (mousedown)=\"$event.stopPropagation()\" (dragstart)=\"$event.stopPropagation()\"\n              (change)=\"togglePaneItemHidden(item)\" />\n            <span class=\"ss-layout-chip-handle\">⋮⋮</span>\n            <span>{{ paneCustomItemLabel(item) }}</span>\n          </div>\n        </div>\n\n        <div class=\"ss-sub-head\" style=\"margin-top:16px;\">\n          <div class=\"ss-sub-label\" style=\"margin:0;\">{{ i18n.t('settings.customContextMenu') }}</div>\n          <button class=\"ss-reset-icon-btn\" (click)=\"resetMenuOrder()\" [title]=\"i18n.t('settings.resetMenu')\">\n            <svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n              <path d=\"M13 8a5 5 0 1 1-1.8-3.85\"/>\n              <path d=\"M13 3.5v2.9h-2.9\"/>\n            </svg>\n          </button>\n        </div>\n        <div class=\"ss-menu-preview\">\n          <div class=\"ss-menu-row\"\n            *ngFor=\"let a of contextMenuOrder\"\n            draggable=\"true\"\n            [class.dragging]=\"draggingMenuItem === a\"\n            (dragstart)=\"onMenuDragStart(a, $event)\"\n            (dragover)=\"onMenuDragOver(a, $event)\"\n            (drop)=\"onMenuDrop(a, $event)\"\n            (dragend)=\"onMenuDragEnd()\">\n            <span class=\"ss-menu-handle\">⋮⋮</span>\n            <input class=\"ss-menu-check\" type=\"checkbox\"\n              [checked]=\"isMenuEnabled(a)\"\n              (change)=\"toggleMenuEnabled(a)\"\n              (mousedown)=\"$event.stopPropagation()\"\n              [title]=\"i18n.t('settings.enableItem')\" />\n            <span class=\"ss-menu-label\" [class.disabled]=\"!isMenuEnabled(a)\">{{ contextMenuItemLabel(a) }}</span>\n          </div>\n        </div>\n\n        <div class=\"ss-sub-head\" style=\"margin-top:16px;\">\n          <div class=\"ss-sub-label\" style=\"margin:0;\">{{ i18n.t('settings.customBookmarkPanel') }}</div>\n          <button class=\"ss-reset-icon-btn\" (click)=\"resetBookmarkPanel()\" [title]=\"i18n.t('settings.resetBookmarkPanel')\">\n            <svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n              <path d=\"M13 8a5 5 0 1 1-1.8-3.85\"/>\n              <path d=\"M13 3.5v2.9h-2.9\"/>\n            </svg>\n          </button>\n        </div>\n        <div class=\"ss-toggle-wrap\">\n          <label class=\"ss-toggle-row\" title=\"{{ i18n.t('settings.bookmarkGroupByScopeHint') }}\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('settings.bookmarkGroupByScope') }}</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"bookmarkPanelGroupByScope\" (click)=\"toggleBookmarkPanelGroupByScope()\">\n              <span class=\"ss-toggle-thumb\"></span>\n            </span>\n          </label>\n        </div>\n        <div class=\"ss-layout-preview\" *ngIf=\"bookmarkPanelGroupByScope\" style=\"margin-top:8px;\">\n          <div class=\"ss-layout-chip\"\n            *ngFor=\"let g of bookmarkPanelGroupOrder\"\n            draggable=\"true\"\n            [class.dragging]=\"draggingBookmarkGroup === g\"\n            (dragstart)=\"onBookmarkGroupDragStart(g, $event)\"\n            (dragover)=\"onBookmarkGroupDragOver(g, $event)\"\n            (drop)=\"onBookmarkGroupDrop(g, $event)\"\n            (dragend)=\"onBookmarkGroupDragEnd()\">\n            <span class=\"ss-layout-chip-handle\">⋮⋮</span>\n            <span>{{ bookmarkGroupLabel(g) }}</span>\n          </div>\n        </div>\n\n        <div class=\"ss-sub-label\" style=\"margin-top:16px;\">{{ i18n.t('settings.tableStyle') }}</div>\n        <div class=\"ss-toggle-wrap\">\n          <label class=\"ss-toggle-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('view.colBorder') }}</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"showColBorders\" (click)=\"showColBorders=!showColBorders; saveTableSettings()\">\n              <span class=\"ss-toggle-thumb\"></span>\n            </span>\n          </label>\n          <label class=\"ss-toggle-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('view.zebra') }}</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"showZebra\" (click)=\"showZebra=!showZebra; saveTableSettings()\">\n              <span class=\"ss-toggle-thumb\"></span>\n            </span>\n          </label>\n        </div>\n        <div class=\"ss-hint\">{{ i18n.t('settings.tableStyleHint') }}</div>\n\n        <div class=\"ss-sub-head\" style=\"margin-top:16px;\">\n          <div class=\"ss-sub-label\" style=\"margin:0;\">{{ i18n.t('settings.font') }}</div>\n          <button class=\"ss-reset-icon-btn\" (click)=\"resetFontSize()\" [title]=\"i18n.t('settings.resetFont')\">\n            <svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n              <path d=\"M13 8a5 5 0 1 1-1.8-3.85\"/>\n              <path d=\"M13 3.5v2.9h-2.9\"/>\n            </svg>\n          </button>\n        </div>\n\n        <div class=\"ss-font-row ss-toggle-sub\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.fontSize') }}</span>\n          <div class=\"ss-font-control\">\n            <input type=\"range\" min=\"11\" max=\"18\" step=\"1\" class=\"ss-range\"\n              [value]=\"fontSize\" (input)=\"onFontSizeChange(+$any($event.target).value)\" />\n            <span class=\"ss-font-val\">{{ fontSize }}px</span>\n          </div>\n        </div>\n      </div>\n\n\n      <div class=\"ss-section\">\n        <div class=\"ss-sub-head\">\n          <label class=\"ss-label\" style=\"margin:0;\">{{ i18n.t('settings.iconSettings') }}</label>\n          <button class=\"ss-reset-icon-btn\" (click)=\"resetIconSettings()\" [title]=\"i18n.t('settings.resetIcons')\">\n            <svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n              <path d=\"M13 8a5 5 0 1 1-1.8-3.85\"/>\n              <path d=\"M13 3.5v2.9h-2.9\"/>\n            </svg>\n          </button>\n        </div>\n\n        <div class=\"ss-toggle-row ss-path-row\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.iconResourceDir') }}</span>\n          <input class=\"ss-path-input\" type=\"text\" [(ngModel)]=\"iconDirDisplay\"\n            (change)=\"_saveToConfig()\" spellcheck=\"false\" />\n        </div>\n\n\n        <div class=\"ss-builtin\">\n          <div class=\"ss-icon-grid\">\n\n            <div class=\"ss-icon-cell ss-icon-cell--folder\"\n              [class.ss-icon-cell--editing]=\"_editingFolderIcon\"\n              [class.ss-icon-cell--disabled]=\"!folderIconSvg\">\n              <img class=\"ss-icon-cell-img\" [src]=\"'file://' + bundledIconPreviewPath(folderIconSvg || 'folder.svg')\" alt=\"folder\" draggable=\"false\" />\n              <span class=\"ss-icon-cell-name\">folder</span>\n              <span class=\"ss-icon-cell-exts\">{{ i18n.t('settings.iconFolderHint') }}</span>\n\n              <div class=\"ss-icon-cell-actions\">\n                <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--del\"\n                  *ngIf=\"!folderIconSvg\"\n                  (click)=\"restoreFolderIcon()\">\n                  {{ i18n.t('settings.iconEnable') }}\n                </button>\n                <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--edit\"\n                  (click)=\"startEditFolderIcon()\">{{ i18n.t('settings.iconEdit') }}</button>\n              </div>\n            </div>\n\n\n            <div class=\"ss-icon-cell\"\n              *ngFor=\"let item of iconGridItems; trackBy: trackByIcon\"\n              [class.ss-icon-cell--disabled]=\"isIconDisabled(item.svg)\"\n              [class.ss-icon-cell--editing]=\"_editingRuleKey === item.key\">\n              <img class=\"ss-icon-cell-img\" [src]=\"'file://' + bundledIconPreviewPath(item.svg)\" [alt]=\"item.name\" draggable=\"false\"\n                [class.ss-icon-cell-img--dim]=\"isIconDisabled(item.svg)\" />\n              <span class=\"ss-icon-cell-name\">{{ item.name }}</span>\n              <span class=\"ss-icon-cell-exts\">{{ item.svg === 'default.svg' ? i18n.t('settings.iconFileHint') : item.exts.join(' ') }}</span>\n\n              <div class=\"ss-icon-cell-actions\">\n                <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--del\"\n                  *ngIf=\"!isLockedIcon(item.svg)\"\n                  (click)=\"deleteIcon(item)\">\n                  {{ item.isBuiltin ? (isIconDisabled(item.svg) ? i18n.t('settings.iconEnable') : i18n.t('settings.iconDisable')) : i18n.t('settings.iconDelete') }}\n                </button>\n                <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--edit\"\n                  (click)=\"startEditIcon(item)\">{{ i18n.t('settings.iconEdit') }}</button>\n              </div>\n            </div>\n\n\n            <div class=\"ss-icon-cell ss-icon-cell--add\" (click)=\"toggleAddCustomRule()\">\n              <ng-container *ngIf=\"!_addingCustomRule\">\n                <span class=\"ss-icon-cell-plus\">+</span>\n                <span class=\"ss-icon-cell-name\">{{ i18n.t('settings.iconAddRule') }}</span>\n              </ng-container>\n              <ng-container *ngIf=\"_addingCustomRule\">\n                <span class=\"ss-icon-cell-name\" style=\"font-size:10px;opacity:.7\">FORM ↓</span>\n                <span class=\"ss-icon-cell-name\" style=\"font-size:9px;opacity:.55\">Expanded</span>\n              </ng-container>\n            </div>\n          </div>\n\n\n          <div *ngIf=\"_editingRuleKey !== null\" class=\"ss-icon-form-card\">\n            <div class=\"ss-icon-form-header\">{{ i18n.t('settings.iconEdit') }}: <b>{{ _editingRuleKey }}</b></div>\n            <div class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconRuleName') }}</span>\n              <input class=\"ss-icon-form-input\" type=\"text\" [(ngModel)]=\"_editingRuleName\"\n                spellcheck=\"false\" [placeholder]=\"i18n.t('settings.iconRuleNamePh')\"\n                [readonly]=\"isSystemRuleName(_editingRuleKey)\"\n                [attr.aria-readonly]=\"isSystemRuleName(_editingRuleKey) ? 'true' : null\"\n                [class.ss-icon-form-input--locked]=\"isSystemRuleName(_editingRuleKey)\"\n                (keydown.enter)=\"confirmEditIcon()\" (keydown.escape)=\"cancelEditIcon()\" />\n            </div>\n            <div class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconSvgNameHint') || 'Filename' }}</span>\n\n              <input class=\"ss-icon-form-input\" type=\"text\" [(ngModel)]=\"_editingIconSvgName\"\n                spellcheck=\"false\" placeholder=\"name.svg\" (keydown.enter)=\"confirmEditIcon()\" (keydown.escape)=\"cancelEditIcon()\" />\n            </div>\n            <div *ngIf=\"_editingIconSvgName !== 'default.svg'\" class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconExtLabel') || 'Extension' }}</span>\n              <input class=\"ss-icon-form-input ss-icon-form-input--wide\" type=\"text\" [(ngModel)]=\"_editingIconExts\"\n                spellcheck=\"false\" (keydown.enter)=\"confirmEditIcon()\" (keydown.escape)=\"cancelEditIcon()\" />\n            </div>\n            <div *ngIf=\"_iconRuleError\" class=\"ss-icon-rule-error\">{{ _iconRuleError }}</div>\n            <div class=\"ss-icon-form-actions\">\n              <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--ok\" (click)=\"confirmEditIcon()\">✓ {{ i18n.t('app.confirm') }}</button>\n              <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--cancel\" (click)=\"cancelEditIcon()\">✕ {{ i18n.t('app.cancel') }}</button>\n            </div>\n          </div>\n\n\n          <div *ngIf=\"_editingFolderIcon\" class=\"ss-icon-form-card\">\n            <div class=\"ss-icon-form-header\">{{ i18n.t('settings.iconEdit') }}: <b>folder</b></div>\n            <div class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconRuleName') }}</span>\n              <input class=\"ss-icon-form-input ss-icon-form-input--locked\" type=\"text\" value=\"folder\"\n                readonly aria-readonly=\"true\" spellcheck=\"false\" tabindex=\"-1\" />\n            </div>\n            <div class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconSvgNameHint') || 'Filename' }}</span>\n              <input class=\"ss-icon-form-input\" type=\"text\" [(ngModel)]=\"_folderIconDraft\"\n                spellcheck=\"false\" placeholder=\"name.svg\" (keydown.enter)=\"confirmEditFolderIcon()\" (keydown.escape)=\"cancelEditFolderIcon()\" />\n            </div>\n            <div *ngIf=\"_folderIconError\" class=\"ss-icon-rule-error\">{{ _folderIconError }}</div>\n            <div class=\"ss-icon-form-actions\">\n              <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--ok\" (click)=\"confirmEditFolderIcon()\">✓ {{ i18n.t('app.confirm') }}</button>\n              <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--cancel\" (click)=\"cancelEditFolderIcon()\">✕ {{ i18n.t('app.cancel') }}</button>\n            </div>\n          </div>\n\n\n          <div *ngIf=\"_addingCustomRule\" class=\"ss-icon-form-card\">\n            <div class=\"ss-icon-form-header\">{{ i18n.t('settings.iconAddRule') }}</div>\n            <div class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconRuleName') }}</span>\n              <input class=\"ss-icon-form-input\" type=\"text\" [(ngModel)]=\"_newRuleName\" spellcheck=\"false\"\n                [placeholder]=\"i18n.t('settings.iconRuleNamePh')\"\n                (keydown.enter)=\"confirmAddCustomRule()\" (keydown.escape)=\"cancelAddCustomRule()\" />\n            </div>\n            <div class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconSvgNameHint') || 'Filename' }}</span>\n              <input class=\"ss-icon-form-input\" type=\"text\" [(ngModel)]=\"_newRuleSvg\" spellcheck=\"false\"\n                placeholder=\"name.svg\" (keydown.enter)=\"confirmAddCustomRule()\" (keydown.escape)=\"cancelAddCustomRule()\" />\n            </div>\n            <div class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconExtLabel') || 'Extension' }}</span>\n              <input class=\"ss-icon-form-input ss-icon-form-input--wide\" type=\"text\" [(ngModel)]=\"_newRuleExt\" spellcheck=\"false\"\n                placeholder=\".ext\" (keydown.enter)=\"confirmAddCustomRule()\" (keydown.escape)=\"cancelAddCustomRule()\" />\n            </div>\n            <div *ngIf=\"_iconRuleError\" class=\"ss-icon-rule-error\">{{ _iconRuleError }}</div>\n            <div class=\"ss-icon-form-actions\">\n              <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--ok\" (click)=\"confirmAddCustomRule()\">✓ {{ i18n.t('app.confirm') }}</button>\n              <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--cancel\" (click)=\"cancelAddCustomRule()\">✕ {{ i18n.t('app.cancel') }}</button>\n            </div>\n          </div>\n        </div>\n      </div>\n\n\n\n      <div class=\"ss-section\">\n        <label class=\"ss-label\">{{ i18n.t('settings.other') }}</label>\n        <div class=\"ss-toggle-wrap\">\n\n          <label class=\"ss-toggle-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('settings.hideNativeBtn') }}</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"hideNativeBtn\" (click)=\"toggleHideNativeBtn()\">\n              <span class=\"ss-toggle-thumb\"></span>\n            </span>\n          </label>\n\n          <div class=\"ss-sub-label\" style=\"margin-top:16px;\">{{ i18n.t('settings.interaction') }}</div>\n          <label class=\"ss-toggle-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('settings.closeBookmarkPanel') }}</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"closeBookmarkPanelOnSelect\" (click)=\"toggleCloseBookmarkPanelOnSelect()\">\n              <span class=\"ss-toggle-thumb\"></span>\n            </span>\n          </label>\n\n\n          <label class=\"ss-toggle-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('settings.defaultShowHidden') }}</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"defaultShowHidden\" (click)=\"toggleDefaultShowHidden()\">\n              <span class=\"ss-toggle-thumb\"></span>\n            </span>\n          </label>\n          <div class=\"ss-toggle-row ss-pathmode-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('settings.openOnClick') }}</span>\n            <div class=\"ss-segmented\">\n              <button type=\"button\" class=\"ss-segment\"\n                [class.active]=\"openOnClick === 'double'\"\n                (click)=\"openOnClick = 'double'; saveInteraction()\">\n                {{ i18n.t('settings.clickDouble') }}\n              </button>\n              <button type=\"button\" class=\"ss-segment\"\n                [class.active]=\"openOnClick === 'single'\"\n                (click)=\"openOnClick = 'single'; saveInteraction()\">\n                {{ i18n.t('settings.clickSingle') }}\n              </button>\n            </div>\n          </div>\n          <div class=\"ss-toggle-row\"><span class=\"ss-toggle-label\">Recent folders (1–10)</span><input class=\"ss-concurrency-input\" type=\"number\" min=\"1\" max=\"10\" step=\"1\" [ngModel]=\"customRecentFolderLimit\" (ngModelChange)=\"setCustomRecentFolderLimit($event)\" /></div>\n          <div class=\"ss-toggle-row\" title=\"A file operation adds the folder immediately.\"><span class=\"ss-toggle-label\">Recent folder dwell time (seconds)</span><input class=\"ss-concurrency-input\" type=\"number\" min=\"1\" max=\"86400\" step=\"1\" [ngModel]=\"customRecentFolderDwellSeconds\" (ngModelChange)=\"setCustomRecentFolderDwellSeconds($event)\" /></div>\n          <label class=\"ss-toggle-row\" title=\"A sidebar for each SSH pane. Collapsing keeps editing and transfers running.\">\n            <span class=\"ss-toggle-label\">Use SFTP sidebar</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"customSidebarEnabled\" (click)=\"toggleCustomSidebar()\"><span class=\"ss-toggle-thumb\"></span></span>\n          </label>\n          <div class=\"ss-toggle-row ss-pathmode-row\"><span class=\"ss-toggle-label\">Sidebar edge</span><div class=\"ss-segmented\"><button type=\"button\" class=\"ss-segment\" [class.active]=\"customSidebarSide === 'left'\" (click)=\"setCustomSidebarSide('left')\">Left</button><button type=\"button\" class=\"ss-segment\" [class.active]=\"customSidebarSide === 'right'\" (click)=\"setCustomSidebarSide('right')\">Right</button></div></div>\n\n          <label class=\"ss-toggle-row\">\n            <span class=\"ss-toggle-label\">Suggest folders while typing paths</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"customFolderAutocomplete\" (click)=\"toggleCustomFolderAutocomplete()\"><span class=\"ss-toggle-thumb\"></span></span>\n          </label>\n\n          <div class=\"ss-toggle-row ss-pathmode-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('settings.defaultPathMode') }}</span>\n            <div class=\"ss-segmented\">\n              <button type=\"button\" class=\"ss-segment\"\n                [class.active]=\"defaultPathMode === 'off'\"\n                (click)=\"defaultPathMode = 'off'; saveDefaultPathMode()\">\n                Manual\n              </button>\n              <button type=\"button\" class=\"ss-segment\"\n                [class.active]=\"defaultPathMode === 'remember'\"\n                (click)=\"defaultPathMode = 'remember'; saveDefaultPathMode()\">\n                {{ i18n.t('settings.pathModeRemember') }}\n              </button>\n\n            </div>\n          </div>\n          <div class=\"ss-toggle-row ss-datefmt-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('settings.dateFormat') }}</span>\n            <div class=\"ss-datefmt-field\">\n              <input class=\"ss-datefmt-input\" type=\"text\" [(ngModel)]=\"dateFormat\"\n                (change)=\"saveDateFormat()\" spellcheck=\"false\" />\n              <button type=\"button\" class=\"ss-datefmt-clear\" *ngIf=\"dateFormat !== defaultDateFormat\"\n                (click)=\"resetDateFormat(); $event.stopPropagation()\"\n                [title]=\"i18n.t('settings.dateFormatReset')\">&times;</button>\n            </div>\n          </div>\n\n\n        </div>\n      </div>\n\n\n      <div class=\"ss-section\">\n        <label class=\"ss-label\">{{ i18n.t('settings.transferSection') }}</label>\n        <div class=\"ss-toggle-wrap\">\n            <div class=\"ss-toggle-row ss-concurrency-row\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.uploadConcurrency') }}</span>\n          <input class=\"ss-concurrency-input\" type=\"number\" min=\"1\" max=\"10\" step=\"1\"\n          [(ngModel)]=\"uploadConcurrency\" (change)=\"saveConcurrency()\" />\n          </div>\n          <div class=\"ss-toggle-row ss-concurrency-row\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.downloadConcurrency') }}</span>\n          <input class=\"ss-concurrency-input\" type=\"number\" min=\"1\" max=\"10\" step=\"1\"\n          [(ngModel)]=\"downloadConcurrency\" (change)=\"saveConcurrency()\" />\n          </div>\n\n          <div class=\"ss-toggle-row ss-concurrency-row\" title=\"{{ i18n.t('settings.channelModeDesc') }}\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.channelMode') }}</span>\n          <select class=\"ss-select ss-channel-select\" [(ngModel)]=\"transferChannelMode\" (change)=\"saveChannelMode()\">\n          <option value=\"smart\" title=\"{{ i18n.t('settings.channelMode.smartDesc') }}\">{{ i18n.t('settings.channelMode.smart') }}</option>\n          <option value=\"preferTar\" title=\"{{ i18n.t('settings.channelMode.preferTarDesc') }}\">{{ i18n.t('settings.channelMode.preferTar') }}</option>\n          <option value=\"preferSftp\" title=\"{{ i18n.t('settings.channelMode.preferSftpDesc') }}\">{{ i18n.t('settings.channelMode.preferSftp') }}</option>\n          <option value=\"tarOnly\" title=\"{{ i18n.t('settings.channelMode.tarOnlyDesc') }}\">{{ i18n.t('settings.channelMode.tarOnly') }}</option>\n          <option value=\"sftpOnly\" title=\"{{ i18n.t('settings.channelMode.sftpOnlyDesc') }}\">{{ i18n.t('settings.channelMode.sftpOnly') }}</option>\n          </select>\n          </div>\n\n          <label class=\"ss-toggle-row\" title=\"{{ i18n.t('settings.conflictDigestDesc') }}\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.conflictDigest') }}</span>\n          <span class=\"ss-toggle-track\" [class.active]=\"conflictDigestEnabled\" (click)=\"toggleConflictDigest()\">\n          <span class=\"ss-toggle-thumb\"></span>\n          </span>\n          </label>\n          <label class=\"ss-toggle-row\" *ngIf=\"conflictDigestEnabled\" title=\"{{ i18n.t('settings.conflictAutoSkipDesc') }}\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.conflictAutoSkip') }}</span>\n          <span class=\"ss-toggle-track\" [class.active]=\"conflictAutoSkipSameContent\" (click)=\"toggleConflictAutoSkip()\">\n          <span class=\"ss-toggle-thumb\"></span>\n          </span>\n          </label>\n          <div class=\"ss-toggle-row ss-concurrency-row\" *ngIf=\"conflictDigestEnabled\"\n          title=\"{{ i18n.t('settings.conflictDigestMaxSizeDesc') }}\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.conflictDigestMaxSize') }}</span>\n          <input class=\"ss-concurrency-input\" type=\"number\" min=\"1\" max=\"4096\" step=\"1\"\n          [(ngModel)]=\"conflictDigestMaxSizeMB\" (change)=\"saveConflictDigestMaxSize()\" />\n          </div>\n\n          <div class=\"ss-toggle-row ss-path-row\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.defaultUploadPath') }}</span>\n          <input class=\"ss-path-input\" type=\"text\" [(ngModel)]=\"defaultUploadPath\"\n          (change)=\"_saveToConfig()\" [placeholder]=\"i18n.t('settings.defaultUploadPathPh')\" spellcheck=\"false\" />\n          </div>\n          <div class=\"ss-toggle-row ss-path-row\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.defaultDownloadPath') }}</span>\n          <input class=\"ss-path-input\" type=\"text\" [(ngModel)]=\"defaultDownloadPath\"\n          (change)=\"_saveToConfig()\" [placeholder]=\"i18n.t('settings.defaultDownloadPathPh')\" spellcheck=\"false\" />\n          </div>\n        </div>\n      </div>\n\n\n      <div class=\"ss-section\">\n        <div class=\"ss-sub-head\">\n          <label class=\"ss-label\" style=\"margin:0;\">{{ i18n.t('settings.hotkeys') }}</label>\n          <button class=\"ss-reset-icon-btn\" (click)=\"resetPanelHotkeys()\" [title]=\"i18n.t('settings.resetPanelHotkeys')\">\n            <svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n              <path d=\"M13 8a5 5 0 1 1-1.8-3.85\"/><path d=\"M13 3.5v2.9h-2.9\"/>\n            </svg>\n          </button>\n        </div>\n\n            <div class=\"ss-phk-row\"><span class=\"ss-phk-label\">{{ i18n.t('settings.hotkey') }}</span><div class=\"ss-hotkey-field ss-hotkey-multi\" [class.recording]=\"hotkeyRecording\" [class.has-value]=\"customPanelToggleBindings.length && !hotkeyRecording\"><ng-container *ngIf=\"hotkeyRecording; else toggleChips\"><span class=\"ss-hotkey-recording\" (click)=\"startHotkeyRecording()\">{{ customToggleBindingLabel(hotkeyRecordingPreview) || i18n.t('settings.hotkeyRecording') }}</span><button type=\"button\" class=\"ss-chip-remove\" (click)=\"cancelHotkeyRecording(); $event.stopPropagation()\" [title]=\"i18n.t('app.cancel')\">×</button></ng-container><ng-template #toggleChips><span class=\"ss-hotkey-chip\" *ngFor=\"let k of customPanelToggleBindings; let i = index\" (click)=\"customStartToggleRecording(i)\" [title]=\"i18n.t('settings.hotkeyClickToSet')\">{{ customToggleBindingLabel(k) }}<button type=\"button\" class=\"ss-chip-remove\" (click)=\"customRemoveToggleBinding(i); $event.stopPropagation()\" [title]=\"i18n.t('settings.hotkeyClear')\">×</button></span><button type=\"button\" class=\"ss-hotkey-add\" (click)=\"customStartToggleRecording()\" [disabled]=\"!configService\" [title]=\"i18n.t('settings.hotkeyAdd')\">+</button></ng-template></div></div>\n\n            <div class=\"ss-phk-row\" *ngFor=\"let a of panelHotkeyActions\">\n              <span class=\"ss-phk-label\">{{ i18n.t(panelHotkeyLabelKey(a)) }}</span>\n              <div class=\"ss-hotkey-field ss-hotkey-multi\"\n                [class.recording]=\"panelHotkeyRecording === a\"\n                [class.has-value]=\"isPanelHotkeyBound(a) && panelHotkeyRecording !== a\">\n                <ng-container *ngIf=\"panelHotkeyRecording === a; else phkChips\">\n                  <span class=\"ss-hotkey-recording\"\n                    (click)=\"startPanelHotkeyRecording(a)\"\n                    [title]=\"i18n.t('settings.hotkeyClickToSet')\">\n                    {{ panelHotkeyRecordingPreview || i18n.t('settings.hotkeyRecording') }}\n                  </span>\n                </ng-container>\n                <ng-template #phkChips>\n                  <span class=\"ss-hotkey-chip\" *ngFor=\"let k of panelHotkeyKeys(a); let i = index\"\n                    [class.is-mouse]=\"isPanelPointerHotkey(k)\"\n                    [title]=\"hotkeyChipHint(k)\"\n                    (click)=\"startPanelHotkeyRecording(a)\">\n                    {{ panelHotkeyLabel(k) }}\n                    <button type=\"button\" class=\"ss-chip-remove\"\n                      (click)=\"removePanelHotkeyAt(a, i); $event.stopPropagation()\"\n                      [title]=\"i18n.t('settings.hotkeyClear')\">×</button>\n                  </span>\n                  <button type=\"button\" class=\"ss-hotkey-add\"\n                    (click)=\"startPanelHotkeyRecording(a)\"\n                    [title]=\"i18n.t('settings.hotkeyAdd')\">+</button>\n                </ng-template>\n              </div>\n            </div>\n\n            <div class=\"ss-occupied\">\n              <button type=\"button\" class=\"ss-occupied-head\" (click)=\"toggleOccupiedHotkeys()\"\n                [attr.aria-expanded]=\"occupiedHotkeysExpanded\">\n                <span class=\"ss-occupied-caret\">{{ occupiedHotkeysExpanded ? '▾' : '▸' }}</span>\n                <span>{{ i18n.t('settings.occupied.title') }}</span>\n              </button>\n              <div class=\"ss-occupied-body\" *ngIf=\"occupiedHotkeysExpanded\">\n                <div class=\"ss-hint ss-occupied-hint\">{{ i18n.t('settings.occupied.hint') }}</div>\n                <div class=\"ss-occupied-group\" *ngFor=\"let g of occupiedHotkeyGroups\">\n                  <div class=\"ss-occupied-group-title\">{{ i18n.t(g.titleKey) }}</div>\n                  <div class=\"ss-occupied-row\" *ngFor=\"let it of g.items\">\n                    <span class=\"ss-occupied-keys\">{{ formatOccupiedKeys(it.keys) }}</span>\n                    <span class=\"ss-occupied-desc\">{{ i18n.t(it.descKey) }}</span>\n                  </div>\n                </div>\n              </div>\n            </div>\n        <div class=\"ss-hint ss-hotkey-conflict\" *ngIf=\"hotkeyConflictNames\">\n          {{ i18n.t('settings.hotkeyConflict', { names: hotkeyConflictNames }) }}\n        </div>\n        <div class=\"ss-hint ss-hotkey-ok\" *ngIf=\"hotkeySaveMessage\">{{ hotkeySaveMessage }}</div>\n      </div>\n\n      <div class=\"ss-section\">\n        <label class=\"ss-label\">{{ i18n.t('settings.data') }}</label>\n\n\n        <div class=\"ss-backup-row\">\n          <button class=\"ss-btn\" (click)=\"openExportDialog()\">[&darr;] {{ i18n.t('settings.export') }}</button>\n          <label class=\"ss-btn ss-btn-import\">[&uarr;] {{ i18n.t('settings.import') }}\n            <input type=\"file\" accept=\".json\" (change)=\"importData($event)\" style=\"display:none\" />\n          </label>\n          <button class=\"ss-btn ss-btn-danger\" (click)=\"openClearConfirm()\">[&times;] {{ i18n.t('settings.clearAll') }}</button>\n        </div>\n      </div>\n\n\n\n\n\n      <div class=\"ss-overlay\" *ngIf=\"showThemeColorConfirm\" (click)=\"cancelThemeColorOverwrite()\"\n        [style.background]=\"isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(128,128,128,0.2)'\">\n        <div class=\"ss-edit-modal\" [class.ss-dark]=\"isDarkMode\" [class.ss-light]=\"!isDarkMode\" (click)=\"$event.stopPropagation()\">\n          <div class=\"ss-edit-title\">{{ i18n.t('settings.modifyColors') }}</div>\n          <div class=\"ss-edit-field\">\n            <p>{{ i18n.t('settings.overwriteConfirm') }}</p>\n          </div>\n          <div class=\"ss-edit-footer\">\n            <button class=\"ss-btn ss-btn-danger\" (click)=\"confirmThemeColorOverwrite()\">{{ i18n.t('settings.overwrite') }}</button>\n            <button class=\"ss-btn\" (click)=\"cancelThemeColorOverwrite()\">{{ i18n.t('app.cancel') }}</button>\n          </div>\n        </div>\n      </div>\n\n\n      <div class=\"ss-overlay\" *ngIf=\"showExportDialog\" (click)=\"closeExportDialog()\"\n        [style.background]=\"isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(128,128,128,0.2)'\">\n        <div class=\"ss-edit-modal ss-export-modal\" [class.ss-dark]=\"isDarkMode\" [class.ss-light]=\"!isDarkMode\"\n          (click)=\"$event.stopPropagation()\">\n          <div class=\"ss-edit-title\">{{ i18n.t('settings.export') }}</div>\n          <div class=\"ss-edit-field\">\n            <p class=\"ss-export-hint\">{{ i18n.t('settings.exportPickHint') }}</p>\n\n\n            <div class=\"ss-export-list\">\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickTheme\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n                  <span class=\"ss-export-name\">{{ i18n.t('settings.theme') }}</span>\n                  <span class=\"ss-export-sub\">{{ i18n.t('settings.primary') }} · {{ i18n.t('settings.bg') }} · {{ i18n.t('settings.text') }} · {{ i18n.t('settings.border') }}</span>\n                </span>\n              </label>\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickLayout\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n                  <span class=\"ss-export-name\">{{ i18n.t('settings.layout') }}</span>\n                  <span class=\"ss-export-sub\">{{ i18n.t('settings.font') }} · {{ i18n.t('settings.customToolbar') }} · {{ i18n.t('settings.customContextMenu') }} · {{ i18n.t('settings.customBookmarkPanel') }}</span>\n                </span>\n              </label>\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickIcons\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n                  <span class=\"ss-export-name\">{{ i18n.t('settings.iconSettings') }}</span>\n                  <span class=\"ss-export-sub\">{{ i18n.t('settings.iconResourceDir') }}</span>\n                </span>\n              </label>\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickOther\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n                  <span class=\"ss-export-name\">{{ i18n.t('settings.other') }}</span>\n                  <span class=\"ss-export-sub\">{{ i18n.t('settings.interaction') }} · {{ i18n.t('settings.dateFormat') }}</span>\n                </span>\n              </label>\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickTransfer\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n                  <span class=\"ss-export-name\">{{ i18n.t('settings.transferSection') }}</span>\n                  <span class=\"ss-export-sub\">{{ i18n.t('settings.uploadConcurrency') }} · {{ i18n.t('settings.channelMode') }} · {{ i18n.t('settings.conflictDigest') }}</span>\n                </span>\n              </label>\n\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickHotkeys\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n                  <span class=\"ss-export-name\">{{ i18n.t('settings.hotkeys') }}</span>\n                </span>\n              </label>\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickData\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n                  <span class=\"ss-export-name\">{{ i18n.t('settings.exportCatBookmarkData') }}</span>\n                </span>\n              </label>\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickLogs\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n\n                  <span class=\"ss-export-name\">{{ i18n.t('transfer.log') }}</span>\n                </span>\n              </label>\n            </div>\n\n            <div class=\"ss-export-foot\">\n              <button type=\"button\" class=\"ss-btn-xs\" (click)=\"toggleExportAll()\">\n                {{ exportAllPicked ? i18n.t('settings.exportDeselectAll') : i18n.t('settings.exportSelectAll') }}\n              </button>\n            </div>\n          </div>\n\n          <div class=\"ss-edit-footer\">\n            <button class=\"ss-btn ss-btn-primary\" (click)=\"exportData()\"\n              [disabled]=\"!exportPickCount\">{{ i18n.t('settings.export') }}</button>\n            <button class=\"ss-btn\" (click)=\"closeExportDialog()\">{{ i18n.t('app.cancel') }}</button>\n          </div>\n        </div>\n      </div>\n\n\n      <div class=\"ss-overlay\" *ngIf=\"showClearConfirm\" (click)=\"closeClearConfirm()\"\n        [style.background]=\"isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(128,128,128,0.2)'\">\n        <div class=\"ss-edit-modal\" [class.ss-dark]=\"isDarkMode\" [class.ss-light]=\"!isDarkMode\" (click)=\"$event.stopPropagation()\">\n          <div class=\"ss-edit-title\" style=\"color:var(--primary-color,#e24b4a);\">{{ i18n.t('settings.clearAllTitle') }}</div>\n          <div class=\"ss-edit-field\">\n            <p>\n              {{ i18n.t('settings.clearAllConfirm') }}\n            </p>\n            <label>{{ i18n.t('settings.clearAllPrompt') }}</label>\n            <input class=\"ss-edit-input\" type=\"text\" [(ngModel)]=\"clearConfirmInput\"\n              (keydown.enter)=\"doClearData()\" placeholder=\"DELETE\" />\n          </div>\n          <div class=\"ss-edit-footer\">\n            <button class=\"ss-btn ss-btn-danger\" (click)=\"doClearData()\"\n              [style.opacity]=\"clearConfirmInput !== 'DELETE' ? '0.5' : '1'\"\n              [disabled]=\"clearConfirmInput !== 'DELETE'\">{{ i18n.t('settings.clear') }}</button>\n            <button class=\"ss-btn\" (click)=\"closeClearConfirm()\">{{ i18n.t('app.cancel') }}</button>\n          </div>\n        </div>\n      </div>\n\n\n\n\n    </div>\n";
+module.exports = "    <div class=\"sftp-settings-page\">\n      <h3 class=\"ss-title\">SFTP++</h3>\n      <p class=\"ss-desc\">{{ i18n.t('settings.desc') }}</p>\n\n\n      <div class=\"ss-section\">\n        <label class=\"ss-label\">{{ i18n.t('settings.theme') }}</label>\n        <div class=\"ss-color-row\">\n          <label *ngFor=\"let c of colorThemes\"\n            [class.ss-color-active]=\"theme === c.value\"\n            class=\"ss-color-swatch\"\n            (click)=\"setTheme(c.value)\">\n            <span class=\"ss-color-swatch-name\">{{ themeLabel(c) }}</span>\n            <span class=\"ss-color-swatch-preview\" [style.background]=\"swatchPreviewBg(c)\">\n              <span class=\"ss-cp-pane\">\n                <span class=\"ss-cp-header\" [style.background]=\"swatchCustomSurface(c)\" [style.color]=\"swatchCustomText(c)\">\n                  <span class=\"ss-cp-hdot\" [style.background]=\"swatchCustomText(c)\"></span>\n                  <span class=\"ss-cp-hdot\" [style.background]=\"swatchCustomText(c)\"></span>\n                  <span class=\"ss-cp-hdot\" [style.background]=\"swatchCustomText(c)\"></span>\n                  <span class=\"ss-cp-hpath\" [style.background]=\"swatchCustomBorder ? swatchCustomBorder(c) : ''\"></span>\n                </span>\n                <span class=\"ss-cp-rows\" [style.borderColor]=\"swatchCustomBorder ? swatchCustomBorder(c) : ''\">\n                  <span class=\"ss-cp-row\">\n                    <span class=\"ss-cp-icon\" [style.background]=\"swatchCustomPrimary(c)\"></span>\n                    <span class=\"ss-cp-fname\" [style.background]=\"swatchCustomText(c)\"></span>\n                    <span class=\"ss-cp-fsize\" [style.background]=\"swatchCustomMuted(c)\"></span>\n                  </span>\n                  <span class=\"ss-cp-row\">\n                    <span class=\"ss-cp-icon\" [style.background]=\"swatchCustomPrimary(c)\"></span>\n                    <span class=\"ss-cp-fname\" [style.background]=\"swatchCustomText(c)\"></span>\n                    <span class=\"ss-cp-fsize\" [style.background]=\"swatchCustomMuted(c)\"></span>\n                  </span>\n                  <span class=\"ss-cp-row\">\n                    <span class=\"ss-cp-icon\" [style.background]=\"swatchCustomPrimary(c)\"></span>\n                    <span class=\"ss-cp-fname\" [style.background]=\"swatchCustomText(c)\"></span>\n                    <span class=\"ss-cp-fsize\" [style.background]=\"swatchCustomMuted(c)\"></span>\n                  </span>\n                </span>\n              </span>\n            </span>\n          </label>\n        </div>\n\n\n        <div class=\"ss-scheme-preview\" *ngFor=\"let c of colorThemes\" [hidden]=\"theme !== c.value\">\n          <div class=\"ss-color-fields\">\n            <div class=\"ss-color-field\">\n              <label>{{ i18n.t('settings.primary') }}</label>\n              <input type=\"color\" [ngModel]=\"themePrimary\" (change)=\"onColorChange('primary', $event.target.value)\" class=\"ss-color-input\" />\n              <span class=\"ss-color-val\">{{ themePrimary }}</span>\n            </div>\n            <div class=\"ss-color-field\">\n              <label>{{ i18n.t('settings.bg') }}</label>\n              <input type=\"color\" [ngModel]=\"themeBg\" (change)=\"onColorChange('bg', $event.target.value)\" class=\"ss-color-input\" />\n              <span class=\"ss-color-val\">{{ themeBg }}</span>\n            </div>\n            <div class=\"ss-color-field\">\n              <label>{{ i18n.t('settings.text') }}</label>\n              <input type=\"color\" [ngModel]=\"themeText\" (change)=\"onColorChange('text', $event.target.value)\" class=\"ss-color-input\" />\n              <span class=\"ss-color-val\">{{ themeText }}</span>\n            </div>\n            <div class=\"ss-color-field\">\n              <label>{{ i18n.t('settings.border') }}</label>\n              <input type=\"color\" [ngModel]=\"themeBorder\" (change)=\"onColorChange('border', $event.target.value)\" class=\"ss-color-input\" />\n              <span class=\"ss-color-val\">{{ themeBorder }}</span>\n            </div>\n          </div>\n        </div>\n      </div>\n\n\n      <div class=\"ss-section\">\n        <label class=\"ss-label\">{{ i18n.t('settings.layout') }}</label>\n\n        <div class=\"ss-layout-row\">\n\n          <div class=\"ss-layout-card\" [class.ss-layout-active]=\"layoutMode === 'auto'\" (click)=\"setLayoutMode('auto')\">\n            <div class=\"ss-layout-icon\">\n              <svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\">\n                <rect x=\"2\" y=\"2\" width=\"9\" height=\"9\" rx=\"1.5\"/>\n                <rect x=\"13\" y=\"2\" width=\"9\" height=\"9\" rx=\"1.5\"/>\n                <rect x=\"2\" y=\"13\" width=\"9\" height=\"9\" rx=\"1.5\"/>\n                <rect x=\"13\" y=\"13\" width=\"9\" height=\"9\" rx=\"1.5\"/>\n              </svg>\n            </div>\n            <span class=\"ss-layout-text\">{{ i18n.t('settings.layoutAdaptive') }}</span>\n            <span class=\"ss-layout-sub\">{{ i18n.t('settings.layoutAdaptiveSub') }}</span>\n          </div>\n\n          <div class=\"ss-layout-card\" [class.ss-layout-active]=\"layoutMode === 'horizontal'\" (click)=\"setLayoutMode('horizontal')\">\n            <div class=\"ss-layout-icon\">\n              <svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\">\n                <rect x=\"2\" y=\"2\" width=\"9\" height=\"20\" rx=\"1.5\"/>\n                <rect x=\"13\" y=\"2\" width=\"9\" height=\"20\" rx=\"1.5\"/>\n              </svg>\n            </div>\n            <span class=\"ss-layout-text\">{{ i18n.t('settings.layoutHorizontal') }}</span>\n            <span class=\"ss-layout-sub\">{{ i18n.t('settings.layoutHorizontalSub') }}</span>\n          </div>\n\n          <div class=\"ss-layout-card\" [class.ss-layout-active]=\"layoutMode === 'vertical'\" (click)=\"setLayoutMode('vertical')\">\n            <div class=\"ss-layout-icon\">\n              <svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\">\n                <rect x=\"2\" y=\"2\" width=\"20\" height=\"9\" rx=\"1.5\"/>\n                <rect x=\"2\" y=\"13\" width=\"20\" height=\"9\" rx=\"1.5\"/>\n              </svg>\n            </div>\n            <span class=\"ss-layout-text\">{{ i18n.t('settings.layoutVertical') }}</span>\n            <span class=\"ss-layout-sub\">{{ i18n.t('settings.layoutVerticalSub') }}</span>\n          </div>\n\n          <div class=\"ss-layout-card\" [class.ss-layout-active]=\"layoutMode === 'single'\" (click)=\"setLayoutMode('single')\">\n            <div class=\"ss-layout-icon\">\n              <svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\">\n                <rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"1.5\"/>\n                <circle cx=\"16\" cy=\"12\" r=\"2.5\" fill=\"currentColor\" stroke=\"none\"/>\n              </svg>\n            </div>\n            <span class=\"ss-layout-text\">{{ i18n.t('settings.layoutSingle') }}</span>\n            <span class=\"ss-layout-sub\">{{ i18n.t('settings.layoutSingleSub') }}</span>\n          </div>\n        </div>\n\n\n        <div class=\"ss-sub-head\" style=\"margin-top:16px;\">\n          <div class=\"ss-sub-label\" style=\"margin:0;\">{{ i18n.t('settings.customToolbar') }}</div>\n          <button class=\"ss-reset-icon-btn\" (click)=\"resetPaneLayout()\" [title]=\"i18n.t('settings.resetLayout')\">\n            <svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n              <path d=\"M13 8a5 5 0 1 1-1.8-3.85\"/>\n              <path d=\"M13 3.5v2.9h-2.9\"/>\n            </svg>\n          </button>\n        </div>\n        <div class=\"ss-layout-preview\">\n          <div class=\"ss-layout-chip\"\n            *ngFor=\"let item of paneCustomOrder\"\n            draggable=\"true\"\n            [class.dragging]=\"draggingCustomItem === item\"\n            [class.hidden]=\"isPaneItemHidden(item)\"\n            (dragstart)=\"onCustomDragStart(item, $event)\"\n            (dragover)=\"onCustomDragOver(item, $event)\"\n            (drop)=\"onCustomDrop(item, $event)\"\n            (dragend)=\"onCustomDragEnd()\">\n            <input type=\"checkbox\" class=\"ss-chip-check\" [checked]=\"!isPaneItemHidden(item)\"\n              (mousedown)=\"$event.stopPropagation()\" (dragstart)=\"$event.stopPropagation()\"\n              (change)=\"togglePaneItemHidden(item)\" />\n            <span class=\"ss-layout-chip-handle\">⋮⋮</span>\n            <span>{{ paneCustomItemLabel(item) }}</span>\n          </div>\n        </div>\n\n        <div class=\"ss-sub-head\" style=\"margin-top:16px;\">\n          <div class=\"ss-sub-label\" style=\"margin:0;\">{{ i18n.t('settings.customContextMenu') }}</div>\n          <button class=\"ss-reset-icon-btn\" (click)=\"resetMenuOrder()\" [title]=\"i18n.t('settings.resetMenu')\">\n            <svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n              <path d=\"M13 8a5 5 0 1 1-1.8-3.85\"/>\n              <path d=\"M13 3.5v2.9h-2.9\"/>\n            </svg>\n          </button>\n        </div>\n        <div class=\"ss-menu-preview\">\n          <div class=\"ss-menu-row\"\n            *ngFor=\"let a of contextMenuOrder\"\n            draggable=\"true\"\n            [class.dragging]=\"draggingMenuItem === a\"\n            (dragstart)=\"onMenuDragStart(a, $event)\"\n            (dragover)=\"onMenuDragOver(a, $event)\"\n            (drop)=\"onMenuDrop(a, $event)\"\n            (dragend)=\"onMenuDragEnd()\">\n            <span class=\"ss-menu-handle\">⋮⋮</span>\n            <input class=\"ss-menu-check\" type=\"checkbox\"\n              [checked]=\"isMenuEnabled(a)\"\n              (change)=\"toggleMenuEnabled(a)\"\n              (mousedown)=\"$event.stopPropagation()\"\n              [title]=\"i18n.t('settings.enableItem')\" />\n            <span class=\"ss-menu-label\" [class.disabled]=\"!isMenuEnabled(a)\">{{ contextMenuItemLabel(a) }}</span>\n          </div>\n        </div>\n\n        <div class=\"ss-sub-head\" style=\"margin-top:16px;\">\n          <div class=\"ss-sub-label\" style=\"margin:0;\">{{ i18n.t('settings.customBookmarkPanel') }}</div>\n          <button class=\"ss-reset-icon-btn\" (click)=\"resetBookmarkPanel()\" [title]=\"i18n.t('settings.resetBookmarkPanel')\">\n            <svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n              <path d=\"M13 8a5 5 0 1 1-1.8-3.85\"/>\n              <path d=\"M13 3.5v2.9h-2.9\"/>\n            </svg>\n          </button>\n        </div>\n        <div class=\"ss-toggle-wrap\">\n          <label class=\"ss-toggle-row\" title=\"{{ i18n.t('settings.bookmarkGroupByScopeHint') }}\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('settings.bookmarkGroupByScope') }}</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"bookmarkPanelGroupByScope\" (click)=\"toggleBookmarkPanelGroupByScope()\">\n              <span class=\"ss-toggle-thumb\"></span>\n            </span>\n          </label>\n        </div>\n        <div class=\"ss-layout-preview\" *ngIf=\"bookmarkPanelGroupByScope\" style=\"margin-top:8px;\">\n          <div class=\"ss-layout-chip\"\n            *ngFor=\"let g of bookmarkPanelGroupOrder\"\n            draggable=\"true\"\n            [class.dragging]=\"draggingBookmarkGroup === g\"\n            (dragstart)=\"onBookmarkGroupDragStart(g, $event)\"\n            (dragover)=\"onBookmarkGroupDragOver(g, $event)\"\n            (drop)=\"onBookmarkGroupDrop(g, $event)\"\n            (dragend)=\"onBookmarkGroupDragEnd()\">\n            <span class=\"ss-layout-chip-handle\">⋮⋮</span>\n            <span>{{ bookmarkGroupLabel(g) }}</span>\n          </div>\n        </div>\n\n        <div class=\"ss-sub-label\" style=\"margin-top:16px;\">{{ i18n.t('settings.tableStyle') }}</div>\n        <div class=\"ss-toggle-wrap\">\n          <label class=\"ss-toggle-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('view.colBorder') }}</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"showColBorders\" (click)=\"showColBorders=!showColBorders; saveTableSettings()\">\n              <span class=\"ss-toggle-thumb\"></span>\n            </span>\n          </label>\n          <label class=\"ss-toggle-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('view.zebra') }}</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"showZebra\" (click)=\"showZebra=!showZebra; saveTableSettings()\">\n              <span class=\"ss-toggle-thumb\"></span>\n            </span>\n          </label>\n        </div>\n        <div class=\"ss-hint\">{{ i18n.t('settings.tableStyleHint') }}</div>\n\n        <div class=\"ss-sub-head\" style=\"margin-top:16px;\">\n          <div class=\"ss-sub-label\" style=\"margin:0;\">{{ i18n.t('settings.font') }}</div>\n          <button class=\"ss-reset-icon-btn\" (click)=\"resetFontSize()\" [title]=\"i18n.t('settings.resetFont')\">\n            <svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n              <path d=\"M13 8a5 5 0 1 1-1.8-3.85\"/>\n              <path d=\"M13 3.5v2.9h-2.9\"/>\n            </svg>\n          </button>\n        </div>\n\n        <div class=\"ss-font-row ss-toggle-sub\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.fontSize') }}</span>\n          <div class=\"ss-font-control\">\n            <input type=\"range\" min=\"11\" max=\"18\" step=\"1\" class=\"ss-range\"\n              [value]=\"fontSize\" (input)=\"onFontSizeChange(+$any($event.target).value)\" />\n            <span class=\"ss-font-val\">{{ fontSize }}px</span>\n          </div>\n        </div>\n      </div>\n\n\n      <div class=\"ss-section\">\n        <div class=\"ss-sub-head\">\n          <label class=\"ss-label\" style=\"margin:0;\">{{ i18n.t('settings.iconSettings') }}</label>\n          <button class=\"ss-reset-icon-btn\" (click)=\"resetIconSettings()\" [title]=\"i18n.t('settings.resetIcons')\">\n            <svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n              <path d=\"M13 8a5 5 0 1 1-1.8-3.85\"/>\n              <path d=\"M13 3.5v2.9h-2.9\"/>\n            </svg>\n          </button>\n        </div>\n\n        <div class=\"ss-toggle-row ss-path-row\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.iconResourceDir') }}</span>\n          <input class=\"ss-path-input\" type=\"text\" [(ngModel)]=\"iconDirDisplay\"\n            (change)=\"_saveToConfig()\" spellcheck=\"false\" />\n        </div>\n\n\n        <div class=\"ss-builtin\">\n          <div class=\"ss-icon-grid\">\n\n            <div class=\"ss-icon-cell ss-icon-cell--folder\"\n              [class.ss-icon-cell--editing]=\"_editingFolderIcon\"\n              [class.ss-icon-cell--disabled]=\"!folderIconSvg\">\n              <img class=\"ss-icon-cell-img\" [src]=\"'file://' + bundledIconPreviewPath(folderIconSvg || 'folder.svg')\" alt=\"folder\" draggable=\"false\" />\n              <span class=\"ss-icon-cell-name\">folder</span>\n              <span class=\"ss-icon-cell-exts\">{{ i18n.t('settings.iconFolderHint') }}</span>\n\n              <div class=\"ss-icon-cell-actions\">\n                <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--del\"\n                  *ngIf=\"!folderIconSvg\"\n                  (click)=\"restoreFolderIcon()\">\n                  {{ i18n.t('settings.iconEnable') }}\n                </button>\n                <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--edit\"\n                  (click)=\"startEditFolderIcon()\">{{ i18n.t('settings.iconEdit') }}</button>\n              </div>\n            </div>\n\n\n            <div class=\"ss-icon-cell\"\n              *ngFor=\"let item of iconGridItems; trackBy: trackByIcon\"\n              [class.ss-icon-cell--disabled]=\"isIconDisabled(item.svg)\"\n              [class.ss-icon-cell--editing]=\"_editingRuleKey === item.key\">\n              <img class=\"ss-icon-cell-img\" [src]=\"'file://' + bundledIconPreviewPath(item.svg)\" [alt]=\"item.name\" draggable=\"false\"\n                [class.ss-icon-cell-img--dim]=\"isIconDisabled(item.svg)\" />\n              <span class=\"ss-icon-cell-name\">{{ item.name }}</span>\n              <span class=\"ss-icon-cell-exts\">{{ item.svg === 'default.svg' ? i18n.t('settings.iconFileHint') : item.exts.join(' ') }}</span>\n\n              <div class=\"ss-icon-cell-actions\">\n                <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--del\"\n                  *ngIf=\"!isLockedIcon(item.svg)\"\n                  (click)=\"deleteIcon(item)\">\n                  {{ item.isBuiltin ? (isIconDisabled(item.svg) ? i18n.t('settings.iconEnable') : i18n.t('settings.iconDisable')) : i18n.t('settings.iconDelete') }}\n                </button>\n                <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--edit\"\n                  (click)=\"startEditIcon(item)\">{{ i18n.t('settings.iconEdit') }}</button>\n              </div>\n            </div>\n\n\n            <div class=\"ss-icon-cell ss-icon-cell--add\" (click)=\"toggleAddCustomRule()\">\n              <ng-container *ngIf=\"!_addingCustomRule\">\n                <span class=\"ss-icon-cell-plus\">+</span>\n                <span class=\"ss-icon-cell-name\">{{ i18n.t('settings.iconAddRule') }}</span>\n              </ng-container>\n              <ng-container *ngIf=\"_addingCustomRule\">\n                <span class=\"ss-icon-cell-name\" style=\"font-size:10px;opacity:.7\">FORM ↓</span>\n                <span class=\"ss-icon-cell-name\" style=\"font-size:9px;opacity:.55\">Expanded</span>\n              </ng-container>\n            </div>\n          </div>\n\n\n          <div *ngIf=\"_editingRuleKey !== null\" class=\"ss-icon-form-card\">\n            <div class=\"ss-icon-form-header\">{{ i18n.t('settings.iconEdit') }}: <b>{{ _editingRuleKey }}</b></div>\n            <div class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconRuleName') }}</span>\n              <input class=\"ss-icon-form-input\" type=\"text\" [(ngModel)]=\"_editingRuleName\"\n                spellcheck=\"false\" [placeholder]=\"i18n.t('settings.iconRuleNamePh')\"\n                [readonly]=\"isSystemRuleName(_editingRuleKey)\"\n                [attr.aria-readonly]=\"isSystemRuleName(_editingRuleKey) ? 'true' : null\"\n                [class.ss-icon-form-input--locked]=\"isSystemRuleName(_editingRuleKey)\"\n                (keydown.enter)=\"confirmEditIcon()\" (keydown.escape)=\"cancelEditIcon()\" />\n            </div>\n            <div class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconSvgNameHint') || 'Filename' }}</span>\n\n              <input class=\"ss-icon-form-input\" type=\"text\" [(ngModel)]=\"_editingIconSvgName\"\n                spellcheck=\"false\" placeholder=\"name.svg\" (keydown.enter)=\"confirmEditIcon()\" (keydown.escape)=\"cancelEditIcon()\" />\n            </div>\n            <div *ngIf=\"_editingIconSvgName !== 'default.svg'\" class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconExtLabel') || 'Extension' }}</span>\n              <input class=\"ss-icon-form-input ss-icon-form-input--wide\" type=\"text\" [(ngModel)]=\"_editingIconExts\"\n                spellcheck=\"false\" (keydown.enter)=\"confirmEditIcon()\" (keydown.escape)=\"cancelEditIcon()\" />\n            </div>\n            <div *ngIf=\"_iconRuleError\" class=\"ss-icon-rule-error\">{{ _iconRuleError }}</div>\n            <div class=\"ss-icon-form-actions\">\n              <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--ok\" (click)=\"confirmEditIcon()\">✓ {{ i18n.t('app.confirm') }}</button>\n              <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--cancel\" (click)=\"cancelEditIcon()\">✕ {{ i18n.t('app.cancel') }}</button>\n            </div>\n          </div>\n\n\n          <div *ngIf=\"_editingFolderIcon\" class=\"ss-icon-form-card\">\n            <div class=\"ss-icon-form-header\">{{ i18n.t('settings.iconEdit') }}: <b>folder</b></div>\n            <div class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconRuleName') }}</span>\n              <input class=\"ss-icon-form-input ss-icon-form-input--locked\" type=\"text\" value=\"folder\"\n                readonly aria-readonly=\"true\" spellcheck=\"false\" tabindex=\"-1\" />\n            </div>\n            <div class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconSvgNameHint') || 'Filename' }}</span>\n              <input class=\"ss-icon-form-input\" type=\"text\" [(ngModel)]=\"_folderIconDraft\"\n                spellcheck=\"false\" placeholder=\"name.svg\" (keydown.enter)=\"confirmEditFolderIcon()\" (keydown.escape)=\"cancelEditFolderIcon()\" />\n            </div>\n            <div *ngIf=\"_folderIconError\" class=\"ss-icon-rule-error\">{{ _folderIconError }}</div>\n            <div class=\"ss-icon-form-actions\">\n              <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--ok\" (click)=\"confirmEditFolderIcon()\">✓ {{ i18n.t('app.confirm') }}</button>\n              <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--cancel\" (click)=\"cancelEditFolderIcon()\">✕ {{ i18n.t('app.cancel') }}</button>\n            </div>\n          </div>\n\n\n          <div *ngIf=\"_addingCustomRule\" class=\"ss-icon-form-card\">\n            <div class=\"ss-icon-form-header\">{{ i18n.t('settings.iconAddRule') }}</div>\n            <div class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconRuleName') }}</span>\n              <input class=\"ss-icon-form-input\" type=\"text\" [(ngModel)]=\"_newRuleName\" spellcheck=\"false\"\n                [placeholder]=\"i18n.t('settings.iconRuleNamePh')\"\n                (keydown.enter)=\"confirmAddCustomRule()\" (keydown.escape)=\"cancelAddCustomRule()\" />\n            </div>\n            <div class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconSvgNameHint') || 'Filename' }}</span>\n              <input class=\"ss-icon-form-input\" type=\"text\" [(ngModel)]=\"_newRuleSvg\" spellcheck=\"false\"\n                placeholder=\"name.svg\" (keydown.enter)=\"confirmAddCustomRule()\" (keydown.escape)=\"cancelAddCustomRule()\" />\n            </div>\n            <div class=\"ss-icon-form-field\">\n              <span class=\"ss-icon-form-flabel\">{{ i18n.t('settings.iconExtLabel') || 'Extension' }}</span>\n              <input class=\"ss-icon-form-input ss-icon-form-input--wide\" type=\"text\" [(ngModel)]=\"_newRuleExt\" spellcheck=\"false\"\n                placeholder=\".ext\" (keydown.enter)=\"confirmAddCustomRule()\" (keydown.escape)=\"cancelAddCustomRule()\" />\n            </div>\n            <div *ngIf=\"_iconRuleError\" class=\"ss-icon-rule-error\">{{ _iconRuleError }}</div>\n            <div class=\"ss-icon-form-actions\">\n              <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--ok\" (click)=\"confirmAddCustomRule()\">✓ {{ i18n.t('app.confirm') }}</button>\n              <button type=\"button\" class=\"ss-icon-cell-btn ss-icon-cell-btn--cancel\" (click)=\"cancelAddCustomRule()\">✕ {{ i18n.t('app.cancel') }}</button>\n            </div>\n          </div>\n        </div>\n      </div>\n\n\n\n      <div class=\"ss-section\">\n        <label class=\"ss-label\">{{ i18n.t('settings.other') }}</label>\n        <div class=\"ss-toggle-wrap\">\n\n          <label class=\"ss-toggle-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('settings.hideNativeBtn') }}</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"hideNativeBtn\" (click)=\"toggleHideNativeBtn()\">\n              <span class=\"ss-toggle-thumb\"></span>\n            </span>\n          </label>\n\n          <div class=\"ss-sub-label\" style=\"margin-top:16px;\">{{ i18n.t('settings.interaction') }}</div>\n          <label class=\"ss-toggle-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('settings.closeBookmarkPanel') }}</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"closeBookmarkPanelOnSelect\" (click)=\"toggleCloseBookmarkPanelOnSelect()\">\n              <span class=\"ss-toggle-thumb\"></span>\n            </span>\n          </label>\n\n\n          <label class=\"ss-toggle-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('settings.defaultShowHidden') }}</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"defaultShowHidden\" (click)=\"toggleDefaultShowHidden()\">\n              <span class=\"ss-toggle-thumb\"></span>\n            </span>\n          </label>\n          <div class=\"ss-toggle-row ss-pathmode-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('settings.openOnClick') }}</span>\n            <div class=\"ss-segmented\">\n              <button type=\"button\" class=\"ss-segment\"\n                [class.active]=\"openOnClick === 'double'\"\n                (click)=\"openOnClick = 'double'; saveInteraction()\">\n                {{ i18n.t('settings.clickDouble') }}\n              </button>\n              <button type=\"button\" class=\"ss-segment\"\n                [class.active]=\"openOnClick === 'single'\"\n                (click)=\"openOnClick = 'single'; saveInteraction()\">\n                {{ i18n.t('settings.clickSingle') }}\n              </button>\n            </div>\n          </div>\n          <div class=\"ss-toggle-row\"><span class=\"ss-toggle-label\">Recent folders (1–10)</span><input class=\"ss-concurrency-input\" type=\"number\" min=\"1\" max=\"10\" step=\"1\" [ngModel]=\"customRecentFolderLimit\" (ngModelChange)=\"setCustomRecentFolderLimit($event)\" /></div>\n          <div class=\"ss-toggle-row\" title=\"A file operation adds the folder immediately.\"><span class=\"ss-toggle-label\">Recent folder dwell time (seconds)</span><input class=\"ss-concurrency-input\" type=\"number\" min=\"1\" max=\"86400\" step=\"1\" [ngModel]=\"customRecentFolderDwellSeconds\" (ngModelChange)=\"setCustomRecentFolderDwellSeconds($event)\" /></div>\n          <label class=\"ss-toggle-row\" title=\"A sidebar for each SSH pane. Collapsing keeps editing and transfers running.\">\n            <span class=\"ss-toggle-label\">Use SFTP sidebar</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"customSidebarEnabled\" (click)=\"toggleCustomSidebar()\"><span class=\"ss-toggle-thumb\"></span></span>\n          </label>\n          <div class=\"ss-toggle-row ss-pathmode-row\"><span class=\"ss-toggle-label\">Sidebar edge</span><div class=\"ss-segmented\"><button type=\"button\" class=\"ss-segment\" [class.active]=\"customSidebarSide === 'left'\" (click)=\"setCustomSidebarSide('left')\">Left</button><button type=\"button\" class=\"ss-segment\" [class.active]=\"customSidebarSide === 'right'\" (click)=\"setCustomSidebarSide('right')\">Right</button></div></div>\n\n          <label class=\"ss-toggle-row\">\n            <span class=\"ss-toggle-label\">Suggest folders while typing paths</span>\n            <span class=\"ss-toggle-track\" [class.active]=\"customFolderAutocomplete\" (click)=\"toggleCustomFolderAutocomplete()\"><span class=\"ss-toggle-thumb\"></span></span>\n          </label>\n\n          <div class=\"ss-toggle-row ss-pathmode-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('settings.defaultPathMode') }}</span>\n            <div class=\"ss-segmented\">\n              <button type=\"button\" class=\"ss-segment\"\n                [class.active]=\"defaultPathMode === 'off'\"\n                (click)=\"defaultPathMode = 'off'; saveDefaultPathMode()\">\n                Manual\n              </button>\n              <button type=\"button\" class=\"ss-segment\"\n                [class.active]=\"defaultPathMode === 'remember'\"\n                (click)=\"defaultPathMode = 'remember'; saveDefaultPathMode()\">\n                {{ i18n.t('settings.pathModeRemember') }}\n              </button>\n\n            </div>\n          </div>\n          <div class=\"ss-toggle-row ss-datefmt-row\">\n            <span class=\"ss-toggle-label\">{{ i18n.t('settings.dateFormat') }}</span>\n            <div class=\"ss-datefmt-field\">\n              <input class=\"ss-datefmt-input\" type=\"text\" [(ngModel)]=\"dateFormat\"\n                (change)=\"saveDateFormat()\" spellcheck=\"false\" />\n              <button type=\"button\" class=\"ss-datefmt-clear\" *ngIf=\"dateFormat !== defaultDateFormat\"\n                (click)=\"resetDateFormat(); $event.stopPropagation()\"\n                [title]=\"i18n.t('settings.dateFormatReset')\">&times;</button>\n            </div>\n          </div>\n\n\n        </div>\n      </div>\n\n\n      <div class=\"ss-section\">\n        <label class=\"ss-label\">{{ i18n.t('settings.transferSection') }}</label>\n        <div class=\"ss-toggle-wrap\">\n            <div class=\"ss-toggle-row ss-concurrency-row\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.uploadConcurrency') }}</span>\n          <input class=\"ss-concurrency-input\" type=\"number\" min=\"1\" max=\"10\" step=\"1\"\n          [(ngModel)]=\"uploadConcurrency\" (change)=\"saveConcurrency()\" />\n          </div>\n          <div class=\"ss-toggle-row ss-concurrency-row\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.downloadConcurrency') }}</span>\n          <input class=\"ss-concurrency-input\" type=\"number\" min=\"1\" max=\"10\" step=\"1\"\n          [(ngModel)]=\"downloadConcurrency\" (change)=\"saveConcurrency()\" />\n          </div>\n\n          <div class=\"ss-toggle-row ss-concurrency-row\" title=\"{{ i18n.t('settings.channelModeDesc') }}\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.channelMode') }}</span>\n          <select class=\"ss-select ss-channel-select\" [(ngModel)]=\"transferChannelMode\" (change)=\"saveChannelMode()\">\n          <option value=\"smart\" title=\"{{ i18n.t('settings.channelMode.smartDesc') }}\">{{ i18n.t('settings.channelMode.smart') }}</option>\n          <option value=\"preferTar\" title=\"{{ i18n.t('settings.channelMode.preferTarDesc') }}\">{{ i18n.t('settings.channelMode.preferTar') }}</option>\n          <option value=\"preferSftp\" title=\"{{ i18n.t('settings.channelMode.preferSftpDesc') }}\">{{ i18n.t('settings.channelMode.preferSftp') }}</option>\n          <option value=\"tarOnly\" title=\"{{ i18n.t('settings.channelMode.tarOnlyDesc') }}\">{{ i18n.t('settings.channelMode.tarOnly') }}</option>\n          <option value=\"sftpOnly\" title=\"{{ i18n.t('settings.channelMode.sftpOnlyDesc') }}\">{{ i18n.t('settings.channelMode.sftpOnly') }}</option>\n          </select>\n          </div>\n\n          <label class=\"ss-toggle-row\" title=\"{{ i18n.t('settings.conflictDigestDesc') }}\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.conflictDigest') }}</span>\n          <span class=\"ss-toggle-track\" [class.active]=\"conflictDigestEnabled\" (click)=\"toggleConflictDigest()\">\n          <span class=\"ss-toggle-thumb\"></span>\n          </span>\n          </label>\n          <div class=\"ss-toggle-row ss-concurrency-row\" *ngIf=\"conflictDigestEnabled\"\n          title=\"{{ i18n.t('settings.conflictDigestMaxSizeDesc') }}\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.conflictDigestMaxSize') }}</span>\n          <input class=\"ss-concurrency-input\" type=\"number\" min=\"1\" max=\"4096\" step=\"1\"\n          [(ngModel)]=\"conflictDigestMaxSizeMB\" (change)=\"saveConflictDigestMaxSize()\" />\n          </div>\n\n          <div class=\"ss-toggle-row ss-path-row\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.defaultUploadPath') }}</span>\n          <input class=\"ss-path-input\" type=\"text\" [(ngModel)]=\"defaultUploadPath\"\n          (change)=\"_saveToConfig()\" [placeholder]=\"i18n.t('settings.defaultUploadPathPh')\" spellcheck=\"false\" />\n          </div>\n          <div class=\"ss-toggle-row ss-path-row\">\n          <span class=\"ss-toggle-label\">{{ i18n.t('settings.defaultDownloadPath') }}</span>\n          <input class=\"ss-path-input\" type=\"text\" [(ngModel)]=\"defaultDownloadPath\"\n          (change)=\"_saveToConfig()\" [placeholder]=\"i18n.t('settings.defaultDownloadPathPh')\" spellcheck=\"false\" />\n          </div>\n        </div>\n      </div>\n\n\n      <div class=\"ss-section\">\n        <div class=\"ss-sub-head\">\n          <label class=\"ss-label\" style=\"margin:0;\">{{ i18n.t('settings.hotkeys') }}</label>\n          <button class=\"ss-reset-icon-btn\" (click)=\"resetPanelHotkeys()\" [title]=\"i18n.t('settings.resetPanelHotkeys')\">\n            <svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n              <path d=\"M13 8a5 5 0 1 1-1.8-3.85\"/><path d=\"M13 3.5v2.9h-2.9\"/>\n            </svg>\n          </button>\n        </div>\n\n            <div class=\"ss-phk-row\"><span class=\"ss-phk-label\">{{ i18n.t('settings.hotkey') }}</span><div class=\"ss-hotkey-field ss-hotkey-multi\" [class.recording]=\"hotkeyRecording\" [class.has-value]=\"customPanelToggleBindings.length && !hotkeyRecording\"><ng-container *ngIf=\"hotkeyRecording; else toggleChips\"><span class=\"ss-hotkey-recording\" (click)=\"startHotkeyRecording()\">{{ customToggleBindingLabel(hotkeyRecordingPreview) || i18n.t('settings.hotkeyRecording') }}</span><button type=\"button\" class=\"ss-chip-remove\" (click)=\"cancelHotkeyRecording(); $event.stopPropagation()\" [title]=\"i18n.t('app.cancel')\">×</button></ng-container><ng-template #toggleChips><span class=\"ss-hotkey-chip\" *ngFor=\"let k of customPanelToggleBindings; let i = index\" (click)=\"customStartToggleRecording(i)\" [title]=\"i18n.t('settings.hotkeyClickToSet')\">{{ customToggleBindingLabel(k) }}<button type=\"button\" class=\"ss-chip-remove\" (click)=\"customRemoveToggleBinding(i); $event.stopPropagation()\" [title]=\"i18n.t('settings.hotkeyClear')\">×</button></span><button type=\"button\" class=\"ss-hotkey-add\" (click)=\"customStartToggleRecording()\" [disabled]=\"!configService\" [title]=\"i18n.t('settings.hotkeyAdd')\">+</button></ng-template></div></div>\n\n            <div class=\"ss-phk-row\" *ngFor=\"let a of panelHotkeyActions\">\n              <span class=\"ss-phk-label\">{{ i18n.t(panelHotkeyLabelKey(a)) }}</span>\n              <div class=\"ss-hotkey-field ss-hotkey-multi\"\n                [class.recording]=\"panelHotkeyRecording === a\"\n                [class.has-value]=\"isPanelHotkeyBound(a) && panelHotkeyRecording !== a\">\n                <ng-container *ngIf=\"panelHotkeyRecording === a; else phkChips\">\n                  <span class=\"ss-hotkey-recording\"\n                    (click)=\"startPanelHotkeyRecording(a)\"\n                    [title]=\"i18n.t('settings.hotkeyClickToSet')\">\n                    {{ panelHotkeyRecordingPreview || i18n.t('settings.hotkeyRecording') }}\n                  </span>\n                </ng-container>\n                <ng-template #phkChips>\n                  <span class=\"ss-hotkey-chip\" *ngFor=\"let k of panelHotkeyKeys(a); let i = index\"\n                    [class.is-mouse]=\"isPanelPointerHotkey(k)\"\n                    [title]=\"hotkeyChipHint(k)\"\n                    (click)=\"startPanelHotkeyRecording(a)\">\n                    {{ panelHotkeyLabel(k) }}\n                    <button type=\"button\" class=\"ss-chip-remove\"\n                      (click)=\"removePanelHotkeyAt(a, i); $event.stopPropagation()\"\n                      [title]=\"i18n.t('settings.hotkeyClear')\">×</button>\n                  </span>\n                  <button type=\"button\" class=\"ss-hotkey-add\"\n                    (click)=\"startPanelHotkeyRecording(a)\"\n                    [title]=\"i18n.t('settings.hotkeyAdd')\">+</button>\n                </ng-template>\n              </div>\n            </div>\n\n            <div class=\"ss-occupied\">\n              <button type=\"button\" class=\"ss-occupied-head\" (click)=\"toggleOccupiedHotkeys()\"\n                [attr.aria-expanded]=\"occupiedHotkeysExpanded\">\n                <span class=\"ss-occupied-caret\">{{ occupiedHotkeysExpanded ? '▾' : '▸' }}</span>\n                <span>{{ i18n.t('settings.occupied.title') }}</span>\n              </button>\n              <div class=\"ss-occupied-body\" *ngIf=\"occupiedHotkeysExpanded\">\n                <div class=\"ss-hint ss-occupied-hint\">{{ i18n.t('settings.occupied.hint') }}</div>\n                <div class=\"ss-occupied-group\" *ngFor=\"let g of occupiedHotkeyGroups\">\n                  <div class=\"ss-occupied-group-title\">{{ i18n.t(g.titleKey) }}</div>\n                  <div class=\"ss-occupied-row\" *ngFor=\"let it of g.items\">\n                    <span class=\"ss-occupied-keys\">{{ formatOccupiedKeys(it.keys) }}</span>\n                    <span class=\"ss-occupied-desc\">{{ i18n.t(it.descKey) }}</span>\n                  </div>\n                </div>\n              </div>\n            </div>\n        <div class=\"ss-hint ss-hotkey-conflict\" *ngIf=\"hotkeyConflictNames\">\n          {{ i18n.t('settings.hotkeyConflict', { names: hotkeyConflictNames }) }}\n        </div>\n        <div class=\"ss-hint ss-hotkey-ok\" *ngIf=\"hotkeySaveMessage\">{{ hotkeySaveMessage }}</div>\n      </div>\n\n      <div class=\"ss-section\">\n        <label class=\"ss-label\">{{ i18n.t('settings.data') }}</label>\n\n\n        <div class=\"ss-backup-row\">\n          <button class=\"ss-btn\" (click)=\"openExportDialog()\">[&darr;] {{ i18n.t('settings.export') }}</button>\n          <label class=\"ss-btn ss-btn-import\">[&uarr;] {{ i18n.t('settings.import') }}\n            <input type=\"file\" accept=\".json\" (change)=\"importData($event)\" style=\"display:none\" />\n          </label>\n          <button class=\"ss-btn ss-btn-danger\" (click)=\"openClearConfirm()\">[&times;] {{ i18n.t('settings.clearAll') }}</button>\n        </div>\n      </div>\n\n\n\n\n\n      <div class=\"ss-overlay\" *ngIf=\"showThemeColorConfirm\" (click)=\"cancelThemeColorOverwrite()\"\n        [style.background]=\"isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(128,128,128,0.2)'\">\n        <div class=\"ss-edit-modal\" [class.ss-dark]=\"isDarkMode\" [class.ss-light]=\"!isDarkMode\" (click)=\"$event.stopPropagation()\">\n          <div class=\"ss-edit-title\">{{ i18n.t('settings.modifyColors') }}</div>\n          <div class=\"ss-edit-field\">\n            <p>{{ i18n.t('settings.overwriteConfirm') }}</p>\n          </div>\n          <div class=\"ss-edit-footer\">\n            <button class=\"ss-btn ss-btn-danger\" (click)=\"confirmThemeColorOverwrite()\">{{ i18n.t('settings.overwrite') }}</button>\n            <button class=\"ss-btn\" (click)=\"cancelThemeColorOverwrite()\">{{ i18n.t('app.cancel') }}</button>\n          </div>\n        </div>\n      </div>\n\n\n      <div class=\"ss-overlay\" *ngIf=\"showExportDialog\" (click)=\"closeExportDialog()\"\n        [style.background]=\"isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(128,128,128,0.2)'\">\n        <div class=\"ss-edit-modal ss-export-modal\" [class.ss-dark]=\"isDarkMode\" [class.ss-light]=\"!isDarkMode\"\n          (click)=\"$event.stopPropagation()\">\n          <div class=\"ss-edit-title\">{{ i18n.t('settings.export') }}</div>\n          <div class=\"ss-edit-field\">\n            <p class=\"ss-export-hint\">{{ i18n.t('settings.exportPickHint') }}</p>\n\n\n            <div class=\"ss-export-list\">\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickTheme\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n                  <span class=\"ss-export-name\">{{ i18n.t('settings.theme') }}</span>\n                  <span class=\"ss-export-sub\">{{ i18n.t('settings.primary') }} · {{ i18n.t('settings.bg') }} · {{ i18n.t('settings.text') }} · {{ i18n.t('settings.border') }}</span>\n                </span>\n              </label>\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickLayout\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n                  <span class=\"ss-export-name\">{{ i18n.t('settings.layout') }}</span>\n                  <span class=\"ss-export-sub\">{{ i18n.t('settings.font') }} · {{ i18n.t('settings.customToolbar') }} · {{ i18n.t('settings.customContextMenu') }} · {{ i18n.t('settings.customBookmarkPanel') }}</span>\n                </span>\n              </label>\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickIcons\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n                  <span class=\"ss-export-name\">{{ i18n.t('settings.iconSettings') }}</span>\n                  <span class=\"ss-export-sub\">{{ i18n.t('settings.iconResourceDir') }}</span>\n                </span>\n              </label>\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickOther\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n                  <span class=\"ss-export-name\">{{ i18n.t('settings.other') }}</span>\n                  <span class=\"ss-export-sub\">{{ i18n.t('settings.interaction') }} · {{ i18n.t('settings.dateFormat') }}</span>\n                </span>\n              </label>\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickTransfer\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n                  <span class=\"ss-export-name\">{{ i18n.t('settings.transferSection') }}</span>\n                  <span class=\"ss-export-sub\">{{ i18n.t('settings.uploadConcurrency') }} · {{ i18n.t('settings.channelMode') }} · {{ i18n.t('settings.conflictDigest') }}</span>\n                </span>\n              </label>\n\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickHotkeys\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n                  <span class=\"ss-export-name\">{{ i18n.t('settings.hotkeys') }}</span>\n                </span>\n              </label>\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickData\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n                  <span class=\"ss-export-name\">{{ i18n.t('settings.exportCatBookmarkData') }}</span>\n                </span>\n              </label>\n\n              <label class=\"ss-export-item\">\n                <input type=\"checkbox\" [(ngModel)]=\"exportPickLogs\" class=\"ss-export-check\" />\n                <span class=\"ss-export-text\">\n\n                  <span class=\"ss-export-name\">{{ i18n.t('transfer.log') }}</span>\n                </span>\n              </label>\n            </div>\n\n            <div class=\"ss-export-foot\">\n              <button type=\"button\" class=\"ss-btn-xs\" (click)=\"toggleExportAll()\">\n                {{ exportAllPicked ? i18n.t('settings.exportDeselectAll') : i18n.t('settings.exportSelectAll') }}\n              </button>\n            </div>\n          </div>\n\n          <div class=\"ss-edit-footer\">\n            <button class=\"ss-btn ss-btn-primary\" (click)=\"exportData()\"\n              [disabled]=\"!exportPickCount\">{{ i18n.t('settings.export') }}</button>\n            <button class=\"ss-btn\" (click)=\"closeExportDialog()\">{{ i18n.t('app.cancel') }}</button>\n          </div>\n        </div>\n      </div>\n\n\n      <div class=\"ss-overlay\" *ngIf=\"showClearConfirm\" (click)=\"closeClearConfirm()\"\n        [style.background]=\"isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(128,128,128,0.2)'\">\n        <div class=\"ss-edit-modal\" [class.ss-dark]=\"isDarkMode\" [class.ss-light]=\"!isDarkMode\" (click)=\"$event.stopPropagation()\">\n          <div class=\"ss-edit-title\" style=\"color:var(--primary-color,#e24b4a);\">{{ i18n.t('settings.clearAllTitle') }}</div>\n          <div class=\"ss-edit-field\">\n            <p>\n              {{ i18n.t('settings.clearAllConfirm') }}\n            </p>\n            <label>{{ i18n.t('settings.clearAllPrompt') }}</label>\n            <input class=\"ss-edit-input\" type=\"text\" [(ngModel)]=\"clearConfirmInput\"\n              (keydown.enter)=\"doClearData()\" placeholder=\"DELETE\" />\n          </div>\n          <div class=\"ss-edit-footer\">\n            <button class=\"ss-btn ss-btn-danger\" (click)=\"doClearData()\"\n              [style.opacity]=\"clearConfirmInput !== 'DELETE' ? '0.5' : '1'\"\n              [disabled]=\"clearConfirmInput !== 'DELETE'\">{{ i18n.t('settings.clear') }}</button>\n            <button class=\"ss-btn\" (click)=\"closeClearConfirm()\">{{ i18n.t('app.cancel') }}</button>\n          </div>\n        </div>\n      </div>\n\n\n\n\n    </div>\n";
 
 /***/ },
 
@@ -29347,7 +29771,7 @@ module.exports = "    .overlay {\n      position: absolute; inset: 0;\n      bac
 (module) {
 
 "use strict";
-module.exports = "    <div class=\"overlay\" *ngIf=\"visible && data\" #overlayEl tabindex=\"-1\"\n      (keydown)=\"onKeyDown($event)\">\n      <div class=\"dialog conflict-dialog\" [class.is-compact]=\"compact\">\n        <div class=\"conflict-header\">\n          <span class=\"conflict-title-icon\">⚠️</span>\n          <span class=\"conflict-title-text\">{{ i18n.t('conflict.title') }}</span>\n\n          <span class=\"conflict-direction\" *ngIf=\"directionLabel\"\n            [class.dir-upload]=\"data.direction !== 'download'\"\n            [class.dir-download]=\"data.direction === 'download'\">{{ directionLabel }}</span>\n\n          <span class=\"conflict-progress\" *ngIf=\"totalIdx > 1\">{{ currIdx }} / {{ totalIdx }}</span>\n          <button type=\"button\" class=\"conflict-close\"\n                  (click)=\"resolve.emit('cancel')\"\n                  [title]=\"i18n.t('app.close')\">×</button>\n        </div>\n        <div class=\"conflict-desc\">\n          <img *ngIf=\"fileIconUrl\" class=\"conflict-file-icon\" [src]=\"fileIconUrl\" [alt]=\"data.fileName\" draggable=\"false\" />\n          <span class=\"conflict-file-emoji\" *ngIf=\"!fileIconUrl && data.isDirectory\">📁</span>\n          <span class=\"conflict-file-emoji\" *ngIf=\"!fileIconUrl && !data.isDirectory\">📄</span>\n          <strong>{{ data.fileName }}</strong>\n          {{ data.isSamePane ? i18n.t('conflict.existsSamePane') : (data.direction === 'download' ? i18n.t('conflict.existsLocal') : i18n.t('conflict.existsRemote')) }}\n        </div>\n        <div class=\"conflict-body\">\n          <div class=\"conflict-compare\">\n            <div class=\"conflict-side conflict-side-remote\">\n              <div class=\"conflict-side-title\">{{ data.isSamePane ? '📄 ' + i18n.t('conflict.sourceFile') : '🌐 ' + i18n.t('conflict.remoteFile') }}</div>\n              <div class=\"conflict-file-info\">\n                <div class=\"conflict-info-row\" [class.conflict-diff]=\"sizeDiffers\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.size') }}</span>\n                  <span class=\"conflict-val\" [class.conflict-val--pending]=\"data.remoteSizePending\">{{ remoteSizeLabel }}</span>\n                  <span class=\"conflict-diff-dot\" *ngIf=\"sizeDiffers\">≠</span>\n                </div>\n                <div class=\"conflict-info-row\" [class.conflict-diff]=\"mtimeDiffers\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.modified') }}</span>\n                  <span class=\"conflict-val\">{{ formatConflictMtime(data.remoteMtime) }}</span>\n                  <span class=\"conflict-diff-dot\" *ngIf=\"mtimeDiffers\">≠</span>\n                </div>\n                <div class=\"conflict-info-row conflict-path\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.path') }}</span>\n                  <span class=\"conflict-val\" [title]=\"data.remotePath\">{{ data.remotePath }}</span>\n                </div>\n\n                <div class=\"conflict-info-row conflict-digest\" [class.conflict-diff]=\"digestDiffers\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.digest') }}</span>\n                  <span class=\"conflict-val conflict-digest-val\" *ngIf=\"data.remoteDigest\" [title]=\"data.remoteDigest\">{{ shortDigest(data.remoteDigest) }}</span>\n                  <span class=\"conflict-val conflict-digest-val conflict-digest-unavailable\" *ngIf=\"!data.remoteDigest\" title=\"Checksum unavailable (different file sizes or unsupported remote server)\">—</span>\n                  <span class=\"conflict-diff-dot\" *ngIf=\"digestDiffers\">≠</span>\n                </div>\n              </div>\n            </div>\n            <div class=\"conflict-vs-row\">\n              <span class=\"conflict-vs-line\"></span>\n              <span class=\"conflict-vs\">VS</span>\n              <span class=\"conflict-vs-line\"></span>\n            </div>\n            <div class=\"conflict-side conflict-side-local\">\n              <div class=\"conflict-side-title\">{{ data.isSamePane ? '📂 ' + i18n.t('conflict.targetFileExists') : '🖥 ' + i18n.t('conflict.localFile') }}</div>\n              <div class=\"conflict-file-info\">\n                <div class=\"conflict-info-row\" [class.conflict-diff]=\"sizeDiffers\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.size') }}</span>\n                  <span class=\"conflict-val\" [class.conflict-val--pending]=\"data.localSizePending\">{{ localSizeLabel }}</span>\n                  <span class=\"conflict-diff-dot\" *ngIf=\"sizeDiffers\">≠</span>\n                </div>\n                <div class=\"conflict-info-row\" [class.conflict-diff]=\"mtimeDiffers\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.modified') }}</span>\n                  <span class=\"conflict-val\">{{ formatConflictMtime(data.localMtime) }}</span>\n                  <span class=\"conflict-diff-dot\" *ngIf=\"mtimeDiffers\">≠</span>\n                </div>\n                <div class=\"conflict-info-row conflict-path\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.path') }}</span>\n                  <span class=\"conflict-val\" [title]=\"data.localPath\">{{ data.localPath }}</span>\n                </div>\n\n                <div class=\"conflict-info-row conflict-digest\" [class.conflict-diff]=\"digestDiffers\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.digest') }}</span>\n                  <span class=\"conflict-val conflict-digest-val\" *ngIf=\"data.localDigest\" [title]=\"data.localDigest\">{{ shortDigest(data.localDigest) }}</span>\n                  <span class=\"conflict-val conflict-digest-val conflict-digest-unavailable\" *ngIf=\"!data.localDigest\" title=\"Checksum unavailable (different file sizes or local read failed)\">—</span>\n                  <span class=\"conflict-diff-dot\" *ngIf=\"digestDiffers\">≠</span>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          <div class=\"conflict-identical-hint\" *ngIf=\"data.contentIdentical\">\n            <span>✅</span> {{ i18n.t('conflict.contentIdentical') }}\n          </div>\n        </div>\n        <div class=\"conflict-footer\">\n          <div class=\"conflict-actions\">\n            <button class=\"conflict-btn\" (click)=\"resolve.emit('cancel')\">{{ i18n.t('conflict.cancel') }}</button>\n\n            <button class=\"conflict-btn conflict-btn-skip\"\n                    [class.conflict-btn-skip--identical]=\"data.contentIdentical\"\n                    (click)=\"resolve.emit('skip')\">{{ i18n.t('conflict.skip') }}</button>\n            <button class=\"conflict-btn conflict-btn-rename\" (click)=\"resolve.emit('rename')\">{{ i18n.t('conflict.rename') }}</button>\n            <button class=\"conflict-btn conflict-btn-danger\" (click)=\"resolve.emit('overwrite')\">{{ i18n.t('conflict.overwrite') }}</button>\n          </div>\n          <div class=\"conflict-all-row\">\n            <span class=\"conflict-all-label\">{{ i18n.t('conflict.batch') }}</span>\n            <button class=\"conflict-link\" (click)=\"resolve.emit('skip-all')\">{{ i18n.t('conflict.skipAll') }}</button>\n            <span class=\"conflict-sep\">·</span>\n            <button class=\"conflict-link\" (click)=\"resolve.emit('rename-all')\">{{ i18n.t('conflict.renameAll') }}</button>\n            <span class=\"conflict-sep\">·</span>\n            <button class=\"conflict-link\" (click)=\"resolve.emit('overwrite-all')\">{{ i18n.t('conflict.overwriteAll') }}</button>\n          </div>\n        </div>\n      </div>\n    </div>\n";
+module.exports = "    <div class=\"overlay\" *ngIf=\"visible && data\" #overlayEl tabindex=\"-1\"\n      (keydown)=\"onKeyDown($event)\">\n      <div class=\"dialog conflict-dialog\" [class.is-compact]=\"compact\">\n        <div class=\"conflict-header\">\n          <span class=\"conflict-title-icon\">⚠️</span>\n          <span class=\"conflict-title-text\">{{ i18n.t('conflict.title') }}</span>\n\n          <span class=\"conflict-direction\" *ngIf=\"directionLabel\"\n            [class.dir-upload]=\"data.direction !== 'download'\"\n            [class.dir-download]=\"data.direction === 'download'\">{{ directionLabel }}</span>\n\n          <span class=\"conflict-progress\" *ngIf=\"totalIdx > 1\">{{ currIdx }} / {{ totalIdx }}</span>\n          <button type=\"button\" class=\"conflict-close\"\n                  (click)=\"resolve.emit('cancel')\"\n                  [title]=\"i18n.t('app.close')\">×</button>\n        </div>\n        <div class=\"conflict-desc\">\n          <img *ngIf=\"fileIconUrl\" class=\"conflict-file-icon\" [src]=\"fileIconUrl\" [alt]=\"data.fileName\" draggable=\"false\" />\n          <span class=\"conflict-file-emoji\" *ngIf=\"!fileIconUrl && data.isDirectory\">📁</span>\n          <span class=\"conflict-file-emoji\" *ngIf=\"!fileIconUrl && !data.isDirectory\">📄</span>\n          <strong>{{ data.fileName }}</strong>\n          {{ data.isSamePane ? i18n.t('conflict.existsSamePane') : (data.direction === 'download' ? i18n.t('conflict.existsLocal') : i18n.t('conflict.existsRemote')) }}\n        </div>\n        <div class=\"conflict-body\">\n          <div class=\"conflict-compare\">\n            <div class=\"conflict-side conflict-side-remote\">\n              <div class=\"conflict-side-title\">{{ data.isSamePane ? '📄 ' + i18n.t('conflict.sourceFile') : '🌐 ' + i18n.t('conflict.remoteFile') }}</div>\n              <div class=\"conflict-file-info\">\n                <div class=\"conflict-info-row\" [class.conflict-diff]=\"sizeDiffers\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.size') }}</span>\n                  <span class=\"conflict-val\" [class.conflict-val--pending]=\"data.remoteSizePending\">{{ remoteSizeLabel }}</span>\n                  <span class=\"conflict-diff-dot\" *ngIf=\"sizeDiffers\">≠</span>\n                </div>\n                <div class=\"conflict-info-row\" [class.conflict-diff]=\"mtimeDiffers\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.modified') }}</span>\n                  <span class=\"conflict-val\">{{ formatConflictMtime(data.remoteMtime) }}</span>\n                  <span class=\"conflict-diff-dot\" *ngIf=\"mtimeDiffers\">≠</span>\n                </div>\n                <div class=\"conflict-info-row conflict-path\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.path') }}</span>\n                  <span class=\"conflict-val\" [title]=\"data.remotePath\">{{ data.remotePath }}</span>\n                </div>\n\n                <div class=\"conflict-info-row conflict-digest\" [class.conflict-diff]=\"digestDiffers\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.digest') }}</span>\n                  <span class=\"conflict-val conflict-digest-val\" *ngIf=\"data.remoteDigest\" [title]=\"data.remoteDigest\">{{ shortDigest(data.remoteDigest) }}</span>\n                  <span class=\"conflict-val conflict-digest-val conflict-digest-unavailable\" *ngIf=\"!data.remoteDigest\" title=\"Checksum unavailable (different file sizes or unsupported remote server)\">—</span>\n                  <span class=\"conflict-diff-dot\" *ngIf=\"digestDiffers\">≠</span>\n                </div>\n              </div>\n            </div>\n            <div class=\"conflict-vs-row\">\n              <span class=\"conflict-vs-line\"></span>\n              <span class=\"conflict-vs\">VS</span>\n              <span class=\"conflict-vs-line\"></span>\n            </div>\n            <div class=\"conflict-side conflict-side-local\">\n              <div class=\"conflict-side-title\">{{ data.isSamePane ? '📂 ' + i18n.t('conflict.targetFileExists') : '🖥 ' + i18n.t('conflict.localFile') }}</div>\n              <div class=\"conflict-file-info\">\n                <div class=\"conflict-info-row\" [class.conflict-diff]=\"sizeDiffers\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.size') }}</span>\n                  <span class=\"conflict-val\" [class.conflict-val--pending]=\"data.localSizePending\">{{ localSizeLabel }}</span>\n                  <span class=\"conflict-diff-dot\" *ngIf=\"sizeDiffers\">≠</span>\n                </div>\n                <div class=\"conflict-info-row\" [class.conflict-diff]=\"mtimeDiffers\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.modified') }}</span>\n                  <span class=\"conflict-val\">{{ formatConflictMtime(data.localMtime) }}</span>\n                  <span class=\"conflict-diff-dot\" *ngIf=\"mtimeDiffers\">≠</span>\n                </div>\n                <div class=\"conflict-info-row conflict-path\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.path') }}</span>\n                  <span class=\"conflict-val\" [title]=\"data.localPath\">{{ data.localPath }}</span>\n                </div>\n\n                <div class=\"conflict-info-row conflict-digest\" [class.conflict-diff]=\"digestDiffers\">\n                  <span class=\"conflict-label\">{{ i18n.t('conflict.digest') }}</span>\n                  <span class=\"conflict-val conflict-digest-val\" *ngIf=\"data.localDigest\" [title]=\"data.localDigest\">{{ shortDigest(data.localDigest) }}</span>\n                  <span class=\"conflict-val conflict-digest-val conflict-digest-unavailable\" *ngIf=\"!data.localDigest\" title=\"Checksum unavailable (different file sizes or local read failed)\">—</span>\n                  <span class=\"conflict-diff-dot\" *ngIf=\"digestDiffers\">≠</span>\n                </div>\n              </div>\n            </div>\n          </div>\n\n          <div class=\"conflict-identical-hint\" *ngIf=\"data.typeMismatch\">A file and a folder have the same name. Choose Keep both or Skip.</div>\n          <div class=\"conflict-identical-hint\" *ngIf=\"data.contentIdentical\">\n            <span>✅</span> {{ i18n.t('conflict.contentIdentical') }}\n          </div>\n        </div>\n        <div class=\"conflict-footer\">\n          <div class=\"conflict-actions\">\n            <button class=\"conflict-btn\" (click)=\"resolve.emit('cancel')\">{{ i18n.t('conflict.cancel') }}</button>\n\n            <button class=\"conflict-btn conflict-btn-skip\"\n                    [class.conflict-btn-skip--identical]=\"data.contentIdentical\"\n                    (click)=\"resolve.emit('skip')\">{{ i18n.t('conflict.skip') }}</button>\n            <button class=\"conflict-btn conflict-btn-rename\" (click)=\"resolve.emit('rename')\">{{ i18n.t('conflict.rename') }}</button>\n            <button class=\"conflict-btn conflict-btn-danger\" [disabled]=\"data.typeMismatch\" (click)=\"resolve.emit('overwrite')\">{{ i18n.t('conflict.overwrite') }}</button>\n          </div>\n          <div class=\"conflict-all-row\">\n            <span class=\"conflict-all-label\">{{ i18n.t('conflict.batch') }}</span>\n            <button class=\"conflict-link\" (click)=\"resolve.emit('skip-all')\">{{ i18n.t('conflict.skipAll') }}</button>\n            <span class=\"conflict-sep\">·</span>\n            <button class=\"conflict-link\" (click)=\"resolve.emit('rename-all')\">{{ i18n.t('conflict.renameAll') }}</button>\n            <span class=\"conflict-sep\">·</span>\n            <button class=\"conflict-link\" [disabled]=\"data.typeMismatch\" (click)=\"resolve.emit('overwrite-all')\">{{ i18n.t('conflict.overwriteAll') }}</button>\n          </div>\n        </div>\n      </div>\n    </div>\n";
 
 /***/ },
 
@@ -29567,7 +29991,7 @@ module.exports = "    <div class=\"overlay\" *ngIf=\"visible\" (wheel)=\"onOverl
 (module) {
 
 "use strict";
-module.exports = "    .sftp-transfers {\n      display: flex; flex-direction: column; gap: 4px;\n      max-height: 100px; overflow-y: auto;\n      border-top: 2px solid var(--_primary);\n      padding-top: 4px; flex-shrink: 0;\n      scrollbar-width: thin;\n      scrollbar-color: var(--_scroll-thumb, rgba(128,128,128,0.35)) var(--_scroll-track, rgba(128,128,128,0.06));\n      position: relative; z-index: 5;\n      overscroll-behavior: contain;\n    }\n    .transfer {\n      display: grid; grid-template-columns: 1fr auto; gap: 4px 8px;\n      padding: 4px 8px; border-radius: 6px;\n      background: var(--_surface); border: 1px solid var(--_border);\n      font-size: 11px;\n    }\n    .transfer-title { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }\n    .transfer-name { font-weight: 600; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n    .transfer-size { font-size: 10px; color: var(--_text-muted); white-space: nowrap; }\n    .transfer-sub { font-size: 10px; color: var(--_text-muted); margin-top: 2px; padding-left: 20px; }\n\n    .dir-badge {\n      flex-shrink: 0; font-size: 11px; font-weight: 700;\n      padding: 1px 8px; border-radius: 10px; white-space: nowrap; line-height: 1.6;\n    }\n    .dir-badge.dir-upload {\n      background: rgba(76, 175, 80, 0.18); color: #4caf50;\n      border: 1px solid rgba(76, 175, 80, 0.45);\n    }\n    .dir-badge.dir-download {\n      background: rgba(33, 150, 243, 0.18); color: #2196f3;\n      border: 1px solid rgba(33, 150, 243, 0.45);\n    }\n\n    .mode-tag {\n      display: inline-block; flex-shrink: 0;\n      font-size: 10px; font-weight: 600; padding: 0 6px; border-radius: 3px;\n      white-space: nowrap; line-height: 1.6;\n    }\n    .tag-sftp {\n      color: var(--_primary, #3b82f6); background: color-mix(in srgb, var(--_primary, #3b82f6) 12%, transparent);\n      border: 1px solid color-mix(in srgb, var(--_primary, #3b82f6) 40%, transparent);\n    }\n    .tag-tar { color: #26c6da; background: rgba(38, 198, 218, 0.12); border: 1px solid rgba(38, 198, 218, 0.4); }\n\n    .bar {\n      grid-column: 1 / -1;\n      height: 4px; background: var(--_border); border-radius: 2px; overflow: hidden;\n    }\n    .fill {\n      height: 100%; background: linear-gradient(90deg, var(--_primary), #78ffce);\n      border-radius: 2px; transition: width 0.3s;\n    }\n    .transfer-stats { display: flex; gap: 6px; align-items: center; font-family: monospace; }\n\n    .transfer-eta {\n      font-size: 10px; color: var(--_text-muted); white-space: nowrap;\n      font-variant-numeric: tabular-nums;\n    }\n    .transfer-stats button { background: none; border: none; cursor: pointer; padding: 0 2px; font-size: 13px; line-height: 1; opacity: 0.7; }\n    .transfer-stats button:hover { opacity: 1; }\n    .btn-cancel { color: #ef4444; }\n    .btn-cancel-current { color: #f59e0b; }\n    .btn-pause { color: var(--_primary); }\n    .btn-resume { color: #22c55e; }\n    .paused-tag { font-size: 10px; color: #f59e0b; font-weight: 600; margin-left: 4px; }\n    .queued-tag { font-size: 10px; opacity: 0.7; margin-left: 4px; }\n    .skipped-tag { font-size: 10px; color: var(--_text-muted); margin-left: 4px; }\n    .transfer-header {\n      display: flex; align-items: center; justify-content: space-between;\n      padding: 2px 8px; font-size: 12px; font-weight: 600;\n      position: sticky; top: 0; z-index: 2;\n      border-radius: 6px 6px 0 0;\n      background: linear-gradient(var(--_surface), var(--_surface)),\n                  linear-gradient(var(--_content, #f9fafb), var(--_content, #f9fafb));\n    }\n    .transfer-header button { background: none; border: none; cursor: pointer; font-size: 14px; opacity: 0.6; padding: 0; line-height: 1; }\n    .transfer-header button:hover { opacity: 1; }\n    .transfer-header-btns { display: flex; gap: 6px; align-items: center; }\n    .transfer-count { font-size: 10px; opacity: 0.7; }\n    .sftp-transfers-mini {\n      padding: 2px 10px; font-size: 11px; cursor: pointer;\n      background: var(--_surface); border-radius: 4px;\n      color: var(--_text-muted); text-align: center;\n      border: 1px solid var(--_border); margin-top: 4px;\n    }\n    .sftp-transfers-mini:hover { opacity: 0.8; }\n";
+module.exports = "    .sftp-transfers {\n      display: flex; flex-direction: column; gap: 4px;\n      max-height: 100px; overflow-y: auto;\n      border-top: 2px solid var(--_primary);\n      padding-top: 4px; flex-shrink: 0;\n      scrollbar-width: thin;\n      scrollbar-color: var(--_scroll-thumb, rgba(128,128,128,0.35)) var(--_scroll-track, rgba(128,128,128,0.06));\n      position: relative; z-index: 5;\n      overscroll-behavior: contain;\n    }\n    .transfer {\n      display: grid; grid-template-columns: 1fr auto; gap: 4px 8px;\n      padding: 4px 8px; border-radius: 6px;\n      background: var(--_surface); border: 1px solid var(--_border);\n      font-size: 11px;\n    }\n    .transfer-title { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }\n    .transfer-name { font-weight: 600; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n    .transfer-size { font-size: 10px; color: var(--_text-muted); white-space: nowrap; }\n    .transfer-sub { font-size: 10px; color: var(--_text-muted); margin-top: 2px; padding-left: 20px; }\n\n    .dir-badge {\n      flex-shrink: 0; font-size: 11px; font-weight: 700;\n      padding: 1px 8px; border-radius: 10px; white-space: nowrap; line-height: 1.6;\n    }\n    .dir-badge.dir-upload {\n      background: rgba(76, 175, 80, 0.18); color: #4caf50;\n      border: 1px solid rgba(76, 175, 80, 0.45);\n    }\n    .dir-badge.dir-download {\n      background: rgba(33, 150, 243, 0.18); color: #2196f3;\n      border: 1px solid rgba(33, 150, 243, 0.45);\n    }\n\n    .mode-tag {\n      display: inline-block; flex-shrink: 0;\n      font-size: 10px; font-weight: 600; padding: 0 6px; border-radius: 3px;\n      white-space: nowrap; line-height: 1.6;\n    }\n    .tag-sftp {\n      color: var(--_primary, #3b82f6); background: color-mix(in srgb, var(--_primary, #3b82f6) 12%, transparent);\n      border: 1px solid color-mix(in srgb, var(--_primary, #3b82f6) 40%, transparent);\n    }\n    .tag-tar { color: #26c6da; background: rgba(38, 198, 218, 0.12); border: 1px solid rgba(38, 198, 218, 0.4); }\n\n    .bar {\n      grid-column: 1 / -1;\n      height: 4px; background: var(--_border); border-radius: 2px; overflow: hidden;\n    }\n    .fill {\n      height: 100%; background: linear-gradient(90deg, var(--_primary), #78ffce);\n      border-radius: 2px; transition: width 0.3s;\n    }\n    .transfer-stats { display: flex; gap: 6px; align-items: center; font-family: monospace; }\n\n    .transfer-eta {\n      font-size: 10px; color: var(--_text-muted); white-space: nowrap;\n      font-variant-numeric: tabular-nums;\n    }\n    .transfer-stats button { background: none; border: none; cursor: pointer; padding: 0 2px; font-size: 13px; line-height: 1; opacity: 0.7; }\n    .transfer-stats button:hover { opacity: 1; }\n    .btn-cancel { color: #ef4444; }\n    .btn-cancel-current { color: #f59e0b; }\n    .btn-pause { color: var(--_primary); }\n    .btn-resume { color: #22c55e; }\n    .paused-tag { font-size: 10px; color: #f59e0b; font-weight: 600; margin-left: 4px; }\n    .queued-tag { font-size: 10px; opacity: 0.7; margin-left: 4px; }\n    .skipped-tag { font-size: 10px; color: var(--_text-muted); margin-left: 4px; }\n    .transfer-header {\n      display: flex; align-items: center; justify-content: space-between;\n      padding: 2px 8px; font-size: 12px; font-weight: 600;\n      position: sticky; top: 0; z-index: 2;\n      border-radius: 6px 6px 0 0;\n      background: linear-gradient(var(--_surface), var(--_surface)),\n                  linear-gradient(var(--_content, #f9fafb), var(--_content, #f9fafb));\n    }\n    .transfer-header button { background: none; border: none; cursor: pointer; font-size: 14px; opacity: 0.6; padding: 0; line-height: 1; }\n    .transfer-header button:hover { opacity: 1; }\n    .transfer-header-btns { display: flex; gap: 6px; align-items: center; }\n    .transfer-count { font-size: 10px; opacity: 0.7; }\n    .sftp-transfers-mini {\n      padding: 2px 10px; font-size: 11px; cursor: pointer;\n      background: var(--_surface); border-radius: 4px;\n      color: var(--_text-muted); text-align: center;\n      border: 1px solid var(--_border); margin-top: 4px;\n    }\n    .sftp-transfers-mini:hover { opacity: 0.8; }\n\n.bar.indeterminate { overflow:hidden; }\n.bar.indeterminate .fill { animation:folder-transfer-busy 1.2s ease-in-out infinite; }\n@keyframes folder-transfer-busy { from { transform:translateX(-100%); } to { transform:translateX(340%); } }\n";
 
 /***/ },
 
@@ -29578,7 +30002,7 @@ module.exports = "    .sftp-transfers {\n      display: flex; flex-direction: co
 (module) {
 
 "use strict";
-module.exports = "    <div class=\"sftp-transfers\" *ngIf=\"transfers.length && !hidden && !minimized\"\n      (mousedown)=\"$event.stopPropagation()\"\n      (wheel)=\"$event.stopPropagation()\">\n      <div class=\"transfer-header\">\n        <span>{{ i18n.t('transfer.inProgress') }} <span class=\"transfer-count\" *ngIf=\"transfers.length\">({{ transfers.length }})</span></span>\n        <div class=\"transfer-header-btns\">\n          <button class=\"btn-link\" (click)=\"minimizeChange.emit(true)\" title=\"{{ i18n.t('transfer.minimizePanel') }}\">─</button>\n          <button class=\"btn-link\" (click)=\"hiddenChange.emit(true)\" title=\"{{ i18n.t('transfer.hidePanel') || 'Hide' }}\">✕</button>\n        </div>\n      </div>\n      <div class=\"transfer\" *ngFor=\"let t of transfers; trackBy: trackByTransfer\">\n        <div class=\"transfer-main\">\n          <div class=\"transfer-title\">\n\n            <span class=\"dir-badge\"\n              [class.dir-upload]=\"t.direction === 'upload'\"\n              [class.dir-download]=\"t.direction === 'download'\"\n              [title]=\"directionTitle(t)\">{{ directionBadge(t) }}</span>\n            <span *ngIf=\"t.isFolder\">📁</span>\n            <span class=\"transfer-name\" [title]=\"t.name\">{{ t.name }}</span>\n            <span class=\"transfer-size\" *ngIf=\"t.bytesTotal > 0\">{{ formatSize(t.bytesTotal) }}</span>\n            <span class=\"transfer-size\" *ngIf=\"!(t.bytesTotal > 0) && t.bytesDone > 0\">{{ formatSize(t.bytesDone) }}</span>\n\n            <span *ngIf=\"modeOf(t) === 'tar'\" class=\"mode-tag tag-tar\" [title]=\"i18n.t('log.modeTar')\">📦 {{ i18n.t('log.modeTar') }}</span>\n            <span *ngIf=\"modeOf(t) === 'sftp'\" class=\"mode-tag tag-sftp\" [title]=\"i18n.t('log.modeSftp')\">⇄ {{ i18n.t('log.modeSftp') }}</span>\n            <span class=\"paused-tag\" *ngIf=\"t.paused\">{{ i18n.t('transfer.paused') }}</span>\n            <span class=\"queued-tag\" *ngIf=\"t.queued\" title=\"{{ i18n.t('transfer.queued') }}\">⏳</span>\n\n            <span class=\"skipped-tag\" *ngIf=\"t.skippedAsDuplicate\" title=\"issue #15: content identical, transfer not executed\">↪ {{ i18n.t('transfer.skippedAsDuplicate') }}</span>\n          </div>\n          <div class=\"transfer-sub\" *ngIf=\"t.isFolder && t.currentItem\">\n            {{ t.currentItem }}<span *ngIf=\"t.currentItemSize != null\">  {{ formatSize(t.currentItemSize) }}</span> ({{ t.itemDone }}{{ t.itemCount > 0 ? '/' + t.itemCount : '' }})\n          </div>\n        </div>\n        <div class=\"transfer-stats\">\n\n          <span>{{ (t.queued || t.skippedAsDuplicate) ? '--' : (t.speed || '--') }}</span>\n          <span *ngIf=\"!t.skippedAsDuplicate\">{{ t.bytesTotal > 0 ? formatPercent(t.percent) + '%' : '--' }}</span>\n\n          <span class=\"transfer-eta\" *ngIf=\"etaText(t) as eta\">{{ eta }}</span>\n          <button *ngIf=\"!t.paused && !t.queued && !t.skippedAsDuplicate\" class=\"btn-pause\" (click)=\"pause.emit(t)\" title=\"{{ i18n.t('transfer.pause') }}\">⏸</button>\n          <button *ngIf=\"t.paused\" class=\"btn-resume\" (click)=\"resume.emit(t)\" title=\"{{ i18n.t('transfer.resume') }}\">▶</button>\n          <button *ngIf=\"t.isFolder && !t.queued && !t.skippedAsDuplicate\" class=\"btn-cancel-current\" (click)=\"cancelCurrent.emit(t)\" title=\"{{ i18n.t('transfer.cancelCurrent') }}\">⏹</button>\n          <button *ngIf=\"!t.isFolder && !t.skippedAsDuplicate\" class=\"btn-cancel\" (click)=\"cancel.emit(t)\" title=\"{{ i18n.t('transfer.cancel') }}\">⏹</button>\n          <button *ngIf=\"t.isFolder && !t.skippedAsDuplicate\" class=\"btn-cancel\" (click)=\"cancel.emit(t)\" title=\"{{ i18n.t('transfer.cancelAll') }}\">✕</button>\n        </div>\n\n        <div class=\"bar\" *ngIf=\"!t.skippedAsDuplicate\"><div class=\"fill\" [style.width.%]=\"t.percent\"></div></div>\n      </div>\n    </div>\n    <div class=\"sftp-transfers-mini\" *ngIf=\"transfers.length && !hidden && minimized\"\n      (click)=\"minimizeChange.emit(false)\" (mousedown)=\"$event.stopPropagation()\">\n      <span>📦 {{ i18n.t('transfer.inProgress') }} ({{ transfers.length }})</span>\n    </div>\n";
+module.exports = "    <div class=\"sftp-transfers\" *ngIf=\"transfers.length && !hidden && !minimized\"\n      (mousedown)=\"$event.stopPropagation()\"\n      (wheel)=\"$event.stopPropagation()\">\n      <div class=\"transfer-header\">\n        <span>{{ i18n.t('transfer.inProgress') }} <span class=\"transfer-count\" *ngIf=\"transfers.length\">({{ transfers.length }})</span></span>\n        <div class=\"transfer-header-btns\">\n          <button class=\"btn-link\" (click)=\"minimizeChange.emit(true)\" title=\"{{ i18n.t('transfer.minimizePanel') }}\">─</button>\n          <button class=\"btn-link\" (click)=\"hiddenChange.emit(true)\" title=\"{{ i18n.t('transfer.hidePanel') || 'Hide' }}\">✕</button>\n        </div>\n      </div>\n      <div class=\"transfer\" *ngFor=\"let t of transfers; trackBy: trackByTransfer\">\n        <div class=\"transfer-main\">\n          <div class=\"transfer-title\">\n\n            <span class=\"dir-badge\"\n              [class.dir-upload]=\"t.direction === 'upload'\"\n              [class.dir-download]=\"t.direction === 'download'\"\n              [title]=\"directionTitle(t)\">{{ directionBadge(t) }}</span>\n            <span *ngIf=\"t.isFolder\">📁</span>\n            <span class=\"transfer-name\" [title]=\"t.name\">{{ t.name }}</span>\n            <span class=\"transfer-size\" *ngIf=\"t.bytesTotal > 0\">{{ t.isFolder ? formatSize(t.bytesDone || 0) + ' / ' : '' }}{{ formatSize(t.bytesTotal) }}</span>\n            <span class=\"transfer-size\" *ngIf=\"!(t.bytesTotal > 0) && t.bytesDone > 0\">{{ formatSize(t.bytesDone) }}</span>\n\n            <span *ngIf=\"modeOf(t) === 'tar'\" class=\"mode-tag tag-tar\" [title]=\"i18n.t('log.modeTar')\">📦 {{ i18n.t('log.modeTar') }}</span>\n            <span *ngIf=\"modeOf(t) === 'sftp'\" class=\"mode-tag tag-sftp\" [title]=\"i18n.t('log.modeSftp')\">⇄ {{ i18n.t('log.modeSftp') }}</span>\n            <span class=\"paused-tag\" *ngIf=\"t.paused\">{{ i18n.t('transfer.paused') }}</span>\n            <span class=\"queued-tag\" *ngIf=\"t.queued\" title=\"{{ i18n.t('transfer.queued') }}\">⏳</span>\n\n            <span class=\"skipped-tag\" *ngIf=\"t.skippedAsDuplicate\" title=\"issue #15: content identical, transfer not executed\">↪ {{ i18n.t('transfer.skippedAsDuplicate') }}</span>\n          </div>\n          <div class=\"transfer-sub\" *ngIf=\"phaseLabel(t) as phase\">{{ phase }}</div>\n          <div class=\"transfer-sub\" *ngIf=\"t.isFolder && t.currentItem\">\n            {{ t.currentItem }}<span *ngIf=\"t.currentItemSize != null\">  {{ formatSize(t.currentItemSize) }}</span> ({{ t.itemDone }}{{ t.itemCount > 0 ? '/' + t.itemCount : '' }})\n          </div>\n        </div>\n        <div class=\"transfer-stats\">\n\n          <span>{{ (t.queued || t.skippedAsDuplicate) ? '--' : (t.speed || '--') }}</span>\n          <span *ngIf=\"!t.skippedAsDuplicate\">{{ !indeterminate(t) && (t.bytesTotal > 0 || t.itemCount > 0) ? formatPercent(t.percent) + '%' : '--' }}</span>\n\n          <span class=\"transfer-eta\" *ngIf=\"etaText(t) as eta\">{{ eta }}</span>\n          <button *ngIf=\"!t.paused && !t.queued && !t.skippedAsDuplicate\" class=\"btn-pause\" (click)=\"pause.emit(t)\" title=\"{{ i18n.t('transfer.pause') }}\">⏸</button>\n          <button *ngIf=\"t.paused\" class=\"btn-resume\" (click)=\"resume.emit(t)\" title=\"{{ i18n.t('transfer.resume') }}\">▶</button>\n          <button *ngIf=\"t.isFolder && !t.queued && !t.skippedAsDuplicate\" class=\"btn-cancel-current\" (click)=\"cancelCurrent.emit(t)\" title=\"{{ i18n.t('transfer.cancelCurrent') }}\">⏹</button>\n          <button *ngIf=\"!t.isFolder && !t.skippedAsDuplicate\" class=\"btn-cancel\" (click)=\"cancel.emit(t)\" title=\"{{ i18n.t('transfer.cancel') }}\">⏹</button>\n          <button *ngIf=\"t.isFolder && !t.skippedAsDuplicate\" class=\"btn-cancel\" (click)=\"cancel.emit(t)\" title=\"{{ i18n.t('transfer.cancelAll') }}\">✕</button>\n        </div>\n\n        <div class=\"bar\" [class.indeterminate]=\"indeterminate(t) && !t.paused\" *ngIf=\"!t.skippedAsDuplicate\"><div class=\"fill\" [style.width.%]=\"indeterminate(t) ? 30 : t.percent\"></div></div>\n      </div>\n    </div>\n    <div class=\"sftp-transfers-mini\" *ngIf=\"transfers.length && !hidden && minimized\"\n      (click)=\"minimizeChange.emit(false)\" (mousedown)=\"$event.stopPropagation()\">\n      <span>📦 {{ i18n.t('transfer.inProgress') }} ({{ transfers.length }})</span>\n    </div>\n";
 
 /***/ },
 
@@ -29877,7 +30301,8 @@ module.exports = function installActivity({apis, Panel, recovery }) {
             const entry = rowEntry(this, row);
             if (entry?.logEntryId) row.logEntryId = entry.logEntryId;
             if (row.status === 'Cancelled') return false;
-            if (entry?.paused || row.status === 'Paused') row.status = 'Paused';
+            if (entry?.phase === 'waiting') {row.status='Conflict';row.error='Waiting for file conflict decisions';}
+            else if (entry?.paused || row.status === 'Paused') row.status = 'Paused';
             else row.status = ok ? 'Completed' : (this._customPartialStatus?.(row.direction,row.remotePath,row.localPath) || (!this.connected || this._destroyed ? 'Interrupted' : 'Failed'));
             if (row.status === 'Completed') { row.percent = 100; row.error = ''; }
             else if (row.status !== 'Paused') row.error = row.error || 'Transfer did not complete; use Retry';
@@ -29886,7 +30311,7 @@ module.exports = function installActivity({apis, Panel, recovery }) {
             if (row.status !== 'Cancelled') { row.status = !this.connected || this._destroyed ? 'Interrupted' : 'Failed'; row.error = e.message; }
             return false;
         } finally {
-            if (row.status !== 'Paused') release(row);
+            if (!['Paused','Conflict'].includes(row.status)) release(row);
             save(this, row);
         }
     };
@@ -30102,8 +30527,8 @@ module.exports = function installActivity({apis, Panel, recovery }) {
                         if(partial){row.status=partial;row.error=partial==='Interrupted'?'Waiting for reconnection; resume checkpoint saved':row.error||'Partial file retained; use Retry';release(row);save(this,row);continue;}
                     }
                     row.percent = entry.percent || 0; row.speed = entry.speed || ''; row.logEntryId = entry.logEntryId;
-                    if (row.status !== 'Conflict' && this.connected) row.status = entry.paused ? 'Paused' : entry.queued ? 'Queued' : 'Running';
-                } else if (row.logEntryId && ['Running','Paused'].includes(row.status)) {
+                    if (this.connected) row.status = entry.phase==='waiting'?'Conflict':entry.paused?'Paused':entry.queued?'Queued':'Running';
+                } else if (row.logEntryId && ['Running','Paused','Conflict'].includes(row.status)) {
                     const log = this.transferLog?.getAll?.().find(l => l.id === row.logEntryId);
                     if (log && !log.pending && log.endTime) { row.status = log.success ? 'Completed' : 'Failed'; row.error = log.success ? '' : 'Transfer failed; use Retry'; release(row); save(this, row); }
                 }
@@ -30244,12 +30669,12 @@ module.exports=function installPasteSafety({apis,Panel}){
         if(this._destroyed||this._customPasteBusy)return Promise.resolve(false);
         const entries=[...(this.clipboardEntries||[])],pane=this.contextMenuPane,source=this.clipboardSource;
         const destination=pane==='local'?this.localPath:this.remotePath;
-        const remaining=source===pane?entries.filter(entry=>{
+        const remaining=source===pane&&this.clipboardMode==='cut'?entries.filter(entry=>{
             if(!entry.fullPath||!entry.name)return true;
             const target=(pane==='local'?path:path.posix).join(destination,entry.name);
             return !same(pane,entry.fullPath,target);
         }):entries;
-        // A same-path copy/cut must never reach conflict hashing, SSH exec or I/O.
+        // A same-path cut must never reach conflict hashing, SSH exec or I/O.
         if(entries.length&&!remaining.length){
             try{this.closeContextMenu?.();this.showToast?.('Source and destination are the same; nothing to paste.',4000);}catch{}
             return Promise.resolve(false);
@@ -30305,11 +30730,11 @@ module.exports = function installClipboardUpload({apis,Panel, electron, stagingR
     apis.Panel._customUploadLocalPaths=async function(paths,destination){
         if(blocked(this))throw new Error('Connect SFTP before uploading.');
         const session=this.sftpSession;
-        const unique=[...new Set(paths)];
+        const unique=[...new Set(paths)],batch=(__webpack_require__(/*! ../runtime/file-operation.cjs */ "./src/runtime/file-operation.cjs").create)(unique.length);
         // Capture destination once, so navigation during staging never redirects an upload.
         await Promise.all(unique.map(local=>{
             if(blocked(this)||this.sftpSession!==session)throw Error('Connection changed before upload started.');
-            return this._streamUploadOne(local,destination);
+            return this._streamUploadOne(local,destination,batch);
         }));
         if(!this._destroyed&&this.connected&&this.sftpSession===session){await this.refreshRemote();this._safeDetect?.();}
     };
@@ -32254,7 +32679,7 @@ module.exports = function installTransferEngine({apis,Panel,resume}) {
             transfer=new Transfer(local,size,mode);transfer.bytes=state?.offset||0;(panel._customStreamTransfers ||= new Set()).add(transfer);
             if(session.closed$)closedSub=session.closed$.subscribe(()=>transfer.interrupt());
             if(track){await trace('track-transfer:start',{size,offset:transfer.bytes});panel.trackTransfer(transfer,direction,remote,local,operation);await trace('track-transfer:end',{size,offset:transfer.bytes});await Promise.resolve();}
-            const cancelRef=panel._byteTransferCtx?.().cancelRef;
+            const cancelRef=onProgress?.cancelRef||panel._byteTransferCtx?.().cancelRef;
             transfer.cancelRef=cancelRef;if(cancelRef){cancelRef.active ||= new Set();cancelRef.active.add(transfer);cancelRef.current=transfer;}
             await transfer.gate(panel,session);
             if(direction==='download'){
@@ -32317,7 +32742,7 @@ module.exports = function installTransferEngine({apis,Panel,resume}) {
     apis.Panel._doDownload=function(remote,local,mode,size,operation){return run(this,'download',remote,local,mode,size,operation||'download');};
     for(const [direction,method]of [['upload','_doUploadRaw'],['download','_doDownloadRaw']]){
         const fallback=apis.Panel[method];
-        apis.Panel[method]=function(remote,local,mode,size,onProgress){if(!this.sftpSession?.open)return fallback?.call(this,remote,local,mode,size,onProgress);return run(this,direction,remote,local,mode,size,direction,false,onProgress);};
+        apis.Panel[method]=function(remote,local,mode,size,onProgress){if(direction==='upload'){onProgress=mode;mode=undefined;size=undefined;}if(!this.sftpSession?.open)return direction==='upload'?fallback?.call(this,remote,local,onProgress):fallback?.call(this,remote,local,mode,size,onProgress);return run(this,direction,remote,local,mode,size,direction,false,onProgress);};
     }
     for(const direction of ['upload','download']){
         const method=direction==='upload'?'_runQueuedUpload':'_runQueuedDownload',counter=direction==='upload'?'_upActiveCount':'_dlActiveCount',pump=direction==='upload'?'_pumpUploadQueue':'_pumpDownloadQueue';
@@ -32382,6 +32807,44 @@ module.exports = function installTransferUI({apis, Panel, ProgressRuntime }) {
     const start = apis.ProgressRuntime._startTransferTimer;
     apis.ProgressRuntime._startTransferTimer = function (...args) { return outside(this.host, () => start.apply(this, args)); };
 };
+
+
+/***/ },
+
+/***/ "./src/runtime/file-operation.cjs"
+/*!****************************************!*\
+  !*** ./src/runtime/file-operation.cjs ***!
+  \****************************************/
+(module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+
+const { randomUUID } = __webpack_require__(/*! crypto */ "crypto");
+
+// A decision belongs to a user operation, including files discovered later in its folders.
+function create(roots = 1) {
+    const batch = { id: randomUUID(), pendingRoots: roots, pendingConflicts: 0, decision: 'ask', cancelled: false };
+    // Recovery may retain identity, but must ask again after a restart.
+    Object.defineProperty(batch, 'toJSON', { value: () => ({ id: batch.id }) });
+    return batch;
+}
+function ensure(batch) {
+    return batch && typeof batch.pendingRoots === 'number' && (batch.pendingRoots > 0 || batch.pendingConflicts > 0) ? batch : create();
+}
+function finish(batch) {
+    if (batch) batch.pendingRoots = Math.max(0, batch.pendingRoots - 1);
+}
+function enqueue(queue, item, batch) {
+    if (batch) { item.batch = batch; batch.pendingConflicts++; }
+    queue.enqueue(item);
+}
+function settle(item) {
+    if (item.batch && !item._batchSettled) {
+        item._batchSettled = true;
+        item.batch.pendingConflicts = Math.max(0, item.batch.pendingConflicts - 1);
+    }
+}
+module.exports = { create, ensure, finish, enqueue, settle };
 
 
 /***/ },
@@ -32783,7 +33246,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"names":{"mix":"vscode_hex.svg","karm
 (module) {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.16","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off","test:terminal":"node test-native-terminal.cjs","test:screen":"node test-screen-terminal.cjs"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.17","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off","test:terminal":"node test-native-terminal.cjs","test:screen":"node test-screen-terminal.cjs"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
 
 /***/ },
 
@@ -32885,51 +33348,53 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
 /* harmony export */   testing: () => (/* binding */ testing)
 /* harmony export */ });
-/* harmony import */ var _features_bootstrap__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./features/bootstrap */ "./src/features/bootstrap.ts");
-/* harmony import */ var _sftp_components_panel_rubber_band__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./sftp/components/panel-rubber-band */ "./src/sftp/components/panel-rubber-band.ts");
-/* harmony import */ var _sftp_components_panel_file_dnd__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./sftp/components/panel-file-dnd */ "./src/sftp/components/panel-file-dnd.ts");
-/* harmony import */ var _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./sftp/core/transfer-coordinator */ "./src/sftp/core/transfer-coordinator.ts");
-/* harmony import */ var _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sftp/core/transfer-ops */ "./src/sftp/core/transfer-ops.ts");
-/* harmony import */ var _sftp_core_drop__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./sftp/core/drop */ "./src/sftp/core/drop.ts");
-/* harmony import */ var _sftp_core_paste__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./sftp/core/paste */ "./src/sftp/core/paste.ts");
-/* harmony import */ var _features_api__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./features/api */ "./src/features/api.ts");
-/* harmony import */ var _sftp_core_navigation_memory__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./sftp/core/navigation-memory */ "./src/sftp/core/navigation-memory.ts");
-/* harmony import */ var _services_sftp_transfer_log_service__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./services/sftp-transfer-log.service */ "./src/services/sftp-transfer-log.service.ts");
-/* harmony import */ var _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./services/sftp-i18n.service */ "./src/services/sftp-i18n.service.ts");
-/* harmony import */ var _sftp_core_selection__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./sftp/core/selection */ "./src/sftp/core/selection.ts");
-/* harmony import */ var _sftp_core_file_utils__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./sftp/core/file-utils */ "./src/sftp/core/file-utils.ts");
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! @angular/common */ "@angular/common");
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_angular_common__WEBPACK_IMPORTED_MODULE_13__);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @angular/forms */ "@angular/forms");
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(_angular_forms__WEBPACK_IMPORTED_MODULE_14__);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @angular/core */ "@angular/core");
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(_angular_core__WEBPACK_IMPORTED_MODULE_15__);
-/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! tabby-core */ "tabby-core");
-/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(tabby_core__WEBPACK_IMPORTED_MODULE_16__);
-/* harmony import */ var tabby_settings__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! tabby-settings */ "tabby-settings");
-/* harmony import */ var tabby_settings__WEBPACK_IMPORTED_MODULE_17___default = /*#__PURE__*/__webpack_require__.n(tabby_settings__WEBPACK_IMPORTED_MODULE_17__);
-/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! tabby-terminal */ "tabby-terminal");
-/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_18___default = /*#__PURE__*/__webpack_require__.n(tabby_terminal__WEBPACK_IMPORTED_MODULE_18__);
-/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./services/sftp-logger */ "./src/services/sftp-logger.ts");
-/* harmony import */ var _tabby_terminal_decorator__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./tabby/terminal-decorator */ "./src/tabby/terminal-decorator.ts");
-/* harmony import */ var _sftp_sftp_floating_panel_component__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./sftp/sftp-floating-panel.component */ "./src/sftp/sftp-floating-panel.component.ts");
-/* harmony import */ var _sftp_sftp_workspace_tab_component__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./sftp/sftp-workspace-tab.component */ "./src/sftp/sftp-workspace-tab.component.ts");
-/* harmony import */ var _settings_sftp_settings_component__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./settings/sftp-settings.component */ "./src/settings/sftp-settings.component.ts");
-/* harmony import */ var _tabby_config_provider__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./tabby/config-provider */ "./src/tabby/config-provider.ts");
-/* harmony import */ var _tabby_hotkey_provider__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./tabby/hotkey-provider */ "./src/tabby/hotkey-provider.ts");
-/* harmony import */ var _sftp_components_sftp_conflict_dialog_component__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./sftp/components/sftp-conflict-dialog.component */ "./src/sftp/components/sftp-conflict-dialog.component.ts");
-/* harmony import */ var _sftp_components_sftp_transfer_queue_component__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./sftp/components/sftp-transfer-queue.component */ "./src/sftp/components/sftp-transfer-queue.component.ts");
-/* harmony import */ var _sftp_components_sftp_transfer_log_dialog_component__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./sftp/components/sftp-transfer-log-dialog.component */ "./src/sftp/components/sftp-transfer-log-dialog.component.ts");
-/* harmony import */ var _sftp_components_sftp_file_pane_component__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./sftp/components/sftp-file-pane.component */ "./src/sftp/components/sftp-file-pane.component.ts");
-/* harmony import */ var _sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./sftp/components/sftp-context-menu.component */ "./src/sftp/components/sftp-context-menu.component.ts");
-/* harmony import */ var _sftp_components_sftp_bookmark_popup_component__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./sftp/components/sftp-bookmark-popup.component */ "./src/sftp/components/sftp-bookmark-popup.component.ts");
-/* harmony import */ var _sftp_components_sftp_delete_dialog_component__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./sftp/components/sftp-delete-dialog.component */ "./src/sftp/components/sftp-delete-dialog.component.ts");
-/* harmony import */ var _sftp_components_sftp_dir_missing_dialog_component__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./sftp/components/sftp-dir-missing-dialog.component */ "./src/sftp/components/sftp-dir-missing-dialog.component.ts");
-/* harmony import */ var _sftp_components_sftp_input_dialog_component__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./sftp/components/sftp-input-dialog.component */ "./src/sftp/components/sftp-input-dialog.component.ts");
-/* harmony import */ var _sftp_components_sftp_perm_dialog_component__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./sftp/components/sftp-perm-dialog.component */ "./src/sftp/components/sftp-perm-dialog.component.ts");
-/* harmony import */ var _sftp_components_sftp_details_dialog_component__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./sftp/components/sftp-details-dialog.component */ "./src/sftp/components/sftp-details-dialog.component.ts");
-/* harmony import */ var _sftp_components_sftp_text_context_menu_component__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./sftp/components/sftp-text-context-menu.component */ "./src/sftp/components/sftp-text-context-menu.component.ts");
-/* harmony import */ var _sftp_components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./sftp/components/sftp-cwd-setup-dialog.component */ "./src/sftp/components/sftp-cwd-setup-dialog.component.ts");
+/* harmony import */ var _sftp_core_conflict__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sftp/core/conflict */ "./src/sftp/core/conflict.ts");
+/* harmony import */ var _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./sftp/core/transfer-progress */ "./src/sftp/core/transfer-progress.ts");
+/* harmony import */ var _features_bootstrap__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./features/bootstrap */ "./src/features/bootstrap.ts");
+/* harmony import */ var _sftp_components_panel_rubber_band__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./sftp/components/panel-rubber-band */ "./src/sftp/components/panel-rubber-band.ts");
+/* harmony import */ var _sftp_components_panel_file_dnd__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sftp/components/panel-file-dnd */ "./src/sftp/components/panel-file-dnd.ts");
+/* harmony import */ var _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./sftp/core/transfer-coordinator */ "./src/sftp/core/transfer-coordinator.ts");
+/* harmony import */ var _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./sftp/core/transfer-ops */ "./src/sftp/core/transfer-ops.ts");
+/* harmony import */ var _sftp_core_drop__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./sftp/core/drop */ "./src/sftp/core/drop.ts");
+/* harmony import */ var _sftp_core_paste__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./sftp/core/paste */ "./src/sftp/core/paste.ts");
+/* harmony import */ var _features_api__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./features/api */ "./src/features/api.ts");
+/* harmony import */ var _sftp_core_navigation_memory__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./sftp/core/navigation-memory */ "./src/sftp/core/navigation-memory.ts");
+/* harmony import */ var _services_sftp_transfer_log_service__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./services/sftp-transfer-log.service */ "./src/services/sftp-transfer-log.service.ts");
+/* harmony import */ var _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./services/sftp-i18n.service */ "./src/services/sftp-i18n.service.ts");
+/* harmony import */ var _sftp_core_selection__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./sftp/core/selection */ "./src/sftp/core/selection.ts");
+/* harmony import */ var _sftp_core_file_utils__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./sftp/core/file-utils */ "./src/sftp/core/file-utils.ts");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @angular/common */ "@angular/common");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(_angular_common__WEBPACK_IMPORTED_MODULE_15__);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @angular/forms */ "@angular/forms");
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(_angular_forms__WEBPACK_IMPORTED_MODULE_16__);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @angular/core */ "@angular/core");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_17___default = /*#__PURE__*/__webpack_require__.n(_angular_core__WEBPACK_IMPORTED_MODULE_17__);
+/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! tabby-core */ "tabby-core");
+/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_18___default = /*#__PURE__*/__webpack_require__.n(tabby_core__WEBPACK_IMPORTED_MODULE_18__);
+/* harmony import */ var tabby_settings__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! tabby-settings */ "tabby-settings");
+/* harmony import */ var tabby_settings__WEBPACK_IMPORTED_MODULE_19___default = /*#__PURE__*/__webpack_require__.n(tabby_settings__WEBPACK_IMPORTED_MODULE_19__);
+/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! tabby-terminal */ "tabby-terminal");
+/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_20___default = /*#__PURE__*/__webpack_require__.n(tabby_terminal__WEBPACK_IMPORTED_MODULE_20__);
+/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./services/sftp-logger */ "./src/services/sftp-logger.ts");
+/* harmony import */ var _tabby_terminal_decorator__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./tabby/terminal-decorator */ "./src/tabby/terminal-decorator.ts");
+/* harmony import */ var _sftp_sftp_floating_panel_component__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./sftp/sftp-floating-panel.component */ "./src/sftp/sftp-floating-panel.component.ts");
+/* harmony import */ var _sftp_sftp_workspace_tab_component__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./sftp/sftp-workspace-tab.component */ "./src/sftp/sftp-workspace-tab.component.ts");
+/* harmony import */ var _settings_sftp_settings_component__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./settings/sftp-settings.component */ "./src/settings/sftp-settings.component.ts");
+/* harmony import */ var _tabby_config_provider__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./tabby/config-provider */ "./src/tabby/config-provider.ts");
+/* harmony import */ var _tabby_hotkey_provider__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./tabby/hotkey-provider */ "./src/tabby/hotkey-provider.ts");
+/* harmony import */ var _sftp_components_sftp_conflict_dialog_component__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./sftp/components/sftp-conflict-dialog.component */ "./src/sftp/components/sftp-conflict-dialog.component.ts");
+/* harmony import */ var _sftp_components_sftp_transfer_queue_component__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./sftp/components/sftp-transfer-queue.component */ "./src/sftp/components/sftp-transfer-queue.component.ts");
+/* harmony import */ var _sftp_components_sftp_transfer_log_dialog_component__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./sftp/components/sftp-transfer-log-dialog.component */ "./src/sftp/components/sftp-transfer-log-dialog.component.ts");
+/* harmony import */ var _sftp_components_sftp_file_pane_component__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./sftp/components/sftp-file-pane.component */ "./src/sftp/components/sftp-file-pane.component.ts");
+/* harmony import */ var _sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./sftp/components/sftp-context-menu.component */ "./src/sftp/components/sftp-context-menu.component.ts");
+/* harmony import */ var _sftp_components_sftp_bookmark_popup_component__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./sftp/components/sftp-bookmark-popup.component */ "./src/sftp/components/sftp-bookmark-popup.component.ts");
+/* harmony import */ var _sftp_components_sftp_delete_dialog_component__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./sftp/components/sftp-delete-dialog.component */ "./src/sftp/components/sftp-delete-dialog.component.ts");
+/* harmony import */ var _sftp_components_sftp_dir_missing_dialog_component__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./sftp/components/sftp-dir-missing-dialog.component */ "./src/sftp/components/sftp-dir-missing-dialog.component.ts");
+/* harmony import */ var _sftp_components_sftp_input_dialog_component__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./sftp/components/sftp-input-dialog.component */ "./src/sftp/components/sftp-input-dialog.component.ts");
+/* harmony import */ var _sftp_components_sftp_perm_dialog_component__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./sftp/components/sftp-perm-dialog.component */ "./src/sftp/components/sftp-perm-dialog.component.ts");
+/* harmony import */ var _sftp_components_sftp_details_dialog_component__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./sftp/components/sftp-details-dialog.component */ "./src/sftp/components/sftp-details-dialog.component.ts");
+/* harmony import */ var _sftp_components_sftp_text_context_menu_component__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./sftp/components/sftp-text-context-menu.component */ "./src/sftp/components/sftp-text-context-menu.component.ts");
+/* harmony import */ var _sftp_components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./sftp/components/sftp-cwd-setup-dialog.component */ "./src/sftp/components/sftp-cwd-setup-dialog.component.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -32955,7 +33420,9 @@ var __param = (undefined && undefined.__param) || function (paramIndex, decorato
 
 
 
-const testing = { I18nService: _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_10__.SftpI18nService, PanelPasteAdapter: _sftp_core_paste__WEBPACK_IMPORTED_MODULE_6__.PanelPasteAdapter, PanelDropAdapter: _sftp_core_drop__WEBPACK_IMPORTED_MODULE_5__.PanelDropAdapter, parseDragPayload: _sftp_core_drop__WEBPACK_IMPORTED_MODULE_5__.parseDragPayload, featureApis: _features_api__WEBPACK_IMPORTED_MODULE_7__.featureApis, NavigationMemory: _sftp_core_navigation_memory__WEBPACK_IMPORTED_MODULE_8__.NavigationMemory, TransferLogService: _services_sftp_transfer_log_service__WEBPACK_IMPORTED_MODULE_9__.SftpTransferLogService, computeSelection: _sftp_core_selection__WEBPACK_IMPORTED_MODULE_11__.computeSelection, setDateFormatPattern: _sftp_core_file_utils__WEBPACK_IMPORTED_MODULE_12__.setDateFormatPattern, Panel: _sftp_sftp_floating_panel_component__WEBPACK_IMPORTED_MODULE_21__.SftpFloatingPanel, FilePane: _sftp_components_sftp_file_pane_component__WEBPACK_IMPORTED_MODULE_29__.SftpFilePaneComponent, Menu: _sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_30__.SftpContextMenuComponent, LogDialog: _sftp_components_sftp_transfer_log_dialog_component__WEBPACK_IMPORTED_MODULE_28__.SftpTransferLogDialogComponent, PanelRubberBand: _sftp_components_panel_rubber_band__WEBPACK_IMPORTED_MODULE_1__.PanelRubberBand, PanelFileDnd: _sftp_components_panel_file_dnd__WEBPACK_IMPORTED_MODULE_2__.PanelFileDnd, PanelTransferRuntime: _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_3__.PanelTransferRuntime, DownloadOneUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_4__.DownloadOneUseCase, DownloadDirUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_4__.DownloadDirUseCase, UploadPathUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_4__.UploadPathUseCase, PasteUseCase: _sftp_core_paste__WEBPACK_IMPORTED_MODULE_6__.PasteUseCase };
+
+
+const testing = { PanelTransferCoordinator: _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_5__.PanelTransferCoordinator, ConflictResolveUseCase: _sftp_core_conflict__WEBPACK_IMPORTED_MODULE_0__.ConflictResolveUseCase, SftpConflictDetector: _sftp_core_conflict__WEBPACK_IMPORTED_MODULE_0__.SftpConflictDetector, folderFileProgress: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_1__.folderFileProgress, folderSkipped: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_1__.folderSkipped, folderPhase: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_1__.folderPhase, I18nService: _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_12__.SftpI18nService, PanelPasteAdapter: _sftp_core_paste__WEBPACK_IMPORTED_MODULE_8__.PanelPasteAdapter, PanelDropAdapter: _sftp_core_drop__WEBPACK_IMPORTED_MODULE_7__.PanelDropAdapter, parseDragPayload: _sftp_core_drop__WEBPACK_IMPORTED_MODULE_7__.parseDragPayload, featureApis: _features_api__WEBPACK_IMPORTED_MODULE_9__.featureApis, NavigationMemory: _sftp_core_navigation_memory__WEBPACK_IMPORTED_MODULE_10__.NavigationMemory, TransferLogService: _services_sftp_transfer_log_service__WEBPACK_IMPORTED_MODULE_11__.SftpTransferLogService, computeSelection: _sftp_core_selection__WEBPACK_IMPORTED_MODULE_13__.computeSelection, setDateFormatPattern: _sftp_core_file_utils__WEBPACK_IMPORTED_MODULE_14__.setDateFormatPattern, Panel: _sftp_sftp_floating_panel_component__WEBPACK_IMPORTED_MODULE_23__.SftpFloatingPanel, FilePane: _sftp_components_sftp_file_pane_component__WEBPACK_IMPORTED_MODULE_31__.SftpFilePaneComponent, Menu: _sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_32__.SftpContextMenuComponent, LogDialog: _sftp_components_sftp_transfer_log_dialog_component__WEBPACK_IMPORTED_MODULE_30__.SftpTransferLogDialogComponent, PanelRubberBand: _sftp_components_panel_rubber_band__WEBPACK_IMPORTED_MODULE_3__.PanelRubberBand, PanelFileDnd: _sftp_components_panel_file_dnd__WEBPACK_IMPORTED_MODULE_4__.PanelFileDnd, PanelTransferRuntime: _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_5__.PanelTransferRuntime, DownloadOneUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_6__.DownloadOneUseCase, DownloadDirUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_6__.DownloadDirUseCase, UploadPathUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_6__.UploadPathUseCase, PasteUseCase: _sftp_core_paste__WEBPACK_IMPORTED_MODULE_8__.PasteUseCase };
 
 
 
@@ -32984,47 +33451,47 @@ const testing = { I18nService: _services_sftp_i18n_service__WEBPACK_IMPORTED_MOD
 
 let SftpPlusModule = class SftpPlusModule {
     constructor(logService) {
-        (0,_services_sftp_logger__WEBPACK_IMPORTED_MODULE_19__.bindSftpLogger)(logService);
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_19__.log.info('Module loaded OK');
+        (0,_services_sftp_logger__WEBPACK_IMPORTED_MODULE_21__.bindSftpLogger)(logService);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_21__.log.info('Module loaded OK');
     }
 };
 SftpPlusModule = __decorate([
-    (0,_angular_core__WEBPACK_IMPORTED_MODULE_15__.NgModule)({
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_17__.NgModule)({
         imports: [
-            _angular_common__WEBPACK_IMPORTED_MODULE_13__.CommonModule,
-            _angular_forms__WEBPACK_IMPORTED_MODULE_14__.FormsModule,
-            (tabby_core__WEBPACK_IMPORTED_MODULE_16___default()),
+            _angular_common__WEBPACK_IMPORTED_MODULE_15__.CommonModule,
+            _angular_forms__WEBPACK_IMPORTED_MODULE_16__.FormsModule,
+            (tabby_core__WEBPACK_IMPORTED_MODULE_18___default()),
         ],
         declarations: [
-            _sftp_sftp_floating_panel_component__WEBPACK_IMPORTED_MODULE_21__.SftpFloatingPanel,
-            _sftp_sftp_workspace_tab_component__WEBPACK_IMPORTED_MODULE_22__.SftpWorkspaceTabComponent,
-            _settings_sftp_settings_component__WEBPACK_IMPORTED_MODULE_23__.SftpSettingsTabComponent,
-            _sftp_components_sftp_conflict_dialog_component__WEBPACK_IMPORTED_MODULE_26__.SftpConflictDialogComponent,
-            _sftp_components_sftp_transfer_queue_component__WEBPACK_IMPORTED_MODULE_27__.SftpTransferQueueComponent,
-            _sftp_components_sftp_transfer_log_dialog_component__WEBPACK_IMPORTED_MODULE_28__.SftpTransferLogDialogComponent,
-            _sftp_components_sftp_file_pane_component__WEBPACK_IMPORTED_MODULE_29__.SftpFilePaneComponent,
-            _sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_30__.SftpContextMenuComponent,
-            _sftp_components_sftp_bookmark_popup_component__WEBPACK_IMPORTED_MODULE_31__.SftpBookmarkPopupComponent,
-            _sftp_components_sftp_delete_dialog_component__WEBPACK_IMPORTED_MODULE_32__.SftpDeleteDialogComponent,
-            _sftp_components_sftp_dir_missing_dialog_component__WEBPACK_IMPORTED_MODULE_33__.SftpDirMissingDialogComponent,
-            _sftp_components_sftp_input_dialog_component__WEBPACK_IMPORTED_MODULE_34__.SftpInputDialogComponent,
-            _sftp_components_sftp_perm_dialog_component__WEBPACK_IMPORTED_MODULE_35__.SftpPermDialogComponent,
-            _sftp_components_sftp_details_dialog_component__WEBPACK_IMPORTED_MODULE_36__.SftpDetailsDialogComponent,
-            _sftp_components_sftp_text_context_menu_component__WEBPACK_IMPORTED_MODULE_37__.SftpTextContextMenuComponent,
-            _sftp_components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_38__.SftpCwdSetupDialogComponent,
+            _sftp_sftp_floating_panel_component__WEBPACK_IMPORTED_MODULE_23__.SftpFloatingPanel,
+            _sftp_sftp_workspace_tab_component__WEBPACK_IMPORTED_MODULE_24__.SftpWorkspaceTabComponent,
+            _settings_sftp_settings_component__WEBPACK_IMPORTED_MODULE_25__.SftpSettingsTabComponent,
+            _sftp_components_sftp_conflict_dialog_component__WEBPACK_IMPORTED_MODULE_28__.SftpConflictDialogComponent,
+            _sftp_components_sftp_transfer_queue_component__WEBPACK_IMPORTED_MODULE_29__.SftpTransferQueueComponent,
+            _sftp_components_sftp_transfer_log_dialog_component__WEBPACK_IMPORTED_MODULE_30__.SftpTransferLogDialogComponent,
+            _sftp_components_sftp_file_pane_component__WEBPACK_IMPORTED_MODULE_31__.SftpFilePaneComponent,
+            _sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_32__.SftpContextMenuComponent,
+            _sftp_components_sftp_bookmark_popup_component__WEBPACK_IMPORTED_MODULE_33__.SftpBookmarkPopupComponent,
+            _sftp_components_sftp_delete_dialog_component__WEBPACK_IMPORTED_MODULE_34__.SftpDeleteDialogComponent,
+            _sftp_components_sftp_dir_missing_dialog_component__WEBPACK_IMPORTED_MODULE_35__.SftpDirMissingDialogComponent,
+            _sftp_components_sftp_input_dialog_component__WEBPACK_IMPORTED_MODULE_36__.SftpInputDialogComponent,
+            _sftp_components_sftp_perm_dialog_component__WEBPACK_IMPORTED_MODULE_37__.SftpPermDialogComponent,
+            _sftp_components_sftp_details_dialog_component__WEBPACK_IMPORTED_MODULE_38__.SftpDetailsDialogComponent,
+            _sftp_components_sftp_text_context_menu_component__WEBPACK_IMPORTED_MODULE_39__.SftpTextContextMenuComponent,
+            _sftp_components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_40__.SftpCwdSetupDialogComponent,
         ],
         providers: [
-            { provide: tabby_terminal__WEBPACK_IMPORTED_MODULE_18__.TerminalDecorator, useClass: _tabby_terminal_decorator__WEBPACK_IMPORTED_MODULE_20__.SftpTerminalDecorator, multi: true },
-            { provide: tabby_settings__WEBPACK_IMPORTED_MODULE_17__.SettingsTabProvider, useClass: _settings_sftp_settings_component__WEBPACK_IMPORTED_MODULE_23__.SftpSettingsTabProvider, multi: true },
-            { provide: tabby_core__WEBPACK_IMPORTED_MODULE_16__.ConfigProvider, useClass: _tabby_config_provider__WEBPACK_IMPORTED_MODULE_24__.SftpPlusConfigProvider, multi: true },
-            { provide: tabby_core__WEBPACK_IMPORTED_MODULE_16__.HotkeyProvider, useClass: _tabby_hotkey_provider__WEBPACK_IMPORTED_MODULE_25__.SftpHotkeyProvider, multi: true },
+            { provide: tabby_terminal__WEBPACK_IMPORTED_MODULE_20__.TerminalDecorator, useClass: _tabby_terminal_decorator__WEBPACK_IMPORTED_MODULE_22__.SftpTerminalDecorator, multi: true },
+            { provide: tabby_settings__WEBPACK_IMPORTED_MODULE_19__.SettingsTabProvider, useClass: _settings_sftp_settings_component__WEBPACK_IMPORTED_MODULE_25__.SftpSettingsTabProvider, multi: true },
+            { provide: tabby_core__WEBPACK_IMPORTED_MODULE_18__.ConfigProvider, useClass: _tabby_config_provider__WEBPACK_IMPORTED_MODULE_26__.SftpPlusConfigProvider, multi: true },
+            { provide: tabby_core__WEBPACK_IMPORTED_MODULE_18__.HotkeyProvider, useClass: _tabby_hotkey_provider__WEBPACK_IMPORTED_MODULE_27__.SftpHotkeyProvider, multi: true },
         ],
     }),
-    __param(0, (0,_angular_core__WEBPACK_IMPORTED_MODULE_15__.Optional)()),
-    __metadata("design:paramtypes", [tabby_core__WEBPACK_IMPORTED_MODULE_16__.LogService])
+    __param(0, (0,_angular_core__WEBPACK_IMPORTED_MODULE_17__.Optional)()),
+    __metadata("design:paramtypes", [tabby_core__WEBPACK_IMPORTED_MODULE_18__.LogService])
 ], SftpPlusModule);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (SftpPlusModule);
-(0,_features_bootstrap__WEBPACK_IMPORTED_MODULE_0__.initializeFeatures)();
+(0,_features_bootstrap__WEBPACK_IMPORTED_MODULE_2__.initializeFeatures)();
 
 })();
 
