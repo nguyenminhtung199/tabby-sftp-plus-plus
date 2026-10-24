@@ -37,7 +37,7 @@ import { PanelPasteAdapter } from './core/paste'
 import { ContentDigestService } from './core/digest'
 import { isPathInside, copyLocalDir, copyRemoteDir, deleteLocalRecursive, deleteRemoteRecursive, tryRemoteCpViaSsh, tryRemoteRmViaSsh } from './core/fs-ops'
 import { isChannelDeadError } from './core/session-errors'
-import { ConcurrencyLimiter } from './core/concurrency'
+import { mapConcurrent, ConcurrencyLimiter } from './core/concurrency'
 import { trashLocalPath } from './core/trash-local'
 import { PanelConflictResolver } from './components/panel-conflict-resolver'
 import { PanelTransferRuntime } from './core/transfer-coordinator'
@@ -5034,16 +5034,18 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       let size = 0
       let count = 0
       const subs: Array<Promise<{ size: number; count: number }>> = []
+      const files: string[] = []
       for (const item of entries) {
         if (item.isSymbolicLink()) continue
         const p = path.join(dir, item.name)
         if (item.isDirectory()) {
           subs.push(scan(p))
         } else {
-          const st = await fs.stat(p).catch(() => null)
-          if (st) { size += st.size; count++ }
+          files.push(p)
         }
       }
+      const stats = await mapConcurrent(files, 8, p => limiter.run(() => fs.stat(p)).catch(() => null))
+      for (const st of stats) if (st) { size += st.size; count++ }
       for (const r of await Promise.all(subs)) { size += r.size; count += r.count }
       return { size, count }
     }

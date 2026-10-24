@@ -352,6 +352,7 @@ export class PanelConflictResolver {
         },
       },
       queue: {
+        peek: () => host.conflictQueue[0],
         shift: () => host.conflictQueue.shift(),
         clear: () => { host.conflictQueue = [] },
         replace: items => { host.conflictQueue = items },

@@ -60,6 +60,7 @@ export type FileOperationBatch = {
 
 export type ConflictQueueItem = {
   batch?: FileOperationBatch
+  _ctxCounted?: boolean
   _batchSettled?: boolean
   typeMismatch?: boolean
   localPath: string
@@ -85,6 +86,7 @@ export type ConflictQueueItem = {
 }
 
 export type FolderTransferCtx = {
+  pendingConflicts?: number
   session?: unknown
   moveSource?: boolean
   sourceDirectories?: string[]

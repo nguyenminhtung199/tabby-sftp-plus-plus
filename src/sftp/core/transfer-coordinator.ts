@@ -398,7 +398,10 @@ export class PanelTransferCoordinator {
         return entries.map((e: any) => ({
           name: e.name,
           isDirectory: !!e.isDirectory,
-          isSymlink: !!(e.isSymlink || e.isSymbolicLink),
+          isSymlink: typeof e.isSymlink === 'boolean' ? e.isSymlink
+            : typeof e.isSymbolicLink === 'function' ? !!e.isSymbolicLink()
+            : typeof e.isSymbolicLink === 'boolean' ? e.isSymbolicLink
+            : e.mode != null && (e.mode & 0o170000) !== 0 ? (e.mode & 0o170000) === 0o120000 : undefined,
           size: e.size,
           mode: e.mode,
           modified: e.modified,

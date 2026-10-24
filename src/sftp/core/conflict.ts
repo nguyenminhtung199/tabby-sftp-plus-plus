@@ -144,6 +144,7 @@ export interface ConflictPendingPastePort {
 }
 
 export interface ConflictQueueStatePort {
+  peek?(): ConflictQueueItem | undefined
   shift(): ConflictQueueItem | undefined
   clear(): void
   replace?(items: ConflictQueueItem[]): void
@@ -244,8 +245,10 @@ export class ConflictResolveUseCase {
       return
     }
 
+    let processed = 0
     while (this.ports.queue.length() > 0) {
-      const head = this.ports.queue.snapshot()[0]
+      if (++processed % 128 === 0) await new Promise<void>(resolve => setTimeout(resolve, 0))
+      const head = this.ports.queue.peek ? this.ports.queue.peek() : this.ports.queue.snapshot()[0]
       const mode = head && this.autoAction(head)
       if (!mode) { this.ports.ui.showNextDialog(); return }
       const item = this.ports.queue.shift()!
@@ -394,6 +397,7 @@ export class ConflictResolveUseCase {
   }
 
   private _remainingSharedCtxCount(item: ConflictQueueItem): number {
+    if (item._ctxCounted && item.transferCtx?.pendingConflicts != null) return Math.max(0, item.transferCtx.pendingConflicts - 1) + (item.transferCtx.producing ? 1 : 0)
     const id = item.transferCtx?.logEntryId
     if (id == null || id === '') return 0
     return this.ports.queue.snapshot().filter(q => q.transferCtx?.logEntryId === id).length + (item.transferCtx?.producing ? 1 : 0)

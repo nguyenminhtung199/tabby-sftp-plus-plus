@@ -1,3 +1,4 @@
+import { mapConcurrent, mapSettledConcurrent } from './sftp/core/concurrency'
 import { ConflictResolveUseCase, SftpConflictDetector } from './sftp/core/conflict'
 import { folderFileProgress, folderSkipped, folderPhase } from './sftp/core/transfer-progress'
 import { initializeFeatures } from './features/bootstrap'
@@ -13,7 +14,7 @@ import { SftpTransferLogService } from './services/sftp-transfer-log.service'
 import { SftpI18nService } from './services/sftp-i18n.service'
 import { computeSelection } from './sftp/core/selection'
 import { setDateFormatPattern } from './sftp/core/file-utils'
-export const testing={PanelTransferCoordinator,ConflictResolveUseCase,SftpConflictDetector,folderFileProgress,folderSkipped,folderPhase,I18nService:SftpI18nService,PanelPasteAdapter,PanelDropAdapter,parseDragPayload,featureApis,NavigationMemory,TransferLogService:SftpTransferLogService,computeSelection,setDateFormatPattern,Panel:SftpFloatingPanel,FilePane: SftpFilePaneComponent,Menu:SftpContextMenuComponent,LogDialog:SftpTransferLogDialogComponent,PanelRubberBand,PanelFileDnd,PanelTransferRuntime,DownloadOneUseCase,DownloadDirUseCase,UploadPathUseCase,PasteUseCase}
+export const testing={mapConcurrent,mapSettledConcurrent,PanelTransferCoordinator,ConflictResolveUseCase,SftpConflictDetector,folderFileProgress,folderSkipped,folderPhase,I18nService:SftpI18nService,PanelPasteAdapter,PanelDropAdapter,parseDragPayload,featureApis,NavigationMemory,TransferLogService:SftpTransferLogService,computeSelection,setDateFormatPattern,Panel:SftpFloatingPanel,FilePane: SftpFilePaneComponent,Menu:SftpContextMenuComponent,LogDialog:SftpTransferLogDialogComponent,PanelRubberBand,PanelFileDnd,PanelTransferRuntime,DownloadOneUseCase,DownloadDirUseCase,UploadPathUseCase,PasteUseCase}
 
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'

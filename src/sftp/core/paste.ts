@@ -1,3 +1,4 @@
+import { mapConcurrent } from './concurrency'
 import type { FileOperationBatch } from './panel-types'
 const fileOperation = require('../../runtime/file-operation.cjs')
 import * as path from 'path'
@@ -521,7 +522,7 @@ export class PanelPasteAdapter {
         statLocal: (p) => fs.lstat(p).catch(error => { if (error.code === 'ENOENT') return null; throw error }),
         listLocalEntries: async folder => {
           const entries = await fs.readdir(folder, {withFileTypes:true})
-          return Promise.all(entries.map(async entry => { const fullPath=path.join(folder,entry.name), stat=await fs.lstat(fullPath); return {name:entry.name,fullPath,isDirectory:stat.isDirectory(),isSymlink:stat.isSymbolicLink(),size:stat.size,mtimeMs:stat.mtimeMs} }))
+          return mapConcurrent(entries, 8, async entry => { const fullPath=path.join(folder,entry.name), stat=await fs.lstat(fullPath); return {name:entry.name,fullPath,isDirectory:stat.isDirectory(),isSymlink:stat.isSymbolicLink(),size:stat.size,mtimeMs:stat.mtimeMs} })
         },
         removeEmptyDirectory: async (side, folder) => {
           try { if (side === 'local') await fs.rmdir(folder); else { if ((await (host.sftpSession as any).readdir(folder)).some((e:any)=>e.name!=='.'&&e.name!=='..')) return; await (host.sftpSession as any).rmdir(folder) } }

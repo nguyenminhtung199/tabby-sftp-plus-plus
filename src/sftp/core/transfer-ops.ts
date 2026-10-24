@@ -13,7 +13,7 @@ import { safeEntryName } from './path-utils'
 
 import { parseRemoteMtime } from './conflict'
 
-import { ConcurrencyLimiter, clampDirConcurrency } from './concurrency'
+import { ConcurrencyLimiter, clampDirConcurrency, mapSettledConcurrent } from './concurrency'
 
 import { errText } from './transfer-adapters'
 
@@ -76,7 +76,7 @@ async function gatedDirTask(
   fn: () => Promise<boolean>,
 ): Promise<boolean> {
   if (!(await dirGate(folder, ctx))) return false
-  return limiter.run(fn)
+  return limiter.run(async () => (await dirGate(folder, ctx)) ? fn() : false)
 }
 
 function foldSettled(settled: PromiseSettledResult<boolean>[]): { success: boolean; firstErr: unknown } {
@@ -173,8 +173,8 @@ export class DownloadDirUseCase {
       await this.ports.localFs.mkdirRecursive(localDir)
       const entries = await this.ports.sftp.readdir(remoteSrc)
 
-      const tasks = entries.map(async (entry): Promise<boolean> => {
-
+      const settled = await mapSettledConcurrent(entries, clampDirConcurrency(this.dirConcurrency?.()) * 2, async (entry): Promise<boolean> => {
+        if (!(await dirGate(this.ports.folder, ctx))) return false
         const safeName = safeEntryName(entry.name)
         if (!safeName) {
           log.warn('skip unsafe entry name:', entry.name)
@@ -183,7 +183,7 @@ export class DownloadDirUseCase {
         const remoteP = path.posix.join(remoteSrc, safeName)
         const localP = path.join(localDir, safeName)
 
-        if (entry.isSymlink || await this.ports.sftp.isSymlink(remoteP)) {
+        if (entry.isSymlink === true || (entry.isSymlink == null && await this.ports.sftp.isSymlink(remoteP))) {
           log.info('skip symlink during folder download:', entry.name)
           return true
         }
@@ -246,7 +246,7 @@ export class DownloadDirUseCase {
           return ok
         })
       })
-      const folded = foldSettled(await Promise.allSettled(tasks))
+      const folded = foldSettled(settled)
       success = folded.success
       if (success && ctx?.moveSource) await this.ports.sftp.rmdir?.(remoteSrc)
       if (folded.firstErr != null) throw folded.firstErr
@@ -619,9 +619,8 @@ export class UploadPathUseCase {
     try {
 
       const children = await this.ports.localFs.listChildren(localPath)
-      const tasks = children
-        .filter(c => !c.isSymbolicLink)
-        .map(async (c): Promise<boolean> => {
+      const settled = await mapSettledConcurrent(children.filter(c => !c.isSymbolicLink), clampDirConcurrency(this.dirConcurrency?.()) * 2, async (c): Promise<boolean> => {
+          if (!(await dirGate(this.ports.folder, ctx))) return false
           const safeName = safeEntryName(c.name)
           if (!safeName) {
             log.warn('skip unsafe local entry during upload:', c.name)
@@ -641,7 +640,7 @@ export class UploadPathUseCase {
               remoteTarget, childLocal, path.posix.join(remoteTarget, safeName), st, false, ctx,
             ))
         })
-      const folded = foldSettled(await Promise.allSettled(tasks))
+      const folded = foldSettled(settled)
       success = folded.success
       if (success && ctx?.moveSource) await this.ports.localFs.removeEmptyDirectory?.(localPath)
       if (folded.firstErr != null) throw folded.firstErr

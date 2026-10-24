@@ -25,7 +25,8 @@
     "test-plugin-updater.cjs",
     "test-english-source.cjs",
     "test-explorer-collisions.cjs",
-    "test-conflict-preflight.cjs"
+    "test-conflict-preflight.cjs",
+    "test-transfer-performance.cjs"
   ],
   "renderer": {
     "timeoutMs": 30000,
