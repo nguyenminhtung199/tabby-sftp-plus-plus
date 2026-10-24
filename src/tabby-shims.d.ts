@@ -121,6 +121,7 @@ declare module 'tabby-core' {
   }
   /** 宿主平台信息（platform: 'Windows' | 'macOS' | 'Linux' | 'Web'） */
   export class HostAppService {
+    relaunch(): void
     get platform(): string
   }
   export class ProfilesService {

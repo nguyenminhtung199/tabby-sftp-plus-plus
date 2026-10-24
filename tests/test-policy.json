@@ -21,7 +21,8 @@
     "test-source-architecture.cjs",
     "test-folder-merge.cjs",
     "test-navigation-memory.cjs",
-    "test-internal-move.cjs"
+    "test-internal-move.cjs",
+    "test-plugin-updater.cjs"
   ],
   "renderer": {
     "timeoutMs": 30000,

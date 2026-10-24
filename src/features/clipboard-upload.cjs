@@ -15,7 +15,9 @@ module.exports = function installClipboardUpload({apis,Panel, electron, stagingR
             const timer=setTimeout(async()=>{
                 pending.delete(timer);
                 if(this._destroyed){resolve(false);return;}
+                this._customActiveDrops=(this._customActiveDrops||0)+1;
                 try{resolve(await work());}catch(error){try{notice(this,error);}catch{}resolve(false);}
+                finally{this._customActiveDrops--;}
             },0);
             pending.set(timer,resolve);
         }));

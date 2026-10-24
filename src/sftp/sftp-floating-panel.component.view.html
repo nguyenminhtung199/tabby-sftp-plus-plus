@@ -21,7 +21,7 @@
       </div>
       <div class="sftp-main">
       <!-- 顶部标题栏 -->
-      <div class="top-bar" (mousedown)="onTopBarMouseDown($event)" (contextmenu)="onTopBarContextMenu($event)">
+      <div class="top-bar" [class.has-plugin-update]="pluginUpdate.available || pluginUpdate.restartRequired" (mousedown)="onTopBarMouseDown($event)" (contextmenu)="onTopBarContextMenu($event)">
         <span class="title">SFTP++</span>
         <span class="host-info" *ngIf="hostInfo">{{ hostInfo }}</span>
         <!-- 断开连接指示器 -->
@@ -34,7 +34,7 @@
               : i18n.t('status.reconnect') }}
           </button>
         </span>
-        <div class="top-actions"><button class="btn-link btn-icon" (mousedown)="$event.preventDefault()" (click)="customSyncNow()" [disabled]="_customSyncNowBusy || !connected" [title]="customCwdTooltip"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35"><path d="M13 6a5 5 0 0 0-8-2L3 6m0-3v3h3M3 10a5 5 0 0 0 8 2l2-2m0 3v-3h-3"/></svg></button>
+        <div class="top-actions"><button *ngIf="pluginUpdate.available || pluginUpdate.restartRequired" type="button" class="btn-link plugin-update-btn" (mousedown)="$event.preventDefault(); $event.stopPropagation()" (click)="updatePlugin()" [disabled]="pluginUpdate.checking || pluginUpdate.updating" [title]="pluginUpdate.error || ('Update SFTP++ to ' + pluginUpdate.version + ' and restart Tabby')">{{ pluginUpdate.updating ? 'Updating…' : (pluginUpdate.restartRequired ? 'Restart Tabby' : 'Update available') }}</button><button class="btn-link btn-icon" (mousedown)="$event.preventDefault()" (click)="customSyncNow()" [disabled]="_customSyncNowBusy || !connected" [title]="customCwdTooltip"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35"><path d="M13 6a5 5 0 0 0-8-2L3 6m0-3v3h3M3 10a5 5 0 0 0 8 2l2-2m0 3v-3h-3"/></svg></button>
           <!-- 路径模式：关闭 → 路径记忆 → 终端同步 -->
           <button class="btn-link btn-icon btn-path-mode" (click)="cyclePathMode()"
                   [class.active]="pathMode !== 'off'"

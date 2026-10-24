@@ -38,3 +38,10 @@ description: Use before code changes, npm commands, tests or plugin operations i
 
 - Same-pane internal drags move through PanelPasteAdapter in cut mode, sharing conflict resolution; cross-pane drags retain upload/download. A folder row targets that folder; the Up toolbar button targets the parent. Same-folder drops do nothing; self/descendant targets are rejected before conflict scanning.
 - Internal payloads carry the panel scope; remote moves also require the same live SFTP session as dragstart. Do not use drag-out cached OS files for internal moves. External Explorer drops keep their copy/upload behavior.
+
+## Plugin self update
+
+- src/runtime/plugin-updater.cjs owns one shared updater for the process. It checks the configured Git origin/main outside Angular, initially after 10 seconds and then every 30 minutes while a panel exists. Timers/listeners stop with the last panel. Documentation-only commits do not offer an update: only dist/package changes do. Settings are in transfer-policy.json pluginUpdate.
+- This updater supports the Git checkout/junction installation: validate exact repository root, origin and main; require a verified dist artifact; apply a clean fast-forward to the advertised commit. Never reset/stash user changes, install dependencies silently, or edit Tabby core/configuration. A changed runtime dependency manifest requires manual installation.
+- Use the host HostAppService.relaunch() API only after successful update verification. Active/queued/paused transfers, file conflicts, inline changes and active save-upload work in any subscribed panel block restart. If work starts during update, keep Restart Tabby available for a later click. Idle save watchers are not active transfers.
+- test-plugin-updater.cjs uses an isolated local bare Git remote and cloned installations to verify actual check/update, dirty/diverged/foreign/build guards and restart ordering without restarting the user's Tabby. Renderer checks use the real production button markup and a mocked host relaunch API.

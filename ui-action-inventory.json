@@ -1,7 +1,7 @@
 [
   {
     "selector": "sftp-plus-panel",
-    "eventCount": 217,
+    "eventCount": 221,
     "actions": [
       "addBookmark",
       "applyLocalFilter",
@@ -97,7 +97,8 @@
       "toggleCustomSidebarMode",
       "toggleCustomSidebarPin",
       "toggleMaximize",
-      "toggleTransferLog"
+      "toggleTransferLog",
+      "updatePlugin"
     ]
   },
   {

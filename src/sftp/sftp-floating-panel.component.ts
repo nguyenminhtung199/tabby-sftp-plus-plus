@@ -1,3 +1,4 @@
+const {getPluginUpdater,panelHasWork}=require('../runtime/plugin-updater.cjs')
 import { NavigationMemory } from './core/navigation-memory'
 import { fileList as fileListPolicy } from '../../transfer-policy.json'
 import sendTerminalCommand from '../runtime/terminal-command.cjs'
@@ -205,7 +206,7 @@ import * as os from 'os'
 import { randomUUID } from 'crypto'
 
 import { Component, OnInit, OnDestroy, AfterViewInit, HostListener, ChangeDetectorRef, ElementRef, NgZone, Injector, ViewEncapsulation, Inject, Optional } from '@angular/core'
-import { ThemesService, NotificationsService, ConfigService, AppService } from 'tabby-core'
+import { ThemesService, NotificationsService, ConfigService, AppService, HostAppService } from 'tabby-core'
 
 import { LocalPathFileDownload, LocalPathFileUpload, uploadLocalFile, downloadRemoteFile, cancelAllInFlight } from './core/transfer-adapters'
 import { currentTaskScope, runInTaskScope, type TaskCancelRef } from './core/task-scope'
@@ -2394,7 +2395,24 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     return this.i18n.getLocale()
   }
 
+  pluginUpdate = { available: false, checking: false, updating: false, restartRequired: false, version: '', error: '' }
+  private _stopPluginUpdates?: () => void
+  private _pluginUpdater: any
+
+  async updatePlugin(): Promise<void> {
+    if (!this._pluginUpdater) return
+    let host: HostAppService | null = null
+    try { host = this.injector.get(HostAppService, null as any) } catch { /* unsupported host */ }
+    if (!host || typeof host.relaunch !== 'function') { this.showToast('Tabby restart API is unavailable.'); return }
+    const ok = await this.zone.runOutsideAngular(() => this._pluginUpdater.update(() => host!.relaunch()))
+    if (!ok && this._pluginUpdater.state.error) this.showToast(this._pluginUpdater.state.error, 8000)
+  }
+
   _base_ngOnInit(): void {
+    this._pluginUpdater = getPluginUpdater(path.resolve(__dirname, '..'))
+    this._stopPluginUpdates = this.zone.runOutsideAngular(() => this._pluginUpdater.subscribe((state: any) => {
+      if (!this._destroyed) { this.pluginUpdate = state; this._safeDetect() }
+    }, () => panelHasWork(this)))
     const panel = this
     this._connLifecycle = new PanelConnectionLifecycle({
       get sshSession() { return panel.sshSession },
@@ -2656,6 +2674,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
   }
 
   _base_ngOnDestroy(): void {
+    this._stopPluginUpdates?.()
     this._destroyed = true
     // 必须先中止拖拽预缓存下载，再 disconnect；否则后台 SFTP read 会继续占满 SSH 通道，
     // 关面板重开后进入文件夹仍会卡，直到重启 Tabby。

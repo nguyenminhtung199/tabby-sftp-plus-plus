@@ -1525,3 +1525,9 @@
 
 .sftp-root .sftp-toast { top:42px; bottom:auto; display:flex; align-items:center; gap:10px; }
 .sftp-root .sftp-toast button { border:0; background:transparent; color:inherit; cursor:pointer; font-size:16px; padding:0 2px; }
+
+.sftp-root .plugin-update-btn { color:var(--_primary,#4da3ff); border:1px solid currentColor; border-radius:4px; padding:3px 8px; white-space:nowrap; font-size:12px; }
+.sftp-root .plugin-update-btn:disabled { opacity:.6; cursor:wait; }
+
+.sftp-root .top-bar.has-plugin-update { flex-wrap:wrap; row-gap:2px; }
+.sftp-root .top-bar.has-plugin-update .top-actions { max-width:100%; flex-wrap:wrap; justify-content:flex-end; }
