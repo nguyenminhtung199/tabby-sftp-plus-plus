@@ -125,5 +125,12 @@
     "park": "\u001b999999\u001bf#\u001b999999\u001b\b",
     "submit": "\r",
     "restore": "\u0019\b"
+  },
+  "pluginUpdate": {
+    "remote": "https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git",
+    "branch": "main",
+    "initialDelayMs": 10000,
+    "intervalMs": 1800000,
+    "timeoutMs": 45000
   }
 }
