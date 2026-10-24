@@ -2103,7 +2103,7 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
         this.platformService = platformService;
         this.hostApp = hostApp;
         this.pkgVersion = (__webpack_require__(/*! ../../package.json */ "./package.json").version);
-        this.pkgBuildTime =  true ? "2026-10-24T15:19:36.629Z" : 0;
+        this.pkgBuildTime =  true ? "2026-10-24T18:14:58.817Z" : 0;
         this.themeLabelKeys = {
             '': 'theme.auto',
             dark: 'theme.dark',
@@ -7197,12 +7197,17 @@ let SftpConflictDialogComponent = class SftpConflictDialogComponent {
         catch ( /* ignore */_a) { /* ignore */ }
     }
     onKeyDown(event) {
+        var _a, _b;
         if (event.key === 'Escape') {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.resolve.emit('cancel');
         }
         if (event.key === 'Enter') {
+            // Preserve native Enter activation for the focused action button.
+            event.stopPropagation();
+            if ((_b = (_a = event.target) === null || _a === void 0 ? void 0 : _a.closest) === null || _b === void 0 ? void 0 : _b.call(_a, 'button'))
+                return;
             event.preventDefault();
             event.stopImmediatePropagation();
             this.resolve.emit('skip');
@@ -14597,96 +14602,88 @@ class PasteUseCase {
     constructor(ports) {
         this.ports = ports;
     }
-    async scanConflicts(entries, destPane, destPath, source, mode) {
-        var _a, _b, _c, _d, _e, _f;
+    async scanConflicts(entries, destPane, destPath, source, mode, listings = new Map()) {
+        var _a, _b, _c;
+        let visited = 0;
         for (const entry of entries) {
+            if ((_a = entry.batch) === null || _a === void 0 ? void 0 : _a.cancelled)
+                break;
+            // Let input/rendering run even when a large remote snapshot resolves immediately.
+            if (++visited % 200 === 0)
+                await new Promise(resolve => setTimeout(resolve, 0));
             const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(entry.name);
             if (!safeName) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('skip unsafe paste entry in scanConflicts:', entry.name);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('skip unsafe paste entry:', entry.name);
                 continue;
             }
-            const destFilePath = destPane === 'local'
-                ? path__WEBPACK_IMPORTED_MODULE_0__.join(destPath, safeName)
-                : path__WEBPACK_IMPORTED_MODULE_0__.posix.join(destPath, safeName);
-            if (source === destPane && entry.fullPath) {
-                const api = source === 'local' ? path__WEBPACK_IMPORTED_MODULE_0__ : path__WEBPACK_IMPORTED_MODULE_0__.posix;
+            const api = destPane === 'local' ? path__WEBPACK_IMPORTED_MODULE_0__ : path__WEBPACK_IMPORTED_MODULE_0__.posix;
+            const destFilePath = api.join(destPath, safeName);
+            const isSamePane = source === destPane;
+            if (isSamePane && entry.fullPath) {
                 if (api.resolve(entry.fullPath) === api.resolve(destFilePath))
                     continue;
                 if (entry.isDirectory && (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.isPathInside)(entry.fullPath, destFilePath, source === 'remote'))
                     throw new Error('Cannot copy or move a folder into itself.');
             }
-            if (entry.isDirectory) {
-                if (source === destPane && await this.ports.conflict.checkDestExists(destPane, destFilePath)) {
-                    const destination = await this.destinationEntry(destPane, destFilePath);
-                    if ((destination === null || destination === void 0 ? void 0 : destination.isDirectory) && !destination.isSymlink) {
-                        await this.scanConflicts(await this.children(entry, source), destPane, destFilePath, source, mode);
-                    }
-                    else {
-                        const conflict = this._buildFileConflictItem(entry, destPane, destPath, source, destFilePath, true, 'upload', { size: 0, mtimeMs: 0 }, mode);
-                        fileOperation.enqueue(this.ports.conflict, { ...conflict, isDirectory: true, typeMismatch: true }, entry.batch);
-                    }
-                }
+            // Cross-pane directories use the transfer engine's per-file checks.
+            if (entry.isDirectory && !isSamePane)
+                continue;
+            const destination = await this.destinationEntry(destPane, destFilePath, listings);
+            if (!destination)
+                continue;
+            if (entry.isDirectory && destination.isDirectory && !destination.isSymlink) {
+                await this.scanConflicts(await this.children(entry, source, listings), destPane, destFilePath, source, mode, listings);
                 continue;
             }
-            const exists = await this.ports.conflict.checkDestExists(destPane, destFilePath);
-            if (!exists)
-                continue;
-            const isSamePane = source === destPane;
-            const direction = isSamePane ? 'upload'
-                : (source === 'local' && destPane === 'remote') ? 'upload'
-                    : 'download';
-            let destStat = { size: 0, mtimeMs: Date.now() };
-            if (isSamePane) {
-                if (destPane === 'local') {
-                    const st = await this.ports.fs.statLocal(destFilePath);
-                    if (st)
-                        destStat = st;
-                }
-                else if (this.ports.ui.hasSftpSession()) {
-                    try {
-                        const dir = path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(destFilePath);
-                        const name = path__WEBPACK_IMPORTED_MODULE_0__.posix.basename(destFilePath);
-                        const remoteEntries = await this.ports.fs.readdirRemote(dir);
-                        const found = remoteEntries.find(e => e.name === name);
-                        if (found) {
-                            destStat = {
-                                size: (_c = (_a = found.size) !== null && _a !== void 0 ? _a : (_b = found.attrs) === null || _b === void 0 ? void 0 : _b.size) !== null && _c !== void 0 ? _c : 0,
-                                mtimeMs: (_d = (0,_conflict__WEBPACK_IMPORTED_MODULE_1__.parseRemoteMtime)(found)) !== null && _d !== void 0 ? _d : Date.now(),
-                            };
-                        }
-                    }
-                    catch ( /* ignore */_g) { /* ignore */ }
-                }
+            let incoming = entry;
+            if (isSamePane && entry.fullPath && (source === 'remote' || entry.size == null || entry.mtimeMs == null)) {
+                const metadata = await this.destinationEntry(source, entry.fullPath, listings);
+                if (!metadata)
+                    throw new Error('Source no longer exists: ' + entry.fullPath);
+                incoming = { ...entry, size: metadata.size, mtimeMs: metadata.mtimeMs };
             }
-            else if (destPane === 'remote') {
-                const meta = await this._remoteListingMeta(destPath, safeName);
-                destStat = {
-                    size: (_e = meta.size) !== null && _e !== void 0 ? _e : 0,
-                    mtimeMs: (_f = meta.mtimeMs) !== null && _f !== void 0 ? _f : Date.now(),
-                };
-            }
-            else if (destPane === 'local') {
-                const st = await this.ports.fs.statLocal(destFilePath);
-                if (st)
-                    destStat = st;
-            }
-            const destination = await this.destinationEntry(destPane, destFilePath);
-            fileOperation.enqueue(this.ports.conflict, { ...this._buildFileConflictItem(entry, destPane, destPath, source, destFilePath, isSamePane, direction, destStat, mode), typeMismatch: !!(destination === null || destination === void 0 ? void 0 : destination.isDirectory) || !!(destination === null || destination === void 0 ? void 0 : destination.isSymlink) }, entry.batch);
+            const direction = isSamePane || source === 'local' ? 'upload' : 'download';
+            const destStat = { size: (_b = destination.size) !== null && _b !== void 0 ? _b : 0, mtimeMs: (_c = destination.mtimeMs) !== null && _c !== void 0 ? _c : 0 };
+            fileOperation.enqueue(this.ports.conflict, {
+                ...this._buildFileConflictItem(incoming, destPane, destPath, source, destFilePath, isSamePane, direction, destStat, mode),
+                isDirectory: entry.isDirectory || undefined,
+                typeMismatch: entry.isDirectory !== destination.isDirectory || !!destination.isSymlink,
+            }, entry.batch);
         }
         return this.ports.conflict.queueLength() > 0;
     }
-    async destinationEntry(side, fullPath) {
+    remoteListing(folder, listings) {
+        let listing = listings.get(folder);
+        if (!listing) {
+            listing = this.ports.fs.readdirRemote(folder).then(entries => new Map(entries.map(entry => {
+                var _a, _b;
+                return [entry.name, {
+                        ...entry, fullPath: path__WEBPACK_IMPORTED_MODULE_0__.posix.join(folder, entry.name), isDirectory: !!entry.isDirectory,
+                        size: (_a = entry.size) !== null && _a !== void 0 ? _a : (_b = entry.attrs) === null || _b === void 0 ? void 0 : _b.size, mtimeMs: (0,_conflict__WEBPACK_IMPORTED_MODULE_1__.parseRemoteMtime)(entry),
+                    }];
+            })));
+            listings.set(folder, listing);
+        }
+        return listing;
+    }
+    async destinationEntry(side, fullPath, listings) {
         var _a;
         if (side === 'local') {
             const stat = await this.ports.fs.statLocal(fullPath);
             return stat ? { name: path__WEBPACK_IMPORTED_MODULE_0__.basename(fullPath), fullPath, isDirectory: stat.isDirectory(), isSymlink: (_a = stat.isSymbolicLink) === null || _a === void 0 ? void 0 : _a.call(stat), size: stat.size, mtimeMs: stat.mtimeMs } : null;
         }
-        const entry = (await this.ports.fs.readdirRemote(path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(fullPath))).find(e => e.name === path__WEBPACK_IMPORTED_MODULE_0__.posix.basename(fullPath));
-        return entry ? { ...entry, name: entry.name, fullPath, isDirectory: !!entry.isDirectory } : null;
+        try {
+            return (await this.remoteListing(path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(fullPath), listings || new Map())).get(path__WEBPACK_IMPORTED_MODULE_0__.posix.basename(fullPath)) || null;
+        }
+        catch (error) {
+            if (error.code === 'ENOENT' || /no such file|not found/i.test(error.message))
+                return null;
+            throw error;
+        }
     }
-    async children(entry, side) {
+    async children(entry, side, listings) {
         const entries = side === 'local' ? await this.ports.fs.listLocalEntries(entry.fullPath) :
-            (await this.ports.fs.readdirRemote(entry.fullPath)).map(child => ({ ...child, fullPath: path__WEBPACK_IMPORTED_MODULE_0__.posix.join(entry.fullPath, child.name), isDirectory: !!child.isDirectory }));
+            [...(await this.remoteListing(entry.fullPath, listings || new Map())).values()];
         return [...entries].filter(child => !child.isSymlink).map(child => ({ ...child, sourcePane: side, batch: entry.batch }));
     }
     async prepare(entries, side, folder, mode, source) {
@@ -14837,12 +14834,12 @@ class PasteUseCase {
     }
     _buildFileConflictItem(entry, destPane, destPath, source, destFilePath, isSamePane, direction, destStat, mode) {
         var _a, _b, _c, _d, _e, _f, _g, _h;
-        const remoteSize = destPane === 'remote'
+        const remoteSize = !isSamePane && destPane === 'remote'
             ? Number(destStat.size) || 0
             : ((_a = entry.size) !== null && _a !== void 0 ? _a : 0);
-        const remoteMtime = destPane === 'remote'
-            ? Number(destStat.mtimeMs) || Date.now()
-            : ((_b = entry.mtimeMs) !== null && _b !== void 0 ? _b : Date.now());
+        const remoteMtime = !isSamePane && destPane === 'remote'
+            ? Number(destStat.mtimeMs) || 0
+            : ((_b = entry.mtimeMs) !== null && _b !== void 0 ? _b : 0);
         const localStat = isSamePane
             ? destStat
             : (source === 'local'
@@ -14862,27 +14859,6 @@ class PasteUseCase {
             entryKey: (0,_conflict__WEBPACK_IMPORTED_MODULE_1__.pasteEntryKey)(entry),
             mode,
         };
-    }
-    async _remoteListingMeta(parentDir, name) {
-        var _a, _b;
-        if (!parentDir || !name)
-            return {};
-        try {
-            const entries = await this.ports.fs.readdirRemote(parentDir);
-            const found = entries.find(e => e.name === name);
-            if (!found)
-                return {};
-            const sz = (_a = found.size) !== null && _a !== void 0 ? _a : (_b = found.attrs) === null || _b === void 0 ? void 0 : _b.size;
-            const mtimeMs = (0,_conflict__WEBPACK_IMPORTED_MODULE_1__.parseRemoteMtime)(found);
-            return {
-                size: sz != null && Number.isFinite(Number(sz)) ? Number(sz) : undefined,
-                mtimeMs,
-            };
-        }
-        catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('[paste] readdir remote listing meta failed:', parentDir, name, e);
-            return {};
-        }
     }
 }
 class PanelPasteAdapter {
@@ -33246,7 +33222,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"names":{"mix":"vscode_hex.svg","karm
 (module) {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.17","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off","test:terminal":"node test-native-terminal.cjs","test:screen":"node test-screen-terminal.cjs"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.18","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off","test:terminal":"node test-native-terminal.cjs","test:screen":"node test-screen-terminal.cjs"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
 
 /***/ },
 
