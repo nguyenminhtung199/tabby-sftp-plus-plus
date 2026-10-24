@@ -28,6 +28,8 @@ export type PasteEntry = {
   mtimeMs?: number
 }
 
+type RemoteScanListings = Map<string, Promise<Map<string, PasteEntry>>>
+
 export interface PasteTransferPort {
 
   uploadFile(remotePath: string, localPath: string): Promise<boolean>
@@ -103,96 +105,75 @@ export class PasteUseCase {
     destPath: string,
     source: 'local' | 'remote',
     mode: 'copy' | 'cut',
+    listings: RemoteScanListings = new Map(),
   ): Promise<boolean> {
+    let visited = 0
     for (const entry of entries) {
-
+      if (entry.batch?.cancelled) break
+      // Let input/rendering run even when a large remote snapshot resolves immediately.
+      if (++visited % 200 === 0) await new Promise<void>(resolve => setTimeout(resolve, 0))
       const safeName = safeEntryName(entry.name)
-      if (!safeName) {
-        log.warn('skip unsafe paste entry in scanConflicts:', entry.name)
-        continue
-      }
-      const destFilePath = destPane === 'local'
-        ? path.join(destPath, safeName)
-        : path.posix.join(destPath, safeName)
-
-      if (source === destPane && entry.fullPath) {
-        const api = source === 'local' ? path : path.posix
+      if (!safeName) { log.warn('skip unsafe paste entry:', entry.name); continue }
+      const api = destPane === 'local' ? path : path.posix
+      const destFilePath = api.join(destPath, safeName)
+      const isSamePane = source === destPane
+      if (isSamePane && entry.fullPath) {
         if (api.resolve(entry.fullPath) === api.resolve(destFilePath)) continue
         if (entry.isDirectory && isPathInside(entry.fullPath, destFilePath, source === 'remote')) throw new Error('Cannot copy or move a folder into itself.')
       }
-      if (entry.isDirectory) {
-        if (source === destPane && await this.ports.conflict.checkDestExists(destPane, destFilePath)) {
-          const destination = await this.destinationEntry(destPane, destFilePath)
-          if (destination?.isDirectory && !destination.isSymlink) {
-            await this.scanConflicts(await this.children(entry, source), destPane, destFilePath, source, mode)
-          } else {
-            const conflict = this._buildFileConflictItem(entry, destPane, destPath, source, destFilePath, true, 'upload', {size:0,mtimeMs:0} as Stats, mode)
-            fileOperation.enqueue(this.ports.conflict, { ...conflict, isDirectory:true, typeMismatch:true }, entry.batch)
-          }
-        }
+      // Cross-pane directories use the transfer engine's per-file checks.
+      if (entry.isDirectory && !isSamePane) continue
+      const destination = await this.destinationEntry(destPane, destFilePath, listings)
+      if (!destination) continue
+      if (entry.isDirectory && destination.isDirectory && !destination.isSymlink) {
+        await this.scanConflicts(await this.children(entry, source, listings), destPane, destFilePath, source, mode, listings)
         continue
       }
-
-      const exists = await this.ports.conflict.checkDestExists(destPane, destFilePath)
-      if (!exists) continue
-
-      const isSamePane = source === destPane
-      const direction: 'upload' | 'download' = isSamePane ? 'upload'
-        : (source === 'local' && destPane === 'remote') ? 'upload'
-        : 'download'
-
-      let destStat: Stats = { size: 0, mtimeMs: Date.now() } as Stats
-      if (isSamePane) {
-        if (destPane === 'local') {
-          const st = await this.ports.fs.statLocal(destFilePath)
-          if (st) destStat = st
-        } else if (this.ports.ui.hasSftpSession()) {
-          try {
-            const dir = path.posix.dirname(destFilePath)
-            const name = path.posix.basename(destFilePath)
-            const remoteEntries = await this.ports.fs.readdirRemote(dir)
-            const found = remoteEntries.find(e => e.name === name)
-            if (found) {
-              destStat = {
-                size: found.size ?? found.attrs?.size ?? 0,
-                mtimeMs: parseRemoteMtime(found) ?? Date.now(),
-              } as Stats
-            }
-          } catch { /* ignore */ }
-        }
-      } else if (destPane === 'remote') {
-
-        const meta = await this._remoteListingMeta(destPath, safeName)
-        destStat = {
-          size: meta.size ?? 0,
-          mtimeMs: meta.mtimeMs ?? Date.now(),
-        } as Stats
-      } else if (destPane === 'local') {
-        const st = await this.ports.fs.statLocal(destFilePath)
-        if (st) destStat = st
+      let incoming = entry
+      if (isSamePane && entry.fullPath && (source === 'remote' || entry.size == null || entry.mtimeMs == null)) {
+        const metadata = await this.destinationEntry(source, entry.fullPath, listings)
+        if (!metadata) throw new Error('Source no longer exists: ' + entry.fullPath)
+        incoming = { ...entry, size: metadata.size, mtimeMs: metadata.mtimeMs }
       }
-
-      const destination = await this.destinationEntry(destPane, destFilePath)
-      fileOperation.enqueue(this.ports.conflict, { ...this._buildFileConflictItem(
-        entry, destPane, destPath, source, destFilePath, isSamePane, direction, destStat, mode,
-      ), typeMismatch: !!destination?.isDirectory || !!destination?.isSymlink }, entry.batch)
+      const direction = isSamePane || source === 'local' ? 'upload' : 'download'
+      const destStat = { size: destination.size ?? 0, mtimeMs: destination.mtimeMs ?? 0 } as Stats
+      fileOperation.enqueue(this.ports.conflict, {
+        ...this._buildFileConflictItem(incoming, destPane, destPath, source, destFilePath, isSamePane, direction, destStat, mode),
+        isDirectory: entry.isDirectory || undefined,
+        typeMismatch: entry.isDirectory !== destination.isDirectory || !!destination.isSymlink,
+      }, entry.batch)
     }
-
     return this.ports.conflict.queueLength() > 0
   }
 
-  private async destinationEntry(side: 'local' | 'remote', fullPath: string): Promise<PasteEntry | null> {
+  private remoteListing(folder: string, listings: RemoteScanListings): Promise<Map<string, PasteEntry>> {
+    let listing = listings.get(folder)
+    if (!listing) {
+      listing = this.ports.fs.readdirRemote(folder).then(entries => new Map(entries.map(entry => [entry.name, {
+        ...entry, fullPath: path.posix.join(folder, entry.name), isDirectory: !!entry.isDirectory,
+        size: entry.size ?? entry.attrs?.size, mtimeMs: parseRemoteMtime(entry),
+      }])))
+      listings.set(folder, listing)
+    }
+    return listing
+  }
+
+  private async destinationEntry(side: 'local' | 'remote', fullPath: string, listings?: RemoteScanListings): Promise<PasteEntry | null> {
     if (side === 'local') {
       const stat = await this.ports.fs.statLocal(fullPath)
       return stat ? { name:path.basename(fullPath), fullPath, isDirectory:stat.isDirectory(), isSymlink:stat.isSymbolicLink?.(), size:stat.size, mtimeMs:stat.mtimeMs } : null
     }
-    const entry = (await this.ports.fs.readdirRemote(path.posix.dirname(fullPath))).find(e => e.name === path.posix.basename(fullPath))
-    return entry ? { ...entry, name:entry.name, fullPath, isDirectory:!!entry.isDirectory } : null
+    try {
+      return (await this.remoteListing(path.posix.dirname(fullPath), listings || new Map())).get(path.posix.basename(fullPath)) || null
+    } catch (error:any) {
+      if (error.code === 'ENOENT' || /no such file|not found/i.test(error.message)) return null
+      throw error
+    }
   }
 
-  private async children(entry: PasteEntry, side: 'local' | 'remote'): Promise<PasteEntry[]> {
+  private async children(entry: PasteEntry, side: 'local' | 'remote', listings?: RemoteScanListings): Promise<PasteEntry[]> {
     const entries = side === 'local' ? await this.ports.fs.listLocalEntries!(entry.fullPath!) :
-      (await this.ports.fs.readdirRemote(entry.fullPath!)).map(child => ({ ...child, fullPath:path.posix.join(entry.fullPath!, child.name), isDirectory:!!child.isDirectory }))
+      [...(await this.remoteListing(entry.fullPath!, listings || new Map())).values()]
     return [...entries].filter(child => !child.isSymlink).map(child => ({ ...child, sourcePane:side, batch:entry.batch }))
   }
 
@@ -368,12 +349,12 @@ export class PasteUseCase {
     mode: 'copy' | 'cut',
   ): ConflictQueueItem {
 
-    const remoteSize = destPane === 'remote'
+    const remoteSize = !isSamePane && destPane === 'remote'
       ? Number(destStat.size) || 0
       : (entry.size ?? 0)
-    const remoteMtime = destPane === 'remote'
-      ? Number(destStat.mtimeMs) || Date.now()
-      : (entry.mtimeMs ?? Date.now())
+    const remoteMtime = !isSamePane && destPane === 'remote'
+      ? Number(destStat.mtimeMs) || 0
+      : (entry.mtimeMs ?? 0)
     const localStat = isSamePane
       ? destStat
       : (source === 'local'
@@ -395,26 +376,7 @@ export class PasteUseCase {
     }
   }
 
-  private async _remoteListingMeta(
-    parentDir: string,
-    name: string,
-  ): Promise<{ size?: number; mtimeMs?: number }> {
-    if (!parentDir || !name) return {}
-    try {
-      const entries = await this.ports.fs.readdirRemote(parentDir)
-      const found = entries.find(e => e.name === name)
-      if (!found) return {}
-      const sz = found.size ?? found.attrs?.size
-      const mtimeMs = parseRemoteMtime(found)
-      return {
-        size: sz != null && Number.isFinite(Number(sz)) ? Number(sz) : undefined,
-        mtimeMs,
-      }
-    } catch (e) {
-      log.warn('[paste] readdir remote listing meta failed:', parentDir, name, e)
-      return {}
-    }
-  }
+
 }
 
 export interface PanelPasteHost {

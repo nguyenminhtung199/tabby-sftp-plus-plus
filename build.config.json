@@ -21,6 +21,7 @@
     "test-internal-move.cjs",
     "test-plugin-updater.cjs",
     "test-english-source.cjs",
-    "test-explorer-collisions.cjs"
+    "test-explorer-collisions.cjs",
+    "test-conflict-preflight.cjs"
   ]
 }

@@ -115,6 +115,9 @@ export class SftpConflictDialogComponent implements OnChanges, OnDestroy {
     }
 
     if (event.key === 'Enter') {
+      // Preserve native Enter activation for the focused action button.
+      event.stopPropagation()
+      if ((event.target as HTMLElement | null)?.closest?.('button')) return
       event.preventDefault()
       event.stopImmediatePropagation()
       this.resolve.emit('skip')
