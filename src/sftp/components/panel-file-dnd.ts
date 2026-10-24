@@ -19,6 +19,7 @@ export class PanelFileDnd {
   private _dragSourcePane: FileDndPane | null = null
   private _dragSameDirNoop = false
   private _dragSourceDir = ''
+  private dropTargets: Partial<Record<FileDndPane, Element>> = {}
 
   constructor(private readonly host: FileDndHost) {}
 
@@ -42,14 +43,24 @@ export class PanelFileDnd {
     return !dest || api.resolve(dest) === api.resolve(this._dragSourceDir)
   }
 
-  /** Hover feedback changes one border, without checking Angular's file lists. */
+  private setDropTarget(pane: FileDndPane, target?: Element): void {
+    if (this.dropTargets[pane] === target) return
+    this.dropTargets[pane]?.classList.remove('sftp-drop-target')
+    target?.classList.add('sftp-drop-target')
+    this.dropTargets[pane] = target
+  }
+
   private setDragOver(pane: FileDndPane, value: boolean): void {
-    const previous = pane === 'local' ? this._localDragOver : this._remoteDragOver
-    if (previous === value) return
     if (pane === 'local') this._localDragOver = value
     else this._remoteDragOver = value
-    const list = this.host.elRef?.nativeElement?.querySelector?.('.pane-list.' + pane + '-pane') as HTMLElement | null
-    list?.closest('.pane-list-wrap')?.classList.toggle('pane-drag-over', value)
+    if (!value) this.setDropTarget(pane)
+  }
+
+  private targetAt(event: DragEvent): Element | undefined {
+    const element = event.target as Element | null
+    const parent = element?.closest?.('[data-drop-parent]')
+    const row = element?.closest?.('[data-path]')
+    return parent || (row?.getAttribute('data-isdir') === '1' ? row : undefined)
   }
 
   reset(): void {
@@ -66,6 +77,7 @@ export class PanelFileDnd {
 
   onDragOver(ev: DragEvent, targetPane: FileDndPane): void {
     if (this.host.isHeaderReorderActive()) return
+    this.setDragOver(targetPane === 'local' ? 'remote' : 'local', false)
     if (this.sameDirectory(ev, targetPane)) {
       ev.preventDefault()
       this.setDragOver(targetPane, false)
@@ -75,16 +87,11 @@ export class PanelFileDnd {
     ev.preventDefault()
     if (ev.dataTransfer) ev.dataTransfer.dropEffect = this._dragSourcePane === targetPane ? 'move' : 'copy'
     this.setDragOver(targetPane, true)
+    this.setDropTarget(targetPane, this.targetAt(ev))
   }
 
   onDragEnter(ev: DragEvent, targetPane: FileDndPane): void {
-    if (this.host.isHeaderReorderActive()) return
-    if (this.sameDirectory(ev, targetPane)) {
-      ev.preventDefault()
-      return
-    }
-    ev.preventDefault()
-    this.setDragOver(targetPane, true)
+    this.onDragOver(ev, targetPane)
   }
 
   onDragLeave(ev: DragEvent, targetPane: FileDndPane): void {

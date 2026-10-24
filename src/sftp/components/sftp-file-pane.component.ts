@@ -505,7 +505,11 @@ export class SftpFilePaneComponent {
       const hover = (kind: 'over' | 'enter' | 'leave', event: DragEvent) => {
         const area = surface(event)
         if (!area) return
-        if (kind === 'over' && (event.target as Element)?.closest('.entry.header')) { this.onHeaderDragOver(event); return }
+        if (kind === 'over' && (event.target as Element)?.closest('.entry.header')) {
+          if (this.dragHoverHandler) this.dragHoverHandler('leave', event)
+          else this.listDragLeave.emit(event)
+          this.onHeaderDragOver(event); return
+        }
         if (kind !== 'over' && event.relatedTarget && area.contains(event.relatedTarget as Node)) return
         if (this.dragHoverHandler) this.dragHoverHandler(kind, event)
         else (kind === 'over' ? this.listDragOver : kind === 'enter' ? this.listDragEnter : this.listDragLeave).emit(event)

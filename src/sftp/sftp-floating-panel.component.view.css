@@ -1531,3 +1531,7 @@
 
 .sftp-root .top-bar.has-plugin-update { flex-wrap:wrap; row-gap:2px; }
 .sftp-root .top-bar.has-plugin-update .top-actions { max-width:100%; flex-wrap:wrap; justify-content:flex-end; }
+
+/* Explorer-style destination highlight; never changes the actual selection. */
+.sftp-root .entry.sftp-drop-target { background:color-mix(in srgb, var(--_primary) 77%, transparent) !important; }
+.sftp-root .pane-toolbar-btn.sftp-drop-target { background:var(--_hover); }
