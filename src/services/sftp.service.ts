@@ -1,21 +1,8 @@
-/**
- * SFTP 连接服务
- * 功能描述：封装 Tabby SSH Session 的 SFTP 连接，提供统一的文件操作接口
- * @创建人：DD1024z + Claude
- * @创建时间：2026-06-21
- * @修改人：DD1024z + GPT-5.6 Sol
- * @修改时间：2026-09-21 — 修复共享会话失效后旧 holder 释放时误关闭新代际通道；
- *              第六轮审计 P1 修复：新增 forceInvalidate()（会话级故障广播），
- *              修复多面板共享会话时心跳恢复缓存命中同一坏对象的死循环
- *              2026-09-20 — P1-1 审计修复：openFromSSHSession 迟到通道清理判定「consumed === late」恒真（死代码）→ 改超时标志，
- *              超时后到达的 SFTP 子通道得以真正 end()，不再永久泄漏
- *              2026-09-20 — N1 审计修复：resolveRemoteSymlinkStat 改用 path.posix 显式命名空间，修复 Windows 主机上远程符号链接目录进入失效
- */
 import { Injectable } from '@angular/core'
 import { posix } from 'path'
 
 import { log } from './sftp-logger'
-/** 远程列表元数据补全选项（按可见列跳过不必要 I/O） */
+
 export type SftpEnrichOptions = {
   atime?: boolean
   ownerGroup?: boolean
@@ -68,7 +55,6 @@ function asNumber(v: unknown): number | undefined {
   return undefined
 }
 
-/** 兼容 russh 普通对象 metadata 与 native 类（metadata.type()） */
 function extractRawFields(entry: RawSftpDirEntry): Record<string, unknown> {
   let meta = entry.metadata as Record<string, unknown> | undefined
   if (typeof meta === 'function') {
@@ -144,9 +130,8 @@ function isNumericIdStr(v: unknown): v is string {
   return typeof v === 'string' && /^\d+$/.test(v.trim())
 }
 
-/** ls -l longname 解析：drwxr-xr-x  3 owner group  4096 Jan 1 2024 dirname */
 const _LONGNAME_RE = /^[dlbcps\-]\S+\s+\d+\s+(\S+)\s+(\S+)\s+/
-/** 备用宽松正则：兼容 Windows OpenSSH 等非标准格式（跳过 link count 列可能缺失的情况） */
+
 const _LONGNAME_FALLBACK_RE = /^[dlbcps\-]\S+\s+(?:\d+\s+)?(\S+)\s+(\S+)\s+/
 
 function ownerNameFromMeta(meta: RawSftpMetadata, longname?: string): string | undefined {
@@ -176,25 +161,11 @@ export function getRusshSftp(session: SFTPSessionLike): RusshSftpClient | undefi
   return russhClientBySession.get(session) ?? (session as { sftp?: RusshSftpClient }).sftp
 }
 
-/**
- * 功能描述：对远程路径做 stat（解析符号链接目标类型）。
- *   根因（2026-08-24）：russh 的 stat 走 SSH_FXP_STAT（协议上跟随符号链接），但其 JS 层
- *   用 {...md} 展开 napi 对象会丢失 permissions 等字段（官方源码注释 "Can't just spread
- *   a napi object"），返回结果中只有 type（数字枚举：0=目录 1=文件 2=符号链接）和 size 可靠。
- *   旧实现只认 meta.type === 'directory'（字符串，永远不匹配）和 permissions 位（已丢失）
- *   → 符号链接永远被判为「非目录」→ 被当文件打开。
- *   解析顺序：
- *   1) 优先用 Tabby SFTPSession 包装层的 stat()（内部已把 type 数字枚举正确映射为
- *      isDirectory/isSymlink，见 tabby-ssh SFTPSession.stat）；
- *   2) 回退到 russh 原生 stat：按 type 数字枚举 + permissions 位双重判断；
- * 创建人：DD1024z + Claude
- * 创建时间：2026-08-24
- */
 export async function statRemotePath(
   session: SFTPSessionLike,
   fullPath: string,
 ): Promise<{ isDirectory: boolean; isSymlink?: boolean; mode?: number; size?: number; mtime?: Date } | null> {
-  // 1) Tabby SFTPSession 包装层 stat（运行时存在，类型声明未列出）
+
   const wrapperStat = (session as {
     stat?: (p: string) => Promise<{ isDirectory: boolean; isSymlink?: boolean; mode?: number; size?: number; modified?: Date }>
   }).stat
@@ -208,7 +179,7 @@ export async function statRemotePath(
       log.warn('statRemotePath (wrapper stat) failed:', (e as Error).message)
     }
   }
-  // 2) russh 原生 stat 回退
+
   const inner = getRusshSftp(session)
   if (!inner?.stat) return null
   try {
@@ -226,7 +197,7 @@ export async function statRemotePath(
     const meta = normalizeRawMeta({ name: '', metadata: raw })
     const permissions = meta.permissions ?? 0
     return {
-      // russh type 数字枚举：0=Directory 2=Symlink；permissions 含类型位时按位兜底
+
       isDirectory: rawType === 0
         || meta.type === 'directory'
         || (permissions !== 0 && (permissions & 0o170000) === 0o040000),
@@ -243,17 +214,10 @@ export async function statRemotePath(
   }
 }
 
-/**
- * 功能描述：解析远程符号链接的目标类型（供「双击/回车进入目录」判定使用）。
- *   stat 通常已跟随符号链接（SSH_FXP_STAT）；若个别服务器 STAT 不跟随（返回链接自身），
- *   则照搬 Tabby 官方 SFTP 面板的做法：readlink → posix.resolve → 再 stat 目标路径。
- * 创建人：DD1024z + Claude
- * 创建时间：2026-08-24
- */
 export async function resolveRemoteSymlinkStat(
   session: SFTPSessionLike,
   fullPath: string,
-  /** ★ BUG-19 修复：已访问路径集合（防止符号链接循环引用导致栈溢出） */
+
   _visited?: Set<string>,
 ): Promise<{ isDirectory: boolean; mode?: number; size?: number; mtime?: Date } | null> {
   const visited = _visited ?? new Set<string>()
@@ -264,7 +228,7 @@ export async function resolveRemoteSymlinkStat(
   visited.add(fullPath)
   let st = await statRemotePath(session, fullPath)
   if (st && !st.isDirectory && st.isSymlink) {
-    // 个别服务器 STAT 不跟随链接 → 对齐 Tabby 官方 SFTP 面板：readlink 解析真实目标再 stat
+
     const sessionReadlink = (session as { readlink?: (p: string) => Promise<string> }).readlink
     const inner = getRusshSftp(session)
     const innerReadlink = (inner as { readlink?: (p: string) => Promise<string> } | undefined)?.readlink
@@ -311,17 +275,10 @@ export type SFTPSessionLike = {
   upload: (remotePath: string, transfer: import('tabby-core').FileUpload) => Promise<void>
   download: (remotePath: string, transfer: import('tabby-core').FileDownload) => Promise<void>
   chmod: (path: string, mode: number) => Promise<void>
-  /** ★ 2026-08-24：Tabby SFTPSession 包装层运行时还提供 stat(follow)/readlink，
-   *    用于符号链接目标类型解析（readdir 为 lstat 语义不跟随链接）。
-   *    stat 返回 isDirectory/isSymlink 已由包装层把 russh type 数字枚举正确映射。 */
+
   stat?: (p: string) => Promise<{ isDirectory?: boolean; isSymlink?: boolean; mode?: number; size?: number; modified?: Date; mtime?: number }>
   readlink?: (p: string) => Promise<string>
-  /** ★ 2026-09-26：Tabby SFTPSession 运行时的句柄式打开（`open(path, mode)` → `handle.read()`，
-   *    顺序读、**无 seek**；见 tabby-ssh/src/session/sftp.ts 的 SFTPFileHandle）。
-   *    类型声明未列出（同 stat/readlink），运行时存在。
-   *    用途：transfer-adapters 的「自管分块下载」——单次 read 请求超时只重试该次 read，
-   *    不必像整文件通道那样从头再来（russh 每个 SFTP 请求有固定 ~10s 超时）。
-   *    @修改人：DD1024z + Deepseek-V4.1-Flash @修改时间：2026-09-26 */
+
   open?: (p: string, mode: number) => Promise<{
     read?: () => Promise<Uint8Array>
     close?: () => Promise<void>
@@ -338,8 +295,7 @@ export class SftpConnectionService {
   private sessions = new WeakMap<SSHSessionLike, SFTPSessionLike>()
   private pending = new Map<SSHSessionLike, Promise<SFTPSessionLike>>()
   private sessionGen = new WeakMap<SSHSessionLike, number>()
-  // ★ 2026-07-25：B5 引用计数——多个浮动面板可能共用同一 SSH 会话的 SFTP 子通道，
-  //   仅当引用归零才真正 end() 通道，避免一个面板关闭/断开连累其它共用面板。
+
   private refCounts = new WeakMap<SSHSessionLike, number>()
 
   private getGen(sshSession: SSHSessionLike): number {
@@ -358,24 +314,18 @@ export class SftpConnectionService {
     const gen = this.getGen(sshSession)
     const existing = this.sessions.get(sshSession)
     if (existing) {
-      this._addRef(sshSession) // ★ B5：复用共享会话，引用 +1
+      this._addRef(sshSession)
       return existing
     }
     const pendingSession = this.pending.get(sshSession)
     if (pendingSession) {
       const sftpSession = await pendingSession
-      this._addRef(sshSession) // ★ B5：并发等待同一连接，每方各计一引用
+      this._addRef(sshSession)
       return sftpSession
     }
     const SFTP_OPEN_TIMEOUT_MS = 30_000
     const openPromise = sshSession.openSFTP()
-    // ★ 2026-08-10 修复 #15：超时/被取代后，迟到的通道若仍开成功必须主动释放，否则泄漏。
-    // ★ 2026-09-20 P1-1 审计修复：原判定「consumed === late」是死代码——同一 Promise 的 then
-    //   回调严格按注册顺序执行，赋值回调先注册并必然先把 consumed 置为该通道，比较恒为真，
-    //   清理分支永不执行 → 超时后迟到的通道实际永久泄漏（慢网/高负载可复现）。
-    //   改用超时标志：它在 timeout 宏任务回调里同步置位，必然早于迟到通道的微任务回调；
-    //   正常的「开成功抢先于超时」场景下该标志恒为 false，不会误杀已安装的通道。
-    //   gen 失配（会话被取代）的通道由下方成功路径自行 end()，此处不重复释放。
+
     let timedOut = false
     openPromise.then((late) => {
       if (!timedOut) return
@@ -386,7 +336,7 @@ export class SftpConnectionService {
           (endResult as Promise<unknown>).catch(() => {})
         }
       } catch { /* ignore */ }
-    }).catch(() => { /* open 失败无需处理 */ })
+    }).catch(() => {   })
     let timeoutId: ReturnType<typeof setTimeout> | undefined
     const timeoutPromise = new Promise<never>((_, reject) => {
       timeoutId = setTimeout(() => {
@@ -399,7 +349,7 @@ export class SftpConnectionService {
     this.pending.set(sshSession, promise)
     try {
       const sftpSession = await promise
-      // ★ 修复：成功连接后清除超时计时器，避免超时回调在已成功的连接上触发
+
       if (this.getGen(sshSession) !== gen) {
         try {
           const endResult = (sftpSession as { end?: () => unknown }).end?.()
@@ -411,10 +361,10 @@ export class SftpConnectionService {
       }
       registerRusshClient(sftpSession)
       this.sessions.set(sshSession, sftpSession)
-      this._addRef(sshSession) // ★ B5：首个引用
+      this._addRef(sshSession)
       return sftpSession
     } finally {
-      // ★ 2026-08-10 修复 #15：无论成败都清理超时定时器，不得只在成功路径清
+
       if (timeoutId != null) clearTimeout(timeoutId)
       this.pending.delete(sshSession)
     }
@@ -422,19 +372,16 @@ export class SftpConnectionService {
 
   closeForSSHSession(sshSession: SSHSessionLike, expectedSession?: SFTPSessionLike | null): void {
     const sftp = this.sessions.get(sshSession)
-    // 共享 SSH 下 forceInvalidate 会清掉旧代际并允许其它面板建立新通道。
-    // 旧面板稍后销毁时只能释放自己实际持有的对象，绝不能递减/关闭当前新代际。
+
     if (expectedSession && sftp !== expectedSession) {
       log.info('closeForSSHSession: ignored stale SFTP holder')
       return
     }
     this.pending.delete(sshSession)
-    // ★ 2026-08-10 修复 #6：关闭时立即 bumpGen（而非仅引用归零时）——
-    //   若此刻仍有 pending 的 openSFTP，其迟到结果会因 gen 失配被 end() 释放，
-    //   否则通道既未注册也无人关闭 → 泄漏
+
     this.bumpGen(sshSession)
     if (!sftp) return
-    // ★ B5：引用计数——仅当引用归零才真正结束通道
+
     const refs = (this.refCounts.get(sshSession) ?? 1) - 1
     if (refs > 0) {
       this.refCounts.set(sshSession, refs)
@@ -450,14 +397,6 @@ export class SftpConnectionService {
     } catch (e) { log.warn('sftp.end() sync error during cleanup:', (e as Error)?.message) }
   }
 
-  /**
-   * ★ 2026-09-21 P1：会话级故障广播——心跳已确认通道死亡时，无视引用计数直接使
-   *   缓存会话失效并 end()。此前心跳恢复路径 release（计数不归零）后再 open 会缓存命中
-   *   **同一个已死会话**，多面板共享（floating + workspace 同开一终端）时陷入
-   *   「每 10s 一轮恢复成功误报」的死循环。
-   *   其他共享面板持有的旧对象会在下次操作时失败，触发各自心跳走本方法（幂等）后重建，
-   *   最终所有面板收敛到全新会话。
-   */
   forceInvalidate(sshSession: SSHSessionLike): void {
     this.pending.delete(sshSession)
     this.bumpGen(sshSession)
@@ -477,7 +416,6 @@ export class SftpConnectionService {
 
 let sharedSftpConnectionService: SftpConnectionService | null = null
 
-/** 多面板共享同一 SFTP 会话缓存（组件非 DI 时使用） */
 export function getSftpConnectionService(): SftpConnectionService {
   if (!sharedSftpConnectionService) {
     sharedSftpConnectionService = new SftpConnectionService()
@@ -485,9 +423,6 @@ export function getSftpConnectionService(): SftpConnectionService {
   return sharedSftpConnectionService
 }
 
-/**
- * 列出远程目录：以 Tabby readdir 为准（目录类型正确），再补全 atime/owner/group。
- */
 export async function readSftpDirectory(
   session: SFTPSessionLike,
   dirPath: string,
@@ -550,7 +485,6 @@ async function enrichSftpFilesFromRaw(
   return result
 }
 
-/** 后台对缺 owner 的项批量 stat（不阻塞首屏列表） */
 export async function enrichRemoteOwnersViaStat(
   session: SFTPSessionLike,
   entries: SFTPFile[],
@@ -559,7 +493,6 @@ export async function enrichRemoteOwnersViaStat(
   return enrichOwnersViaStat(inner, entries)
 }
 
-/** 目录列表常不带 uid/gid，对缺字段项用 stat 补全（限制并发） */
 async function enrichOwnersViaStat(
   inner: RusshSftpClient | undefined,
   entries: SFTPFile[],
@@ -571,9 +504,6 @@ async function enrichOwnersViaStat(
   )
   if (!missing.length) return entries
 
-  // ★ 2026-09-20 P1-6 审计修复：stat 总数上限——超大目录（如 node_modules 2w+ 文件）
-  //   每个缺 owner 的文件都发一次 stat，短时间内产生海量 SSH 请求可能被限流/断开。
-  //   超出上限的条目放弃 owner 补全，保持 uid 数字显示。
   const STAT_ENRICH_LIMIT = 500
   const toStat = missing.length > STAT_ENRICH_LIMIT ? missing.slice(0, STAT_ENRICH_LIMIT) : missing
   if (missing.length > STAT_ENRICH_LIMIT) {

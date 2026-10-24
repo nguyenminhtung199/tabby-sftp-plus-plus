@@ -1,6 +1,3 @@
-/**
- * 文件拖拽悬停与基础状态（不包含 drop 传输实现）
- */
 import * as path from 'path'
 import { ChangeDetectorRef, ElementRef } from '@angular/core'
 
@@ -97,7 +94,7 @@ export class PanelFileDnd {
   onDragLeave(ev: DragEvent, targetPane: FileDndPane): void {
     if (this.host.isHeaderReorderActive()) return
     ev.preventDefault()
-    // 仅当真正离开 pane-list 时才取消高亮（避免鼠标在子元素间移动时误触发 dragleave）
+
     const related = ev.relatedTarget as Node | null
     const paneList = this.host.elRef.nativeElement.querySelector(`.pane-list.${targetPane}-pane`) as HTMLElement | null
     if (paneList && related && paneList.contains(related)) return

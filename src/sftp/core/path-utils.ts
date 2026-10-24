@@ -1,13 +1,3 @@
-/**
- * 功能描述：SFTP++ path-utils 逻辑聚合模块（由旧 core 多文件合并）
- * 创建人：DD1024z + Hy3
- * 创建时间：2026-07-16
- * 修改人：DD1024z + Kimi-K3
- * 修改时间：2026-09-21 — 第六轮审计 P2 修复：safeEntryName 删除 includes('..') 误杀（a..b 等合法名曾被静默跳过）
- *              2026-09-20 — N3 审计修复：safeEntryName 拦截控制字符（含换行），防恶意服务器下发带换行文件名
- * 合并来源：panel-id-resolver
- */
-
 import * as fs from 'fs'
 
 import * as path from 'path'
@@ -17,10 +7,6 @@ import { exec } from 'child_process'
 import { promisify } from 'util'
 
 import { log } from '../../services/sftp-logger'
-
-/**
- * uid/gid → 用户名/组名 解析（本地 /etc 与远程 getent）
- */
 
 const execAsync = promisify(exec)
 
@@ -35,7 +21,7 @@ export function parsePasswd(content: string): Map<number, string> {
     if (!line || line.startsWith('#')) continue
     const parts = line.split(':')
     if (parts.length < 2) continue
-    // awk 精简格式 name:uid；完整 passwd 为 name:x:uid:...
+
     const uid = parts.length >= 3 ? parseInt(parts[2], 10) : parseInt(parts[1], 10)
     const name = parts[0]?.trim()
     if (!Number.isNaN(uid) && name) map.set(uid, name)
@@ -64,14 +50,13 @@ export function loadLocalIdMaps(): IdMaps {
   }
   try {
     for (const [k, v] of parsePasswd(fs.readFileSync('/etc/passwd', 'utf8'))) uidToName.set(k, v)
-  } catch { /* 非 POSIX 或权限不足 */ }
+  } catch {   }
   try {
     for (const [k, v] of parseGroup(fs.readFileSync('/etc/group', 'utf8'))) gidToName.set(k, v)
   } catch { /* ignore */ }
   return { uidToName, gidToName }
 }
 
-/** Windows：后台通过 WMI 将 RID 映射到本地账户/组名（避免阻塞首屏） */
 export async function loadWindowsIdMapsAsync(): Promise<IdMaps> {
   const uidToName = new Map<number, string>()
   const gidToName = new Map<number, string>()
@@ -94,7 +79,7 @@ export async function loadWindowsIdMapsAsync(): Promise<IdMaps> {
       const m = line.trim().match(/^([^:]+):S-1-5-21(?:-\d+){3}-(\d+)$/i)
       if (m) gidToName.set(parseInt(m[2], 10), m[1])
     }
-  } catch { /* PowerShell 不可用或权限不足 */ }
+  } catch {   }
   return { uidToName, gidToName }
 }
 
@@ -134,15 +119,6 @@ export function resolveGroupDisplay(
   return name != null ? String(name) : undefined
 }
 
-/** 通过 Tabby SSH 会话执行单次命令并收集 stdout；timeoutMs 缺省 12s，
- *  长耗时命令（如 rm -rf 巨型目录）可调大。
- *  ★ 2026-09-14 F2 审计修复：空输出整体重试一次（为修 tar 标记漏检）只对
- *    「幂等/只读」命令安全——cp -a / mv 等非幂等命令若首次已成功而标记输出
- *    丢失（通道竞争），重放会把源再复制/移动进已存在的目标 → 嵌套副本。
- *    故新增 retryOnEmpty 选项：默认 true（探测类命令保持旧行为），
- *    非幂等命令的调用方必须显式传 false——宁误报失败回退，不毁数据。
- *  ★ 2026-09-20 P1-13 审计修复：默认值改为 false（安全优先），
- *    只对确认幂等的探测类调用方显式传 true，避免未来新增非幂等调用时踩坑。 */
 export async function execSshCommand(
   sshSession: unknown,
   command: string,
@@ -160,7 +136,7 @@ export async function execSshCommand(
   } }
   const ssh = typed?.ssh
   if (!ssh?.openSessionChannel || !ssh.activateChannel) {
-    // ★ 2026-09-18 issue #15 诊断修复：记录 SSH session 结构，帮助排查 exec 通道不可用问题
+
     const hasSsh = !!typed?.ssh
     const hasOpen = !!typed?.ssh?.openSessionChannel
     const hasActivate = !!typed?.ssh?.activateChannel
@@ -168,9 +144,6 @@ export async function execSshCommand(
     return ''
   }
 
-  // ★ 2026-08-11 修复：exec 通道在 SFTP 大流量传输刚结束后偶尔拿不到任何输出
-  //   （通道开关太快/通道复用竞争），导致 tar 通道 OK 标记漏检——实际解包成功却误报失败。
-  //   空输出对带标记命令属异常信号：整体重试一次（重新开通道）再定性
   const execOnce = async (): Promise<string> => {
     let channel: Awaited<ReturnType<NonNullable<typeof ssh.activateChannel>>> | null = null
     try {
@@ -181,8 +154,7 @@ export async function execSshCommand(
       const chunks: Uint8Array[] = []
       let channelClosed = false
       await new Promise<void>((resolve, reject) => {
-        // ★ 2026-08-10 修复 #25：超时定时器保存句柄并在结束时统一清理，
-        //   data$ / closed$ 订阅在所有结束路径（正常关闭/出错/超时）都 unsubscribe
+
         let settled = false
         let timer: ReturnType<typeof setTimeout> | null = null
         let dataSub: { unsubscribe: () => void } | null = null
@@ -222,9 +194,7 @@ export async function execSshCommand(
 
   const first = await execOnce()
   if (first !== '') return first
-  // ★ 2026-09-20 P1-13 审计修复：默认不重试（安全优先）。
-  //   仅当调用方显式传入 retryOnEmpty=true 时才重试（确认幂等的探测类命令）。
-  //   非幂等命令（cp/mv/rm）不传 opts 即走安全路径，宁误报失败不毁数据。
+
   if (opts?.retryOnEmpty !== true) {
     if (opts?.retryOnEmpty === false) {
       log.warn(`execSshCommand empty output (retry explicitly disabled): ${command.slice(0, 80)}`)
@@ -238,8 +208,7 @@ export async function execSshCommand(
 }
 
 export async function loadRemoteIdMaps(sshSession: unknown): Promise<IdMaps> {
-  // 顺序执行，避免同时开两个 SSH exec 通道导致 passwd 输出丢失
-  // ★ 2026-09-20 P1-13：幂等探测命令显式启用重试
+
   const passwdOut = await execSshCommand(
     sshSession,
     "getent passwd 2>/dev/null | awk -F: '{print $1\":\"$3}' || awk -F: '{print $1\":\"$3}' /etc/passwd 2>/dev/null",
@@ -293,7 +262,6 @@ export class IdNameResolver {
     this.localLoaded = true
   }
 
-  /** 本地 uid 映射（Windows 异步，不阻塞列表首屏） */
   ensureLocalMaps(): Promise<void> {
     if (this.localLoaded) return Promise.resolve()
     if (this.localLoading) return this.localLoading
@@ -302,8 +270,7 @@ export class IdNameResolver {
       return Promise.resolve()
     }
     this.localLoading = loadWindowsIdMapsAsync().then(maps => {
-      // ★ 2026-08-10 修复 #25：本地映射异步到达时可能已有远程映射（mergeMaps），
-      //   整体覆盖 this.maps 会丢失远程 uid/gid 映射 → 改为并入现有 maps
+
       this.mergeMaps(maps)
       this.localLoaded = true
     }).finally(() => {
@@ -329,7 +296,6 @@ export class IdNameResolver {
     return this.loading
   }
 
-  /** passwd 映射缺失时重试；失败一次后不再阻塞后续刷新 */
   ensureUidMap(sshSession: unknown): Promise<void> {
     if (this.uidMapReady || this.execDisabled) return Promise.resolve()
     return this.loadRemote(sshSession)
@@ -353,29 +319,16 @@ export class IdNameResolver {
   }
 }
 
-/**
- * 从服务器返回的文件名中提取安全的基名，防止路径穿越。
- * 恶意服务器可能返回 "../../.bashrc" 之类文件名，直接用 path.join(dest, name)
- * 会把文件写到 dest 之外。本函数剥离所有目录组件与 '..' 段，仅保留最后一级
- * 安全基名；若名称无法安全使用（空、'.'、'..'、仍含分隔符/'..'）返回 null，调用方应跳过。
- * 创建人：DD1024z + Hy3
- * 创建时间：2026-07-25
- */
-/** Windows 设备保留名（CON/NUL/COM1 等），创建会失败或产生怪异行为 */
 const WIN_RESERVED_NAME = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\.|$)/i
 
+/** Validate one entry name before joining paths; reject traversal and device names. */
 export function safeEntryName(name: string): string | null {
   if (typeof name !== 'string' || name.length === 0) return null
-  const base = path.basename(name) // path.basename 同时处理 / 与 \ 分隔符
+  const base = path.basename(name)
   if (base === '' || base === '.' || base === '..') return null
-  // ★ 2026-09-20 N3 审计修复：拦截控制字符（含换行 \n / \r 与所有 C0/C1 控制符），
-  //   恶意服务器下发带换行文件名时本地不应创建带真实换行的怪异文件（Linux 合法、Windows 抛错）。
-  //   注：\0 已被 \x00 覆盖。
-  // ★ 2026-09-21 P2 修复：删除 base.includes('..') 误杀——basename 之后已无路径语义，
-  //   `..` 单独成段不可能出现（上一行已拦 base === '..'），含双点的合法文件名
-  //   （如 a..b、report..txt、..foo）此前被静默跳过（下载/上传该文件直接消失）
+
   if (/[\x00-\x1f\x7f]/.test(base) || base.includes('/') || base.includes('\\')) return null
-  // ★ 2026-08-26：拦截 Windows 保留设备名与尾随点/空格
+
   if (process.platform === 'win32') {
     if (WIN_RESERVED_NAME.test(base)) return null
     if (/[. ]$/.test(base)) return null
@@ -383,10 +336,6 @@ export function safeEntryName(name: string): string | null {
   return base
 }
 
-/**
- * 断言 join(parent, name) 仍落在 parent 之下（防 ../ 穿越）。
- * 返回净化后的绝对/规范化子路径；非法时返回 null。
- */
 export function safeJoinUnder(parent: string, name: string, posix = false): string | null {
   const safe = safeEntryName(name)
   if (!safe) return null

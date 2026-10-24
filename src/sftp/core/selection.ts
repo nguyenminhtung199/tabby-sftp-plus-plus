@@ -1,24 +1,3 @@
-/**
- * 功能描述：SFTP++ selection 逻辑聚合模块（由旧 core 多文件合并）
- * 创建人：DD1024z + Hy3
- * 创建时间：2026-07-16
- * 修改人：DD1024z + Hy3
- * 修改时间：2026-07-16
- * 合并来源：panel-pane-controller, panel-nav-history
- */
-
-/**
- * 面板选择 / 排序 / 过滤——纯逻辑抽取
- * 功能描述：将 sftp-floating-panel 中 local↔remote 对称方法的重复逻辑
- *          抽取为无状态纯函数，消除 selectLocal/selectRemote 等成对方法的代码重复
- * 创建人：DD1024z + QoderWork
- * 创建时间：2026-07-11
- */
-
-/**
- * 统一的多选 / Ctrl+点击 / Shift+范围选 计算
- * 原 selectLocal 与 selectRemote 结构完全相同，仅字段名不同
- */
 export function computeSelection<T extends { fullPath: string }>(
   current: T[],
   entry: T,
@@ -49,10 +28,6 @@ export function computeSelection<T extends { fullPath: string }>(
   return { selection: [entry], lastIndex: idx }
 }
 
-/**
- * 统一排序切换：点击同列翻转方向，点击新列默认升序
- * 返回 null 表示应忽略本次排序（如拖拽列宽冷却期内）
- */
 export function computeSortToggle(
   currentBy: 'name' | 'size' | 'modified' | 'birthtime',
   currentAsc: boolean,
@@ -66,9 +41,6 @@ export function computeSortToggle(
   }
 }
 
-/**
- * 面板路径导航历史（后退 / 前进）
- */
 export class PaneNavHistory {
   private _history: string[] = []
   private _index = -1

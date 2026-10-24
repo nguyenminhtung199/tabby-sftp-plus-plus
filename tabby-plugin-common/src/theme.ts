@@ -1,14 +1,5 @@
-/**
- * 主题配色共享类型和工具
- * 功能描述：Tabby 插件间共享的颜色方案类型定义、预设方案、标签映射
- * 创建人：DD1024z + Deepseek-V4-Flash
- * 创建时间：2026-06-28
- */
-
-/** 颜色键名 */
 export type ColorKey = 'primary' | 'bg' | 'text' | 'surface' | 'border' | 'muted' | 'hover' | 'inputBg' | 'textMuted'
 
-/** 完整配色方案 */
 export interface ColorScheme {
   value: string
   label: string
@@ -23,7 +14,6 @@ export interface ColorScheme {
   textMuted?: string
 }
 
-/** 获取默认预设方案 */
 export function defaultColorThemes(): ColorScheme[] {
   return [
     { value: '',       label: 'Auto',   bg: '#313244', text: '#cdd6f4', primary: '#b4befe', surface: '#45475a', border: '#585b70', muted: '#6c7086' },
@@ -35,16 +25,4 @@ export function defaultColorThemes(): ColorScheme[] {
     { value: 'red',   label: 'Red',    bg: '#1a0808', text: '#fecaca', primary: '#f87171', surface: '#450a0a', border: '#991b1b', muted: '#dc2626' },
     { value: 'custom',label: 'Custom', bg: '#313244', text: '#cdd6f4', primary: '#b4befe', surface: '#45475a', border: '#585b70', muted: '#6c7086' },
   ]
-}
-
-/** 主题名称翻译映射 */
-export const THEME_LABELS: Record<string, [string, string]> = {
-  '':      ['跟随Tabby', 'Follow Tabby'],
-  'dark':  ['深色', 'Dark'],
-  'light': ['浅色', 'Light'],
-  'blue':  ['蓝色', 'Blue'],
-  'green': ['绿色', 'Green'],
-  'purple':['紫色', 'Purple'],
-  'red':   ['红色', 'Red'],
-  'custom':['自定义', 'Custom'],
 }

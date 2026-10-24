@@ -61,7 +61,6 @@ msgstr "Modified"
 msgid "conflict.path"
 msgstr "Path"
 
-# ★ 2026-09-07 issue #15：内容摘要（用于识别「mtime 变了但内容没变」）
 msgid "conflict.digest"
 msgstr "Digest"
 
@@ -180,7 +179,6 @@ msgstr "Are you sure you want to delete this folder?"
 msgid "app.deleteConfirmMultiple"
 msgstr "Are you sure you want to delete these {count} items?"
 
-# ★ 本地删除回收站/永久删除提示
 msgid "app.trashHint"
 msgstr "Move to Recycle Bin"
 
@@ -770,12 +768,6 @@ msgstr "Reconnect failed. Please click or press any key in the terminal to recon
 
 msgid "settings.desc"
 msgstr "Beautiful SFTP file manager: drag-drop, bookmarks, sort, transfer logs & multilingual."
-
-msgid "settings.language"
-msgstr "Language"
-
-msgid "settings.followTabby"
-msgstr "Follow Tabby"
 
 msgid "settings.theme"
 msgstr "Theme"
@@ -1376,7 +1368,6 @@ msgstr "TAR Transfer Acceleration"
 msgid "settings.tarAccelerationDesc"
 msgstr "Automatically package folder transfers with tar to dramatically speed up small files; falls back smoothly to normal transfer if unsupported or failed"
 
-# ★ 2026-09-07 issue #15：冲突内容摘要设置
 msgid "settings.conflictDigest"
 msgstr "Content Digest on Conflict"
 

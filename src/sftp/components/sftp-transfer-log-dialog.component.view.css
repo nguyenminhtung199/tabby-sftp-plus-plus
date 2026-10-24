@@ -1,4 +1,3 @@
-
     .overlay {
       position: absolute; inset: 0;
       background: rgba(0,0,0,0.6);
@@ -31,8 +30,7 @@
     .dialog-buttons button.danger { color: var(--_text); }
     .dialog-buttons button:hover { background: var(--_hover, rgba(128,128,128,0.1)); }
     .log-dialog {
-      /* ★ 2026-09-21：宽高相对面板 overlay（absolute inset:0），禁止再用 620px/85vh 视口基准——
-         Tabby 多拆分时面板远小于视口，否则标题与关闭钮会被 panelHost overflow 裁掉。 */
+
       width: min(720px, 100%);
       min-width: min(280px, 100%);
       max-width: 100%;
@@ -68,8 +66,7 @@
       color: var(--_text); cursor: pointer; font-size: 12px;
     }
     .log-toolbar button.danger { color: var(--_text); }
-    /* ★ 2026-09-26：禁用的「清除」（一条记录都没There are / 只剩下正在传输中的）不可点，
-       hover 也不应给出可点暗示 */
+
     .log-toolbar button:disabled { opacity: 0.4; cursor: not-allowed; }
     .log-toolbar button:hover:not(:disabled) { background: var(--_hover, rgba(128,128,128,0.1)); }
     .log-count {
@@ -153,9 +150,8 @@
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .log-meta { display: inline-flex; gap: 10px; align-items: center; flex-shrink: 0; white-space: nowrap; }
-    /* ★ 2026-09-03：目录传输模式 / 文件数标签 */
-    /* ★ 2026-09-26：这套配色是**基准**，传输中面板（sftp-transfer-queue 的 .mode-tag /
-       tag-*）已对齐至此 —— 改这里务必同步改那边，两处必须逐字一致。 */
+
+
     .log-mode-tag {
       display: inline-block; flex-shrink: 0;
       font-size: 10px; font-weight: 600; padding: 0 6px; border-radius: 3px; line-height: 1.6;
@@ -175,7 +171,7 @@
     .log-status-icon { font-size: 14px; line-height: 1; flex-shrink: 0; margin-left: 4px; }
     .log-status-icon.success { color: #4caf50; }
     .log-status-icon.failed { color: #f44336; }
-    /* ★ 修复：传输进行中显示橙色沙漏，区别于 ✓/✗ */
+
     .log-status-icon.pending { color: #ff9800; animation: log-pending-spin 1.2s linear infinite; }
     @keyframes log-pending-spin { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
     .log-pending-tag {
@@ -183,7 +179,7 @@
       padding: 0 6px; border: 1px solid #ff9800; border-radius: 3px;
       line-height: 1.4; opacity: 0.85;
     }
-    /* ★ 2026-09-07 issue #15+：内容相同自动跳过；与 success ✓ 区分，蓝色提示而非绿色对勾 */
+
     .log-skipped-tag {
       font-size: 10px; color: #3b82f6;
       padding: 0 6px; border: 1px solid #3b82f6; border-radius: 3px;

@@ -1,9 +1,8 @@
-
     .overlay {
       position: absolute; inset: 0;
       background: rgba(0,0,0,0.6);
       display: flex; align-items: center; justify-content: center; z-index: 100;
-      /* ★ 2026-09-21：给对话框留边，避免贴死分栏边缘 */
+
       padding: 6px;
       box-sizing: border-box;
       transition: none !important; animation: none !important;
@@ -16,7 +15,7 @@
       box-sizing: border-box;
     }
     .conflict-dialog {
-      /* ★ 2026-09-21：相对面板 overlay，禁止再用固定 420px/视口基准——小分栏会裁切底部批量操作 */
+
       width: min(520px, 100%);
       max-width: 100%;
       max-height: 100%;
@@ -130,10 +129,7 @@
     .conflict-btn:hover { background: var(--_hover); }
     .conflict-btn-skip { opacity: 0.7; }
     .conflict-btn-skip:hover { opacity: 1; }
-    /* ★ 2026-09-29：内容实际相同时，「跳过」升为推荐动作 —— 复用提示条的绿色（描边 + 浅底），
-       不做实心填充，避免与危险动作（实心红「覆盖」）抢主次。
-       特异性注意：必须排在上面的 .conflict-btn-skip 之后（同为单类，靠文件内顺序决胜），
-       且必须额外写 :hover 版本 —— 否则 .conflict-btn:hover 的灰底（0,1,1）会盖掉这里的浅绿底。 */
+
     .conflict-btn-skip--identical {
       opacity: 1;
       color: #4caf50;
@@ -161,7 +157,7 @@
     .conflict-link:hover { background: var(--_hover); text-decoration: underline; }
     .conflict-sep { color: var(--_text); opacity: 0.3; font-size: 12px; }
 
-    /* ★ 2026-09-21：矮/窄分栏紧凑样式——缩小间距与字号，优先保住操作按钮可见 */
+
     .conflict-dialog.is-compact {
       padding: 10px 12px;
       border-radius: 8px;

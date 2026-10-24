@@ -54,3 +54,9 @@ description: Use before code changes, npm commands, tests or plugin operations i
 - Renderer regression uses both 50,000-entry models with bounded pages, alternating hover across both panes and the column header. After pending page setup settles, hover must add zero row selection bindings, even with application ticks. Preserve actual drop/Up, border cleanup, row-child transitions and listener disposal. test-internal-move.cjs also checks cache cancellation and retained origin support.
 
 - Drag feedback must follow the user's Explorer preference: ordinary folder-row highlight and native copy/move cursor. Blank space/file rows use the displayed directory. Do not add a footer, destination path badge, dashed outline, pane-wide border or a separate current/root drop zone. Keep actual selection unchanged.
+
+## English-only source and notifications
+
+- The plugin uses only locale/en-US.po. Remove language pickers and language import/export options; do not detect or change the host language. SftpI18nService retains its caller facade and ignores legacy locale-setting requests. Legacy stored language keys are ignored.
+- Keep code comments and user-visible fallback text in English. Non-English historical comments were removed with AST checks rather than replacing code text blindly. Pinyin boundary data and Unicode terminal fixtures remain escaped so arbitrary Unicode filenames and terminal input still work. Do not remove Unicode handling when cleaning language.
+- Toasts are positioned 16px above the panel bottom with their existing dismiss/pause behavior. Avoid later top-position overrides. test-english-source.cjs checks catalogs, old locale settings, interpolation, settings/export choices and source/bundle text; Electron tests verify actual toast geometry.

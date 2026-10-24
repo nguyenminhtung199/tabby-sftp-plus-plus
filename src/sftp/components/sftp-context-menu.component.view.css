@@ -1,4 +1,3 @@
-
     .context-menu {
       position: fixed; z-index: 902;
       background: var(--_bg); border: 1px solid var(--_border);
@@ -16,7 +15,7 @@
     .ctx-item.ctx-disabled { cursor: default; opacity: 0.5; }
     .ctx-item.ctx-disabled:hover { background: transparent; }
     .ctx-shortcut { float: right; margin-left: 20px; opacity: 0.5; font-size: 11px; }
-    /* ★ 2026-09-28：分组依据侧边子菜单——悬停触发项展开（::before 桥接 6px 间隙防止 hover 断链） */
+
     .ctx-submenu-trigger { position: relative; padding-right: 26px; }
     .ctx-submenu-arrow { position: absolute; right: 10px; opacity: 0.55; font-size: 11px; }
     .ctx-submenu {
@@ -27,8 +26,7 @@
       box-shadow: 0 4px 16px rgba(0,0,0,0.18);
     }
     .ctx-submenu::before { content: ''; position: absolute; left: -3px; top: 0; width: 3px; height: 100%; }
-    /* ★ 2026-09-28：靠窗口右缘时翻转到触发项左侧展开（JS 悬停测量后加 flip-x），桥接伪元素同步换边；
-       贴边/微重叠（-2px）避免子菜单离主菜单太远 */
+
     .ctx-submenu.flip-x { left: auto; right: 100%; margin-left: 0; margin-right: -2px; }
     .ctx-submenu.flip-x::before { left: auto; right: -3px; }
     .ctx-submenu-trigger:hover > .ctx-submenu { display: block; }

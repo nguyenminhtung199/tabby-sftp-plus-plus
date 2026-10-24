@@ -2,11 +2,6 @@ module.exports = function installNavigation({apis, Panel, Settings, FilePane, I1
     const sendTerminalCommand=require('../runtime/terminal-command.cjs');
     const fs = require('fs');
     const path = require('path');
-    const originalTranslate = apis.I18n.t;
-    apis.I18n.getLocale = function () { return 'en-US'; };
-    apis.I18n.setLocale = function () { this.locale = 'en-US'; };
-    apis.I18n.t = function (key, params) { this.locale = 'en-US'; return originalTranslate.call(this, key, params); };
-    try { localStorage.setItem('sftp-plus-locale', 'en-US'); localStorage.setItem('sftp-plus-settings.lang', JSON.stringify('en-US')); } catch {}
     const config = panel => panel.configService?.store?.['tabby-sftp-plus-plus'];
     for (const [property, method, key] of [['customFolderAutocomplete','toggleCustomFolderAutocomplete','folderAutocomplete']]) {
         Object.defineProperty(apis.Settings, property, { get() { return config(this)?.[key] !== false; }, configurable:true });
@@ -139,7 +134,6 @@ module.exports = function installNavigation({apis, Panel, Settings, FilePane, I1
     Object.defineProperty(apis.Panel, 'customRemotePathProvider', {
         get() { return this._customRemoteProvider ||= input => this._customSuggestPaths('remote', input); }, configurable: true,
     });
-
 
     const focus = apis.FilePane.onPathFocus;
     const change = apis.FilePane.onPathModelChange;

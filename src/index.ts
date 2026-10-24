@@ -1,14 +1,3 @@
-﻿/**
- * SFTP++ 插件入口
- * 功能描述：注册 TerminalDecorator（SFTP++ 按钮）+ 浮动面板 + 设置页 + ConfigProvider
- *   参考：tabby-command-workbench 的模块结构
- * 创建人：DD1024z + Claude
- * 创建时间：2026-06-21
- * 修改人：DD1024z + Hy3
- * 修改时间：2026-09-28
- *   - 注册 SftpDirMissingDialogComponent（传输目标目录不存在三选一确认框）
- *   - 注册 SftpPlusConfigProvider（Tabby config.yaml 持久化）
- */
 import { initializeFeatures } from './features/bootstrap'
 import { PanelRubberBand } from './sftp/components/panel-rubber-band'
 import { PanelFileDnd } from './sftp/components/panel-file-dnd'
@@ -19,9 +8,10 @@ import { PanelPasteAdapter, PasteUseCase } from './sftp/core/paste'
 import { featureApis } from './features/api'
 import { NavigationMemory } from './sftp/core/navigation-memory'
 import { SftpTransferLogService } from './services/sftp-transfer-log.service'
+import { SftpI18nService } from './services/sftp-i18n.service'
 import { computeSelection } from './sftp/core/selection'
 import { setDateFormatPattern } from './sftp/core/file-utils'
-export const testing={PanelPasteAdapter,PanelDropAdapter,parseDragPayload,featureApis,NavigationMemory,TransferLogService:SftpTransferLogService,computeSelection,setDateFormatPattern,Panel:SftpFloatingPanel,FilePane: SftpFilePaneComponent,Menu:SftpContextMenuComponent,LogDialog:SftpTransferLogDialogComponent,PanelRubberBand,PanelFileDnd,PanelTransferRuntime,DownloadOneUseCase,DownloadDirUseCase,UploadPathUseCase,PasteUseCase}
+export const testing={I18nService:SftpI18nService,PanelPasteAdapter,PanelDropAdapter,parseDragPayload,featureApis,NavigationMemory,TransferLogService:SftpTransferLogService,computeSelection,setDateFormatPattern,Panel:SftpFloatingPanel,FilePane: SftpFilePaneComponent,Menu:SftpContextMenuComponent,LogDialog:SftpTransferLogDialogComponent,PanelRubberBand,PanelFileDnd,PanelTransferRuntime,DownloadOneUseCase,DownloadDirUseCase,UploadPathUseCase,PasteUseCase}
 
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
@@ -52,7 +42,6 @@ import { SftpViewerDialogComponent } from './sftp/components/sftp-viewer-dialog.
 import { SftpEditorDialogComponent } from './sftp/components/sftp-editor-dialog.component'
 import { SftpTextContextMenuComponent } from './sftp/components/sftp-text-context-menu.component'
 import { SftpCwdSetupDialogComponent } from './sftp/components/sftp-cwd-setup-dialog.component'
-
 
 @NgModule({
   imports: [

@@ -1,15 +1,3 @@
-﻿/**
- * SFTP++ 文本/图片查看·编辑对话框的轻量右键菜单
- * 功能描述：为查看（只读）/编辑（可写）对话框的 textarea / 图片提供右键菜单，
- *            支持 复制选中 / 复制全部 / 复制图片 / 复制地址 / 全选 / 剪切 / 粘贴。
- * 创建人：DD1024z + Hy3
- * 创建时间：2026-08-24
- * @修改人：DD1024z + Claude Opus 5
- * @修改时间：2026-09-21 — P2 修复：菜单坐标经视口 clamp，靠窗口右/下边缘打开时不再被裁切
- *              2026-08-26 — 关闭机制最终定案：overlay 模板 (click)；本组件只保留 Esc/滚轮/缩放
- *              2026-08-26 — OnPush + 仅在 visible 时挂 document 监听，避免无菜单时每个
- *                            keydown/wheel 都脏检查；配合父对话框区外打开菜单消卡顿
- */
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -71,11 +59,6 @@ export class SftpTextContextMenuComponent implements OnChanges, OnDestroy {
     private readonly cdr: ChangeDetectorRef,
   ) {}
 
-  /**
-   * ★ 2026-09-21 P2 修复：实际渲染坐标（经视口 clamp）。
-   * 原先直接用 clientX/clientY 定位，在窗口右/下边缘打开菜单会被裁切掉一部分项。
-   * 文件列表菜单早有 _clampMenu，这里补齐同样处理。
-   */
   left = 0
   top = 0
   private _clampTimer: ReturnType<typeof setTimeout> | null = null
@@ -87,7 +70,7 @@ export class SftpTextContextMenuComponent implements OnChanges, OnDestroy {
         this.left = this.x
         this.top = this.y
         this._attachDocListeners()
-        // 渲染后量实际尺寸再回收到视口内（此时 *ngIf 已生成节点）
+
         this.zone.runOutsideAngular(() => {
           this._clampTimer = setTimeout(() => {
             this._clampTimer = null
@@ -126,7 +109,6 @@ export class SftpTextContextMenuComponent implements OnChanges, OnDestroy {
     this._detachDocListeners()
   }
 
-  /** 点击菜单项：先关闭再向上派发动作 */
   do(a: TextMenuAction): void {
     if (!this.editable && (a === 'cut' || a === 'paste')) return
     if ((a === 'copySelection' || a === 'cut') && !this.hasSelection) return
@@ -140,7 +122,7 @@ export class SftpTextContextMenuComponent implements OnChanges, OnDestroy {
   private _attachDocListeners(): void {
     if (this._docListening) return
     this._docListening = true
-    // ★ 在 Angular zone 外挂监听：避免菜单打开期间每个 keydown/wheel 触发整树 CD
+
     this.zone.runOutsideAngular(() => {
       document.addEventListener('keydown', this._onKeyDown, true)
       document.addEventListener('wheel', this._onWheelOrResize, { capture: true, passive: true })

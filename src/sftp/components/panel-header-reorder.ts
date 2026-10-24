@@ -1,6 +1,3 @@
-/**
- * 表头列拖拽重排：仅表头预览换位，松手后同步数据列
- */
 import { ChangeDetectorRef, ElementRef } from '@angular/core'
 
 export type HeaderReorderPane = 'local' | 'remote'
@@ -17,7 +14,7 @@ export interface HeaderReorderHost {
   set remoteColOrder(v: string[])
   saveLocalColSettings(): void
   saveRemoteColSettings(): void
-  /** 供父组件拦截松手后的 click 排序 */
+
   markJustResized(): void
   clearJustResizedSoon(ms?: number): void
 }

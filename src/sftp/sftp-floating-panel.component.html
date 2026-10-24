@@ -8,7 +8,7 @@
       <div class="sftp-toast" *ngIf="toastMessage"
         (mouseenter)="onToastMouseEnter()"
         (mouseleave)="onToastMouseLeave()">{{ toastMessage }}</div>
-      <!-- 缩放手柄层（仅浮动模式、未最大化时显示；pointer-events 仅手柄自身捕获） -->
+
       <div class="resize-layer" *ngIf="displayMode !== 'workspace' && panelDraggable && !panelMaximized">
         <div class="resize-handle rh-n" (mousedown)="onResizeStart($event, 'n')"></div>
         <div class="resize-handle rh-s" (mousedown)="onResizeStart($event, 's')"></div>
@@ -20,11 +20,11 @@
         <div class="resize-handle rh-sw" (mousedown)="onResizeStart($event, 'sw')"></div>
       </div>
       <div class="sftp-main">
-      <!-- 顶部标题栏 -->
+
       <div class="top-bar" (mousedown)="onTopBarMouseDown($event)" (contextmenu)="onTopBarContextMenu($event)">
         <span class="title">SFTP+</span>
         <span class="host-info" *ngIf="hostInfo">{{ hostInfo }}</span>
-        <!-- 断开连接指示器 -->
+
         <span class="disconnect-indicator" *ngIf="!connected && !connecting && sshSession">
           <span class="disconnect-dot"></span>
           <span class="disconnect-tag">{{ i18n.t('status.disconnected') }}</span>
@@ -35,27 +35,27 @@
           </button>
         </span>
         <div class="top-actions">
-          <!-- 路径模式：关闭 → 路径记忆 → 终端同步 -->
+
           <button class="btn-link btn-icon btn-path-mode" (click)="cyclePathMode()"
                   [class.active]="pathMode !== 'off'"
                   [title]="pathModeTitle()">
-            <!-- 关闭/路径记忆：共用定位销图标（通过 active 亮度区分） -->
+
             <svg *ngIf="pathMode !== 'sync'" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round">
               <path d="M8 2.4C6.05 2.4 4.5 3.95 4.5 5.9c0 2.55 3.5 6.35 3.5 6.35s3.5-3.8 3.5-6.35C11.5 3.95 9.95 2.4 8 2.4z"/>
               <circle cx="8" cy="5.9" r="1.25"/>
             </svg>
-            <!-- 终端同步：链接图标 -->
+
             <svg *ngIf="pathMode === 'sync'" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round">
               <path d="M6.2 9.8l3.6-3.6"/>
               <path d="M7.1 4.4l1.1-1.1a2.4 2.4 0 013.4 3.4L10.5 7.8"/>
               <path d="M8.9 11.6l-1.1 1.1a2.4 2.4 0 01-3.4-3.4L5.5 8.2"/>
             </svg>
           </button>
-          <!-- 布局模式切换 -->
+
           <button class="btn-link btn-icon btn-layout" (click)="cycleLayoutMode()"
                   [class.layout-overridden]="!!_layoutOverrideReason"
                   title="{{ layoutModeTitle() }}">
-            <!-- 自动模式：四格方块自适应图标 -->
+
             <svg *ngIf="_layoutMode === 'auto'" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35">
               <rect x="2" y="2" width="5.5" height="5.5" rx="0.9"/>
               <rect x="8.5" y="2" width="5.5" height="5.5" rx="0.9"/>
@@ -63,17 +63,17 @@
               <rect x="8.5" y="8.5" width="5.5" height="5.5" rx="0.9"/>
               <path d="M4.75 7.25v1.5M11.25 7.25v1.5M7.25 4.75h1.5M7.25 11.25h1.5" stroke-width="1.2"/>
             </svg>
-            <!-- 左右布局图标 -->
+
             <svg *ngIf="_layoutMode === 'horizontal'" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35">
               <rect x="2" y="2.5" width="5.5" height="11" rx="0.9"/>
               <rect x="8.5" y="2.5" width="5.5" height="11" rx="0.9"/>
             </svg>
-            <!-- 上下布局图标 -->
+
             <svg *ngIf="_layoutMode === 'vertical'" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35">
               <rect x="2.5" y="2" width="11" height="5.5" rx="0.9"/>
               <rect x="2.5" y="8.5" width="11" height="5.5" rx="0.9"/>
             </svg>
-            <!-- 单栏布局图标 -->
+
             <svg *ngIf="_layoutMode === 'single'" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35">
               <rect x="2" y="2" width="12" height="12" rx="0.9"/>
               <circle cx="10.5" cy="8" r="1.35" fill="currentColor" stroke="none"/>
@@ -97,7 +97,7 @@
               </g>
             </svg>
           </button>
-          <button *ngIf="displayMode !== 'workspace'" class="btn-link btn-icon btn-minimize" (click)="minimize()" title="{{ minimized ? (effectiveLang==='zh-CN'?'恢复':'Restore') : (effectiveLang==='zh-CN'?'最小化':'Minimize') }}">
+          <button *ngIf="displayMode !== 'workspace'" class="btn-link btn-icon btn-minimize" (click)="minimize()" title="{{ minimized ? 'Restore' : 'Minimize' }}">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round">
               <line x1="4" y1="8" x2="12" y2="8"/>
             </svg>
@@ -115,17 +115,12 @@
               <rect x="6.5" y="6.5" width="7" height="7" rx="1"/>
             </svg>
           </button>
-          <!-- ★ 2026-09-30：mousedown 时 preventDefault —— 不让 ✕ 拿到键盘焦点。
-               成因：Chrome 对未 preventDefault 的 mousedown 一律把焦点交给按钮，而按钮一旦获得焦点
-               就会在盒子外侧画出聚焦环（顶栏 ✕ 位于最右侧、上沿与 .sftp-main 的裁切边界重合，
-               那圈环的上边会被削平，用户实测「按下后浮出蓝环、拖开仍残留、且没有封顶」）。
-               preventDefault 不影响 click（鼠标在按钮内抬起时 click 照常触发），也不影响事件冒泡到
-               .top-bar 的拖拽处理（该处理本就会对 button 提前 return）。 -->
+
           <button class="btn-close" (mousedown)="$event.preventDefault()" (click)="close()">✕</button>
         </div>
       </div>
 
-      <!-- 标题栏右键菜单：还原默认面板大小 -->
+
       <div class="sftp-title-menu" *ngIf="topBarMenuVisible"
         [style.left.px]="topBarMenuX" [style.top.px]="topBarMenuY"
         (mousedown)="$event.stopPropagation()" (click)="$event.stopPropagation()">
@@ -134,9 +129,9 @@
         </div>
       </div>
 
-      <!-- 双栏主体 -->
+
       <div class="sftp-body">
-        <!-- ====== 本地面板 ====== -->
+
         <sftp-file-pane
           *ngIf="_effectiveLayout !== 'single'"
           [i18n]="i18n"
@@ -216,14 +211,14 @@
           (toggleBookmarks)="toggleBookmarksForPane('local', $event)">
         </sftp-file-pane>
 
-        <!-- 拖拽分割线（窄屏上下布局/宽屏左右布局均显示） -->
+
         <div class="pane-splitter"
              *ngIf="_effectiveLayout !== 'single'"
              [title]="splitterTitle()"
              (mousedown)="onSplitterDown($event)"
              (dblclick)="onSplitterDblClick($event)"></div>
 
-        <!-- ====== 远程面板 ====== -->
+
         <sftp-file-pane
           [i18n]="i18n"
           labelIcon="🌐"
@@ -309,7 +304,7 @@
 
       </div>
 
-      <!-- 传输队列：无任务时不渲染，避免底部留白 -->
+
       <sftp-transfer-queue
         *ngIf="transfers.length && !transfersHidden"
         [i18n]="i18n"
@@ -398,11 +393,8 @@
         (drop)="onBookmarkDrop($event.event, $event.index, $event.scope)">
       </sftp-bookmark-popup>
 
-      <!-- 传输日志 -->
-      <!-- ★ 2026-09-20 A6：加 *ngIf——此前该元素常驻实例化，导致 [entries]="filteredTransferLogs"
-           与 [totalCount]="transferLogTotalCount" 两个 getter 在每次变更检测都全量 filter+reverse
-           （日志上限 1000 条），且返回新数组使子组件 ngOnChanges 每 CD 触发。
-           该对话框为纯展示组件（无 ngOnInit/监听器），按需挂载不丢任何状态。 -->
+
+
       <sftp-transfer-log-dialog
         *ngIf="showTransferLog"
         [i18n]="i18n"
@@ -429,7 +421,7 @@
         (clear)="clearLog()">
       </sftp-transfer-log-dialog>
 
-      <!-- 文件冲突对话框 -->
+
       <sftp-conflict-dialog
         [i18n]="i18n"
         [visible]="showConflictDialog"
@@ -440,7 +432,7 @@
         (resolve)="resolveConflict($event)">
       </sftp-conflict-dialog>
 
-      <!-- 传输目标目录不存在对话框（2026-09-28：默认上传/下载路径不存在时三选一） -->
+
       <sftp-dir-missing-dialog
         [i18n]="i18n"
         [visible]="dirMissingVisible"

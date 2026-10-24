@@ -1,4 +1,3 @@
-
     .sftp-transfers {
       display: flex; flex-direction: column; gap: 4px;
       max-height: 100px; overflow-y: auto;
@@ -19,7 +18,7 @@
     .transfer-name { font-weight: 600; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .transfer-size { font-size: 10px; color: var(--_text-muted); white-space: nowrap; }
     .transfer-sub { font-size: 10px; color: var(--_text-muted); margin-top: 2px; padding-left: 20px; }
-    /* ★ 对齐冲突框 .conflict-direction：彩色底 + 粗箭头，一眼分清上传/下载 */
+
     .dir-badge {
       flex-shrink: 0; font-size: 11px; font-weight: 700;
       padding: 1px 8px; border-radius: 10px; white-space: nowrap; line-height: 1.6;
@@ -32,10 +31,7 @@
       background: rgba(33, 150, 243, 0.18); color: #2196f3;
       border: 1px solid rgba(33, 150, 243, 0.45);
     }
-    /* ★ 2026-09-26：与传输记录对话框（.log-mode-tag / tag-*）逐字对齐。
-       原先两处同一字段两套配色 —— 此处 📦绿 #22c55e、⚡琥珀 #f59e0b 且无描边，
-       记录面板 📦青 #26c6da、⚡橙 #ff9800 且带 1px 描边，同一笔传输在「传输中」和
-       「记录」里显示成两个颜色。统一以记录面板为准；绿色另留给「成功」语义，避免误读。 */
+
     .mode-tag {
       display: inline-block; flex-shrink: 0;
       font-size: 10px; font-weight: 600; padding: 0 6px; border-radius: 3px;
@@ -46,9 +42,7 @@
       border: 1px solid color-mix(in srgb, var(--_primary, #3b82f6) 40%, transparent);
     }
     .tag-tar { color: #26c6da; background: rgba(38, 198, 218, 0.12); border: 1px solid rgba(38, 198, 218, 0.4); }
-    /* ★ 2026-09-26：进度条跨两列铺满整行 —— 宽度只由面板宽度决定，不再被右侧 stats
-       （速度/百分比/剩余时间/按钮）的出现与消失挤压。原先它装在 .transfer-main 里，
-       stats 多出「剩余 3m36s」就会把 1fr 列压窄 74px，用户看到的就是"没延续到右边"。 */
+
     .bar {
       grid-column: 1 / -1;
       height: 4px; background: var(--_border); border-radius: 2px; overflow: hidden;
@@ -58,13 +52,7 @@
       border-radius: 2px; transition: width 0.3s;
     }
     .transfer-stats { display: flex; gap: 6px; align-items: center; font-family: monospace; }
-    /* ★ 2026-09-26：剩余时间用弱化色，避免与速度/百分比抢注意力。
-       ★ 2026-09-26 二次调整：宽度跟随内容。原先 min-width: 76px + text-align: right
-       预留固定槽位，但「剩余 5s」只占 ~34px，右对齐把多出的 ~42px 全顶在左侧 ——
-       用户看到的「剩余时间和进度间距太大」就是它（像素实测该处间距 58px，
-       而下一条 flex gap 只There are 16px）。进度条已跨整行，槽位防抖价值消失，故移除。
-       tabular-nums 保证秒数跳变时字宽不抖。
-       注：此处是模板字符串内的 CSS，注释里禁用反引号（会截断字符串）。 */
+
     .transfer-eta {
       font-size: 10px; color: var(--_text-muted); white-space: nowrap;
       font-variant-numeric: tabular-nums;

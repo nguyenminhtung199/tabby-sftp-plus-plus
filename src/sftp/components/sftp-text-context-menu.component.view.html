@@ -1,7 +1,6 @@
-
     <div class="text-ctx-menu" #menuEl *ngIf="visible"
       [style.left]="left + 'px'" [style.top]="top + 'px'">
-      <!-- 文本模式 -->
+
       <ng-container *ngIf="mode === 'text'">
         <div class="tctx-item" [class.tctx-disabled]="!hasSelection"
           (click)="do('copySelection')">{{ i18n.t('file.copySelection') }}</div>
@@ -15,7 +14,7 @@
             (click)="do('paste')">{{ i18n.t('file.paste') }}</div>
         </ng-container>
       </ng-container>
-      <!-- 图片模式 -->
+
       <ng-container *ngIf="mode === 'image'">
         <div class="tctx-item" [class.tctx-disabled]="!hasImage"
           (click)="do('copyAll')">{{ i18n.t('file.copyImage') }}</div>

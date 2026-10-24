@@ -1,24 +1,8 @@
-/**
- * 功能描述：SFTP++ file-utils 逻辑聚合模块（由旧 core 多文件合并）
- * 创建人：DD1024z + Hy3
- * 创建时间：2026-07-16
- * 修改人：DD1024z + Kimi-K3
- * 修改时间：2026-09-21 — 第六轮审计修复：formatSize 对负值「大小未知」哨兵返回空串（不显示 "-1 B"）
- *              2026-09-20 — issue #23：查看器改虚拟滚动，移除 VIEW_TEXT_RENDER_MAX_CHARS 截断常量
- *              2026-09-17 — 可查看/编辑扩展名统一白名单；allowViewAllAsText；空格分隔与 .ext/ext 兼容
- * 合并来源：file-type-utils, panel-list-utils, panel-format
- */
-
 import { type LocalEntry } from './panel-types'
 
 import { type SFTPFile } from '../../services/sftp.service'
 
 import { type TransferLogEntry } from '../../services/sftp-transfer-log.service'
-
-
-/**
- * 远程/本地文件类型判断（查看、编辑能力）
- */
 
 const IMAGE_EXTENSIONS = new Set([
   'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'ico', 'avif', 'tiff', 'tif', 'svg',
@@ -39,7 +23,6 @@ const TEXT_EXTENSIONS = new Set([
   'npmrc', 'nvmrc', 'htaccess', 'reg', 'inf',
 ])
 
-/** 内置可查看/编辑文本扩展名（排序后供设置页展示与默认回退） */
 export const DEFAULT_TEXT_EXTENSIONS: readonly string[] = Object.freeze(
   [...TEXT_EXTENSIONS].sort((a, b) => a.localeCompare(b)),
 )
@@ -65,11 +48,10 @@ const IMAGE_MIME: Record<string, string> = {
   svg: 'image/svg+xml',
 }
 
-/** 文本查看上限（字节）：允许下载/解码到内存的上限 */
 export const VIEW_TEXT_MAX_BYTES = 2 * 1024 * 1024
-/** 图片查看上限（字节） */
+
 export const VIEW_IMAGE_MAX_BYTES = 15 * 1024 * 1024
-/** 文本编辑上限（字节） */
+
 export const EDIT_TEXT_MAX_BYTES = 5 * 1024 * 1024
 
 export function getFileExtension(fileName: string): string {
@@ -85,10 +67,6 @@ export function isImageFile(fileName: string): boolean {
   return IMAGE_EXTENSIONS.has(getFileExtension(fileName))
 }
 
-/**
- * 将设置页输入的扩展名规范化为小写、无点的形式。
- * 接受 `.conf`、`*.conf`、`conf`；分隔符支持空格 / 逗号 / 分号（展示默认空格）。
- */
 export function normalizeEditableExtensions(value: unknown): string[] {
   const raw = Array.isArray(value)
     ? value.filter((item): item is string => typeof item === 'string')
@@ -99,12 +77,6 @@ export function normalizeEditableExtensions(value: unknown): string[] {
   return [...new Set(normalized)]
 }
 
-/**
- * 有效文本扩展名白名单。
- * - 配置为空：回退内置 DEFAULT_TEXT_EXTENSIONS
- * - 旧版「仅额外扩展名」（每一项都不在内置列表）：与内置合并
- * - 否则：以配置为完整白名单（设置页展示并允许删改预置项）
- */
 export function getEffectiveTextExtensions(custom: unknown): string[] {
   const normalized = normalizeEditableExtensions(custom)
   if (!normalized.length) return [...DEFAULT_TEXT_EXTENSIONS]
@@ -115,7 +87,6 @@ export function getEffectiveTextExtensions(custom: unknown): string[] {
   return normalized
 }
 
-/** 设置页展示用：空格分隔的有效扩展名字符串 */
 export function formatTextExtensionsForInput(custom: unknown): string {
   return getEffectiveTextExtensions(custom).join(' ')
 }
@@ -138,7 +109,6 @@ export function isViewableRemoteFile(
   return size <= getViewMaxBytes(fileName)
 }
 
-/** 仅按扩展名判断是否可查看（不含大小限制） */
 export function isViewableRemoteFileType(
   fileName: string,
   customExtensions: unknown = [],
@@ -173,7 +143,6 @@ export function isEditableRemoteFile(
   return size <= EDIT_TEXT_MAX_BYTES
 }
 
-/** 仅按扩展名判断是否可编辑（不含大小限制） */
 export function isEditableRemoteFileType(
   fileName: string,
   customExtensions: readonly string[] | unknown = [],
@@ -181,7 +150,7 @@ export function isEditableRemoteFileType(
 ): boolean {
   if (allowAllFiles) return true
   const ext = getFileExtension(fileName)
-  // svg 属于图片扩展，但仍允许文本编辑（与历史行为一致）
+
   if (ext === 'svg') return true
   if (isImageFile(fileName)) return false
   return isTextFile(fileName, customExtensions)
@@ -240,19 +209,15 @@ export function bufferToDataUrl(buf: Buffer, fileName: string): string {
   return `data:${mime};base64,${b64}`
 }
 
-﻿/**
- * 文件列表排序 / 过滤 / mode 位判断（纯函数）
- */
+﻿
 
 export type PaneSortField = 'name' | 'size' | 'modified' | 'birthtime'
 
-/** 通过 POSIX mode 位判断是否为目录 */
 export function isDirByMode(mode: number | undefined): boolean {
   if (mode === undefined) return false
   return (mode & 0o170000) === 0o040000
 }
 
-/** 通过 POSIX mode 位判断是否为符号链接 */
 export function isSymlinkByMode(mode: number | undefined): boolean {
   if (mode === undefined) return false
   return (mode & 0o170000) === 0o120000
@@ -305,24 +270,13 @@ export function sortRemoteEntries(
   })
 }
 
-/**
- * SFTP++ 面板纯函数格式化工具
- * 修改人：DD1024z + Hy3
- * 修改时间：2026-07-23
- *   新增自定义时间格式化：setDateFormatPattern/formatDateWithPattern，formatDate 走可配置 pattern
- * 修改时间：2026-07-12
- *   修复 formatSize/formatDuration/formatSpeedFromSize/formatTransferSpeed 对字符串入参崩溃：
- *   旧日志 size/duration 可能被序列化成字符串，.toFixed 抛 TypeError → *ngFor 该行渲染失败被丢弃 → "共N条只显示1行"
- *   统一 Number() 强转 + isFinite 守卫；formatLogTime/formatDate 增加 Invalid Date 守卫
- */
-
 export function isUploadLikeOperation(op: TransferLogEntry['operation']): boolean {
   return op === 'upload' || op === 'edit-upload'
 }
 
 export function formatSize(bytes?: number | bigint | string): string {
   if (bytes == null) return ''
-  // ★ BUG-9 修复：支持 BigInt，避免超大文件精度丢失
+
   if (typeof bytes === 'bigint') {
     const n = bytes
     if (n === BigInt(0)) return '0 B'
@@ -332,11 +286,10 @@ export function formatSize(bytes?: number | bigint | string): string {
     while (v >= k && i < u.length - 1) { v = v / k; i++ }
     return `${v.toString()} ${u[i]}`
   }
-  // 强转 Number：旧 config.yaml/JSON 导入的日志 size 可能被序列化成字符串，
-  // 字符串 < 1024 时 v.toFixed 会抛 TypeError，导致 *ngFor 该行渲染失败被丢弃
+
   const n = Number(bytes)
   if (!isFinite(n)) return ''
-  // ★ 2026-09-21：负值是「大小未知」哨兵（stat 失败的下载），不显示 "-1 B" 误导
+
   if (n < 0) return ''
   if (n === 0) return '0 B'
   const u = ['B', 'KB', 'MB', 'GB', 'TB']
@@ -345,19 +298,10 @@ export function formatSize(bytes?: number | bigint | string): string {
   return `${v.toFixed(i === 0 ? 0 : 1)} ${u[i]}`
 }
 
-/**
- * 自定义时间格式化（兼容性设置）
- * 创建人：DD1024z + Hy3
- * 创建时间：2026-07-23
- *   模块级 pattern 由设置页/面板通过 setDateFormatPattern() 注入；
- *   formatDate 保持原签名，所有调用点（文件列表 _cells 预计算、冲突对话框、属性对话框）自动生效。
- *   注意：pattern 变化后 formatDate 不再"纯"，面板侧需失效 _cells 预计算缓存（见 _readBehaviorConfig）。
- */
 export const DEFAULT_DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 
 let _dateFormatPattern = ''
 
-/** 设置全局时间格式 pattern（空串 = 使用默认格式） */
 export function setDateFormatPattern(pattern: string): void {
   _dateFormatPattern = (pattern || '').trim()
 }
@@ -366,11 +310,6 @@ export function getDateFormatPattern(): string {
   return _dateFormatPattern
 }
 
-/**
- * 按 pattern 格式化时间。支持 token：
- * YYYY/YY 年、MM/M 月、DD/D 日、HH/H 24时、hh/h 12时、mm/m 分、ss/s 秒、A/a 上下午
- * 其余字符原样输出
- */
 export function formatDateWithPattern(ms: number, pattern: string): string {
   const d = new Date(Number(ms))
   if (isNaN(d.getTime())) return ''

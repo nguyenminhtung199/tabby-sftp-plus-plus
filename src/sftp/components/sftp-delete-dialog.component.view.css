@@ -1,4 +1,3 @@
-
     .overlay {
       position: absolute; inset: 0;
       background: rgba(0,0,0,0.6);
@@ -6,7 +5,7 @@
       transition: none !important; animation: none !important;
       outline: none;
     }
-    /* 自动聚焦到 overlay 时不显示浏览器默认焦点轮廓（模态遮罩本身已足够明显） */
+
     .overlay:focus { outline: none; }
     .delete-dialog {
       background: var(--_bg);
@@ -37,7 +36,7 @@
     .delete-preview-name { font-weight: 500; color: var(--_text); }
     .delete-preview-label { color: var(--_text); opacity: 0.5; min-width: 60px; }
     .delete-preview-value { color: var(--_text); }
-    /* 长路径折行显示，不挤压对话框宽度 */
+
     .delete-preview-path { word-break: break-all; }
     .dialog-buttons { display: flex; justify-content: flex-end; gap: 8px; padding-top: 10px; }
     .dialog-buttons button {
@@ -47,7 +46,7 @@
       color: var(--_text); cursor: pointer;
     }
     .danger { background: #d32f2f !important; border-color: #ef5350 !important; color: #fff; }
-    /* 回收站/永久删除操作提示（单文件与批量共用） */
+
     .delete-action-hint {
       font-size: 12px; margin: 0 0 12px 0; padding: 0;
       color: #4caf50; font-weight: 500;

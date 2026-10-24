@@ -1,17 +1,3 @@
-﻿/**
- * SFTP++ 文本文件编辑对话框（本地 / 远程）
- * @创建人：DD1024z + Hy3
- * @创建时间：2026-08-05
- * @修改人：DD1024z + GPT-5.6 Sol
- * @修改时间：2026-09-21 — 右键菜单回调增加销毁安全的变更检测；
- *              2026-09-20 — 可选行号栏（与 textarea 同步滚动）；设置项控制
- *              2026-09-20 — A8 审计修复：删除死输出 closeConfirm（从不 emit，父模板亦未绑定）
- *              2026-09-17 — 脱离 ngModel 回写：保留原生撤销/重做、减轻粘贴卡顿；未保存 * 紧挨文件名
- *              2026-08-10 — 新增「复制选中」按钮（有选中内容时显示，复制当前选中文本）
- *              2026-08-10 — 复制选中按钮消失修复(click/blur事件)
- *              2026-08-26 — 右键菜单卡顿：OnPush + zone 外原生 contextmenu + 选区检测禁 slice
- *              2026-08-05 — 新增「复制」按钮（复制当前编辑框内容）
- */
 import {
   AfterViewChecked,
   ChangeDetectionStrategy,
@@ -36,7 +22,6 @@ import { TextMenuAction } from './sftp-text-context-menu.component'
 
 import { log } from '../../services/sftp-logger'
 
-/** 仅比较 selectionStart/End，禁止 slice 大选区（大文件全选时右键会卡死） */
 function textareaHasSelection(ta?: ElementRef<HTMLTextAreaElement>): boolean {
   if (!ta) return false
   const el = ta.nativeElement
@@ -173,7 +158,7 @@ export class SftpEditorDialogComponent implements OnChanges, OnDestroy, AfterVie
   @Input() content = ''
   @Input() error = ''
   @Input() showSystemAction = false
-  /** 是否显示行号（设置项，默认 true） */
+
   @Input() showLineNumbers = true
 
   copied = false
@@ -194,7 +179,7 @@ export class SftpEditorDialogComponent implements OnChanges, OnDestroy, AfterVie
   @Output() contentChange = new EventEmitter<string>()
   @Output() save = new EventEmitter<void>()
   @Output() cancel = new EventEmitter<void>()
-  // ★ 2026-09-20 A8 审计修复：删除死输出 closeConfirm（从不 emit，父模板也未绑定）
+
   @Output() systemAction = new EventEmitter<void>()
 
   @Input() i18n!: SftpI18nService
@@ -204,9 +189,8 @@ export class SftpEditorDialogComponent implements OnChanges, OnDestroy, AfterVie
   onOverlayWheel = onFileDialogOverlayWheel
   onScrollableWheel = onFileDialogScrollableWheel
 
-  /** 本地正在编辑时禁止用父级 content 回写 textarea（否则会清空浏览器原生撤销栈并导致粘贴卡顿） */
   private _localEditing = false
-  /** textarea 因 *ngIf 刚创建，需在 AfterViewChecked 同步一次 content */
+
   private _pendingSync = false
 
   private _ctxTarget: HTMLElement | null = null
@@ -214,7 +198,7 @@ export class SftpEditorDialogComponent implements OnChanges, OnDestroy, AfterVie
     ev.preventDefault()
     ev.stopPropagation()
     ev.stopImmediatePropagation()
-    // ★ zone 外打开菜单：只刷新本对话框视图，避免整棵浮动面板 CD 造成右键卡顿
+
     this.textMenuHasSelection = textareaHasSelection(this.editorTextarea)
     this.textMenuCanPaste = !!(navigator.clipboard && (navigator.clipboard as any).readText)
     this.textMenuX = ev.clientX
@@ -248,7 +232,7 @@ export class SftpEditorDialogComponent implements OnChanges, OnDestroy, AfterVie
         this._pendingSync = true
       }
     }
-    // 仅外部内容变更（打开文件 / 外部编辑器回写等）才同步到 DOM
+
     if (changes['content'] && !this._localEditing) {
       this._syncTextareaFromContent()
     }

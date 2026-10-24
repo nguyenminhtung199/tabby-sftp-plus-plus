@@ -14,7 +14,7 @@ const pty=require(path.join(process.env.LOCALAPPDATA,base.ptyRelative));
   child.onData(data=>{transcript+=data;for(const fn of [...waiters])fn();});await wait(/SFTP_COMMAND_TEST>/,0);
   child.write(String.raw`set -o emacs; __sftp_emit() { printf '\033P\033]777;%s\007\033\\' "$1"; }; __sftp_load() { READLINE_LINE=$(cat "$SFTP_TEST_SEED"); READLINE_POINT=$(printf '%s' "$READLINE_LINE" | wc -m); }; bind -x '"\C-x\C-l":__sftp_load'; __sftp_dump() { printf '%s\0%s' "$READLINE_LINE" "$PWD" > "$SFTP_TEST_DUMP"; __sftp_emit DUMPED; }; bind -x '"\C-x\C-b":__sftp_dump'; test -n "$STY" && __sftp_emit INSIDE_SCREEN`+'\r');await wait(/\x1b\]777;INSIDE_SCREEN\x07/,0);
   const terminal={alternateScreenActive:true,frontend:{isAlternateScreenActive:()=>true},sendInput:text=>child.write(text)};
-  const drafts=['',"echo unfinished 'quote",'printf tiếng-Việt 日本語','echo '+'long'.repeat(65),'echo one\necho two'];
+  const drafts=['',"echo unfinished 'quote",'printf tiếng-Việt \u65e5\u672c\u8a9e','echo '+'long'.repeat(65),'echo one\necho two'];
   for(const [index,draft]of drafts.entries()){
    let offset=transcript.length;child.write('\x03');await wait(/SFTP_COMMAND_TEST>/,offset);
    if(index===0)child.write('old deleted draft\x05\x15');

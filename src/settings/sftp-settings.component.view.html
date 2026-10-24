@@ -1,18 +1,8 @@
-
     <div class="sftp-settings-page">
       <h3 class="ss-title">SFTP++</h3>
       <p class="ss-desc">{{ i18n.t('settings.desc') }}</p>
 
-      <!-- 语言 -->
-      <div class="ss-section">
-        <label class="ss-label">{{ i18n.t('settings.language') }}</label>
-        <select [(ngModel)]="lang" (ngModelChange)="saveLang()" class="ss-select">
-          <option value="">{{ i18n.t('settings.followTabby') }}</option>
-          <option *ngFor="let l of locales" [value]="l.code">{{ l.name }}</option>
-        </select>
-      </div>
 
-      <!-- 主题 -->
       <div class="ss-section">
         <label class="ss-label">{{ i18n.t('settings.theme') }}</label>
         <div class="ss-color-row">
@@ -51,7 +41,7 @@
           </label>
         </div>
 
-        <!-- 配色方案详情 -->
+
         <div class="ss-scheme-preview" *ngFor="let c of colorThemes" [hidden]="theme !== c.value">
           <div class="ss-color-fields">
             <div class="ss-color-field">
@@ -78,12 +68,12 @@
         </div>
       </div>
 
-      <!-- 布局 -->
+
       <div class="ss-section">
         <label class="ss-label">{{ i18n.t('settings.layout') }}</label>
-        <!-- 面板布局 -->
+
         <div class="ss-layout-row">
-          <!-- 自适应 -->
+
           <div class="ss-layout-card" [class.ss-layout-active]="layoutMode === 'auto'" (click)="setLayoutMode('auto')">
             <div class="ss-layout-icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -96,7 +86,7 @@
             <span class="ss-layout-text">{{ i18n.t('settings.layoutAdaptive') }}</span>
             <span class="ss-layout-sub">{{ i18n.t('settings.layoutAdaptiveSub') }}</span>
           </div>
-          <!-- 左右布局 -->
+
           <div class="ss-layout-card" [class.ss-layout-active]="layoutMode === 'horizontal'" (click)="setLayoutMode('horizontal')">
             <div class="ss-layout-icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -107,7 +97,7 @@
             <span class="ss-layout-text">{{ i18n.t('settings.layoutHorizontal') }}</span>
             <span class="ss-layout-sub">{{ i18n.t('settings.layoutHorizontalSub') }}</span>
           </div>
-          <!-- 上下布局 -->
+
           <div class="ss-layout-card" [class.ss-layout-active]="layoutMode === 'vertical'" (click)="setLayoutMode('vertical')">
             <div class="ss-layout-icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -118,7 +108,7 @@
             <span class="ss-layout-text">{{ i18n.t('settings.layoutVertical') }}</span>
             <span class="ss-layout-sub">{{ i18n.t('settings.layoutVerticalSub') }}</span>
           </div>
-          <!-- 单栏布局 -->
+
           <div class="ss-layout-card" [class.ss-layout-active]="layoutMode === 'single'" (click)="setLayoutMode('single')">
             <div class="ss-layout-icon">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -158,7 +148,7 @@
             <span>{{ paneCustomItemLabel(item) }}</span>
           </div>
         </div>
-        <!-- 定制右键菜单（2026-08-22 挪到定制工具栏下方，改为每行一项） -->
+
         <div class="ss-sub-head" style="margin-top:16px;">
           <div class="ss-sub-label" style="margin:0;">{{ i18n.t('settings.customContextMenu') }}</div>
           <button class="ss-reset-icon-btn" (click)="resetMenuOrder()" [title]="i18n.t('settings.resetMenu')">
@@ -186,7 +176,7 @@
             <span class="ss-menu-label" [class.disabled]="!isMenuEnabled(a)">{{ contextMenuItemLabel(a) }}</span>
           </div>
         </div>
-        <!-- 定制书签面板（2026-09-29 移到「表格样式」之前，与工具栏/右键菜单同为面板内容定制） -->
+
         <div class="ss-sub-head" style="margin-top:16px;">
           <div class="ss-sub-label" style="margin:0;">{{ i18n.t('settings.customBookmarkPanel') }}</div>
           <button class="ss-reset-icon-btn" (click)="resetBookmarkPanel()" [title]="i18n.t('settings.resetBookmarkPanel')">
@@ -217,7 +207,7 @@
             <span>{{ bookmarkGroupLabel(g) }}</span>
           </div>
         </div>
-        <!-- 表格样式（属于布局的子选项） -->
+
         <div class="ss-sub-label" style="margin-top:16px;">{{ i18n.t('settings.tableStyle') }}</div>
         <div class="ss-toggle-wrap">
           <label class="ss-toggle-row">
@@ -234,7 +224,7 @@
           </label>
         </div>
         <div class="ss-hint">{{ i18n.t('settings.tableStyleHint') }}</div>
-        <!-- ★ 2026-09-17：字体小分栏（2026-09-29 由「定制工具栏」上方移到「表格样式」之下，保持整节收尾） -->
+
         <div class="ss-sub-head" style="margin-top:16px;">
           <div class="ss-sub-label" style="margin:0;">{{ i18n.t('settings.font') }}</div>
           <button class="ss-reset-icon-btn" (click)="resetFontSize()" [title]="i18n.t('settings.resetFont')">
@@ -244,7 +234,7 @@
             </svg>
           </button>
         </div>
-        <!-- ★ 2026-09-29：滑块与数值整块靠右 —— 对齐 Tabby「窗口」页滑块的靠右显示（见 .ss-font-control） -->
+
         <div class="ss-font-row ss-toggle-sub">
           <span class="ss-toggle-label">{{ i18n.t('settings.fontSize') }}</span>
           <div class="ss-font-control">
@@ -255,7 +245,7 @@
         </div>
       </div>
 
-      <!-- ★ 2026-09-20：对象图标升为独立大节（原挂在「布局」下，语义不符） -->
+
       <div class="ss-section">
         <div class="ss-sub-head">
           <label class="ss-label" style="margin:0;">{{ i18n.t('settings.iconSettings') }}</label>
@@ -266,24 +256,24 @@
             </svg>
           </button>
         </div>
-        <!-- 图标目录：标签与输入框同行。默认直接显示内置图标目录实际路径（非占位符） -->
+
         <div class="ss-toggle-row ss-path-row">
           <span class="ss-toggle-label">{{ i18n.t('settings.iconResourceDir') }}</span>
           <input class="ss-path-input" type="text" [(ngModel)]="iconDirDisplay"
             (change)="_saveToConfig()" spellcheck="false" />
         </div>
 
-        <!-- 图标网格：文件夹 + 内置 + 自定义，hover 可编辑/删除 -->
+
         <div class="ss-builtin">
           <div class="ss-icon-grid">
-            <!-- ① 文件夹单元格（仅显示 + hover 操作；编辑/校验在下方独立行） -->
+
             <div class="ss-icon-cell ss-icon-cell--folder"
               [class.ss-icon-cell--editing]="_editingFolderIcon"
               [class.ss-icon-cell--disabled]="!folderIconSvg">
               <img class="ss-icon-cell-img" [src]="'file://' + bundledIconPreviewPath(folderIconSvg || 'folder.svg')" alt="folder" draggable="false" />
               <span class="ss-icon-cell-name">folder</span>
               <span class="ss-icon-cell-exts">{{ i18n.t('settings.iconFolderHint') }}</span>
-              <!-- hover 操作浮层：文件夹为系统默认规则，可编辑但不可删除/回退 emoji；禁用/Restore在左、编辑在右 -->
+
               <div class="ss-icon-cell-actions">
                 <button type="button" class="ss-icon-cell-btn ss-icon-cell-btn--del"
                   *ngIf="!folderIconSvg"
@@ -295,7 +285,7 @@
               </div>
             </div>
 
-            <!-- ② 内置 / 自定义图标单元格（folder 已在 BUILTIN_ICON_FILES 中排除） -->
+
             <div class="ss-icon-cell"
               *ngFor="let item of iconGridItems; trackBy: trackByIcon"
               [class.ss-icon-cell--disabled]="isIconDisabled(item.svg)"
@@ -304,7 +294,7 @@
                 [class.ss-icon-cell-img--dim]="isIconDisabled(item.svg)" />
               <span class="ss-icon-cell-name">{{ item.name }}</span>
               <span class="ss-icon-cell-exts">{{ item.svg === 'default.svg' ? i18n.t('settings.iconFileHint') : item.exts.join(' ') }}</span>
-              <!-- hover 操作浮层：default.svg 为系统兜底图标（未匹配文件统一回退），可编辑但不可删除/禁用；禁用/删除在左、编辑在右 -->
+
               <div class="ss-icon-cell-actions">
                 <button type="button" class="ss-icon-cell-btn ss-icon-cell-btn--del"
                   *ngIf="!isLockedIcon(item.svg)"
@@ -316,7 +306,7 @@
               </div>
             </div>
 
-            <!-- ③ 新增自定义规则单元格（+ 号，简化：仅切换状态，表单在下方独立行） -->
+
             <div class="ss-icon-cell ss-icon-cell--add" (click)="toggleAddCustomRule()">
               <ng-container *ngIf="!_addingCustomRule">
                 <span class="ss-icon-cell-plus">+</span>
@@ -329,7 +319,7 @@
             </div>
           </div>
 
-          <!-- ④ 编辑图标行：卡片式多行布局 -->
+
           <div *ngIf="_editingRuleKey !== null" class="ss-icon-form-card">
             <div class="ss-icon-form-header">{{ i18n.t('settings.iconEdit') }}: <b>{{ _editingRuleKey }}</b></div>
             <div class="ss-icon-form-field">
@@ -343,7 +333,7 @@
             </div>
             <div class="ss-icon-form-field">
               <span class="ss-icon-form-flabel">{{ i18n.t('settings.iconSvgNameHint') || 'Filename' }}</span>
-              <!-- 内置/自定义图标的Filename均可编辑（默认文件允许改图标Filename） -->
+
               <input class="ss-icon-form-input" type="text" [(ngModel)]="_editingIconSvgName"
                 spellcheck="false" placeholder="name.svg" (keydown.enter)="confirmEditIcon()" (keydown.escape)="cancelEditIcon()" />
             </div>
@@ -359,7 +349,7 @@
             </div>
           </div>
 
-          <!-- ⑤ 编辑文件夹图标行：卡片式多行布局（规则名只读，与默认 file 一致） -->
+
           <div *ngIf="_editingFolderIcon" class="ss-icon-form-card">
             <div class="ss-icon-form-header">{{ i18n.t('settings.iconEdit') }}: <b>folder</b></div>
             <div class="ss-icon-form-field">
@@ -379,7 +369,7 @@
             </div>
           </div>
 
-          <!-- ⑥ 新增自定义规则表单：卡片式多行布局 -->
+
           <div *ngIf="_addingCustomRule" class="ss-icon-form-card">
             <div class="ss-icon-form-header">{{ i18n.t('settings.iconAddRule') }}</div>
             <div class="ss-icon-form-field">
@@ -408,7 +398,7 @@
       </div>
 
 
-      <!-- ★ 2026-09-20：功能性瘦身——交互 / 查看与编辑；传输与快捷键升为独立大节 -->
+
       <div class="ss-section">
         <label class="ss-label">{{ i18n.t('settings.other') }}</label>
         <div class="ss-toggle-wrap">
@@ -494,7 +484,7 @@
         </div>
       </div>
 
-      <!-- ★ 2026-09-20：传输设置独立大节 -->
+
       <div class="ss-section">
         <label class="ss-label">{{ i18n.t('settings.transferSection') }}</label>
         <div class="ss-toggle-wrap">
@@ -508,8 +498,7 @@
           <input class="ss-concurrency-input" type="number" min="1" max="10" step="1"
           [(ngModel)]="downloadConcurrency" (change)="saveConcurrency()" />
           </div>
-          <!-- ★ 2026-09-28：传输通道模式（原「TAR 打包加速」开关升级为五选一下拉）
-               ★ 2026-09-29：补 ss-toggle-row → 与其它行同为 flex 两端对齐，下拉框靠右；说明文案下移到各 option 的 title -->
+
           <div class="ss-toggle-row ss-concurrency-row" title="{{ i18n.t('settings.channelModeDesc') }}">
           <span class="ss-toggle-label">{{ i18n.t('settings.channelMode') }}</span>
           <select class="ss-select ss-channel-select" [(ngModel)]="transferChannelMode" (change)="saveChannelMode()">
@@ -520,7 +509,7 @@
           <option value="sftpOnly" title="{{ i18n.t('settings.channelMode.sftpOnlyDesc') }}">{{ i18n.t('settings.channelMode.sftpOnly') }}</option>
           </select>
           </div>
-          <!-- ★ 2026-09-07 issue #15：冲突时计算内容摘要，识别「mtime 变了但内容没变」 -->
+
           <label class="ss-toggle-row" title="{{ i18n.t('settings.conflictDigestDesc') }}">
           <span class="ss-toggle-label">{{ i18n.t('settings.conflictDigest') }}</span>
           <span class="ss-toggle-track" [class.active]="conflictDigestEnabled" (click)="toggleConflictDigest()">
@@ -539,7 +528,7 @@
           <input class="ss-concurrency-input" type="number" min="1" max="4096" step="1"
           [(ngModel)]="conflictDigestMaxSizeMB" (change)="saveConflictDigestMaxSize()" />
           </div>
-          <!-- 默认上传/下载路径 -->
+
           <div class="ss-toggle-row ss-path-row">
           <span class="ss-toggle-label">{{ i18n.t('settings.defaultUploadPath') }}</span>
           <input class="ss-path-input" type="text" [(ngModel)]="defaultUploadPath"
@@ -553,7 +542,7 @@
         </div>
       </div>
 
-      <!-- ★ 2026-09-20：快捷键独立大节 -->
+
       <div class="ss-section">
         <div class="ss-sub-head">
           <label class="ss-label" style="margin:0;">{{ i18n.t('settings.hotkeys') }}</label>
@@ -563,9 +552,9 @@
             </svg>
           </button>
         </div>
-            <!-- 面板 Toggle 快捷键（Tabby 全局）—— 置于第一位 -->
+
             <div class="ss-phk-row"><span class="ss-phk-label">{{ i18n.t('settings.hotkey') }}</span><div class="ss-hotkey-field ss-hotkey-multi" [class.recording]="hotkeyRecording" [class.has-value]="customPanelToggleBindings.length && !hotkeyRecording"><ng-container *ngIf="hotkeyRecording; else toggleChips"><span class="ss-hotkey-recording" (click)="startHotkeyRecording()">{{ customToggleBindingLabel(hotkeyRecordingPreview) || i18n.t('settings.hotkeyRecording') }}</span><button type="button" class="ss-chip-remove" (click)="cancelHotkeyRecording(); $event.stopPropagation()" [title]="i18n.t('app.cancel')">×</button></ng-container><ng-template #toggleChips><span class="ss-hotkey-chip" *ngFor="let k of customPanelToggleBindings; let i = index" (click)="customStartToggleRecording(i)" [title]="i18n.t('settings.hotkeyClickToSet')">{{ customToggleBindingLabel(k) }}<button type="button" class="ss-chip-remove" (click)="customRemoveToggleBinding(i); $event.stopPropagation()" [title]="i18n.t('settings.hotkeyClear')">×</button></span><button type="button" class="ss-hotkey-add" (click)="customStartToggleRecording()" [disabled]="!configService" [title]="i18n.t('settings.hotkeyAdd')">+</button></ng-template></div></div>
-            <!-- 面板操作快捷键（多绑定：每个绑定一个 chip，末尾 + 追加） -->
+
             <div class="ss-phk-row" *ngFor="let a of panelHotkeyActions">
               <span class="ss-phk-label">{{ i18n.t(panelHotkeyLabelKey(a)) }}</span>
               <div class="ss-hotkey-field ss-hotkey-multi"
@@ -594,7 +583,7 @@
                 </ng-template>
               </div>
             </div>
-            <!-- ★ 2026-08-31：已占用快捷键（只读，默认收起）——列出固定占用的键位，便于排查冲突 -->
+
             <div class="ss-occupied">
               <button type="button" class="ss-occupied-head" (click)="toggleOccupiedHotkeys()"
                 [attr.aria-expanded]="occupiedHotkeysExpanded">
@@ -617,11 +606,11 @@
         </div>
         <div class="ss-hint ss-hotkey-ok" *ngIf="hotkeySaveMessage">{{ hotkeySaveMessage }}</div>
       </div>
-      <!-- 数据 -->
+
       <div class="ss-section">
         <label class="ss-label">{{ i18n.t('settings.data') }}</label>
 
-        <!-- 数据导入导出 -->
+
         <div class="ss-backup-row">
           <button class="ss-btn" (click)="openExportDialog()">[&darr;] {{ i18n.t('settings.export') }}</button>
           <label class="ss-btn ss-btn-import">[&uarr;] {{ i18n.t('settings.import') }}
@@ -631,10 +620,10 @@
         </div>
       </div>
 
-      <!-- 关于 -->
 
 
-      <!-- 主题颜色修改确认弹窗 -->
+
+
       <div class="ss-overlay" *ngIf="showThemeColorConfirm" (click)="cancelThemeColorOverwrite()"
         [style.background]="isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(128,128,128,0.2)'">
         <div class="ss-edit-modal" [class.ss-dark]="isDarkMode" [class.ss-light]="!isDarkMode" (click)="$event.stopPropagation()">
@@ -649,9 +638,7 @@
         </div>
       </div>
 
-      <!-- ★ 2026-09-29：导出内容勾选弹窗（按配置类别选择要写入备份文件的内容）。
-           未勾选的类别完全不写入 JSON —— 导入侧是「字段不存在 = 不覆盖」语义，
-           故「只导外观」的备份导入时不会动到书签、路径记忆等数据。 -->
+
       <div class="ss-overlay" *ngIf="showExportDialog" (click)="closeExportDialog()"
         [style.background]="isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(128,128,128,0.2)'">
         <div class="ss-edit-modal ss-export-modal" [class.ss-dark]="isDarkMode" [class.ss-light]="!isDarkMode"
@@ -660,15 +647,8 @@
           <div class="ss-edit-field">
             <p class="ss-export-hint">{{ i18n.t('settings.exportPickHint') }}</p>
 
-            <!-- ★ 2026-09-29：九类逐项对齐设置页分区标题；.ss-export-list 内滚，避免弹窗超高 -->
+
             <div class="ss-export-list">
-              <label class="ss-export-item">
-                <input type="checkbox" [(ngModel)]="exportPickLang" class="ss-export-check" />
-                <span class="ss-export-text">
-                  <span class="ss-export-name">{{ i18n.t('settings.language') }}</span>
-                  <span class="ss-export-sub">{{ i18n.t('settings.followTabby') }}</span>
-                </span>
-              </label>
 
               <label class="ss-export-item">
                 <input type="checkbox" [(ngModel)]="exportPickTheme" class="ss-export-check" />
@@ -710,7 +690,7 @@
                 </span>
               </label>
 
-              <!-- 快捷键 / 书签数据：只有一项内容，子描述纯属冗余（用户 2026-09-29 提出删掉） -->
+
               <label class="ss-export-item">
                 <input type="checkbox" [(ngModel)]="exportPickHotkeys" class="ss-export-check" />
                 <span class="ss-export-text">
@@ -728,7 +708,7 @@
               <label class="ss-export-item">
                 <input type="checkbox" [(ngModel)]="exportPickLogs" class="ss-export-check" />
                 <span class="ss-export-text">
-                  <!-- 传输记录无更贴切的现成子描述 key（settings.clearCompleted 并不存在），故只留标题 -->
+
                   <span class="ss-export-name">{{ i18n.t('transfer.log') }}</span>
                 </span>
               </label>
@@ -740,8 +720,7 @@
               </button>
             </div>
           </div>
-          <!-- 底部顺序：主操作在左、Cancel在右（★ 2026-09-29：用户一度要求换序，随后自行确认「Cancel就是在右边」，
-               故维持原序，与面板内对话框及设置页其余三个确认弹窗一致） -->
+
           <div class="ss-edit-footer">
             <button class="ss-btn ss-btn-primary" (click)="exportData()"
               [disabled]="!exportPickCount">{{ i18n.t('settings.export') }}</button>
@@ -750,7 +729,7 @@
         </div>
       </div>
 
-      <!-- 清空数据确认弹窗 -->
+
       <div class="ss-overlay" *ngIf="showClearConfirm" (click)="closeClearConfirm()"
         [style.background]="isDarkMode ? 'rgba(0,0,0,0.5)' : 'rgba(128,128,128,0.2)'">
         <div class="ss-edit-modal" [class.ss-dark]="isDarkMode" [class.ss-light]="!isDarkMode" (click)="$event.stopPropagation()">
@@ -772,7 +751,7 @@
         </div>
       </div>
 
-      <!-- ★ 2026-08-11：隐藏作者信息确认弹窗（点击开启时已自动打开仓库链接） -->
+
 
 
     </div>

@@ -1,21 +1,11 @@
 import { featureApis, invokeFeature, readFeature, writeFeature } from "../../features/api"
-﻿/**
- * SFTP++ 右键菜单（文件列表 + 表头列配置）
- * 修改人：DD1024z + Hy3
- * 修改时间：2026-09-28 — 「分组依据」改为 Windows 风格侧边子菜单（悬停「分组依据」项展开、
- *              ✓ 勾选当前模式，::before 桥接悬停间隙；悬停时测量视口边界——靠右翻转左侧、
- *              靠底上移对齐）；此前为菜单内平铺五项：
- *              无/名称/修改日期/类型/大小，经 groupByAction 通知父面板
- *              2026-09-20 — A8/A9 审计修复：删除死输入 isZh / hasFileActions（模板均未使用）；
- *              新增 sanitizeMenuOrder 收敛菜单顺序配置，消除 string[] 与 ContextMenuAction[] 的类型漂移并过滤未知 action
- *              2026-09-17 — 移除「以文本方式查看」菜单项（改由设置页「允许查看所有文件类型」承担）
- */
+﻿
+
 import { Component, EventEmitter, Input, Output, ViewChild, ElementRef, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core'
 
 import { SftpI18nService } from '../../services/sftp-i18n.service'
 import { GroupByMode } from '../core/grouping'
 
-/** 分组依据可选值（右键菜单展示顺序：无 → 名称 → 修改日期 → 类型 → 大小） */
 export const GROUP_BY_MODES: GroupByMode[] = ['none', 'name', 'modified', 'type', 'size']
 
 export type ContextMenuAction =
@@ -44,13 +34,12 @@ export type ColVisibilityState = {
   ext: boolean
 }
 
-/** 右键文件菜单项定义：标签 i18n key、危险态、快捷键、分组类别 */
 interface FileMenuItemDef {
   labelKey: string
   danger?: boolean
-  /** 快捷键文本，'${mod}' 占位符会被替换为系统修饰键（Ctrl/Cmd） */
+
   shortcut?: string
-  /** 分组类别：相邻不同类别之间自动插入分隔符 */
+
   category: 'transfer' | 'open' | 'clipboard' | 'modify' | 'info' | 'create' | 'panel'
 }
 
@@ -62,12 +51,6 @@ export const DEFAULT_FILE_MENU_ORDER: ContextMenuAction[] = [
   'newFolder', 'newFile', 'refresh', 'selectAll', 'selectInvert', 'copyPath',
 ]
 
-/**
- * ★ 2026-09-20 A9 审计修复：把任意来源的菜单顺序配置收敛为合法的 ContextMenuAction[]。
- *   此前父面板 getter 声明 string[]、本组件声明 ContextMenuAction[]，靠 strict 关闭掩盖了
- *   类型漂移（配置里写错 action 名时，模板仍会走进 MENU_REGISTRY[a] 查表）。
- *   现统一在入口做一次运行期收敛：过滤未知项、保留相对顺序；全非法/为空则回退默认顺序。
- */
 export function sanitizeMenuOrder(value: unknown): ContextMenuAction[] {
   if (!Array.isArray(value) || !value.length) return DEFAULT_FILE_MENU_ORDER
   const valid = value.filter(
@@ -98,8 +81,6 @@ export class SftpContextMenuComponent implements OnChanges {
   @Input() canEdit = false
   @Input() canTransfer = false
   @Input() modKey = 'Ctrl'
-  // ★ 2026-09-20 A8 审计修复：删除两个死输入——isZh 从未被父模板传入且模板未使用；
-  //   hasFileActions 已 @deprecated 且模板从未读取（父组件却每轮变更检测都计算并传值，整条链路空转）。
 
   get hasLocalOpen(): boolean {
     return this.pane === 'local' && this.singleSelected && !!this.entry
@@ -201,45 +182,31 @@ export class SftpContextMenuComponent implements OnChanges {
 
   @Input() i18n!: SftpI18nService
 
-  /** 右键文件菜单项的显示顺序（由设置页控制，默认 DEFAULT_FILE_MENU_ORDER） */
   @Input() menuOrder: ContextMenuAction[] = DEFAULT_FILE_MENU_ORDER
 
-  /**
-   * 面板操作热键快捷键映射（action → key 字符串，如 {delete:'Del', rename:'F2', refresh:'F5'}）。
-   * 由父面板传入当前配置；若某 action 的值为空串/不存在，则该菜单项不显示快捷键。
-   * 未传入时回退 FILE_MENU_REGISTRY 硬编码值（向后兼容）。
-   */
   @Input() panelHotkeyShortcuts: Record<string, string> | null = null
 
-  /** 供模板访问的菜单项注册表 */
   readonly MENU_REGISTRY = FILE_MENU_REGISTRY
 
-  /** ★ 2026-09-28：分组依据——非 null 时在菜单尾部显示「分组依据」区段（仅空白区右键） */
   @Input() groupByPane: 'local' | 'remote' | null = null
-  /** 当前面板生效的分组依据（用于 ✓ 标记） */
+
   @Input() groupBy: GroupByMode = 'none'
   @Output() groupByAction = new EventEmitter<GroupByMode>()
-  /** 是否所有分组已折叠（用于「展开/收起所有分组」按钮文案切换；仅启用分组时由父面板计算传入） */
+
   @Input() groupAllCollapsed = false
-  /** ★ 2026-09-28：展开/收起所有分组（子菜单顶部按钮） */
+
   @Output() groupToggleAll = new EventEmitter<void>()
-  /** ★ 2026-09-28：被禁用的右键菜单项集合（设置页定制停用），含文件动作 + groupBy + groupToggleAll */
+
   @Input() disabledMenuEntries: Set<string> = new Set<string>()
 
-  /** 供模板访问的分组模式列表 */
   readonly GROUP_BY_MODES = GROUP_BY_MODES
 
-  /**
-   * ★ 2026-09-28：「分组依据」子菜单视口边界自适应（悬停触发时测量一次）。
-   * 默认贴触发项右侧展开（left:100%）；靠窗口右缘溢出 → 翻转到触发项左侧（.flip-x）；
-   * 靠窗口底缘溢出 → translateY 上移至底缘对齐。每次 mouseenter 先复位再测量，避免残留上次偏移。
-   */
   positionGroupBySubmenu(): void {
     const sub = this.groupBySubEl?.nativeElement
     if (!sub) return
     sub.classList.remove('flip-x')
     sub.style.transform = ''
-    // 悬停态下 :hover 已生效、display:block，getBoundingClientRect 可测得真实尺寸
+
     const r = sub.getBoundingClientRect()
     if (!r.width) return
     const vw = window.innerWidth
@@ -249,7 +216,6 @@ export class SftpContextMenuComponent implements OnChanges {
     if (r.bottom > vh - M) sub.style.transform = `translateY(${(vh - M) - r.bottom}px)`
   }
 
-  /** 判断某个菜单项当前是否应可见（复用原有 getter 逻辑） */
   _base_isActionVisible(a: ContextMenuAction): boolean {
     switch (a) {
       case 'upload': return this.hasUpload
@@ -275,44 +241,36 @@ export class SftpContextMenuComponent implements OnChanges {
     }
   }
 
-  /** 按 menuOrder 过滤出的当前可见菜单项（已排序） */
   get _base_orderedVisibleActions(): ContextMenuAction[] {
-    // ★ A9：入口统一收敛，杜绝未知 action 进入 MENU_REGISTRY 查表
+
     const order = sanitizeMenuOrder(this.menuOrder)
     return order.filter(a => this.isActionVisible(a) && !this.disabledMenuEntries.has(a))
   }
 
-  /** 相邻两项类别不同则插入分隔符 */
   needsSep(a: ContextMenuAction, i: number): boolean {
     if (i <= 0) return false
     const prev = this.orderedVisibleActions[i - 1]
     return FILE_MENU_REGISTRY[prev].category !== FILE_MENU_REGISTRY[a].category
   }
 
-  /** 把快捷键文本中的 '${mod}' 占位符替换为系统修饰键 */
   shortcutText(s?: string): string {
     if (!s) return ''
     return s.replace('${mod}', this.modKey)
   }
 
-  /**
-   * 获取某菜单项的实际快捷键文本（优先动态配置，其次硬编码 registry）。
-   * 当 panelHotkeyShortcuts 中该 action 的值为空串时，返回空（不显示快捷键），
-   * 即使用户在设置中清除了该热键。
-   */
   effectiveShortcut(action: ContextMenuAction): string {
-    // 面板操作级热键（delete/rename/refresh）走动态配置
+
     if (this.panelHotkeyShortcuts && action in this.panelHotkeyShortcuts) {
       const key = this.panelHotkeyShortcuts[action]
-      // 空串 = 用户已清除该热键 → 不显示
+
       return key ? this.shortcutText(key) : ''
     }
-    // 其余菜单项（copy/cut/paste/selectAll 等）用 registry 硬编码值
+
     return this.shortcutText(FILE_MENU_REGISTRY[action].shortcut)
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // 菜单显示后自动钳制位置，防止超出视口
+
     if (changes['menuVisible'] && this.menuVisible) {
       setTimeout(() => this._clampMenu(this.menuEl, 'menuX', 'menuY'))
     }

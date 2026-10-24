@@ -1,10 +1,3 @@
-﻿/**
- * 框选（Rubber Band Selection）逻辑
- * @修改人：DD1024z + Hy3
- * @修改时间：2026-09-29 — 修复分组模式框选错行：原按「DOM 行序 ↔ 过滤列表序」位置对位，
- *          分组开启后两序不一致（框住下方行、上方行被选中）→ 全链路改为 data-path 路径映射
- *          （几何缓存 / Ctrl 追加基线 / 选中模型同步 / 右键框选菜单命中）
- */
 import { ChangeDetectorRef, ElementRef, NgZone } from '@angular/core'
 import type { LocalEntry } from '../core/panel-types'
 import type { SFTPFile } from '../../services/sftp.service'
@@ -57,7 +50,7 @@ export class PanelRubberBand {
   private _rbMoveHandler: ((e: MouseEvent) => void) | null = null
   private _rbUpHandler: ((e: MouseEvent) => void) | null = null
   private _rbMoved = false
-  /** 仅抑制框选 mouseup 落在该行时紧随其后的那一次 click */
+
   private _rbSuppressClickPath: string | null = null
   private _rbSuppressClickTimer: ReturnType<typeof setTimeout> | null = null
   private _rbSuppressDrag = false
@@ -68,7 +61,7 @@ export class PanelRubberBand {
   private _rbSkipNextContextMenu = false
   private _rbEntryRects: Array<{ top: number; left: number; width: number; height: number }> = []
   private _rbEntryEls: HTMLElement[] = []
-  /** ★ 2026-09-29：与 _rbEntryEls 平行的 data-path 数组（分组模式下 DOM 行序 ≠ 过滤列表序，位置对位会选错行） */
+
   private _rbElPaths: string[] = []
   private _rbOffPageSelected: any[] = []
   private _rbEntrySource: any[] | null = null
@@ -122,8 +115,7 @@ export class PanelRubberBand {
 
   dispose(): void {
     this.cleanup()
-    // ★ 2026-08-10 修复 #23：dispose 同样清理 click 抑制定时器，
-    //   否则面板销毁后定时器回调仍会执行（引用残留/迟到状态变更）
+
     this.clearClickSuppress()
     if (this._rbContextMenuSuppressTimer) {
       clearTimeout(this._rbContextMenuSuppressTimer)
@@ -134,7 +126,7 @@ export class PanelRubberBand {
   cleanup(): void { this._rbCleanup() }
 
   onPaneListClick(event: MouseEvent, pane: 'local' | 'remote'): void {
-    // 只有点中空白区域（非 .entry 元素）才处理
+
     const target = event.target as HTMLElement | null
     if (target && target.closest('.entry')) return
     if (pane === 'local' && this.host.selectedRemote.length > 0) {
@@ -145,27 +137,20 @@ export class PanelRubberBand {
   }
 
   onPaneMouseDown(event: MouseEvent, pane: 'local' | 'remote'): void {
-    // 响应左键(0)和右键(2)
+
     if (event.button !== 0 && event.button !== 2) return
     const target = event.target as HTMLElement
 
-    // 表头区域不触发框选
     if (target.closest('.entry.header')) return
 
-    // 记录是否点击在 entry 上（非 header）
     this.rubberBand.startedOnEntry = !!target.closest('.entry:not(.header)')
 
-    // 已选中条目上按下左键：优先交给原生拖拽（移动/复制），不进入框选
-    // 这样不会与多选拖拽冲突
     const entryEl = target.closest('.entry:not(.header)') as HTMLElement | null
     const pressedOnSelectedEntry = !!entryEl?.classList.contains('selected')
     if (pressedOnSelectedEntry && event.button === 0) {
       this.clearClickSuppress()
       return
     }
-
-    // 支持从条目上直接起手框选；不在这里提前 return
-    // （是否进入框选由后续移动阈值决定，纯点击仍走原有 click 选中逻辑）
 
     const listEl = target.closest('.pane-list') as HTMLElement | null
     if (!listEl) return
@@ -192,11 +177,9 @@ export class PanelRubberBand {
     this._rbStartClientX = event.clientX
     this._rbStartClientY = event.clientY
 
-    // 仅缓存列表容器引用；条目几何在框选真正激活时再读取（避免大列表 mousedown 卡顿）
     this._rbPaneListEl = listEl
     this._rbPaneListRect = rect
 
-    // 绑定 document 级 move/up（Zone 外运行，避免每帧触发变更检测）
     if (!this._rbMoveHandler) {
       this._rbMoveHandler = (e: MouseEvent) => this._rbOnMouseMove(e)
     }
@@ -208,11 +191,9 @@ export class PanelRubberBand {
       document.addEventListener('mouseup', this._rbUpHandler!,true)
     })
 
-    // 左键空白按下：关闭菜单并抑制迟到的 contextmenu（如右键框选刚结束）
     if (event.button === 0) {
       event.preventDefault()
-      // 若右键此刻也按着（双键同按），不要关闭/抑制右键菜单，
-      // 否则会吞掉随后（或刚刚）由右键触发的 contextmenu
+
       if (!(event.buttons & 2)) {
         this.host.closeContextMenu()
         this._rbArmContextMenuSuppress(400)
@@ -223,7 +204,6 @@ export class PanelRubberBand {
     }
   }
 
-  /** 框选期间/结束后短暂屏蔽右键菜单 */
   private _rbArmContextMenuSuppress(ms = 400): void {
     this._rbSuppressContextMenu = true
     if (this._rbContextMenuSuppressTimer) clearTimeout(this._rbContextMenuSuppressTimer)
@@ -233,7 +213,6 @@ export class PanelRubberBand {
     }, ms)
   }
 
-  /** 框选 mousemove：更新选择矩形（支持空白或条目起手） */
   private _rbOnMouseMove(event: MouseEvent): void {
     const rb = this.rubberBand
 
@@ -264,7 +243,6 @@ export class PanelRubberBand {
     this._rbScheduleFrameUpdate()
   }
 
-  /** 每帧更新框选矩形 + 实时选中高亮（rAF 节流，避免 mousemove 卡顿） */
   private _rbScheduleFrameUpdate(): void {
     if (this._rbFrameId != null) return
     this._rbFrameId = requestAnimationFrame(() => {
@@ -276,14 +254,12 @@ export class PanelRubberBand {
     })
   }
 
-  /** 框选 mouseup：结束框选 */
   private _rbOnMouseUp(event: MouseEvent): void {
-    // 在 _rbCleanup() 之前保存状态
+
     const wasClickOnBlank = !this._rbMoved && !this.rubberBand.startedOnEntry
     const pane = this.rubberBand.pane
     const button = event.button
 
-    // 清理长按计时器
     if (this._rbLongPressTimer) {
       clearTimeout(this._rbLongPressTimer)
       this._rbLongPressTimer = null
@@ -303,12 +279,11 @@ export class PanelRubberBand {
       if (row) rbMenuHitIndex = this._rbEntryEls.indexOf(row)
       this.host.closeContextMenu()
     } else if (applied) {
-      // 左键框选结束：抑制紧随其后的误触 contextmenu
+
       this.host.closeContextMenu()
       this._rbArmContextMenuSuppress(350)
     }
 
-    // 框选结束：先算选中再清理（cleanup 会清空缓存，不能放在 zone.run 异步之后）
     if (applied) {
       if (this._rbFrameId != null) {
         cancelAnimationFrame(this._rbFrameId)
@@ -341,7 +316,6 @@ export class PanelRubberBand {
       })
     }
 
-    // 左键在空白区域点击（无拖拽）= 清除该面板选中
     if (wasClickOnBlank && button === 0) {
       this.host.zone.run(() => {
         if (pane === 'local') {
@@ -356,7 +330,6 @@ export class PanelRubberBand {
     }
   }
 
-  /** 清理框选事件监听和状态 */
   private _rbCleanup(): void {
     if (this._rbLongPressTimer) {
       clearTimeout(this._rbLongPressTimer)
@@ -395,7 +368,6 @@ export class PanelRubberBand {
     this._rbLiveSelectedIndices = new Set()
   }
 
-  /** 框选激活时缓存条目几何与索引（延迟到大列表真正开始框选再读 DOM） */
   private _rbCacheForRubberBand(): void {
     const pane = this.rubberBand.pane
     const listEl = this._rbPaneListEl
@@ -418,9 +390,6 @@ export class PanelRubberBand {
       }
     })
 
-    // ★ 2026-09-29：分组模式下 DOM 行序（分组桶序）≠ 过滤列表序（排序序），
-    //    原先「DOM 序号 ↔ 过滤列表序号」位置对位会选错行（框下面、上面被选中）——
-    //    改为按 data-path 建立「路径 → DOM 行序号」映射，命中序号统一先转路径再取条目
     this._rbElPaths = entryEls.map(el => el.getAttribute('data-path') ?? '')
     this._rbPathToIndex.clear()
     this._rbElPaths.forEach((p, i) => { if (p) this._rbPathToIndex.set(p, i) })
@@ -433,7 +402,6 @@ export class PanelRubberBand {
     }
   }
 
-  /** 不触发变更检测，仅同步 DOM 上的选中样式 */
   private _rbClearPaneSelectionVisual(pane: 'local' | 'remote'): void {
     if (pane === 'local') {
       this.host.selectedLocal = []
@@ -448,7 +416,6 @@ export class PanelRubberBand {
     }
   }
 
-  /** 动态元素无 _ngcontent 属性，组件 CSS 不生效，须写完整 inline style */
   private _rbApplyRectBaseStyles(el: HTMLElement): void {
     const s = el.style
     s.position = 'absolute'
@@ -462,7 +429,6 @@ export class PanelRubberBand {
     s.borderRadius = '2px'
   }
 
-  /** 激活框选：创建框选矩形 DOM */
   private _rbActivate(): void {
     if (this.rubberBand.active) return
     this.rubberBand.active = true
@@ -471,7 +437,7 @@ export class PanelRubberBand {
     if (listEl) {
       this._rbScrollLeft = listEl.scrollLeft
       this._rbScrollTop = listEl.scrollTop
-      // ★ 2026-09-20：滚动时重算条目几何并平移框选起点，避免选错行
+
       this._rbScrollHandler = () => {
         if (!this.rubberBand.active || !this._rbPaneListEl) return
         const dx = this._rbPaneListEl.scrollLeft - this._rbScrollLeft
@@ -491,11 +457,11 @@ export class PanelRubberBand {
 
     const rb = this.rubberBand
     const merge = this._rbCtrlHeld
-    // 空白区域框选：仅 Ctrl 为追加，左键/右键均为替换
+
     if (!merge) {
       this._rbClearPaneSelectionVisual(rb.pane as 'local' | 'remote')
     }
-    // 快照追加模式的初始选中
+
     const selected = rb.pane === 'local' ? this.host.selectedLocal : this.host.selectedRemote
     this._rbOffPageSelected = merge ? (selected as any[]).filter(e => !this._rbPathToIndex.has(e.fullPath)) : []
     this._rbInitialSelectedIndices = new Set<number>()
@@ -512,7 +478,6 @@ export class PanelRubberBand {
     this._rbCreateRectEl()
   }
 
-  /** 右键框选结束后弹出菜单（保留框选结果，不清空选中） */
   private _rbOpenContextMenuAfterBoxSelect(
     x: number, y: number, pane: 'local' | 'remote', hitIndex: number | null,
   ): void {
@@ -522,7 +487,6 @@ export class PanelRubberBand {
     this.host.contextMenuY = y
     this.host.contextMenuPane = pane
 
-    // ★ 2026-09-29：hitIndex 是 DOM 行序号，经 _rbElPaths 转路径后在过滤列表里按路径找条目
     if (hitIndex != null && hitIndex >= 0) {
       const hitPath = this._rbElPaths[hitIndex]
       const entry = hitPath
@@ -545,7 +509,6 @@ export class PanelRubberBand {
     this.host.fixContextMenuPosition(x, y)
   }
 
-  /** 动态创建框选矩形（不依赖 Angular *ngIf / 组件样式封装） */
   private _rbCreateRectEl(): void {
     this._rbDestroyRectEl()
     const listEl = this._rbPaneListEl
@@ -564,7 +527,6 @@ export class PanelRubberBand {
     }
   }
 
-  /** 更新框选矩形位置/大小 */
   private _rbUpdateRectEl(): void {
     if (!this._rbRectEl) this._rbCreateRectEl()
     const rb = this.rubberBand
@@ -574,7 +536,7 @@ export class PanelRubberBand {
     const padL = parseFloat(cs.paddingLeft) || 0
     const padT = parseFloat(cs.paddingTop) || 0
     const s = this._rbRectEl.style
-    // 坐标按 border 盒计算，absolute 子元素相对 padding 盒定位
+
     s.left = Math.max(0, rb.rectLeft - padL) + 'px'
     s.top = Math.max(0, rb.rectTop - padT) + 'px'
     s.width = Math.max(0, rb.rectWidth) + 'px'
@@ -582,7 +544,6 @@ export class PanelRubberBand {
     s.display = (rb.rectWidth > 0 || rb.rectHeight > 0) ? 'block' : 'none'
   }
 
-  /** 根据当前框选矩形计算目标选中索引 */
   private _rbTargetIndicesFromRect(): Set<number> {
     const hitIndices = this._rbComputeHitIndices()
     const merge = this._rbCtrlHeld
@@ -594,7 +555,6 @@ export class PanelRubberBand {
     return hitIndices
   }
 
-  /** 同步选中模型；★ 2026-09-29：序号为 DOM 行序号，先经 _rbElPaths 转路径再按路径取条目（分组模式顺序无关） */
   private _rbLookupEntries(source: any[]): Map<string, any> {
     if (source !== this._rbEntrySource) {
       this._rbEntrySource = source
@@ -621,7 +581,6 @@ export class PanelRubberBand {
     }
   }
 
-  /** 拖拽过程中实时更新条目高亮与选中模型（差量改 DOM，不整表重绘） */
   private _rbApplyLiveSelectionFromRect(): void {
     const target = this._rbTargetIndicesFromRect()
     const prev = this._rbLiveSelectedIndices
@@ -648,12 +607,10 @@ export class PanelRubberBand {
     this._rbSyncSelectionModel(target)
   }
 
-  /** mouseup 时最终同步选中集 */
   private _rbApplySelectionFromRect(): void {
     this._rbApplyLiveSelectionFromRect()
   }
 
-  /** 计算与当前框选矩形相交的行索引 */
   private _rbComputeHitIndices(): Set<number> {
     const rb = this.rubberBand
     const rLeft = rb.rectLeft, rTop = rb.rectTop
@@ -672,10 +629,6 @@ export class PanelRubberBand {
     return hitIndices
   }
 
-  /**
-   * 二分查找与框选矩形垂直范围可能相交的行区间 [start, end]
-   * rects 按 top 递增排列，将 O(n) 扫描降为 O(log n + k)
-   */
   private _rbFindRowRange(
     rects: Array<{ top: number; left: number; width: number; height: number }>,
     rTop: number, rBottom: number,
@@ -698,7 +651,6 @@ export class PanelRubberBand {
     return [start, lo - 1]
   }
 
-  /** 框选激活时清除对侧面板的选中（仅允许单侧选中，在框选开始即刻执行） */
   private _rbClearOppositePane(): void {
     if (this.rubberBand.pane === 'local' && this.host.selectedRemote.length > 0) {
       this.host.selectedRemote = []

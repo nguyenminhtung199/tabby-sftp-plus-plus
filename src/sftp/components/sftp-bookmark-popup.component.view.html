@@ -1,4 +1,3 @@
-
     <div class="bookmark-popup"
       [style.top.px]="top"
       [style.left.px]="left"
@@ -49,7 +48,7 @@
           <div class="bm-info"><span class="bm-name">{{ b.name }}</span><span class="bm-path">{{ b.path }}</span></div>
         </div>
         <div class="bookmark-scope-label" *ngIf="!customRecentItems?.length" style="font-weight:normal">No recent folders yet</div>
-        <!-- 分组模式：按 groupOrder 渲染「当前连接 / 全局」块 -->
+
         <ng-container *ngIf="groupByScope">
           <ng-container *ngFor="let scope of groupOrder">
             <div class="bookmark-scope-label" *ngIf="bookmarksOf(scope).length">
@@ -81,7 +80,7 @@
           </ng-container>
         </ng-container>
 
-        <!-- 扁平模式：本地/全局混排，可跨范围拖拽；全局项左侧显示标签 -->
+
         <ng-container *ngIf="!groupByScope">
           <div class="bookmark-item" *ngFor="let b of allBookmarks; let i = index"
             [attr.data-bm-id]="b.id"

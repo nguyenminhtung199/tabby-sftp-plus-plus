@@ -105,7 +105,7 @@
   },
   {
     "selector": "settings",
-    "eventCount": 160,
+    "eventCount": 157,
     "actions": [
       "_saveToConfig",
       "cancelAddCustomRule",
@@ -156,7 +156,6 @@
       "saveDateFormat",
       "saveDefaultPathMode",
       "saveInteraction",
-      "saveLang",
       "saveTableSettings",
       "setCustomRecentFolderDwellSeconds",
       "setCustomRecentFolderLimit",

@@ -1,23 +1,3 @@
-﻿/**
- * SFTP++ 远程文件查看对话框（文本 / 图片）
- * @创建人：DD1024z + Hy3
- * @创建时间：2026-08-05
- * @修改人：DD1024z + GPT-5.6 Sol
- * @修改时间：2026-09-29 — 自绘插入光标由「宽度 px（1–4）」改为「形状三档」：@Input caretShape
- *              （block/beam/underline，取值与 Tabby 终端 store.terminal.cursor 逐字一致），
- *              几何改由 caretBoxWidthPx / caretBoxHeightPx / caretBoxTopPx 三个 getter 给出
- *              （方块＝覆盖整字 + mix-blend-mode 反色、竖线＝2px、下划线＝行底 2px 横线），
- *              宽高从 CSS 挪到内联样式（CSS 里保留 2×18 仅作兜底）
- *              2026-09-21 — rAF/右键菜单回调增加销毁安全的变更检测；
- *              2026-09-20 — 行号/光标宽度可配置（设置项）
- *              2026-09-20 — 查看器补回点击插入光标（虚拟列表无原生 caret）
- *              2026-09-20 — 行号 gutter 改 min-width，避免 padding 被 width 挤没
- *              2026-09-20 — 虚拟滚动：加大 overscan + rAF 贴窗防滚空白；增加行号 gutter
- *              2026-09-20 — issue #23：大文本改虚拟滚动（按行窗口渲染），根治 textarea 塞满白屏
- *              2026-08-10 — 复制/复制选中按钮、图片上一张下一张导航、加载中图标、打开时文本框自动聚焦
- *              2026-08-10 — 光标显示优化([value]替代ngModel + rAF聚焦)、复制选中按钮消失修复(click/blur事件)
- *              2026-08-26 — 右键菜单卡顿：OnPush + zone 外原生 contextmenu + 选区检测禁 slice
- */
 import {
   AfterViewChecked,
   ChangeDetectionStrategy,
@@ -45,9 +25,8 @@ import { TextMenuAction } from './sftp-text-context-menu.component'
 import { log } from '../../services/sftp-logger'
 export type ViewerMode = 'text' | 'image'
 
-/** 虚拟列表行高（与 .file-dialog-vs-line 的 line-height 一致） */
 const VS_LINE_HEIGHT = 18
-/** 视口上下各多渲染的行数；偏大可减少快速滚动时「空白一闪」 */
+
 const VS_OVERSCAN = 48
 
 function selectionTextInside(root: HTMLElement | null | undefined): string {
@@ -98,7 +77,7 @@ function hasSelectionInside(root: HTMLElement | null | undefined): boolean {
           </div>
           <div class="file-dialog-status file-dialog-error" *ngIf="!loading && error">{{ error }}</div>
 
-          <!-- ★ 2026-09-20：文本虚拟滚动——inner 撑高度 + 窗口贴 scrollTop；点击显示插入光标 -->
+
           <div #vsViewport class="file-dialog-vs"
             *ngIf="!loading && !error && mode === 'text'"
             tabindex="0"
@@ -215,9 +194,9 @@ export class SftpViewerDialogComponent implements OnChanges, OnDestroy, AfterVie
   @Input() showSystemAction = false
   @Input() imageIndex = 0
   @Input() imageCount = 0
-  /** 是否显示行号（设置项，默认 true） */
+
   @Input() showLineNumbers = true
-  /** 自绘插入光标形状（设置项，block/beam/underline 三档，默认 beam 细竖线） */
+
   @Input() caretShape: CaretShape = 'beam'
 
   copied = false
@@ -228,15 +207,14 @@ export class SftpViewerDialogComponent implements OnChanges, OnDestroy, AfterVie
   private pendingFocus = false
   private _selCheckTimer: ReturnType<typeof setTimeout> | null = null
 
-  /** 按行拆好的全文（仅内存索引，DOM 只挂载窗口） */
   private _lines: string[] = []
   vsVisibleLines: string[] = []
   vsStartIndex = 0
   vsOffsetY = 0
   vsTotalHeight = 0
-  /** 行号列宽度（字符数），随总行数位数变化 */
+
   vsGutterChars = 3
-  /** 点击后的插入光标（只读虚拟列表无原生 caret） */
+
   caretVisible = false
   caretX = 0
   caretY = 0
@@ -249,7 +227,7 @@ export class SftpViewerDialogComponent implements OnChanges, OnDestroy, AfterVie
     this._vsRaf = requestAnimationFrame(() => {
       this._vsRaf = 0
       this._syncVisibleWindow(false)
-      // OnPush：滚动在 zone 外，需显式刷本组件
+
       this._safeDetect()
     })
   }
@@ -318,7 +296,7 @@ export class SftpViewerDialogComponent implements OnChanges, OnDestroy, AfterVie
       this._charWidth = 0
     }
     if (changes['visible']) {
-      // 打开/最大化后视口高度可能变化，下一帧按新高度重算窗口
+
       setTimeout(() => this._syncVisibleWindow(true), 0)
     }
     this.cdr.markForCheck()
@@ -332,7 +310,7 @@ export class SftpViewerDialogComponent implements OnChanges, OnDestroy, AfterVie
         vp?.focus({ preventScroll: true })
         this._syncVisibleWindow(true)
         if (vp && this._lines.length) {
-          // 打开时像旧 textarea 一样给出插入光标反馈
+
           const cw = this._measureCharWidth(vp)
           this.caretX = this._gutterBoxWidth(cw)
           this.caretY = Math.floor(vp.scrollTop / VS_LINE_HEIGHT) * VS_LINE_HEIGHT
@@ -359,18 +337,15 @@ export class SftpViewerDialogComponent implements OnChanges, OnDestroy, AfterVie
     if (this._vsRaf) { cancelAnimationFrame(this._vsRaf); this._vsRaf = 0 }
   }
 
-  /** 光标盒宽度：方块/下划线覆盖一个字符宽（与点击定位用的 _charWidth 同源），竖线固定 2px */
   get caretBoxWidthPx(): number {
     if (this.caretShape === 'beam') return 2
     return Math.max(4, Math.round(this._charWidth || 8))
   }
 
-  /** 光标盒高度：下划线只有 2px 细横线，其余两种占满整行 */
   get caretBoxHeightPx(): number {
     return this.caretShape === 'underline' ? 2 : VS_LINE_HEIGHT
   }
 
-  /** 光标盒竖直位置：下划线贴行底（行顶 + 行高 - 线高），其余与 caretY 对齐 */
   get caretBoxTopPx(): number {
     return this.caretShape === 'underline' ? this.caretY + VS_LINE_HEIGHT - 2 : this.caretY
   }
@@ -379,7 +354,7 @@ export class SftpViewerDialogComponent implements OnChanges, OnDestroy, AfterVie
 
   private _gutterBoxWidth(cw: number): number {
     if (!this.showLineNumbers) return 0
-    // 与 CSS 对齐：padL 8 + digits + padR 16 + border 1 + text padL 16
+
     return 8 + this.vsGutterChars * cw + 16 + 1 + 16
   }
 
@@ -404,13 +379,13 @@ export class SftpViewerDialogComponent implements OnChanges, OnDestroy, AfterVie
   }
 
   private _rebuildLines(text: string): void {
-    // 按行切分；保留空行，去掉行尾 \r（Windows）
+
     this._lines = text.length ? text.split(/\n/).map(l => (l.endsWith('\r') ? l.slice(0, -1) : l)) : []
     this.vsTotalHeight = Math.max(this._lines.length * VS_LINE_HEIGHT, VS_LINE_HEIGHT)
     this.vsGutterChars = Math.max(3, String(Math.max(this._lines.length, 1)).length)
     this.vsStartIndex = 0
     this.vsOffsetY = 0
-    // 视口可能尚未挂上，先按默认高度铺一屏，挂载后再 sync
+
     this._syncVisibleWindow(true)
   }
 
@@ -425,7 +400,7 @@ export class SftpViewerDialogComponent implements OnChanges, OnDestroy, AfterVie
     }
     const scrollTop = el ? el.scrollTop : 0
     const viewH = el && el.clientHeight > 0 ? el.clientHeight : 480
-    // 先贴窗：offset 立刻对齐 scrollTop 附近，减少「滚过去一片空」
+
     const first = Math.max(0, Math.floor(scrollTop / VS_LINE_HEIGHT) - VS_OVERSCAN)
     const visibleCount = Math.ceil(viewH / VS_LINE_HEIGHT) + VS_OVERSCAN * 2
     const last = Math.min(lineCount, first + visibleCount)
@@ -441,12 +416,11 @@ export class SftpViewerDialogComponent implements OnChanges, OnDestroy, AfterVie
     this.vsVisibleLines = this._lines.slice(first, last)
   }
 
-  /** 点击正文：放置闪烁插入光标（虚拟列表不是 textarea，需自绘） */
   onVsMouseDown(ev: MouseEvent): void {
     if (ev.button !== 0) return
     const vp = this.vsViewport?.nativeElement
     if (!vp || !this._lines.length) return
-    // 点在滚动条上不处理
+
     if (ev.offsetX >= vp.clientWidth) return
 
     const cw = this._measureCharWidth(vp)
@@ -460,7 +434,7 @@ export class SftpViewerDialogComponent implements OnChanges, OnDestroy, AfterVie
     this.caretX = gutterBox + col * cw
     this.caretY = lineIdx * VS_LINE_HEIGHT
     this.caretVisible = true
-    // 拖选开始时先显示，mouseup 若有选区再藏
+
     this.cdr.markForCheck()
   }
 
@@ -541,7 +515,7 @@ export class SftpViewerDialogComponent implements OnChanges, OnDestroy, AfterVie
   updateHasSelection(): void {
     const next = hasSelectionInside(this.vsViewport?.nativeElement)
     if (next === this.hasSelectionText) {
-      // 有选区时藏插入光标；无选区且刚点过则保持
+
       if (next && this.caretVisible) {
         this.caretVisible = false
         this.cdr.markForCheck()
@@ -562,7 +536,7 @@ export class SftpViewerDialogComponent implements OnChanges, OnDestroy, AfterVie
   }
 
   onTextBlur(): void {
-    // 延迟：复制选中按钮的 mousedown 会先 blur，需等 click 完成
+
     setTimeout(() => {
       let dirty = false
       if (!hasSelectionInside(this.vsViewport?.nativeElement) && this.hasSelectionText) {
@@ -583,7 +557,7 @@ export class SftpViewerDialogComponent implements OnChanges, OnDestroy, AfterVie
       case 'copyAll': this.copy(); break
       case 'copyAddress': if (this.imageUrl) copyTextToClipboard(this.imageUrl); break
       case 'selectAll': {
-        // 虚拟列表无法一次选中全文 DOM；全选语义改为复制全文（并提示已复制）
+
         this.copy()
         break
       }

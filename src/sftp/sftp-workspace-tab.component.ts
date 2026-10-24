@@ -9,7 +9,7 @@ import { log } from '../services/sftp-logger'
   styles: [require('./sftp-workspace-tab.component.view.css')],
 })
 export class SftpWorkspaceTabComponent extends BaseTabComponent implements AfterViewInit {
-  /** 供装饰器识别 SFTP++ 工作区标签 */
+
   readonly sftpPlusWorkspace = true
 
   sshSession: any = null
@@ -64,12 +64,11 @@ export class SftpWorkspaceTabComponent extends BaseTabComponent implements After
     this.title = this._buildTabTitle()
 
     ref.changeDetectorRef.detectChanges()
-    // 工作区标签挂载后，等 Tabby 完成布局再刷新面板尺寸
+
     this._layoutTimeout = setTimeout(() => panel.refreshWorkspaceLayout(), 0)
     this._layoutRaf = requestAnimationFrame(() => panel.refreshWorkspaceLayout())
   }
 
-  /** 标签标题：原 SSH 终端标签名 - SFTP++ */
   private _buildTabTitle(): string {
     const terminal = this.terminalRef
     const base = String(terminal?.customTitle || terminal?.title || '').trim()
@@ -85,10 +84,9 @@ export class SftpWorkspaceTabComponent extends BaseTabComponent implements After
     if (this.closingFromPanel) return true
     const panel = this.panelRef?.instance
     if (panel && (panel as any).transfers?.length > 0) {
-      // ★ 2026-08-10 修复 #10：改用已存在的 notify.closeWithTransfers（带 {count} 参数），
-      //   workspace.closeWithTransfers 在所有 locale 中都不存在，永远回退到硬编码中文
+
       const count = (panel as any).transfers.length
-      return window.confirm((panel as any).i18n?.t('notify.closeWithTransfers', { count }) || '有正在进行的传输，确定要关闭吗？')
+      return window.confirm((panel as any).i18n?.t('notify.closeWithTransfers', { count }) || 'Transfers are still running. Close anyway?')
     }
     return true
   }
@@ -102,9 +100,8 @@ export class SftpWorkspaceTabComponent extends BaseTabComponent implements After
     super.destroy()
   }
 
-  /** TODO: 实现会话恢复——保存连接信息以便崩溃后自动重连 */
   override async getRecoveryToken(): Promise<null> {
-    // 当前不支持会话恢复，面板状态（连接、路径、选中）在崩溃后丢失
+
     return null
   }
 }

@@ -1,14 +1,3 @@
-/**
- * Tabby 模块类型声明（shim）
- * 功能描述：为 tabby-core、tabby-terminal、tabby-settings 提供最小类型声明
- * 创建人：DD1024z + Claude
- * 创建时间：2026-06-21
- * 修改人：DD1024z + Hy3
- * 修改时间：2026-09-24 — PlatformService 补充 getAppVersion/getOSRelease/openExternal 声明；
- *              新增 HostAppService（反馈预填环境信息需要宿主平台名）
- */
-
-// tabby-core 导出声明
 declare module 'tabby-core' {
   const TabbyCoreModule: any
   export default TabbyCoreModule
@@ -77,7 +66,7 @@ declare module 'tabby-core' {
   export class SplitTabComponent extends BaseTabComponent {
     getFocusedTab?(): any
   }
-  // FileTransfer 相关
+
   export interface FileTransfer {
     getName(): string
     getSize?(): number
@@ -114,18 +103,18 @@ declare module 'tabby-core' {
     cancel?(): void
   }
   export class PlatformService {
-    // 平台相关方法
+
     getAppVersion(): string
     getOSRelease(): string
     openExternal(url: string): void
   }
-  /** 宿主平台信息（platform: 'Windows' | 'macOS' | 'Linux' | 'Web'） */
+
   export class HostAppService {
     relaunch(): void
     get platform(): string
   }
   export class ProfilesService {
-    // 配置文件相关方法
+
   }
   export abstract class Theme {
     name: string
@@ -139,36 +128,27 @@ declare module 'tabby-core' {
     get themeChanged$(): import('rxjs').Observable<Theme>
   }
 
-  /**
-   * ConfigService — Tabby 配置读写核心服务
-   * 用法：注入 ConfigService，通过 store['yourKey'] 读写插件配置
-   */
   export class ConfigService {
-    /** 配置存储代理（支持嵌套读写） */
+
     store: any
-    /** 配置就绪后触发一次 */
+
     readonly ready$: import('rxjs').Observable<boolean>
-    /** 配置变更时触发（含跨窗口 IPC 广播） */
+
     readonly changed$: import('rxjs').Observable<void>
-    /** 持久化配置到 config.yaml */
+
     save(): Promise<void>
-    /** 从文件加载配置 */
+
     load(): Promise<void>
   }
 
-  /**
-   * ConfigProvider — 插件声明默认配置的基类
-   * 用法：继承此类，设置 defaults 属性，在 NgModule 中注册为 multi provider
-   */
   export abstract class ConfigProvider {
-    /** 默认配置值（嵌套对象，顶级键即为 config.yaml 中的段名） */
+
     defaults: any
-    /** 平台特定默认值 */
+
     platformDefaults: Record<string, any>
   }
 }
 
-// tabby-terminal 导出声明
 declare module 'tabby-terminal' {
   export class TerminalDecorator {
     attach(terminal: any): void
@@ -184,7 +164,6 @@ declare module 'tabby-terminal' {
   }
 }
 
-// tabby-settings 导出声明
 declare module 'tabby-settings' {
   export class SettingsTabComponent {
     activeTab: string

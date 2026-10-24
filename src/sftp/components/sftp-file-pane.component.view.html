@@ -1,4 +1,3 @@
-
     <div class="pane" (mousedown)="onPaneAreaMouseDown($event)">
       <div class="pane-title" *ngIf="resolvedPaneCustomOrder.length">
         <ng-container *ngFor="let item of resolvedPaneCustomOrder">
@@ -82,7 +81,7 @@
                 (dblclick)="onColResizeDblClick(col, $event)"></div>
             </span>
           </div>
-<div class="entry custom-inline-draft" *ngIf="customInlineEdit && !customInlineEdit.originalPath" [style.gridTemplateColumns]="colWidths"><span class="icon">{{ customInlineEdit.isDirectory ? '📁' : '📄' }}</span><span class="name custom-inline-cell"><input class="custom-inline-name" [ngModel]="customInlineEdit.value" (ngModelChange)="customInlineOwner.customInlineValue($event)" [readonly]="customInlineEdit.busy" [class.custom-inline-invalid]="!!customInlineEdit.error" [attr.title]="customInlineEdit.error || customInlineEdit.title" [attr.aria-label]="customInlineEdit.title" (keydown)="customInlineKey($event)" (blur)="customInlineOwner.customInlineCommit()" (mousedown)="$event.stopPropagation()" (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()" (contextmenu)="$event.stopPropagation()" /><button type="button" class="custom-inline-cancel" title="Cancel name editing" aria-label="Cancel name editing" (mousedown)="$event.preventDefault(); $event.stopPropagation()" (click)="$event.stopPropagation(); customInlineOwner.customInlineCancel()">×</button></span></div>          <!-- 分组模式关闭：维持原有扁平渲染（性能路径不变） -->
+<div class="entry custom-inline-draft" *ngIf="customInlineEdit && !customInlineEdit.originalPath" [style.gridTemplateColumns]="colWidths"><span class="icon">{{ customInlineEdit.isDirectory ? '📁' : '📄' }}</span><span class="name custom-inline-cell"><input class="custom-inline-name" [ngModel]="customInlineEdit.value" (ngModelChange)="customInlineOwner.customInlineValue($event)" [readonly]="customInlineEdit.busy" [class.custom-inline-invalid]="!!customInlineEdit.error" [attr.title]="customInlineEdit.error || customInlineEdit.title" [attr.aria-label]="customInlineEdit.title" (keydown)="customInlineKey($event)" (blur)="customInlineOwner.customInlineCommit()" (mousedown)="$event.stopPropagation()" (click)="$event.stopPropagation()" (dblclick)="$event.stopPropagation()" (contextmenu)="$event.stopPropagation()" /><button type="button" class="custom-inline-cancel" title="Cancel name editing" aria-label="Cancel name editing" (mousedown)="$event.preventDefault(); $event.stopPropagation()" (click)="$event.stopPropagation(); customInlineOwner.customInlineCancel()">×</button></span></div>
           <ng-container *ngIf="!groupRows">
             <div class="entry" *ngFor="let e of pageEntries; let i = index; trackBy: trackByFn"
             [attr.data-path]="e.fullPath"
@@ -98,8 +97,7 @@
             (dragend)="entryDragEnd.emit()"
             [style.gridTemplateColumns]="colWidths">
             <span class="icon">
-              <!-- ★ 2026-09-21 P2：iconSrc/folderIcon 的结果已按Extension memo（见 _iconSrcMemo），
-                   这里的多次求值只是 Map 查表，不再重跑规则匹配链 -->
+
               <ng-container *ngIf="e.isDirectory">
                 <img *ngIf="folderIcon as src" class="custom-file-icon" [src]="src" alt="folder" draggable="false" />
                 <ng-container *ngIf="!folderIcon"><span class="native-folder-icon">📁</span></ng-container>
@@ -109,8 +107,7 @@
 <img *ngIf="!customSetiPython(e) && iconSrc(e) as src" class="custom-file-icon" [src]="src" [alt]="e.name" draggable="false" />
                 <ng-container *ngIf="!iconSrc(e)"><span class="native-file-icon">📄</span></ng-container>
               </ng-container>
-              <!-- ★ 2026-09-08 issue #16：符号链接 / 快捷方式在图标**左下角**叠加 ↗ 角标
-                   （2026-09-29 修正注释：实际是左下角，见 styles.ts 的 .link-badge） -->
+
               <span class="link-badge" *ngIf="isLinkEntry(e)" [title]="linkBadgeTitle(e)">
                 <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 10.5 L10.5 5.5 M7 5.5 H10.5 V9"/></svg>
               </span>
@@ -119,8 +116,7 @@
             <span *ngFor="let col of visibleCols; trackBy: trackByCol" class="{{col}}" [attr.title]="colValue(col, e)">{{ colValue(col, e) }}</span>
             </div>
           </ng-container>
-          <!-- 分组模式开启：分组表头行（点击箭头收展 / 点击其余区域全选该组）+ 条目行。
-               表头行带 .header 类 → 框选/右键/空白判定等既有的 :not(.header) 选择器自动跳过 -->
+
           <ng-container *ngIf="groupRows">
             <ng-container *ngFor="let row of pageGroupRows; trackBy: trackGroupRowFn">
               <div class="entry header group-row" *ngIf="row.kind === 'header'"
@@ -130,10 +126,7 @@
                 [class.partial]="groupSelState(row) === 'partial'"
                 [class.nav-focus]="isNavFocusedHeader(row)"
                 (click)="groupSelect.emit(row.bucketKey)">
-                <!-- ★ 2026-09-30：内容包一层 .group-inner（跨全部列后内部 flex 排列）。
-                     这一层是「宽度对齐」与「紧凑视觉」能同时成立的关键：行本身用父级绑定的
-                     同一份列模板撑宽（与条目行逐像素一致），紧凑排列交给内层 flex。
-                     详见 styles.ts 的 .entry.group-row / .group-inner 注释。 -->
+
                 <span class="group-inner">
                   <span class="group-chevron" [title]="row.collapsed ? labels.groupExpand : labels.groupCollapse"
                     (click)="groupToggle.emit(row.bucketKey); $event.stopPropagation()">{{ row.collapsed ? '▸' : '▾' }}</span>

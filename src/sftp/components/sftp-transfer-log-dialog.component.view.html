@@ -1,4 +1,3 @@
-
     <div class="overlay" *ngIf="visible" (wheel)="onOverlayWheel($event)">
       <div class="dialog log-dialog" (wheel)="onScrollableWheel($event)">
         <div class="dialog-title">
@@ -34,7 +33,7 @@
             </label>
           </ng-container>
           <button (click)="export.emit()">{{ i18n.t('app.export') }}</button>
-          <!-- ★ 2026-09-26：没有「可清除记录」时禁用（无记录 / 只剩下正在传输中的） -->
+
           <button (click)="clear.emit()" class="danger" [disabled]="!clearableCount">{{ i18n.t('app.clear') }}</button>
           <button *ngIf="activeTransferCount" (click)="showTransfers.emit()" class="btn-transfers-toggle">
             {{ (transfersHidden || transfersMinimized) ? '▸' : '▾' }} {{ i18n.t('transfer.inProgress') }} ({{ activeTransferCount }})
@@ -56,16 +55,16 @@
                 {{ getLogFileName(entry) }}
               </span>
               <span class="log-meta">
-                <!-- ★ 2026-09-03 / 2026-09-20：目录/文件传输方式标签（SFTP / 快速 / tar） -->
+
                 <span *ngIf="entry.transferMode === 'sftp'" class="log-mode-tag tag-sftp" [title]="i18n.t('log.modeSftp')">⇄ {{ i18n.t('log.modeSftp') }}</span>
                 <span *ngIf="entry.transferMode === 'tar'" class="log-mode-tag tag-tar" [title]="i18n.t('log.modeTar')">📦 {{ i18n.t('log.modeTar') }}</span>
                 <span *ngIf="!entry.transferMode && entry.fileCount > 0" class="log-mode-tag tag-count">{{ i18n.t('log.fileCount', { n: entry.fileCount }) }}</span>
                 <span *ngIf="entry.size != null" class="log-size">{{ formatSize(entry.size) }}</span>
-                <!-- ★ 修复：传输进行中不显示速度/耗时（duration=0 算出 Infinity/NaN） -->
+
                 <span *ngIf="!customLogPending(entry) && entry.size && entry.duration" class="log-speed">{{ formatSpeedFromSize(entry.size, entry.duration) }}</span>
                 <span *ngIf="!customLogPending(entry) && entry.duration != null" class="log-duration">{{ formatDuration(entry.duration) }}</span>
                 <span *ngIf="customLogPending(entry)" class="log-pending-tag">{{ i18n.t('transfer.inProgress') }}</span>
-                <!-- ★ 2026-09-07 issue #15+：内容已确认相同 → 自动跳过；与 success ✓ 区分，避免「重复拖同文件看不到任何反馈」 -->
+
                 <span *ngIf="entry.skippedAsDuplicate" class="log-skipped-tag" [title]="i18n.t('transfer.skippedAsDuplicate')">⏭ {{ i18n.t('transfer.skippedAsDuplicate') }}</span>
               </span>
               <span class="log-status-icon"
@@ -84,7 +83,7 @@
                 </div><div class="log-row-paths">
               <ng-container *ngIf="isUploadLike(entry); else downloadPaths">
                 <span class="log-path-line" [title]="entry.localPath">🖥 {{ entry.localPath }}</span>
-                <!-- ★ 2026-09-20：仅加粗加大 →，不加彩色标签底（用户反馈标签形态更难看） -->
+
                 <span class="log-path-arrow" aria-hidden="true">→</span>
                 <span class="log-path-line" [title]="entry.remotePath">🌐 {{ entry.remotePath }}</span>
               </ng-container>

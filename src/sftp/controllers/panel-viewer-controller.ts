@@ -1,20 +1,3 @@
-/**
- * SFTP++ 查看器/编辑器控制器基类（由 sftp-floating-panel.component.ts 抽取）
- * 功能描述：承载文件查看（文本/图片预览）与编辑器（在系统中编辑、自动同步、保存回传）逻辑与状态，供浮动面板组件继承
- * @创建人：DD1024z + Hy3
- * @创建时间：2026-07-11
- * @修改人：DD1024z + Claude Opus 5
- * @修改时间：2026-09-21 — P1/P2 修复：远程编辑下载要求 requireExactSize + maxBytes —— 大小不可确认
- *              时拒绝打开，否则提前 EOF 的残缺内容一保存就覆盖掉服务器上的完整文件；本地编辑补
- *              maxBytes 硬限（原只看 listing 的 size，为 0 或过期时超大文件会整份读进内存）；
- *              打开编辑器前先关查看器，避免两个 overlay 同时挂载叠层
- *              2026-09-21 — 本地查看加入请求代际保护，异步视图刷新统一走安全入口；
- *              第六轮审计 P2 修复：「系统中打开」临时文件登记并统一清理（此前逐次泄漏）；
- *              本地查看 .lnk 快捷方式目标时补 maxBytes 上限（entry.size 是链接大小，目标可超大）
- *              2026-09-20 — issue #23：查看器改虚拟滚动后恢复全文传入（不再截断 toast）
- *              2026-09-17 — onEditorContentChange 仅在 dirty 翻转时触发视图刷新，减轻粘贴卡顿
- *              2026-09-17 — 合并为 allowViewEditAllFiles；移除「以文本方式查看」
- */
 import * as fs from 'fs/promises'
 import * as fsSync from 'fs'
 import { SFTPSessionLike, SFTPFile } from '../../services/sftp.service'
@@ -35,11 +18,10 @@ import { SftpPanelColumnController } from './panel-column-controller'
 
 import { log } from '../../services/sftp-logger'
 
-/** 图片预览导航用的轻量条目描述（兼容 LocalEntry 与 SFTPFile 的交集字段） */
 type ViewerImageEntry = { name: string; fullPath: string; size?: number; isDirectory?: boolean; mode?: number }
 
 export abstract class SftpPanelViewerController extends SftpPanelColumnController {
-  // ===== 跨簇依赖（由子类 SftpFloatingPanel 提供实现/赋值） =====
+
   protected sftpSession: SFTPSessionLike | null = null
   protected notifications: any = null
   protected closeContextMenu(): void { /* overridden by subclass */ }
@@ -55,13 +37,11 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
     _startTime: number,
     _failReason?: TransferLogEntry['failReason'],
   ): void { /* overridden by subclass */ }
-  /** 可由面板覆写，从设置读取可查看/编辑的文本扩展名白名单。 */
+
   protected getCustomEditableExtensions(): string[] { return [] }
-  /** 可由面板覆写：忽略扩展名白名单，允许查看与编辑所有非目录文件。 */
+
   protected getAllowViewEditAllFiles(): boolean { return false }
 
-  // ===== 文件查看 / 编辑 状态字段（从组件抽取） =====
-  // ========== 文件查看 / 编辑 ==========
   viewerVisible = false
   viewerLoading = false
   viewerMode: ViewerMode = 'text'
@@ -74,7 +54,6 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
   viewerTempPath = ''
   private _viewerGen = 0
 
-  // 图片预览导航：当前目录图片子集（按当前排序/过滤后的顺序）与当前索引（仅图片模式使用）
   viewerPane: 'local' | 'remote' = 'local'
   viewerImageList: ViewerImageEntry[] = []
   viewerImageIndex = 0
@@ -93,19 +72,17 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
   editorError = ''
   editorTempPath = ''
   _editorSavePath = ''
-  /** 打开远程编辑时的基线 mtime/size，保存前冲突检测用 */
+
   private _editorRemoteBaseline: { mtimeMs: number; size: number } | null = null
   _editorFileWatcher: fsSync.FSWatcher | null = null
 
   protected _editorWatchDebounce: ReturnType<typeof setTimeout> | null = null
-  /** 限制外部编辑器频繁保存导致 watch 回调堆积：两次实际同步间隔不低于 800ms */
+
   private _editorWatchLastSync = 0
 
-  // ===== 在系统中打开相关字段 =====
   protected _openPathKeyupHandler: ((ev: KeyboardEvent) => void) | null = null
   protected _openPathTimeoutId: ReturnType<typeof setTimeout> | null = null
-  /** ★ 2026-09-21 P2：「在系统中打开」下载的临时文件登记——此前下载后无任何清理路径，
-   *  每次打开泄漏一个临时文件；面板销毁时统一 best-effort 清理 */
+
   protected _systemOpenTempFiles: string[] = []
 
   async ctxViewFile(): Promise<void> {
@@ -129,8 +106,7 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
     this._setupViewerImageNav(entry!, 'local')
     const gen = ++this._viewerGen
     try {
-      // ★ 2026-09-21 P2：.lnk 快捷方式的 entry.size 是链接自身大小，目标可能是超大文件——
-      //   此前无 maxBytes 全量读内存；补上与远程查看一致的上限兜底（超出抛 FILE_TOO_LARGE）
+
       const buf = await readLocalFileToBuffer(entry!.linkTarget || entry!.fullPath, getViewMaxBytes(entry!.name))
       if (gen !== this._viewerGen) return
       await this._fillViewerFromBuffer(buf, entry!.name)
@@ -154,10 +130,10 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
     try {
       const buf = await downloadRemoteToBuffer(
         this.sftpSession!, entry.fullPath, entry.size ?? 0, entry.mode,
-        // ★ 2026-07-25 B8：硬上限兜底，防止服务器谎报 size 时整文件进内存
+
         getViewMaxBytes(entry.name),
       )
-      if (gen !== this._viewerGen) return // 已被新请求取代，丢弃过时结果
+      if (gen !== this._viewerGen) return
       await this._fillViewerFromBuffer(buf, entry.name)
       await this._cleanupViewerTemp()
       this.viewerTempPath = await writeBufferToTemp(buf, entry.name)
@@ -174,7 +150,6 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
     }
   }
 
-  /** 查看器公共校验 + 状态初始化：条目有效性、文件类型、大小限制、viewer 状态重置 */
   private _prepareViewer(entry: { name: string; fullPath: string; size?: number; isDirectory?: boolean } | null, isRemote: boolean): boolean {
     if (!entry || entry.isDirectory) return false
     if (isRemote && (!this.connected || !this.sftpSession)) return false
@@ -222,7 +197,7 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
   }
 
   private async _fillViewerFromBuffer(buf: Buffer, fileName: string): Promise<void> {
-    // 让出一帧，确保 loading spinner 先画出，避免大文件解码时界面假死
+
     await new Promise<void>(r => setTimeout(r, 0))
     if (isImageFile(fileName)) {
       this.viewerImageUrl = bufferToDataUrl(buf, fileName)
@@ -237,7 +212,7 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
       }
       return
     }
-    // ★ 2026-09-20：全文交给查看器虚拟滚动渲染（不再截断）
+
     this.viewerTextContent = bufferToText(buf).text
   }
 
@@ -250,8 +225,7 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
       isRemote: false,
     })
     try {
-      // ★ 2026-09-21 P2 修复：补 maxBytes —— _validateEditEntry 只看 listing 里的 size，
-      //   listing 为 0 或已过期时（文件刚被写大）会放行超大文件并整份读进内存
+
       const buf = await readLocalFileToBuffer(entry.fullPath, EDIT_TEXT_MAX_BYTES)
       if (isBinaryBuffer(buf)) {
         this.editorError = this.i18n.t('viewer.binaryNotSupported')
@@ -286,7 +260,6 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
     })
   }
 
-  /** 编辑器公共校验：条目有效性、文件类型、大小限制 */
   private _validateEditEntry(entry: { name: string; fullPath: string; size?: number; isDirectory?: boolean } | null, isRemote: boolean): boolean {
     if (!entry || entry.isDirectory) return false
     if (isRemote && (!this.connected || !this.sftpSession)) return false
@@ -304,7 +277,6 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
     return true
   }
 
-  /** 供子类的右键菜单可见性和实际打开校验共用，避免两处规则漂移。 */
   protected isFileNameEditable(fileName: string): boolean {
     return isEditableRemoteFileType(
       fileName,
@@ -337,8 +309,7 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
     remoteSize?: number
     remoteMode?: number
   }): Promise<void> {
-    // ★ 2026-09-21 P2 修复：先关查看器 —— 从查看器直接点「编辑」时两个 overlay 会同时挂载
-    //   叠层；closeViewer 还会递增 _viewerGen，顺带丢弃查看器在途的迟到结果
+
     if (this.viewerVisible) this.closeViewer()
     this.editorVisible = true
     this.editorLoading = true
@@ -360,9 +331,7 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
           opts.remoteSavePath,
           opts.remoteSize ?? 0,
           opts.remoteMode,
-          // ★ 2026-09-21 P1 修复：编辑器会把内容写回远端，大小无法确认时拒绝打开——
-          //   否则提前 EOF 的残缺内容一保存就覆盖掉服务器上的完整文件
-          // ★ 2026-09-21 P2：maxBytes 按实际 stat 复核，兜住 listing size 谎报/为 0 的情况
+
           { requireExactSize: true, maxBytes: EDIT_TEXT_MAX_BYTES },
         )
         this.editorTempPath = tempPath
@@ -380,7 +349,7 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
           this._logEditorTransfer('edit-download', opts.remoteSavePath, tempPath, opts.remoteSize ?? buf.length, true, loadStart)
         }
         this._editorSavePath = opts.remoteSavePath
-        // ★ 2026-08-26 H5：记录打开时远端基线，保存前做冲突检测
+
         this._editorRemoteBaseline = null
         try {
           const st = await this.sftpSession.stat?.(opts.remoteSavePath) as any
@@ -396,7 +365,7 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
           this._editorRemoteBaseline = { mtimeMs: 0, size: opts.remoteSize ?? 0 }
         }
       } catch (e) {
-        // ★ 2026-09-21：超限与「大小不可确认」给出可辨识的提示，不再一律「加载失败」
+
         this.editorError = (e as Error)?.message === 'FILE_TOO_LARGE'
           ? this.i18n.t('editor.tooLarge', { limit: formatBytesLimit(EDIT_TEXT_MAX_BYTES) })
           : this.i18n.t('viewer.loadFailed')
@@ -419,7 +388,6 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
     if (this.editorLocalPath) this._startEditorFileWatch(this.editorLocalPath)
   }
 
-  /** 监听本地/临时文件变更（「在系统中编辑」保存后可同步并启用提交） */
   private _startEditorFileWatch(filePath: string): void {
     this._stopEditorFileWatch()
     try {
@@ -452,9 +420,9 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
 
   private async _syncEditorFromDisk(): Promise<void> {
     if (!this.editorVisible || !this.editorLocalPath || this.editorLoading || this.editorSaving) return
-    // ★ 2026-08-26：面板内已有未保存编辑时，不让外部 watch 静默覆盖内存内容
+
     if (this.editorDirty) return
-    // ★ 限制外部编辑器频繁保存导致 watch 回调堆积：两次实际同步间隔不低于 800ms
+
     const now = Date.now()
     if (now - this._editorWatchLastSync < 800) return
     this._editorWatchLastSync = now
@@ -465,7 +433,7 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
         this.editorDirty = text !== this.editorOriginalContent
         this._safeDetect()
       })
-    } catch { /* 文件可能正被外部编辑器占用，稍后重试 */ }
+    } catch {   }
   }
 
   openViewerInSystem(): void {
@@ -495,8 +463,6 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
       return
     }
 
-    // Ctrl/⌘ 仍按住时 Windows 会按「后台打开」处理，窗口不置顶。
-    // 等修饰键松开后再调用（最多等 800ms）。
     let done = false
     const finish = (): void => {
       if (done) return
@@ -511,8 +477,7 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
       }
       open()
     }
-    // ★ 2026-08-10 修复 #22：800ms 窗口内再次打开时，先清理上一轮未触发的监听/定时器，
-    //   否则旧引用被覆盖后永远无法移除 → window keyup 监听泄漏
+
     if (this._openPathKeyupHandler) {
       window.removeEventListener('keyup', this._openPathKeyupHandler, true)
       this._openPathKeyupHandler = null
@@ -528,7 +493,6 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
     this._openPathTimeoutId = setTimeout(finish, 800)
   }
 
-  /** 远程文件下载到临时目录后用系统默认程序打开 */
   protected async _openRemoteInSystem(entry: SFTPFile): Promise<void> {
     if (!entry || entry.isDirectory || !this.connected || !this.sftpSession) return
     try {
@@ -539,7 +503,7 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
         entry.size ?? 0,
         entry.mode,
       )
-      // ★ 2026-09-21 P2：登记临时文件，面板销毁时统一清理（此前无任何清理路径，逐次泄漏）
+
       this._systemOpenTempFiles.push(localPath)
       this._openPathInSystem(localPath)
     } catch (e) {
@@ -548,7 +512,6 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
     }
   }
 
-  /** ★ 2026-09-21 P2：清理「系统中打开」产生的临时文件（best-effort：文件仍被占用时跳过） */
   protected async _cleanupSystemOpenTempFiles(): Promise<void> {
     const list = this._systemOpenTempFiles.splice(0)
     for (const p of list) {
@@ -557,8 +520,7 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
   }
 
   closeViewer(): void {
-    // ★ 2026-08-10 修复 #21：关闭时递增 gen，使在途加载的结果因 gen 失配被丢弃，
-    //   避免关闭后迟到的内容又被写回（下次打开瞬间闪现上一个文件）
+
     this._viewerGen++
     this.viewerVisible = false
     this.viewerLoading = false
@@ -571,11 +533,9 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
     this._cleanupViewerTemp().catch(() => {})
   }
 
-  /** 由子类（SftpFloatingPanel）override：返回当前目录按排序/过滤后的条目列表 */
   protected getFilteredLocalEntries(): LocalEntry[] { return [] }
   protected getFilteredRemoteEntries(): SFTPFile[] { return [] }
 
-  /** 计算当前目录图片子集并定位当前查看图片的索引（供上一张/下一张导航） */
   private _setupViewerImageNav(entry: { name: string; fullPath: string; isDirectory?: boolean }, pane: 'local' | 'remote'): void {
     this.viewerPane = pane
     if (!isImageFile(entry.name)) {
@@ -589,7 +549,6 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
     this.viewerImageIndex = imgs.findIndex(e => e.fullPath === entry.fullPath)
   }
 
-  /** 图片预览：切换到上一张/下一张（offset = -1 上一张，+1 下一张） */
   async gotoViewerImage(offset: number): Promise<void> {
     if (this.viewerMode !== 'image' || this.viewerLoading) return
     const list = this.viewerImageList
@@ -617,17 +576,17 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
       if (this.editorDirty) {
         await writeTextToFile(this.editorLocalPath, this.editorContent, 'utf8')
       } else {
-        // 可能仅在外部编辑器中修改：从磁盘读取最新内容再上传
+
         try {
           this.editorContent = await readTextFromFile(this.editorLocalPath)
-        } catch { /* 使用当前内存内容 */ }
+        } catch {   }
       }
       if (this.editorIsRemote) {
         if (!this.sftpSession || !this._editorSavePath) {
           this.showToast(this.i18n.t('editor.saveFailed'))
           return
         }
-        // ★ 2026-08-26 H5：保存前比对远端 mtime/size，变更则提示确认覆盖
+
         if (this._editorRemoteBaseline) {
           try {
             const st = await this.sftpSession.stat?.(this._editorSavePath) as any
@@ -642,22 +601,22 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
               if (changed) {
                 const ok = window.confirm(
                   this.i18n.t('editor.remoteChanged')
-                    || '远程文件已被修改。确定要覆盖服务器上的版本吗？',
+                    || 'The remote file changed. Overwrite the server version?',
                 )
                 if (!ok) return
               }
             }
-          } catch { /* stat 失败则继续尝试上传 */ }
+          } catch {   }
         }
         const uploaded = await this._doUpload(this._editorSavePath, this.editorLocalPath, 'edit-upload')
-        // ★ 2026-08-26 C5：必须检查上传结果，失败时保留 dirty 与编辑器
+
         if (!uploaded) {
           this.showToast(this.i18n.t('editor.saveFailed'))
           try { this.notifications?.error?.(this.i18n.t('editor.saveFailed'), '') } catch {}
           return
         }
         void this.refreshRemote()
-        // 刷新基线
+
         try {
           const st = await this.sftpSession.stat?.(this._editorSavePath) as any
           if (st) {
@@ -672,9 +631,9 @@ export abstract class SftpPanelViewerController extends SftpPanelColumnControlle
       }
       this.editorOriginalContent = this.editorContent
       this.editorDirty = false
-      // ★ 修复：本地编辑保存提示"已保存"，远程才提示"已保存到服务器"
-      this.showToast(this.editorIsRemote ? this.i18n.t('editor.saveSuccess') : (this.i18n.t('editor.saveSuccessLocal') || '已保存'))
-      // ★ 2026-09-20：closeEditor 在 editorSaving=true 时直接 return；须先清标志再关
+
+      this.showToast(this.editorIsRemote ? this.i18n.t('editor.saveSuccess') : (this.i18n.t('editor.saveSuccessLocal') || 'Saved'))
+
       this.editorSaving = false
       this.closeEditor(false)
     } catch (e) {

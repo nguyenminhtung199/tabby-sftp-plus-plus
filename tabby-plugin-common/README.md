@@ -1,1 +1,1 @@
-已废弃嵌套副本。请使用仓库根目录 `tabby-plugin-common/`（webpack/tsconfig `@common` 已指向该处）。
+The nested copy is deprecated. Use the repository-root `tabby-plugin-common/` directory; Webpack and TypeScript map `@common` to that location.

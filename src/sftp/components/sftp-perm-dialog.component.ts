@@ -1,6 +1,3 @@
-﻿/**
- * SFTP++ 权限编辑对话框（从主面板抽离）
- */
 import { Component, EventEmitter, Input, Output } from '@angular/core'
 
 import { SftpI18nService } from '../../services/sftp-i18n.service'

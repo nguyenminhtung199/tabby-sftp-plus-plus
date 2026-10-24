@@ -1,4 +1,3 @@
-
     <div class="overlay sftp-delete-overlay" #overlayEl *ngIf="visible" tabindex="-1" (keydown)="onKeyDown($event)">
       <div class="delete-dialog">
         <ng-container *ngIf="batch; else singleDelete">
@@ -11,7 +10,7 @@
             <span class="delete-title">{{ i18n.t('app.deleteMultiple') }}</span>
           </div>
           <div class="delete-text">{{ batchText }}</div>
-          <!-- 批量删除也必须显示所在目录：仅靠「共 N 项」无法判断删的是哪个目录下的文件 -->
+
           <div class="delete-preview" *ngIf="location">
             <div class="delete-preview-row">
               <span class="delete-preview-label">{{ i18n.t('file.location') }}:</span>
@@ -68,7 +67,7 @@
             </div>
           </div>
         </ng-template>
-        <!-- 单文件与批量删除都提示：移入回收站 / 永久删除 -->
+
         <div *ngIf="toTrash" class="delete-action-hint">{{ i18n.t('app.trashHint') || '📥 Move to Recycle Bin' }}</div>
         <div *ngIf="!toTrash" class="delete-action-hint delete-action-perm">{{ '⚠️ ' + (i18n.t('app.permDeleteHint') || 'This action cannot be undone') }}</div>
         <div class="dialog-buttons">

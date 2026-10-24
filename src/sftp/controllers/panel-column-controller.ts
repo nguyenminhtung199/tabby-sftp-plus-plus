@@ -1,25 +1,3 @@
-/**
- * SFTP++ 列/表格设置逻辑基类（由 sftp-floating-panel.component.ts 抽取）
- * 功能描述：承载列可见性/列宽/重排/自适应/表头右键菜单等逻辑与状态，供浮动面板组件继承
- * @创建人：DD1024z + Hy3
- * @创建时间：2026-07-11
- * @修改人：DD1024z + Deepseek-V4.1-Flash
- * @修改时间：2026-09-30 — ★ 列可见性 / 列顺序 / 列宽补齐「变更即落盘」（saveLocalColSettings /
- *              saveRemoteColSettings / saveLocalColWidths / saveRemoteColWidths 末尾加 _paneFlush）。
- *              原先这四处只写内存（_paneSet），仅靠面板销毁 / beforeunload 兜底——用户「改完列直接关
- *              Tabby 窗口」时渲染进程随即销毁：ngOnDestroy 不执行，beforeunload 里 configService.save()
- *              又是异步 IPC（yield platform.saveConfig），写盘不落地 ⇒ 重启后列设置回退（用户实测：
- *              远程面板隐藏「权限」列，重启后该列又出现，config.yaml 里仍是旧值 perms:true）。
- *              与 2026-09-20 排序的「立即 flush 防关窗丢失」同款处理；四处调用点均为低频离散动作
- *              （表头菜单勾选 / 列拖拽 mouseup / 双击自适应），不会造成高频写盘。
- *              2026-09-21 — P2 修复：列顺序加载经 _normalizeColOrder 补齐缺失列（原先只 filter，
- *              配置里存的是子集时缺失列会从表头彻底消失，且没有任何 UI 途径能加回来）；
- *              列宽校验改用 Number.isFinite 排除 Infinity（写进 gridTemplateColumns 会让网格失效）
- *              2026-09-21 — 表头菜单及列操作统一走销毁安全的视图刷新入口；
- *              第六轮审计 P2 修复：loadLocalColWidths/loadRemoteColWidths 改用 _parsePaneJson
- *              （2026-09-20 的「兼容对象与字符串」修复漏了这两个方法，迁移用户列宽回退默认）
- *              2026-09-20 — 排序/列配置读写兼容对象与 JSON 字符串；排序变更立即 flush 防关窗丢失
- */
 import { ChangeDetectorRef, ElementRef, NgZone } from '@angular/core'
 import { SftpI18nService } from '../../services/sftp-i18n.service'
 import { PanelHeaderReorder } from '../components/panel-header-reorder'
@@ -27,7 +5,7 @@ import type { LocalEntry, SFTPFile } from '../core/panel-types'
 
 export abstract class SftpPanelColumnController {
   protected abstract _safeDetect(): void
-  // ===== 静态常量 =====
+
   static readonly LOCAL_COLS_KEY = 'sftp-plus-local-cols'
   static readonly LOCAL_COL_ORDER_KEY = 'sftp-plus-local-cols-order'
   static readonly REMOTE_COLS_KEY = 'sftp-plus-remote-cols'
@@ -37,12 +15,6 @@ export abstract class SftpPanelColumnController {
   static readonly LOCAL_COL_WIDTHS_KEY = 'sftp-plus-local-col-widths'
   static readonly REMOTE_COL_WIDTHS_KEY = 'sftp-plus-remote-col-widths'
 
-  /**
-   * ★ 2026-09-21 P2 修复：持久化的列顺序只做 filter 不补齐，存的是子集时
-   * （损坏数据 / 旧版本少列 / 手改配置）缺失列会从 localVisibleCols 里彻底消失——
-   * 即使 showColX 为 true 也不渲染，且没有任何 UI 途径能把它加回来。
-   * 规范化 = 去重保序 + 追加 ALL_COLS 中缺失的列。
-   */
   protected static _normalizeColOrder(parsed: unknown[]): string[] {
     const all = SftpPanelColumnController.ALL_COLS as readonly string[]
     const order: string[] = []
@@ -55,12 +27,10 @@ export abstract class SftpPanelColumnController {
     return order
   }
 
-  /** 列宽合法性：必须是有限数且不小于各列下限（Infinity 会让 gridTemplateColumns 失效） */
   protected static _validColWidth(v: unknown, min: number): boolean {
     return typeof v === 'number' && Number.isFinite(v) && v >= min
   }
 
-  // ===== 列状态字段 =====
   showHiddenLocal = false
   pinFoldersLocal = true
   localSortBy: 'name' | 'size' | 'modified' | 'birthtime' = 'name'
@@ -117,8 +87,8 @@ export abstract class SftpPanelColumnController {
   headerMenuX = 0
   headerMenuY = 0
   headerMenuCol: string | null = null
-  showColBorders = false  // 显示边框（默认关闭）
-  showZebra = false       // 显示斑马纹（默认关闭）
+  showColBorders = false
+  showZebra = false
   colIconWidth = 24
   colNameMinWidth = 60
   resizeCol: string | null = null
@@ -128,23 +98,21 @@ export abstract class SftpPanelColumnController {
   resizing = false
   _colJustResized = false
   _measureCanvas: HTMLCanvasElement | null = null
-  /** 列宽调整事件监听器引用（供 disposeColResize 在组件销毁时清理） */
+
   private _colResizeMoveHandler: ((e: MouseEvent) => void) | null = null
   private _colResizeUpHandler: (() => void) | null = null
 
-  // ===== 跨簇依赖（由子类 SftpFloatingPanel 初始化） =====
-  // 注入的服务/对象（属性）
   protected i18n!: SftpI18nService
   protected cdr!: ChangeDetectorRef
   protected elRef!: ElementRef
   protected zone!: NgZone
   protected _headerReorder!: PanelHeaderReorder
-  // 状态（属性，由子类初始化）
+
   protected connected!: boolean
   protected contextMenuPane!: 'local' | 'remote'
   protected contextMenuVisible = false
   protected contextMenuEntry: LocalEntry | SFTPFile | null = null
-  // 由子类提供/覆盖的函数型依赖（声明为方法签名，子类 override）
+
   protected formatSize!: (bytes?: number) => string
   protected formatDate!: (ms?: number) => string
   protected getExt(name: string): string { return '' }
@@ -152,10 +120,9 @@ export abstract class SftpPanelColumnController {
   protected formatOctalMode(mode: number): string { return '' }
   protected _paneGet(key: string, def?: any): any { return def }
   protected _paneSet(key: string, val: any): void {}
-  /** 子类覆盖：将 _paneSet 写入落盘（排序 / 列可见性 / 列顺序 / 列宽等低频变更应立即 flush） */
+
   protected _paneFlush(): void {}
 
-  /** 兼容：历史存 JSON 字符串，ConfigProxy/YAML 回读可能已是对象 */
   protected _parsePaneJson(raw: any): any {
     if (raw == null || raw === '') return null
     if (typeof raw === 'object') return raw
@@ -170,7 +137,6 @@ export abstract class SftpPanelColumnController {
   protected getFilteredLocalEntries(): LocalEntry[] { return [] }
   protected getFilteredRemoteEntries(): SFTPFile[] { return [] }
 
-  // ===== 列/表格设置方法 =====
   colHeaderLabel(col: string): string {
     const map: Record<string, string> = {
       name: 'file.name', size: 'file.size', date: 'file.modified', created: 'file.created',
@@ -206,7 +172,6 @@ export abstract class SftpPanelColumnController {
     this._headerReorder.start(col, event, pane)
   }
 
-  // ===== 可见列计算（列簇逻辑，依赖基类列状态字段） =====
   get localVisibleCols(): string[] {
     return this.localColOrder.filter(c => this._localColVisible(c))
   }
@@ -289,13 +254,13 @@ export abstract class SftpPanelColumnController {
         if (cols.path !== undefined) this.localShowColPath = cols.path
         if (cols.ext !== undefined) this.localShowColExt = cols.ext
       }
-    } catch { /* 使用默认值 */ }
+    } catch {   }
     try {
       const parsed = this._parsePaneJson(this._paneGet(SftpPanelColumnController.LOCAL_COL_ORDER_KEY))
       if (Array.isArray(parsed) && parsed.length > 0) {
         this.localColOrder = SftpPanelColumnController._normalizeColOrder(parsed)
       }
-    } catch { /* 使用默认顺序 */ }
+    } catch {   }
     try {
       const s = this._parsePaneJson(this._paneGet('sftp-plus-local-sort')) || {}
       if (s.by) { this.localSortBy = s.by; this.localSortAsc = s.asc !== false }
@@ -317,13 +282,13 @@ export abstract class SftpPanelColumnController {
         if (c.path !== undefined) this.remoteShowColPath = c.path
         if (c.ext !== undefined) this.remoteShowColExt = c.ext
       }
-    } catch { /* 使用默认值 */ }
+    } catch {   }
     try {
       const parsed = this._parsePaneJson(this._paneGet(SftpPanelColumnController.REMOTE_COL_ORDER_KEY))
       if (Array.isArray(parsed) && parsed.length > 0) {
         this.remoteColOrder = SftpPanelColumnController._normalizeColOrder(parsed)
       }
-    } catch { /* 使用默认顺序 */ }
+    } catch {   }
     try {
       const s = this._parsePaneJson(this._paneGet('sftp-plus-remote-sort')) || {}
       if (s.by && s.by !== 'birthtime') { this.remoteSortBy = s.by; this.remoteSortAsc = s.asc !== false }
@@ -345,7 +310,7 @@ export abstract class SftpPanelColumnController {
         ext: this.localShowColExt,
       }))
       this._paneSet(SftpPanelColumnController.LOCAL_COL_ORDER_KEY, JSON.stringify(this.localColOrder))
-      // ★ 2026-09-30：列可见性 / 列顺序变更立即落盘（与 2026-09-20 排序同款处理）
+
       this._paneFlush()
     } catch {}
   }
@@ -365,7 +330,7 @@ export abstract class SftpPanelColumnController {
         ext: this.remoteShowColExt,
       }))
       this._paneSet(SftpPanelColumnController.REMOTE_COL_ORDER_KEY, JSON.stringify(this.remoteColOrder))
-      // ★ 2026-09-30：列可见性 / 列顺序变更立即落盘（与 2026-09-20 排序同款处理）
+
       this._paneFlush()
     } catch {}
   }
@@ -379,7 +344,7 @@ export abstract class SftpPanelColumnController {
     order.splice(toIdx, 0, item)
     if (pane === 'local') this.saveLocalColSettings()
     else this.saveRemoteColSettings()
-    // 通知设置页也同步
+
     try { window.dispatchEvent(new CustomEvent('sftp-plus-settings-changed')) } catch {}
   }
 
@@ -399,7 +364,7 @@ export abstract class SftpPanelColumnController {
     } else {
       if (col === 'size') this.remoteShowColSize = !this.remoteShowColSize
       else if (col === 'date') this.remoteShowColDate = !this.remoteShowColDate
-      else if (col === 'created') { /* 远程无 birthtime，忽略 */ }
+      else if (col === 'created') {   }
       else if (col === 'perms') this.remoteShowColPerms = !this.remoteShowColPerms
       else if (col === 'mode') this.remoteShowColMode = !this.remoteShowColMode
       else if (col === 'access') this.remoteShowColAccess = !this.remoteShowColAccess
@@ -464,7 +429,6 @@ export abstract class SftpPanelColumnController {
     const entryList = isLocal ? this.getFilteredLocalEntries() : this.getFilteredRemoteEntries()
     if (!entryList || entryList.length === 0) return
 
-    // icon 列没有实质文本，调整为 name 列宽
     const targetCol = col === 'icon' ? 'name' : col
     let maxW = this._measureColWidth(targetCol, isLocal)
     maxW = Math.max(maxW, 30)
@@ -497,25 +461,23 @@ export abstract class SftpPanelColumnController {
     const root = this.elRef.nativeElement as HTMLElement
     const pane = isLocal ? root.querySelector('.local-pane') : root.querySelector('.remote-pane')
     if (!pane) return 80
-    // 找 header 中该列的 span 作为字体度量基准
+
     const headerSpan = pane.querySelector(`.entry.header span.${col}`) as HTMLElement | null
     if (!headerSpan) return 80
     const style = getComputedStyle(headerSpan)
     const font = `${style.fontSize} ${style.fontFamily}`
 
-    // 复用 canvas 测量文本宽度
     if (!this._measureCanvas) this._measureCanvas = document.createElement('canvas')
     const ctx = this._measureCanvas.getContext('2d')
     if (!ctx) return 80
     ctx.font = font
 
     let maxW = 0
-    // 测量 header 文本
+
     const headerText = headerSpan.textContent || ''
     const headerW = ctx.measureText(headerText).width + 16 // padding
     maxW = Math.max(maxW, headerW)
 
-    // 测量所有条目的文本
     const items = pane.querySelectorAll(`.entry:not(.header):not(.up-entry) span.${col}`)
     items.forEach(el => {
       const text = el.textContent || ''
@@ -547,28 +509,27 @@ export abstract class SftpPanelColumnController {
     ev.preventDefault()
     ev.stopPropagation()
     const target = ev.target as HTMLElement
-    // 确定面板
+
     this.contextMenuPane = target.closest('.local-pane') ? 'local' : 'remote'
-    // 确定右键的是哪一列
+
     const span = target.closest('span')
     if (span) {
       const cls = span.className
-      // 从 class 中提取列名（排除 'sortable'、'sort-arrow' 等辅助类）
-      // ★ 修复：使用精确匹配而非 substring includes()，避免 'text' 匹配 'ext' 等误判
+
       const colClasses = ['icon', 'name', 'size', 'date', 'perms', 'mode', 'access', 'owner', 'group', 'path', 'ext']
       const classTokens = cls.split(/\s+/)
       this.headerMenuCol = colClasses.find(c => classTokens.includes(c)) || null
     } else {
       this.headerMenuCol = null
     }
-    // 关闭面板级右键菜单，只保留表头右键菜单
+
     this.contextMenuVisible = false
     this.contextMenuEntry = null
     this.headerMenuX = ev.clientX
     this.headerMenuY = ev.clientY
     this.headerMenuVisible = true
     this._safeDetect()
-    // 渲染后测量并修正
+
     setTimeout(() => {
       const menuEl = this.elRef.nativeElement.querySelector('.context-menu') as HTMLElement | null
       if (!menuEl || !this.headerMenuVisible) return
@@ -615,7 +576,6 @@ export abstract class SftpPanelColumnController {
     this.resizePane = pane
     this.resizeStartX = event.clientX
 
-    // handle 在目标列 span 内部，直接从父元素读取实际渲染宽度
     const handleEl = event.target as HTMLElement
     const colEl = handleEl.parentElement
     if (colEl) {
@@ -639,7 +599,7 @@ export abstract class SftpPanelColumnController {
       const delta = e.clientX - this.resizeStartX
       const newWidth = Math.max(minW, this.resizeStartWidth + delta)
       this.zone.run(() => {
-        // 直接修改对应面板的属性（_localWidths() 返回的是临时对象，不能用 w.xxx =）
+
         const p = this.resizePane === 'local'
         switch (this.resizeCol) {
           case 'name': if (p) this.localColNameWidth = newWidth; else this.remoteColNameWidth = newWidth; break
@@ -680,7 +640,6 @@ export abstract class SftpPanelColumnController {
     this._safeDetect()
   }
 
-  /** 清理列宽调整事件监听器（组件销毁时调用，防止拖拽中销毁导致泄漏） */
   disposeColResize(): void {
     if (this._colResizeMoveHandler) {
       document.removeEventListener('mousemove', this._colResizeMoveHandler)
@@ -726,7 +685,7 @@ export abstract class SftpPanelColumnController {
         name: w.name, size: w.size, date: w.date, created: w.created, perms: w.perms, mode: w.mode,
         access: w.access, owner: w.owner, group: w.group, path: w.path, ext: w.ext,
       }))
-      // ★ 2026-09-30：列宽变更立即落盘（拖拽 mouseup / 双击自适应都会走到这里，均为低频动作）
+
       this._paneFlush()
     } catch {}
   }
@@ -738,18 +697,16 @@ export abstract class SftpPanelColumnController {
         name: w.name, size: w.size, date: w.date, created: w.created, perms: w.perms, mode: w.mode,
         access: w.access, owner: w.owner, group: w.group, path: w.path, ext: w.ext,
       }))
-      // ★ 2026-09-30：列宽变更立即落盘（拖拽 mouseup / 双击自适应都会走到这里，均为低频动作）
+
       this._paneFlush()
     } catch {}
   }
 
   protected loadLocalColWidths(): void {
     try {
-      // ★ 2026-09-21 P2 修复：必须走 _parsePaneJson——迁移路径（SftpConfigService._migrateColumns
-      //   经 _safeParse）存的是对象而非 JSON 字符串，直接 JSON.parse(对象) 抛错被吞 → 列宽回退默认
+
       const w = this._parsePaneJson(this._paneGet(SftpPanelColumnController.LOCAL_COL_WIDTHS_KEY)) || {}
-      // ★ 2026-09-21 P2 修复：改用 _validColWidth 排除 Infinity（原 typeof 检查放行，
-      //   写进 gridTemplateColumns 后整个网格布局失效）
+
       const ok = SftpPanelColumnController._validColWidth
       if (ok(w.name, this.colNameMinWidth)) this.localColNameWidth = w.name
       if (ok(w.size, 40)) this.localColSizeWidth = w.size
@@ -767,9 +724,9 @@ export abstract class SftpPanelColumnController {
 
   protected loadRemoteColWidths(): void {
     try {
-      // ★ 2026-09-21 P2 修复：同 loadLocalColWidths，迁移值是对象时必须用 _parsePaneJson
+
       const w = this._parsePaneJson(this._paneGet(SftpPanelColumnController.REMOTE_COL_WIDTHS_KEY)) || {}
-      // ★ 2026-09-21 P2 修复：同 loadLocalColWidths，排除 Infinity
+
       const ok = SftpPanelColumnController._validColWidth
       if (ok(w.name, this.colNameMinWidth)) this.remoteColNameWidth = w.name
       if (ok(w.size, 40)) this.remoteColSizeWidth = w.size

@@ -1,15 +1,14 @@
-
     <div class="overlay" *ngIf="visible && data" #overlayEl tabindex="-1"
       (keydown)="onKeyDown($event)">
       <div class="dialog conflict-dialog" [class.is-compact]="compact">
         <div class="conflict-header">
           <span class="conflict-title-icon">⚠️</span>
           <span class="conflict-title-text">{{ i18n.t('conflict.title') }}</span>
-          <!-- ★ 2026-08-11：方向徽章——一眼分辨是上传（本地→远程）还是下载（远程→本地）冲突 -->
+
           <span class="conflict-direction" *ngIf="directionLabel"
             [class.dir-upload]="data.direction !== 'download'"
             [class.dir-download]="data.direction === 'download'">{{ directionLabel }}</span>
-          <!-- ★ 2026-08-10 修复 #24：去掉硬编码中文"冲突"，用语言中性的序号进度（标题已译） -->
+
           <span class="conflict-progress" *ngIf="totalIdx > 1">{{ currIdx }} / {{ totalIdx }}</span>
           <button type="button" class="conflict-close"
                   (click)="resolve.emit('cancel')"
@@ -41,7 +40,7 @@
                   <span class="conflict-label">{{ i18n.t('conflict.path') }}</span>
                   <span class="conflict-val" [title]="data.remotePath">{{ data.remotePath }}</span>
                 </div>
-                <!-- ★ 2026-09-07 issue #15：内容摘要，用于识别「mtime 变了但内容没变」 -->
+
                 <div class="conflict-info-row conflict-digest" [class.conflict-diff]="digestDiffers">
                   <span class="conflict-label">{{ i18n.t('conflict.digest') }}</span>
                   <span class="conflict-val conflict-digest-val" *ngIf="data.remoteDigest" [title]="data.remoteDigest">{{ shortDigest(data.remoteDigest) }}</span>
@@ -72,7 +71,7 @@
                   <span class="conflict-label">{{ i18n.t('conflict.path') }}</span>
                   <span class="conflict-val" [title]="data.localPath">{{ data.localPath }}</span>
                 </div>
-                <!-- ★ 2026-09-07 issue #15：内容摘要 -->
+
                 <div class="conflict-info-row conflict-digest" [class.conflict-diff]="digestDiffers">
                   <span class="conflict-label">{{ i18n.t('conflict.digest') }}</span>
                   <span class="conflict-val conflict-digest-val" *ngIf="data.localDigest" [title]="data.localDigest">{{ shortDigest(data.localDigest) }}</span>
@@ -82,7 +81,7 @@
               </div>
             </div>
           </div>
-          <!-- ★ 2026-09-07 issue #15：内容实际相同的提示（此时选「跳过」是安全的） -->
+
           <div class="conflict-identical-hint" *ngIf="data.contentIdentical">
             <span>✅</span> {{ i18n.t('conflict.contentIdentical') }}
           </div>
@@ -90,8 +89,7 @@
         <div class="conflict-footer">
           <div class="conflict-actions">
             <button class="conflict-btn" (click)="resolve.emit('cancel')">{{ i18n.t('conflict.cancel') }}</button>
-            <!-- ★ 2026-09-29：内容实际相同时把「跳过」高亮为推荐动作（与绿色提示条同色），
-                 与 Enter 默认动作（onKeyDown → skip）保持一致；内容不同则保持普通次要按钮外观 -->
+
             <button class="conflict-btn conflict-btn-skip"
                     [class.conflict-btn-skip--identical]="data.contentIdentical"
                     (click)="resolve.emit('skip')">{{ i18n.t('conflict.skip') }}</button>

@@ -19,6 +19,7 @@
     "test-folder-merge.cjs",
     "test-navigation-memory.cjs",
     "test-internal-move.cjs",
-    "test-plugin-updater.cjs"
+    "test-plugin-updater.cjs",
+    "test-english-source.cjs"
   ]
 }

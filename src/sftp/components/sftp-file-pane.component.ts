@@ -1,52 +1,5 @@
 import { featureApis, invokeFeature, readFeature, writeFeature } from "../../features/api"
-﻿/**
- * SFTP++ 文件列表面板（本地/远程共用）
- * 功能描述：本地/远程文件列表面板，负责路径栏、工具栏、文件列表渲染与交互
- * @创建人：DD1024z + Hy3
- * @创建时间：2026-07-29
- * @修改人：DD1024z + Deepseek-V4.1-Flash
- * @修改时间：2026-09-30 — 分组表头行改用与条目行**同一份列模板**（[style.gridTemplateColumns]="colWidths"
- *              + 样式侧 display:grid），内容收进新的 .group-inner 里做 flex 紧凑排列。修复用户实测的
- *              「整组选中后分组头右上角露出一个缺口」：条目行 width:max-content 会被列宽合计撑得比
- *              面板内容宽（有意为之——整行底色/边框要盖住横向滚动区），而分组头此前是 display:flex、
- *              没有列模板，max-content 只剩箭头+名称那几个字宽，宽度退化到 min-width:100%，
- *              于是两者相差「列宽合计 − 面板内容宽」那一截。见 styles.ts 同名注释 + 产物探针。
- *              2026-09-29 — 新增 listWheel 输出（列表滚轮事件）：面板侧据此实现「滚轮上滚/下滚」
- *              类面板快捷键（录制格式 WheelUp / WheelDown）。只转发事件，不做任何拦截 ——
- *              是否吞掉滚动由面板侧按「该滚轮是否已绑到某动作」决定，未绑定时列表滚动完全不受影响。
- *              2026-09-29 — 分组表头「选中」高亮改为**通用规则**：组内有任意条目被选中即高亮，
- *              并按选中比例分两档强度 —— 整组选中 = .selected 实底（与条目选中同色，视觉连成整块）；
- *              部分选中 = .partial 半透明底（表达「该组有选中内容」，又不至于被误读成整组已选）。
- *              用户连续两次实测反馈：① Ctrl+A 全选后，组内只有 1 个文件的分组头不亮，而 ≥2 项的
- *              组头全亮；② 非全选、只选中部分内容时同一问题依旧（其中被选中的单条目分组头不亮）。
- *              根因是原 groupAllSelected 的「items.length > 1」≥2 门槛（当初为避免「只选中唯一条目时
- *              表头跟着亮、像选了两项」）——它把「表头亮」错误地绑在条目数上，导致同屏两套表现。
- *              新规则下单条目分组只有「选中 / 未选中」两态（选中即实底亮），多条目分组的部分选中
- *              由 .partial 弱化表达，两者的信息量都不丢。同步删除上一轮为此新增的 allEntriesSelected
- *              输入、父组件 _allEntriesSelected 判定与 local/remoteAllEntriesSelected 两个 getter
- *              （新规则不再需要「列表全选」这一附加条件）。
- *              2026-09-29 — 新增 navFocusKey 输入 + .nav-focus 键盘游标（方向键停留位置可见化）：
- *              分组头行的「选中」高亮当时仍受 ≥2 项门槛约束（groupAllSelected，该门槛已于同日取消，
- *              见下方 groupSelState），而单条目分组里
- *              游标停在表头与停在唯一那条文件上选中集相同 → 屏幕毫无变化、像按键卡住（用户实测）。
- *              故新增与「选中」并列的游标语义：游标所在行 = navFocusKey 命中的行（条目=fullPath、
- *              分组头=NAV_HEADER_KEY_PREFIX+bucketKey），由 CSS .nav-focus 单独表达
- *              2026-09-29 — 分组表头行新增 data-group-key 属性（供键盘导航按表头定位/滚动）；
- *              groupAllSelected 增加 items.length > 1 条件：组内只有 1 个条目时不再高亮表头
- *              （用户实测：只选中该唯一条目时表头跟着亮，视觉上像选了两项）
- *              2026-09-29 — 列表容器新增 has-groups 类绑定（分组模式行距样式开关）
- *              2026-09-28 — 修复：分组表头 [class.selected] 绑定里的箭头函数
- *              （Angular 9 模板表达式不支持 → 运行时 JIT Parser Error 连环报错），
- *              改为组件方法 groupAllSelected(row)
- *              2026-09-28 — 新增文件列表分组（类似 Windows「分组依据」）：groupRows 输入 +
- *              分组表头行渲染（箭头收展 / 点击其余区域全选该组）、groupToggle/groupSelect 输出、
- *              trackGroupRowFn；分组关闭时维持原扁平渲染路径不变
- *              2026-09-21 — P2 修复：图标 URL 按扩展名 memo（_iconSrcMemo / _folderIconMemo）——
- *              数据列早已预计算，图标列仍在模板里按行调用，大目录下每轮变更检测都要为每一行
- *              重跑规则匹配链；图标相关 Input 变化或图标目录变化时失效
- *              2026-09-20 — A8 审计修复：删除死输入 isZh（父模板从未传入、模板亦未使用）
- *              2026-08-24
- */
+﻿
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core'
 import * as path from 'path'
@@ -92,83 +45,67 @@ export class SftpFilePaneComponent {
   @Input() showHeader = true
   @Input() showEmpty = false
   @Input() entries: any[] = []
-  /** ★ 2026-09-28：分组显示行（null=未启用分组，走扁平渲染路径）；由父组件按 GroupByMode 构建并缓存 */
+
   @Input() groupRows: import('../core/grouping').GroupDisplayRow[] | null = null
-  /** 自定义图标：用户指定的 SVG 资源目录（本地绝对路径，可空） */
+
   @Input() iconBaseDir = ''
-  /** 自定义图标规则：扩展名（含点，如 .pdf）→ 资源目录内的 svg 文件名 */
+
   @Input() fileTypeIcons: { ext: string; svg: string; name?: string }[] = []
-  /** 被禁用的内置图标 svg 文件名（这些图标不用于自动扩展名匹配） */
+
   @Input() disabledIconSvgs: string[] = []
-  /** 文件夹图标 svg 文件名（空串 = 走 emoji 📁） */
+
   @Input() folderIconSvg = ''
-  /** 内置图标目录（dist/assets/icons），用于默认扩展名映射，与用户目录相互独立 */
+
   @Input() bundledIconDir = ''
   @Input() visibleCols: string[] = []
-  /** 表头预览列顺序（拖拽中可与数据列不同；空则跟随 visibleCols） */
+
   @Input() headerCols: string[] | null = null
   @Input() colWidths = ''
-  /** 表头 grid 列宽（可与数据列不同，用于拖拽预览） */
+
   @Input() headerColWidths = ''
   @Input() sortBy = 'name'
   @Input() sortAsc = true
   @Input() draggable = true
   @Input() selectionInfo = ''
-  // ★ 2026-09-20 A8 审计修复：删除死输入 isZh（从未被父模板传入，模板也未使用）
+
   @Input() isLocal = true
   @Input() paneCustomOrder: Array<'label' | 'path' | 'back' | 'forward' | 'up' | 'refresh' | 'home' | 'filter' | 'bookmark' | 'hidden'> = ['label', 'back', 'forward', 'up', 'refresh', 'home', 'path', 'hidden', 'filter', 'bookmark']
-  /** 被隐藏的工具栏项（设置页定制工具栏中取消勾选的项） */
+
   @Input() paneHiddenItems: string[] = []
-  /** 当前面板是否显示隐藏文件（眼睛图标按钮的激活态） */
+
   @Input() showHidden = false
   @Input() colHeaderLabelFn: (col: string) => string = (c) => c
   @Input() colValueFn: (col: string, e: any) => string = () => ''
   @Input() isSelectedFn: (e: any) => boolean = () => false
-  /**
-   * ★ 2026-09-29：方向键**焦点键**（父组件 navFocusKey(pane) 传入）。
-   * 条目行 = fullPath；分组头行 = NAV_HEADER_KEY_PREFIX + bucketKey；null / '' = 无键盘焦点。
-   * 命中哪一行，哪一行就带 .nav-focus（键盘游标）——与「选中」(.selected) 是两套语义：
-   * 选中 = 该条目已入选（可能有多行同时亮）；游标 = ↑/↓ 当前停在哪一行（全列表至多一行）。
-   * 单条目分组必须有游标，否则「停在表头」与「停在唯一那条文件上」屏幕完全一样。
-   */
+
   @Input() navFocusKey: string | null = null
   @Input() sortArrowFn: (col: string) => string = () => ''
   @Input() trackByFn: (index: number, e: any) => any = (i) => i
-  /** 父组件正在拖拽调整的列名（用于高亮表头与分隔线） */
+
   @Input() resizingCol: string | null = null
-  /** 正在拖拽排序的列名 */
+
   @Input() draggingCol: string | null = null
-  /** 落点指示：目标列名 */
+
   @Input() dropIndicatorCol: string | null = null
-  /** 落点指示：是否在目标列右侧 */
+
   @Input() dropIndicatorAfter = false
 
   get headerColsResolved(): string[] {
     return this.headerCols && this.headerCols.length ? this.headerCols : this.visibleCols
   }
 
-  /**
-   * 返回图标 URL（file://...），匹配优先级：
-   *   1) 用户自定义规则（fileTypeIcons → 有效图标目录：用户目录优先，否则插件内置目录）
-   *   2) 内置默认扩展名映射（DEFAULT_ICON_MAP → bundledIconDir）
-   *   3) 均未匹配 → default.svg 兜底（统一图标，不再回退 emoji 📄）
-   * 仅对文件生效；文件夹始终返回 null（沿用默认 📁）。
-   */
-  /** 有效图标目录：用户指定优先；留空则回退插件内置目录 */
   private get effectiveIconBaseDir(): string {
     const u = (this.iconBaseDir || '').trim().replace(/\\/g, '/').replace(/\/+$/, '')
     return u ? u : (this.bundledIconDir || '')
   }
 
-  /** 有效图标目录对应的 svg 文件名集合（缓存，O(1) 校验，避免对不存在的文件发出 404 请求） */
   private _validIconFiles: Set<string> | null = null
   private _validIconDirCache: string = ''
-  /** 刷新 svg 文件名缓存（仅当目录变化时执行一次 readdir） */
+
   private _refreshValidIconFiles(): Set<string> {
     const dir = this.effectiveIconBaseDir
     if (this._validIconFiles && this._validIconDirCache === dir) return this._validIconFiles
-    // ★ 2026-09-21 P2：目录变了，按旧目录算出的图标 URL 全部失效（兜住数组 Input
-    //   被原地修改、ngOnChanges 不触发的情况）。清在赋值之前，调用方随后写回的是新值。
+
     this._clearIconMemo()
     const set = new Set<string>()
     if (dir) {
@@ -177,24 +114,18 @@ export class SftpFilePaneComponent {
         for (const f of files) {
           if (typeof f === 'string' && f.toLowerCase().endsWith('.svg')) set.add(f)
         }
-      } catch { /* 目录不可读则保持空集，所有自定义规则失效，回退内置/emoji */ }
+      } catch {   }
     }
     this._validIconFiles = set
     this._validIconDirCache = dir
     return set
   }
-  /** 公共校验：某个 svg 文件名是否真实存在于有效图标目录 */
+
   svgFileExists(svg: string): boolean {
     if (!svg) return false
     return this._refreshValidIconFiles().has(svg)
   }
 
-  /**
-   * ★ 2026-09-21 P2 修复：图标 URL 按扩展名 memo。
-   * 数据列早已用 _cells 预计算，图标列却还在模板里按行调用 —— 每轮变更检测（传输进度
-   * tick、ResizeObserver 布局刷新都会触发）都要为每一行重跑规则匹配链。
-   * 结果只取决于扩展名与图标相关 Input，因此按 ext 缓存；Input 变化时在 ngOnChanges 清空。
-   */
   private _iconSrcMemo = new Map<string, string | null>()
   private _folderIconMemo: { v: string | null } | null = null
 
@@ -204,15 +135,14 @@ export class SftpFilePaneComponent {
   }
 
   _base_iconSrc(e: any): string | null {
-    // ★ 2026-09-20 P0-1 审计修复：无图标配置时提前短路，避免无谓走完整匹配链（含 readdirSync 缓存查询）
+
     if (!this.bundledIconDir && !this.iconBaseDir) return null
     if (!e || e.isDirectory) return null
     const name: string = e.name || ''
-    // ★ 2026-09-08 issue #16：Windows .lnk 快捷方式文件名后缀是 .lnk，需改用 linkTarget 的扩展名去匹配目标类型图标
-    //   （真 symlink 无 linkTarget，链接名本身通常已带目标扩展名，直接用 name 即可）
+
     const iconName = (e.linkTarget && !e.isSymlink) ? (e.linkTarget || name) : name
     const dot = iconName.lastIndexOf('.')
-    // ★ 2026-08-25 修复：不再对无扩展名文件提前返回 null——应让其走到步骤3 default.svg 兜底，统一显示彩色 SVG 而非回退 emoji
+
     const ext = (dot > 0) ? iconName.slice(dot).toLowerCase() : ''
 
     const memoHit = this._iconSrcMemo.get(ext)
@@ -222,9 +152,8 @@ export class SftpFilePaneComponent {
     return resolved
   }
 
-  /** 按扩展名解析图标 URL（iconSrc 的实际匹配链，结果由 _iconSrcMemo 缓存） */
   private _resolveIconSrcForExt(ext: string): string | null {
-    // 1) 用户自定义规则（最高优先级）；svg 必须真实存在于图标目录（缓存校验），否则跳过以避免 404
+
     if (ext && this.fileTypeIcons && this.fileTypeIcons.length) {
       const validSet = this._refreshValidIconFiles()
       const rule = this.fileTypeIcons.find(r => (r.ext || '').toLowerCase() === ext)
@@ -236,7 +165,6 @@ export class SftpFilePaneComponent {
       }
     }
 
-    // 2) 内置默认映射（无需用户配置，跳过被禁用的图标；内置 svg 必然存在，不需再校验）
     if (this.bundledIconDir) {
       const svg = DEFAULT_ICON_MAP[ext]
       if (svg && !this.disabledIconSvgs.includes(svg)) {
@@ -244,7 +172,6 @@ export class SftpFilePaneComponent {
       }
     }
 
-    // 3) ★ 2026-08-25：未匹配任何规则的文件一律用 default.svg 兜底（统一图标，取代 📄 emoji）
     const def = 'default.svg'
     if (this.bundledIconDir && !this.disabledIconSvgs.includes(def)) {
       try { return 'file://' + path.join(this.bundledIconDir, def) } catch { /* ignore */ }
@@ -253,9 +180,6 @@ export class SftpFilePaneComponent {
     return null
   }
 
-  /**
-   * 文件夹图标 URL：folderIconSvg 优先（指向有效目录且文件真实存在且未禁用），否则返回 null（模板回退 📁）
-   */
   folderIconSrc(): string | null {
     if (this._folderIconMemo) return this._folderIconMemo.v
     const v = this._computeFolderIconSrc()
@@ -263,7 +187,6 @@ export class SftpFilePaneComponent {
     return v
   }
 
-  /** 模板用：与行无关，缓存后每轮 CD 只读字段（原先每个目录行都要调 2 次方法） */
   get _base_folderIcon(): string | null {
     return this.folderIconSrc()
   }
@@ -292,7 +215,7 @@ export class SftpFilePaneComponent {
   @Output() listMouseDown = new EventEmitter<MouseEvent>()
   @Output() listMouseEnter = new EventEmitter<void>()
   @Output() listScroll = new EventEmitter<void>()
-  /** ★ 2026-09-29：列表滚轮事件（面板侧据此实现「滚轮上滚/下滚」类面板快捷键） */
+
   @Output() listWheel = new EventEmitter<WheelEvent>()
   @Output() listClick = new EventEmitter<MouseEvent>()
   @Output() listContextMenu = new EventEmitter<MouseEvent>()
@@ -307,19 +230,19 @@ export class SftpFilePaneComponent {
   @Output() entryDragStart = new EventEmitter<{ entry: any; event: DragEvent }>()
   @Output() entryDragEnd = new EventEmitter<void>()
   @Output() toggleBookmarks = new EventEmitter<MouseEvent>()
-  /** ★ 2026-09-28：分组表头行箭头点击（收/展该分组，参数=分组 key） */
+
   @Output() groupToggle = new EventEmitter<string>()
-  /** ★ 2026-09-28：分组表头行其余区域点击（全选该分组下条目，参数=分组 key） */
+
   @Output() groupSelect = new EventEmitter<string>()
 
   @Input() i18n!: SftpI18nService
 
   get resolvedPaneCustomOrder(): Array<'label' | 'path' | 'back' | 'forward' | 'up' | 'refresh' | 'home' | 'filter' | 'bookmark' | 'hidden'> {
     const allowed: Array<'label' | 'path' | 'back' | 'forward' | 'up' | 'refresh' | 'home' | 'filter' | 'bookmark' | 'hidden'> = ['label', 'path', 'back', 'forward', 'up', 'refresh', 'home', 'hidden', 'filter', 'bookmark']
-    // 先只按合法项过滤顺序：仅当配置损坏（无任何合法项）时才兜底回默认全量
+
     const order = this.paneCustomOrder.filter((x): x is any => allowed.includes(x as any))
     const base = order.length ? order : allowed
-    // 再按用户勾选过滤：全部取消勾选时允许返回空数组（工具栏整体不显示）
+
     return base.filter(x => !this.paneHiddenItems.includes(x))
   }
 
@@ -358,24 +281,15 @@ export class SftpFilePaneComponent {
   }
 
   toolbarActionTitle(action: 'back' | 'forward' | 'up' | 'refresh' | 'home' | 'filter' | 'bookmark' | 'hidden'): string {
-    // 读预算缓存（_rebuildLabels 在语言切换时更新），避免每次变更检测重复 i18n.t()
+
     return this._toolbarTitles[action] || ''
   }
 
   pathFocused = false
 
-  /** 本地编辑缓冲：聚焦时与父组件的 pathInput 解耦，避免 CD 期间父级把路径
-   *  重置为已提交值（如后台刷新/心跳）导致正在输入的内容被清掉、表现为"无法输入"。
-   *  失焦或外部导航时由 ngOnChanges 同步回已提交路径。 */
   pathModel = ''
   private _pathFocused = false
 
-  /**
-   * 功能描述：外壳静态文案缓存（筛选/空状态/表头/工具栏标题/列头）。避免模板在每次变更检测里
-   *          重复调用 i18n.t()；仅在语言切换（父组件替换 i18n 实例 → @Input i18n 引用变化）时重算。
-   * 创建人：DD1024z + Hy3
-   * 创建时间：2026-07-23
-   */
   labels = { filter: '', filterApply: '', filterClear: '', noSession: '', name: '', errorAccess: '', noMatch: '', empty: '', groupExpand: '', groupCollapse: '' }
   private _toolbarTitles: Record<string, string> = {}
   colHeaderLabels: Record<string, string> = {}
@@ -399,7 +313,7 @@ export class SftpFilePaneComponent {
       refresh: t('pane.refresh'), home: t('pane.home'), filter: t('pane.filterBtn'),
       bookmark: t('bookmark.title'), hidden: t('pane.showHidden'),
     }
-    // 预算所有可能列的表头文案（按 col 查表，列增减/重排无需重算）
+
     const cols = ['name', 'size', 'date', 'created', 'perms', 'mode', 'access', 'owner', 'group', 'path', 'ext']
     const map: Record<string, string> = {}
     for (const c of cols) map[c] = this.colHeaderLabelFn(c)
@@ -547,20 +461,20 @@ export class SftpFilePaneComponent {
     if (changes.navFocusKey && this.navFocusKey) this.revealListKey(this.navFocusKey)
     if (this.customInlineEdit?.originalPath) this.revealListKey(this.customInlineEdit.originalPath)
     this.rebuildListPage()
-    // 仅在非聚焦态同步父级 pathInput，聚焦编辑时绝不覆盖用户正在输入的内容
+
     if (changes.pathInput && !this._pathFocused) {
       this.pathModel = this.pathInput
     }
-    // 语言切换时父组件会重建 i18n 实例（引用变化）；列头映射函数也可能随之更新 → 重算文案缓存
+
     if (changes.i18n || changes.colHeaderLabelFn) {
       this._rebuildLabels()
     }
-    // 图标目录变化时让缓存失效，下次 iconSrc/folderIconSrc 重新 readdir
+
     if (changes.iconBaseDir || changes.bundledIconDir) {
       this._validIconFiles = null
       this._validIconDirCache = ''
     }
-    // ★ 2026-09-21 P2：图标 memo 依赖这几个 Input，任一变化都要清空
+
     if (changes.iconBaseDir || changes.bundledIconDir || changes.fileTypeIcons
       || changes.disabledIconSvgs || changes.folderIconSvg) {
       this._clearIconMemo()
@@ -570,7 +484,7 @@ export class SftpFilePaneComponent {
   _base_onPathFocus(): void {
     this._pathFocused = true
     this.pathFocused = true
-    // 从已提交路径开始编辑，避免残留上一次输入
+
     this.pathModel = this.pathInput
   }
 
@@ -629,7 +543,6 @@ export class SftpFilePaneComponent {
 
   trackByCol = (_: number, col: string): string => col
 
-  /** ★ 2026-09-28：分组行 trackBy——表头行按 key+折叠态（折叠变化强制重建行），条目行按完整路径 */
   trackGroupRowFn = (_: number, row: any): string => {
     if (!row) return ''
     return row.kind === 'header'
@@ -641,22 +554,6 @@ export class SftpFilePaneComponent {
   colValue(col: string, e: any): string { return this.colValueFn(col, e) }
   isSelected(e: any): boolean { return this.isSelectedFn(e) }
 
-  /**
-   * ★ 2026-09-28：分组表头的「选中」态——模板不支持箭头函数，逻辑收进组件方法。
-   * ★ 2026-09-29（七，用户定稿）：**去掉条目数门槛**，通用规则 = 「组内有任意条目被选中即高亮」，
-   *   并给出两档强度（模板据此分别绑定 .selected / .partial）：
-   *     'all'     组内**全部**条目都在选中集 → 与条目选中同色的实底（.selected），整组连成一块；
-   *     'partial' 组内**部分**条目被选中 → 同色半透明底（.partial），表达「该组有选中内容」，
-   *               同时与组内未选中条目区分开，不会被误读成「整组已选」；
-   *     'none'    组内无选中 → 不高亮。
-   *   单条目分组只可能 all / none，故「选中唯一那条文件 → 表头实底亮」。
-   *   历史：原实现是「items.length > 1 且整组选中」的 ≥2 门槛（2026-09-29 为避免「选中唯一条目时
-   *   表头跟着亮、像选了两项」而加），随后在全选场景又放宽为「>1 项 或 列表全选」——两次都把
-   *   「表头亮」绑在条目数 / 全选这类旁证上。用户实测：全选、非全选只选部分，两种场景都认为表头该亮
-   *   → 判定依据彻底改为「组内选中比例」。（.nav-focus 键盘游标是另一套语义，见 isNavFocusedHeader。）
-   *   性能：单趟遍历组内条目计数（不选中的组也要遍历完才知道 selected === 0）；组内条目数 =
-   *   同扩展名文件数，量级远小于整个列表。模板侧两次求值各遍历一遍，如需再省可改 ngClass 单次调用。
-   */
   groupSelState(row: any): 'all' | 'partial' | 'none' {
     const items = row && row.kind === 'header' ? row.items : null
     if (!items || !items.length) return 'none'
@@ -666,12 +563,10 @@ export class SftpFilePaneComponent {
     return selected === items.length ? 'all' : 'partial'
   }
 
-  /** ★ 2026-09-29：方向键游标是否停在该条目行（条目行的导航键就是 fullPath） */
   isNavFocusedEntry(e: any): boolean {
     return !!this.navFocusKey && !!e && this.navFocusKey === e.fullPath
   }
 
-  /** ★ 2026-09-29：方向键游标是否停在该分组头行（导航键 = NAV_HEADER_KEY_PREFIX + bucketKey） */
   isNavFocusedHeader(row: any): boolean {
     return !!this.navFocusKey
       && !!row && row.kind === 'header' && row.bucketKey != null
@@ -683,19 +578,15 @@ export class SftpFilePaneComponent {
     return this.isLocal && e.inaccessible ? '* ' : ''
   }
 
-  /** ★ 2026-09-08 issue #16：是否为链接（符号链接 / Windows .lnk 快捷方式），叠加角标 */
   isLinkEntry(e: any): boolean {
     return !!(e?.isSymlink || e?.linkTarget)
   }
 
-  /** 链接角标悬停提示：符号链接与快捷方式分别用不同文案 */
   linkBadgeTitle(e: any): string {
     const t = (k: string) => (this.i18n ? this.i18n.t(k) : '')
     return e?.isSymlink ? t('file.symlink') : t('file.shortcut')
   }
 
-  /** ★ 2026-09-08 issue #16：本地面板 Windows .lnk 快捷方式去掉后缀显示（与资源管理器一致）。
-   *  仅对「有 linkTarget 且非真 symlink 且以 .lnk 结尾」的本地条目生效；远程与真符号链接保持原名。 */
   displayName(e: any): string {
     const name: string = e?.name || ''
     if (this.isLocal && !e?.isSymlink && e?.linkTarget && /\.lnk$/i.test(name)) {
@@ -704,7 +595,6 @@ export class SftpFilePaneComponent {
     return name
   }
 
-  /** 是否为隐藏文件/文件夹（与 filterByHidden 同规则：名称以 '.' 开头），列表中淡化显示 */
   isHiddenEntry(e: any): boolean {
     return typeof e?.name === 'string' && e.name.startsWith('.')
   }
