@@ -2103,7 +2103,7 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
         this.platformService = platformService;
         this.hostApp = hostApp;
         this.pkgVersion = (__webpack_require__(/*! ../../package.json */ "./package.json").version);
-        this.pkgBuildTime =  true ? "2026-10-24T18:14:58.817Z" : 0;
+        this.pkgBuildTime =  true ? "2026-10-24T18:26:22.379Z" : 0;
         this.themeLabelKeys = {
             '': 'theme.auto',
             dark: 'theme.dark',
@@ -5706,6 +5706,7 @@ class PanelConflictResolver {
                 },
             },
             queue: {
+                peek: () => host.conflictQueue[0],
                 shift: () => host.conflictQueue.shift(),
                 clear: () => { host.conflictQueue = []; },
                 replace: items => { host.conflictQueue = items; },
@@ -11858,7 +11859,9 @@ class SftpPanelViewerController extends _panel_column_controller__WEBPACK_IMPORT
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   ConcurrencyLimiter: () => (/* binding */ ConcurrencyLimiter),
-/* harmony export */   clampDirConcurrency: () => (/* binding */ clampDirConcurrency)
+/* harmony export */   clampDirConcurrency: () => (/* binding */ clampDirConcurrency),
+/* harmony export */   mapConcurrent: () => (/* binding */ mapConcurrent),
+/* harmony export */   mapSettledConcurrent: () => (/* binding */ mapSettledConcurrent)
 /* harmony export */ });
 /** Shares a bounded number of in-flight operations across one directory transfer. */
 class ConcurrencyLimiter {
@@ -11898,6 +11901,32 @@ function clampDirConcurrency(v) {
     if (v == null || !Number.isFinite(v))
         return 3;
     return Math.min(10, Math.max(1, Math.round(v)));
+}
+/** Preserve all-settled ordering without allocating one pending promise per file. */
+async function mapSettledConcurrent(items, limit, fn) {
+    const results = new Array(items.length);
+    let cursor = 0, completed = 0;
+    const worker = async () => {
+        while (cursor < items.length) {
+            const index = cursor++;
+            try {
+                results[index] = { status: 'fulfilled', value: await fn(items[index], index) };
+            }
+            catch (reason) {
+                results[index] = { status: 'rejected', reason };
+            }
+            if (++completed % 128 === 0)
+                await new Promise(resolve => setTimeout(resolve, 0));
+        }
+    };
+    const workers = Math.min(items.length, Math.max(1, Number.isFinite(limit) ? Math.floor(limit) : 8));
+    await Promise.all(Array.from({ length: workers }, worker));
+    return results;
+}
+async function mapConcurrent(items, limit, fn) {
+    const results = await mapSettledConcurrent(items, limit, fn);
+    return results.map(result => { if (result.status === 'rejected')
+        throw result.reason; return result.value; });
 }
 
 
@@ -12058,8 +12087,11 @@ class ConflictResolveUseCase {
             }
             return;
         }
+        let processed = 0;
         while (this.ports.queue.length() > 0) {
-            const head = this.ports.queue.snapshot()[0];
+            if (++processed % 128 === 0)
+                await new Promise(resolve => setTimeout(resolve, 0));
+            const head = this.ports.queue.peek ? this.ports.queue.peek() : this.ports.queue.snapshot()[0];
             const mode = head && this.autoAction(head);
             if (!mode) {
                 this.ports.ui.showNextDialog();
@@ -12247,11 +12279,13 @@ class ConflictResolveUseCase {
             await ((_c = (_b = this.ports.execution).cleanupMoveFolders) === null || _c === void 0 ? void 0 : _c.call(_b, item.transferCtx));
     }
     _remainingSharedCtxCount(item) {
-        var _a, _b;
-        const id = (_a = item.transferCtx) === null || _a === void 0 ? void 0 : _a.logEntryId;
+        var _a, _b, _c;
+        if (item._ctxCounted && ((_a = item.transferCtx) === null || _a === void 0 ? void 0 : _a.pendingConflicts) != null)
+            return Math.max(0, item.transferCtx.pendingConflicts - 1) + (item.transferCtx.producing ? 1 : 0);
+        const id = (_b = item.transferCtx) === null || _b === void 0 ? void 0 : _b.logEntryId;
         if (id == null || id === '')
             return 0;
-        return this.ports.queue.snapshot().filter(q => { var _a; return ((_a = q.transferCtx) === null || _a === void 0 ? void 0 : _a.logEntryId) === id; }).length + (((_b = item.transferCtx) === null || _b === void 0 ? void 0 : _b.producing) ? 1 : 0);
+        return this.ports.queue.snapshot().filter(q => { var _a; return ((_a = q.transferCtx) === null || _a === void 0 ? void 0 : _a.logEntryId) === id; }).length + (((_c = item.transferCtx) === null || _c === void 0 ? void 0 : _c.producing) ? 1 : 0);
     }
     _flipTransferLog(item, ok) {
         if (!ok || !item.transferCtx)
@@ -14583,14 +14617,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   PanelPasteAdapter: () => (/* binding */ PanelPasteAdapter),
 /* harmony export */   PasteUseCase: () => (/* binding */ PasteUseCase)
 /* harmony export */ });
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! path */ "path");
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _conflict__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./conflict */ "./src/sftp/core/conflict.ts");
-/* harmony import */ var _path_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./path-utils */ "./src/sftp/core/path-utils.ts");
-/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! fs/promises */ "fs/promises");
-/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(fs_promises__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _fs_ops__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./fs-ops */ "./src/sftp/core/fs-ops.ts");
-/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../services/sftp-logger */ "./src/services/sftp-logger.ts");
+/* harmony import */ var _concurrency__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./concurrency */ "./src/sftp/core/concurrency.ts");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _conflict__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./conflict */ "./src/sftp/core/conflict.ts");
+/* harmony import */ var _path_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./path-utils */ "./src/sftp/core/path-utils.ts");
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! fs/promises */ "fs/promises");
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(fs_promises__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _fs_ops__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./fs-ops */ "./src/sftp/core/fs-ops.ts");
+/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../services/sftp-logger */ "./src/services/sftp-logger.ts");
+
 const fileOperation = __webpack_require__(/*! ../../runtime/file-operation.cjs */ "./src/runtime/file-operation.cjs");
 
 
@@ -14611,18 +14647,18 @@ class PasteUseCase {
             // Let input/rendering run even when a large remote snapshot resolves immediately.
             if (++visited % 200 === 0)
                 await new Promise(resolve => setTimeout(resolve, 0));
-            const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(entry.name);
+            const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_3__.safeEntryName)(entry.name);
             if (!safeName) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('skip unsafe paste entry:', entry.name);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn('skip unsafe paste entry:', entry.name);
                 continue;
             }
-            const api = destPane === 'local' ? path__WEBPACK_IMPORTED_MODULE_0__ : path__WEBPACK_IMPORTED_MODULE_0__.posix;
+            const api = destPane === 'local' ? path__WEBPACK_IMPORTED_MODULE_1__ : path__WEBPACK_IMPORTED_MODULE_1__.posix;
             const destFilePath = api.join(destPath, safeName);
             const isSamePane = source === destPane;
             if (isSamePane && entry.fullPath) {
                 if (api.resolve(entry.fullPath) === api.resolve(destFilePath))
                     continue;
-                if (entry.isDirectory && (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.isPathInside)(entry.fullPath, destFilePath, source === 'remote'))
+                if (entry.isDirectory && (0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.isPathInside)(entry.fullPath, destFilePath, source === 'remote'))
                     throw new Error('Cannot copy or move a folder into itself.');
             }
             // Cross-pane directories use the transfer engine's per-file checks.
@@ -14658,8 +14694,8 @@ class PasteUseCase {
             listing = this.ports.fs.readdirRemote(folder).then(entries => new Map(entries.map(entry => {
                 var _a, _b;
                 return [entry.name, {
-                        ...entry, fullPath: path__WEBPACK_IMPORTED_MODULE_0__.posix.join(folder, entry.name), isDirectory: !!entry.isDirectory,
-                        size: (_a = entry.size) !== null && _a !== void 0 ? _a : (_b = entry.attrs) === null || _b === void 0 ? void 0 : _b.size, mtimeMs: (0,_conflict__WEBPACK_IMPORTED_MODULE_1__.parseRemoteMtime)(entry),
+                        ...entry, fullPath: path__WEBPACK_IMPORTED_MODULE_1__.posix.join(folder, entry.name), isDirectory: !!entry.isDirectory,
+                        size: (_a = entry.size) !== null && _a !== void 0 ? _a : (_b = entry.attrs) === null || _b === void 0 ? void 0 : _b.size, mtimeMs: (0,_conflict__WEBPACK_IMPORTED_MODULE_2__.parseRemoteMtime)(entry),
                     }];
             })));
             listings.set(folder, listing);
@@ -14670,10 +14706,10 @@ class PasteUseCase {
         var _a;
         if (side === 'local') {
             const stat = await this.ports.fs.statLocal(fullPath);
-            return stat ? { name: path__WEBPACK_IMPORTED_MODULE_0__.basename(fullPath), fullPath, isDirectory: stat.isDirectory(), isSymlink: (_a = stat.isSymbolicLink) === null || _a === void 0 ? void 0 : _a.call(stat), size: stat.size, mtimeMs: stat.mtimeMs } : null;
+            return stat ? { name: path__WEBPACK_IMPORTED_MODULE_1__.basename(fullPath), fullPath, isDirectory: stat.isDirectory(), isSymlink: (_a = stat.isSymbolicLink) === null || _a === void 0 ? void 0 : _a.call(stat), size: stat.size, mtimeMs: stat.mtimeMs } : null;
         }
         try {
-            return (await this.remoteListing(path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(fullPath), listings || new Map())).get(path__WEBPACK_IMPORTED_MODULE_0__.posix.basename(fullPath)) || null;
+            return (await this.remoteListing(path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname(fullPath), listings || new Map())).get(path__WEBPACK_IMPORTED_MODULE_1__.posix.basename(fullPath)) || null;
         }
         catch (error) {
             if (error.code === 'ENOENT' || /no such file|not found/i.test(error.message))
@@ -14687,7 +14723,7 @@ class PasteUseCase {
         return [...entries].filter(child => !child.isSymlink).map(child => ({ ...child, sourcePane: side, batch: entry.batch }));
     }
     async prepare(entries, side, folder, mode, source) {
-        const api = side === 'local' ? path__WEBPACK_IMPORTED_MODULE_0__ : path__WEBPACK_IMPORTED_MODULE_0__.posix, result = [];
+        const api = side === 'local' ? path__WEBPACK_IMPORTED_MODULE_1__ : path__WEBPACK_IMPORTED_MODULE_1__.posix, result = [];
         for (const entry of entries) {
             let name = entry.name;
             if (mode === 'copy' && side === source && entry.fullPath && (side === 'local' && process.platform === 'win32' ? api.resolve(entry.fullPath).toLowerCase() === api.resolve(api.join(folder, name)).toLowerCase() : api.resolve(entry.fullPath) === api.resolve(api.join(folder, name)))) {
@@ -14704,13 +14740,13 @@ class PasteUseCase {
     }
     async mergeSamePane(entry, side, parent, mode, resolved) {
         var _a, _b, _c;
-        if (resolved.has((0,_conflict__WEBPACK_IMPORTED_MODULE_1__.pasteEntryKey)(entry)) || ((_a = entry.batch) === null || _a === void 0 ? void 0 : _a.cancelled))
+        if (resolved.has((0,_conflict__WEBPACK_IMPORTED_MODULE_2__.pasteEntryKey)(entry)) || ((_a = entry.batch) === null || _a === void 0 ? void 0 : _a.cancelled))
             return;
-        const api = side === 'local' ? path__WEBPACK_IMPORTED_MODULE_0__ : path__WEBPACK_IMPORTED_MODULE_0__.posix, destination = api.join(parent, entry.name);
+        const api = side === 'local' ? path__WEBPACK_IMPORTED_MODULE_1__ : path__WEBPACK_IMPORTED_MODULE_1__.posix, destination = api.join(parent, entry.name);
         if (api.resolve(entry.fullPath) === api.resolve(destination))
             return;
         if (entry.isDirectory && await this.ports.conflict.checkDestExists(side, destination)) {
-            if ((0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.isPathInside)(entry.fullPath, destination, side === 'remote'))
+            if ((0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.isPathInside)(entry.fullPath, destination, side === 'remote'))
                 throw new Error('Cannot copy or move a folder into itself.');
             const target = await this.destinationEntry(side, destination);
             if (!(target === null || target === void 0 ? void 0 : target.isDirectory) || target.isSymlink)
@@ -14728,19 +14764,19 @@ class PasteUseCase {
         let failed = 0;
         for (const entry of entries) {
             try {
-                if (resolvedKeys.has((0,_conflict__WEBPACK_IMPORTED_MODULE_1__.pasteEntryKey)(entry)) || ((_a = entry.batch) === null || _a === void 0 ? void 0 : _a.cancelled))
+                if (resolvedKeys.has((0,_conflict__WEBPACK_IMPORTED_MODULE_2__.pasteEntryKey)(entry)) || ((_a = entry.batch) === null || _a === void 0 ? void 0 : _a.cancelled))
                     continue;
                 const srcPath = (_b = entry.fullPath) !== null && _b !== void 0 ? _b : '';
                 if (!srcPath)
                     continue;
-                const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(entry.name);
+                const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_3__.safeEntryName)(entry.name);
                 if (!safeName) {
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('skip unsafe paste entry name:', entry.name);
+                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn('skip unsafe paste entry name:', entry.name);
                     continue;
                 }
                 const destFilePath = destPane === 'local'
-                    ? path__WEBPACK_IMPORTED_MODULE_0__.join(destPath, safeName)
-                    : path__WEBPACK_IMPORTED_MODULE_0__.posix.join(destPath, safeName);
+                    ? path__WEBPACK_IMPORTED_MODULE_1__.join(destPath, safeName)
+                    : path__WEBPACK_IMPORTED_MODULE_1__.posix.join(destPath, safeName);
                 if (source === destPane) {
                     await this.mergeSamePane(entry, destPane, destPath, mode, resolvedKeys);
                 }
@@ -14753,7 +14789,7 @@ class PasteUseCase {
             }
             catch (e) {
                 failed++;
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.error('Paste entry failed:', entry.name, e);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.error('Paste entry failed:', entry.name, e);
             }
         }
         try {
@@ -14763,22 +14799,22 @@ class PasteUseCase {
                 await this.ports.ui.refreshRemote();
         }
         catch (e) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('Paste post-refresh failed:', e);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn('Paste post-refresh failed:', e);
         }
         if (failed > 0) {
             this.ports.ui.notifyPasteFailed();
         }
     }
     async _pasteSamePane(entry, srcPath, destFilePath, destPane, mode) {
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('_pasteSamePane:', { srcPath, destFilePath, destPane, mode, isDir: entry.isDirectory });
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.info('_pasteSamePane:', { srcPath, destFilePath, destPane, mode, isDir: entry.isDirectory });
         if (destPane === 'local'
-            ? path__WEBPACK_IMPORTED_MODULE_0__.resolve(srcPath) === path__WEBPACK_IMPORTED_MODULE_0__.resolve(destFilePath)
+            ? path__WEBPACK_IMPORTED_MODULE_1__.resolve(srcPath) === path__WEBPACK_IMPORTED_MODULE_1__.resolve(destFilePath)
             : srcPath === destFilePath) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('_pasteSamePane self-copy skipped:', srcPath);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn('_pasteSamePane self-copy skipped:', srcPath);
             return;
         }
-        if (entry.isDirectory && (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.isPathInside)(srcPath, destFilePath, destPane !== 'local')) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('_pasteSamePane refused copy into self:', srcPath, '->', destFilePath);
+        if (entry.isDirectory && (0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.isPathInside)(srcPath, destFilePath, destPane !== 'local')) {
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn('_pasteSamePane refused copy into self:', srcPath, '->', destFilePath);
             this.ports.notify.error('op.cannotCopyIntoSelf', { name: entry.name });
             return;
         }
@@ -14847,7 +14883,7 @@ class PasteUseCase {
                 : destStat);
         return {
             localPath: isSamePane ? destFilePath : (source === 'local' ? ((_e = entry.fullPath) !== null && _e !== void 0 ? _e : '') : destFilePath),
-            remoteDir: destPane === 'remote' ? destPath : path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname((_f = entry.fullPath) !== null && _f !== void 0 ? _f : ''),
+            remoteDir: destPane === 'remote' ? destPath : path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname((_f = entry.fullPath) !== null && _f !== void 0 ? _f : ''),
             fileName: entry.name,
             remotePath: isSamePane ? ((_g = entry.fullPath) !== null && _g !== void 0 ? _g : '') : (destPane === 'remote' ? destFilePath : ((_h = entry.fullPath) !== null && _h !== void 0 ? _h : '')),
             localStat,
@@ -14856,7 +14892,7 @@ class PasteUseCase {
             remoteFileMtime: remoteMtime,
             isSamePane,
             samePaneSource: isSamePane ? source : undefined,
-            entryKey: (0,_conflict__WEBPACK_IMPORTED_MODULE_1__.pasteEntryKey)(entry),
+            entryKey: (0,_conflict__WEBPACK_IMPORTED_MODULE_2__.pasteEntryKey)(entry),
             mode,
         };
     }
@@ -14906,7 +14942,7 @@ class PanelPasteAdapter {
             },
             download: (r, l) => host.downloadFile(r, l),
             upload: (r, l) => host.uploadFile(r, l),
-            tryServerCopy: (src, dest, isDir) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.tryRemoteCpViaSsh)(host.sshSession, src, dest, isDir),
+            tryServerCopy: (src, dest, isDir) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.tryRemoteCpViaSsh)(host.sshSession, src, dest, isDir),
         };
         return {
             transfer: {
@@ -14925,50 +14961,50 @@ class PanelPasteAdapter {
                 },
             },
             fs: {
-                copyLocalDir: (src, dest) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.copyLocalDir)(src, dest),
+                copyLocalDir: (src, dest) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.copyLocalDir)(src, dest),
                 copyLocalFile: async (src, dest) => {
                     try {
-                        const ra = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.realpath(src);
-                        const rb = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.realpath(dest).catch(() => null);
+                        const ra = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.realpath(src);
+                        const rb = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.realpath(dest).catch(() => null);
                         if (rb && (ra === rb || (process.platform === 'win32' && ra.toLowerCase() === rb.toLowerCase()))) {
-                            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('copyLocalFile self-copy skipped:', src, '->', dest);
+                            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.warn('copyLocalFile self-copy skipped:', src, '->', dest);
                             return;
                         }
                     }
                     catch (_a) { }
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('copyLocalFile:', src, '->', dest);
-                    return fs_promises__WEBPACK_IMPORTED_MODULE_3__.copyFile(src, dest, 1);
+                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_6__.log.info('copyLocalFile:', src, '->', dest);
+                    return fs_promises__WEBPACK_IMPORTED_MODULE_4__.copyFile(src, dest, 1);
                 },
                 renameLocal: async (src, dest) => {
                     try {
-                        await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rename(src, dest);
+                        await fs_promises__WEBPACK_IMPORTED_MODULE_4__.rename(src, dest);
                     }
                     catch (error) {
                         if (error.code !== 'EXDEV')
                             throw error;
-                        const stat = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(src);
+                        const stat = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.lstat(src);
                         if (stat.isDirectory())
-                            await (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.copyLocalDir)(src, dest);
+                            await (0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.copyLocalDir)(src, dest);
                         else
-                            await fs_promises__WEBPACK_IMPORTED_MODULE_3__.copyFile(src, dest, 1);
-                        await (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.deleteLocalRecursive)(src);
+                            await fs_promises__WEBPACK_IMPORTED_MODULE_4__.copyFile(src, dest, 1);
+                        await (0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.deleteLocalRecursive)(src);
                     }
                 },
-                copyRemoteDir: (src, dest, isDir) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.copyRemoteDir)(src, dest, isDir, remoteCopyDeps),
+                copyRemoteDir: (src, dest, isDir) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.copyRemoteDir)(src, dest, isDir, remoteCopyDeps),
                 renameRemote: (src, dest) => host.renameRemote(src, dest),
-                deleteLocalRecursive: (p) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.deleteLocalRecursive)(p),
-                deleteRemoteRecursive: (p) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_4__.deleteRemoteRecursive)(host.sftpSession, p),
-                localDirExists: (p) => fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(p).then(() => true).catch(() => false),
-                statLocal: (p) => fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(p).catch(error => { if (error.code === 'ENOENT')
+                deleteLocalRecursive: (p) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.deleteLocalRecursive)(p),
+                deleteRemoteRecursive: (p) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_5__.deleteRemoteRecursive)(host.sftpSession, p),
+                localDirExists: (p) => fs_promises__WEBPACK_IMPORTED_MODULE_4__.stat(p).then(() => true).catch(() => false),
+                statLocal: (p) => fs_promises__WEBPACK_IMPORTED_MODULE_4__.lstat(p).catch(error => { if (error.code === 'ENOENT')
                     return null; throw error; }),
                 listLocalEntries: async (folder) => {
-                    const entries = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readdir(folder, { withFileTypes: true });
-                    return Promise.all(entries.map(async (entry) => { const fullPath = path__WEBPACK_IMPORTED_MODULE_0__.join(folder, entry.name), stat = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(fullPath); return { name: entry.name, fullPath, isDirectory: stat.isDirectory(), isSymlink: stat.isSymbolicLink(), size: stat.size, mtimeMs: stat.mtimeMs }; }));
+                    const entries = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.readdir(folder, { withFileTypes: true });
+                    return (0,_concurrency__WEBPACK_IMPORTED_MODULE_0__.mapConcurrent)(entries, 8, async (entry) => { const fullPath = path__WEBPACK_IMPORTED_MODULE_1__.join(folder, entry.name), stat = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.lstat(fullPath); return { name: entry.name, fullPath, isDirectory: stat.isDirectory(), isSymlink: stat.isSymbolicLink(), size: stat.size, mtimeMs: stat.mtimeMs }; });
                 },
                 removeEmptyDirectory: async (side, folder) => {
                     try {
                         if (side === 'local')
-                            await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rmdir(folder);
+                            await fs_promises__WEBPACK_IMPORTED_MODULE_4__.rmdir(folder);
                         else {
                             if ((await host.sftpSession.readdir(folder)).some((e) => e.name !== '.' && e.name !== '..'))
                                 return;
@@ -15004,7 +15040,7 @@ class PanelPasteAdapter {
                 checkDestExists: async (pane, filePath) => {
                     if (pane === 'local') {
                         try {
-                            await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(filePath);
+                            await fs_promises__WEBPACK_IMPORTED_MODULE_4__.lstat(filePath);
                             return true;
                         }
                         catch (error) {
@@ -15015,8 +15051,8 @@ class PanelPasteAdapter {
                     }
                     if (!host.sftpSession)
                         return false;
-                    const dir = path__WEBPACK_IMPORTED_MODULE_0__.posix.dirname(filePath);
-                    const name = path__WEBPACK_IMPORTED_MODULE_0__.posix.basename(filePath);
+                    const dir = path__WEBPACK_IMPORTED_MODULE_1__.posix.dirname(filePath);
+                    const name = path__WEBPACK_IMPORTED_MODULE_1__.posix.basename(filePath);
                     try {
                         const entries = await host.sftpSession.readdir(dir);
                         return entries.some((e) => e.name === name);
@@ -17801,7 +17837,10 @@ class PanelTransferCoordinator {
                 return entries.map((e) => ({
                     name: e.name,
                     isDirectory: !!e.isDirectory,
-                    isSymlink: !!(e.isSymlink || e.isSymbolicLink),
+                    isSymlink: typeof e.isSymlink === 'boolean' ? e.isSymlink
+                        : typeof e.isSymbolicLink === 'function' ? !!e.isSymbolicLink()
+                            : typeof e.isSymbolicLink === 'boolean' ? e.isSymbolicLink
+                                : e.mode != null && (e.mode & 0o170000) !== 0 ? (e.mode & 0o170000) === 0o120000 : undefined,
                     size: e.size,
                     mode: e.mode,
                     modified: e.modified,
@@ -18732,7 +18771,7 @@ async function dirGate(folder, ctx) {
 async function gatedDirTask(folder, ctx, limiter, fn) {
     if (!(await dirGate(folder, ctx)))
         return false;
-    return limiter.run(fn);
+    return limiter.run(async () => (await dirGate(folder, ctx)) ? fn() : false);
 }
 function foldSettled(settled) {
     let success = true;
@@ -18756,7 +18795,7 @@ class DownloadDirUseCase {
         this.dirConcurrency = dirConcurrency;
     }
     async execute(remoteSrc, localDest, topCtx, localName, inLimiter, forceOverwrite = false, batch, moveSource = false) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f;
         if (!this.ports.sftp.hasSession())
             return false;
         const rawBase = localName || path__WEBPACK_IMPORTED_MODULE_1__.posix.basename(remoteSrc);
@@ -18829,7 +18868,9 @@ class DownloadDirUseCase {
         try {
             await this.ports.localFs.mkdirRecursive(localDir);
             const entries = await this.ports.sftp.readdir(remoteSrc);
-            const tasks = entries.map(async (entry) => {
+            const settled = await (0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.mapSettledConcurrent)(entries, (0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.clampDirConcurrency)((_d = this.dirConcurrency) === null || _d === void 0 ? void 0 : _d.call(this)) * 2, async (entry) => {
+                if (!(await dirGate(this.ports.folder, ctx)))
+                    return false;
                 const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(entry.name);
                 if (!safeName) {
                     _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('skip unsafe entry name:', entry.name);
@@ -18837,7 +18878,7 @@ class DownloadDirUseCase {
                 }
                 const remoteP = path__WEBPACK_IMPORTED_MODULE_1__.posix.join(remoteSrc, safeName);
                 const localP = path__WEBPACK_IMPORTED_MODULE_1__.join(localDir, safeName);
-                if (entry.isSymlink || await this.ports.sftp.isSymlink(remoteP)) {
+                if (entry.isSymlink === true || (entry.isSymlink == null && await this.ports.sftp.isSymlink(remoteP))) {
                     _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('skip symlink during folder download:', entry.name);
                     return true;
                 }
@@ -18907,10 +18948,10 @@ class DownloadDirUseCase {
                     return ok;
                 });
             });
-            const folded = foldSettled(await Promise.allSettled(tasks));
+            const folded = foldSettled(settled);
             success = folded.success;
             if (success && (ctx === null || ctx === void 0 ? void 0 : ctx.moveSource))
-                await ((_e = (_d = this.ports.sftp).rmdir) === null || _e === void 0 ? void 0 : _e.call(_d, remoteSrc));
+                await ((_f = (_e = this.ports.sftp).rmdir) === null || _f === void 0 ? void 0 : _f.call(_e, remoteSrc));
             if (folded.firstErr != null)
                 throw folded.firstErr;
         }
@@ -19193,7 +19234,7 @@ class UploadPathUseCase {
         return this._uploadFile(remoteDir, localPath, remoteTarget, st, isTop, topCtx, batch);
     }
     async _uploadDirectory(remoteDir, localPath, remoteTarget, st, isTop, topCtx, inLimiter, batch, moveSource = false) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f;
         let ctx = topCtx;
         if (await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, false)) {
             fileOperation.enqueue(this.ports.conflictQueue, { localPath, remotePath: remoteTarget, remoteDir, fileName: path__WEBPACK_IMPORTED_MODULE_1__.basename(localPath), localStat: st, direction: 'upload', isDirectory: true, typeMismatch: true, transferCtx: ctx, mode: (ctx === null || ctx === void 0 ? void 0 : ctx.moveSource) ? 'cut' : undefined }, (ctx === null || ctx === void 0 ? void 0 : ctx.batch) || batch);
@@ -19273,9 +19314,9 @@ class UploadPathUseCase {
         let success = true;
         try {
             const children = await this.ports.localFs.listChildren(localPath);
-            const tasks = children
-                .filter(c => !c.isSymbolicLink)
-                .map(async (c) => {
+            const settled = await (0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.mapSettledConcurrent)(children.filter(c => !c.isSymbolicLink), (0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.clampDirConcurrency)((_d = this.dirConcurrency) === null || _d === void 0 ? void 0 : _d.call(this)) * 2, async (c) => {
+                if (!(await dirGate(this.ports.folder, ctx)))
+                    return false;
                 const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(c.name);
                 if (!safeName) {
                     _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.warn('skip unsafe local entry during upload:', c.name);
@@ -19292,10 +19333,10 @@ class UploadPathUseCase {
                 }
                 return gatedDirTask(this.ports.folder, ctx, limiter, () => this._uploadFile(remoteTarget, childLocal, path__WEBPACK_IMPORTED_MODULE_1__.posix.join(remoteTarget, safeName), st, false, ctx));
             });
-            const folded = foldSettled(await Promise.allSettled(tasks));
+            const folded = foldSettled(settled);
             success = folded.success;
             if (success && (ctx === null || ctx === void 0 ? void 0 : ctx.moveSource))
-                await ((_e = (_d = this.ports.localFs).removeEmptyDirectory) === null || _e === void 0 ? void 0 : _e.call(_d, localPath));
+                await ((_f = (_e = this.ports.localFs).removeEmptyDirectory) === null || _f === void 0 ? void 0 : _f.call(_e, localPath));
             if (folded.firstErr != null)
                 throw folded.firstErr;
         }
@@ -24744,6 +24785,7 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
             let size = 0;
             let count = 0;
             const subs = [];
+            const files = [];
             for (const item of entries) {
                 if (item.isSymbolicLink())
                     continue;
@@ -24752,13 +24794,15 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                     subs.push(scan(p));
                 }
                 else {
-                    const st = await fs_promises__WEBPACK_IMPORTED_MODULE_5__.stat(p).catch(() => null);
-                    if (st) {
-                        size += st.size;
-                        count++;
-                    }
+                    files.push(p);
                 }
             }
+            const stats = await (0,_core_concurrency__WEBPACK_IMPORTED_MODULE_30__.mapConcurrent)(files, 8, p => limiter.run(() => fs_promises__WEBPACK_IMPORTED_MODULE_5__.stat(p)).catch(() => null));
+            for (const st of stats)
+                if (st) {
+                    size += st.size;
+                    count++;
+                }
             for (const r of await Promise.all(subs)) {
                 size += r.size;
                 count += r.count;
@@ -32812,9 +32856,17 @@ function finish(batch) {
 }
 function enqueue(queue, item, batch) {
     if (batch) { item.batch = batch; batch.pendingConflicts++; }
+    if (item.transferCtx) {
+        item.transferCtx.pendingConflicts = (item.transferCtx.pendingConflicts || 0) + 1;
+        item._ctxCounted = true;
+    }
     queue.enqueue(item);
 }
 function settle(item) {
+    if (item._ctxCounted) {
+        item._ctxCounted = false;
+        item.transferCtx.pendingConflicts = Math.max(0, item.transferCtx.pendingConflicts - 1);
+    }
     if (item.batch && !item._batchSettled) {
         item._batchSettled = true;
         item.batch.pendingConflicts = Math.max(0, item.batch.pendingConflicts - 1);
@@ -33222,7 +33274,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"names":{"mix":"vscode_hex.svg","karm
 (module) {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.18","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off","test:terminal":"node test-native-terminal.cjs","test:screen":"node test-screen-terminal.cjs"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.19","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off","test:terminal":"node test-native-terminal.cjs","test:screen":"node test-screen-terminal.cjs"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
 
 /***/ },
 
@@ -33324,53 +33376,54 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
 /* harmony export */   testing: () => (/* binding */ testing)
 /* harmony export */ });
-/* harmony import */ var _sftp_core_conflict__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sftp/core/conflict */ "./src/sftp/core/conflict.ts");
-/* harmony import */ var _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./sftp/core/transfer-progress */ "./src/sftp/core/transfer-progress.ts");
-/* harmony import */ var _features_bootstrap__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./features/bootstrap */ "./src/features/bootstrap.ts");
-/* harmony import */ var _sftp_components_panel_rubber_band__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./sftp/components/panel-rubber-band */ "./src/sftp/components/panel-rubber-band.ts");
-/* harmony import */ var _sftp_components_panel_file_dnd__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sftp/components/panel-file-dnd */ "./src/sftp/components/panel-file-dnd.ts");
-/* harmony import */ var _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./sftp/core/transfer-coordinator */ "./src/sftp/core/transfer-coordinator.ts");
-/* harmony import */ var _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./sftp/core/transfer-ops */ "./src/sftp/core/transfer-ops.ts");
-/* harmony import */ var _sftp_core_drop__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./sftp/core/drop */ "./src/sftp/core/drop.ts");
-/* harmony import */ var _sftp_core_paste__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./sftp/core/paste */ "./src/sftp/core/paste.ts");
-/* harmony import */ var _features_api__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./features/api */ "./src/features/api.ts");
-/* harmony import */ var _sftp_core_navigation_memory__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./sftp/core/navigation-memory */ "./src/sftp/core/navigation-memory.ts");
-/* harmony import */ var _services_sftp_transfer_log_service__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./services/sftp-transfer-log.service */ "./src/services/sftp-transfer-log.service.ts");
-/* harmony import */ var _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./services/sftp-i18n.service */ "./src/services/sftp-i18n.service.ts");
-/* harmony import */ var _sftp_core_selection__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./sftp/core/selection */ "./src/sftp/core/selection.ts");
-/* harmony import */ var _sftp_core_file_utils__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./sftp/core/file-utils */ "./src/sftp/core/file-utils.ts");
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! @angular/common */ "@angular/common");
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(_angular_common__WEBPACK_IMPORTED_MODULE_15__);
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @angular/forms */ "@angular/forms");
-/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(_angular_forms__WEBPACK_IMPORTED_MODULE_16__);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @angular/core */ "@angular/core");
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_17___default = /*#__PURE__*/__webpack_require__.n(_angular_core__WEBPACK_IMPORTED_MODULE_17__);
-/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! tabby-core */ "tabby-core");
-/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_18___default = /*#__PURE__*/__webpack_require__.n(tabby_core__WEBPACK_IMPORTED_MODULE_18__);
-/* harmony import */ var tabby_settings__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! tabby-settings */ "tabby-settings");
-/* harmony import */ var tabby_settings__WEBPACK_IMPORTED_MODULE_19___default = /*#__PURE__*/__webpack_require__.n(tabby_settings__WEBPACK_IMPORTED_MODULE_19__);
-/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! tabby-terminal */ "tabby-terminal");
-/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_20___default = /*#__PURE__*/__webpack_require__.n(tabby_terminal__WEBPACK_IMPORTED_MODULE_20__);
-/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./services/sftp-logger */ "./src/services/sftp-logger.ts");
-/* harmony import */ var _tabby_terminal_decorator__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./tabby/terminal-decorator */ "./src/tabby/terminal-decorator.ts");
-/* harmony import */ var _sftp_sftp_floating_panel_component__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./sftp/sftp-floating-panel.component */ "./src/sftp/sftp-floating-panel.component.ts");
-/* harmony import */ var _sftp_sftp_workspace_tab_component__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./sftp/sftp-workspace-tab.component */ "./src/sftp/sftp-workspace-tab.component.ts");
-/* harmony import */ var _settings_sftp_settings_component__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./settings/sftp-settings.component */ "./src/settings/sftp-settings.component.ts");
-/* harmony import */ var _tabby_config_provider__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./tabby/config-provider */ "./src/tabby/config-provider.ts");
-/* harmony import */ var _tabby_hotkey_provider__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./tabby/hotkey-provider */ "./src/tabby/hotkey-provider.ts");
-/* harmony import */ var _sftp_components_sftp_conflict_dialog_component__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./sftp/components/sftp-conflict-dialog.component */ "./src/sftp/components/sftp-conflict-dialog.component.ts");
-/* harmony import */ var _sftp_components_sftp_transfer_queue_component__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./sftp/components/sftp-transfer-queue.component */ "./src/sftp/components/sftp-transfer-queue.component.ts");
-/* harmony import */ var _sftp_components_sftp_transfer_log_dialog_component__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./sftp/components/sftp-transfer-log-dialog.component */ "./src/sftp/components/sftp-transfer-log-dialog.component.ts");
-/* harmony import */ var _sftp_components_sftp_file_pane_component__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./sftp/components/sftp-file-pane.component */ "./src/sftp/components/sftp-file-pane.component.ts");
-/* harmony import */ var _sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./sftp/components/sftp-context-menu.component */ "./src/sftp/components/sftp-context-menu.component.ts");
-/* harmony import */ var _sftp_components_sftp_bookmark_popup_component__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./sftp/components/sftp-bookmark-popup.component */ "./src/sftp/components/sftp-bookmark-popup.component.ts");
-/* harmony import */ var _sftp_components_sftp_delete_dialog_component__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./sftp/components/sftp-delete-dialog.component */ "./src/sftp/components/sftp-delete-dialog.component.ts");
-/* harmony import */ var _sftp_components_sftp_dir_missing_dialog_component__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./sftp/components/sftp-dir-missing-dialog.component */ "./src/sftp/components/sftp-dir-missing-dialog.component.ts");
-/* harmony import */ var _sftp_components_sftp_input_dialog_component__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./sftp/components/sftp-input-dialog.component */ "./src/sftp/components/sftp-input-dialog.component.ts");
-/* harmony import */ var _sftp_components_sftp_perm_dialog_component__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./sftp/components/sftp-perm-dialog.component */ "./src/sftp/components/sftp-perm-dialog.component.ts");
-/* harmony import */ var _sftp_components_sftp_details_dialog_component__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./sftp/components/sftp-details-dialog.component */ "./src/sftp/components/sftp-details-dialog.component.ts");
-/* harmony import */ var _sftp_components_sftp_text_context_menu_component__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./sftp/components/sftp-text-context-menu.component */ "./src/sftp/components/sftp-text-context-menu.component.ts");
-/* harmony import */ var _sftp_components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./sftp/components/sftp-cwd-setup-dialog.component */ "./src/sftp/components/sftp-cwd-setup-dialog.component.ts");
+/* harmony import */ var _sftp_core_concurrency__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./sftp/core/concurrency */ "./src/sftp/core/concurrency.ts");
+/* harmony import */ var _sftp_core_conflict__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./sftp/core/conflict */ "./src/sftp/core/conflict.ts");
+/* harmony import */ var _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./sftp/core/transfer-progress */ "./src/sftp/core/transfer-progress.ts");
+/* harmony import */ var _features_bootstrap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./features/bootstrap */ "./src/features/bootstrap.ts");
+/* harmony import */ var _sftp_components_panel_rubber_band__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sftp/components/panel-rubber-band */ "./src/sftp/components/panel-rubber-band.ts");
+/* harmony import */ var _sftp_components_panel_file_dnd__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./sftp/components/panel-file-dnd */ "./src/sftp/components/panel-file-dnd.ts");
+/* harmony import */ var _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./sftp/core/transfer-coordinator */ "./src/sftp/core/transfer-coordinator.ts");
+/* harmony import */ var _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./sftp/core/transfer-ops */ "./src/sftp/core/transfer-ops.ts");
+/* harmony import */ var _sftp_core_drop__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./sftp/core/drop */ "./src/sftp/core/drop.ts");
+/* harmony import */ var _sftp_core_paste__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./sftp/core/paste */ "./src/sftp/core/paste.ts");
+/* harmony import */ var _features_api__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./features/api */ "./src/features/api.ts");
+/* harmony import */ var _sftp_core_navigation_memory__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./sftp/core/navigation-memory */ "./src/sftp/core/navigation-memory.ts");
+/* harmony import */ var _services_sftp_transfer_log_service__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./services/sftp-transfer-log.service */ "./src/services/sftp-transfer-log.service.ts");
+/* harmony import */ var _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./services/sftp-i18n.service */ "./src/services/sftp-i18n.service.ts");
+/* harmony import */ var _sftp_core_selection__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./sftp/core/selection */ "./src/sftp/core/selection.ts");
+/* harmony import */ var _sftp_core_file_utils__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./sftp/core/file-utils */ "./src/sftp/core/file-utils.ts");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! @angular/common */ "@angular/common");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(_angular_common__WEBPACK_IMPORTED_MODULE_16__);
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! @angular/forms */ "@angular/forms");
+/* harmony import */ var _angular_forms__WEBPACK_IMPORTED_MODULE_17___default = /*#__PURE__*/__webpack_require__.n(_angular_forms__WEBPACK_IMPORTED_MODULE_17__);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! @angular/core */ "@angular/core");
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_18___default = /*#__PURE__*/__webpack_require__.n(_angular_core__WEBPACK_IMPORTED_MODULE_18__);
+/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! tabby-core */ "tabby-core");
+/* harmony import */ var tabby_core__WEBPACK_IMPORTED_MODULE_19___default = /*#__PURE__*/__webpack_require__.n(tabby_core__WEBPACK_IMPORTED_MODULE_19__);
+/* harmony import */ var tabby_settings__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! tabby-settings */ "tabby-settings");
+/* harmony import */ var tabby_settings__WEBPACK_IMPORTED_MODULE_20___default = /*#__PURE__*/__webpack_require__.n(tabby_settings__WEBPACK_IMPORTED_MODULE_20__);
+/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! tabby-terminal */ "tabby-terminal");
+/* harmony import */ var tabby_terminal__WEBPACK_IMPORTED_MODULE_21___default = /*#__PURE__*/__webpack_require__.n(tabby_terminal__WEBPACK_IMPORTED_MODULE_21__);
+/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./services/sftp-logger */ "./src/services/sftp-logger.ts");
+/* harmony import */ var _tabby_terminal_decorator__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./tabby/terminal-decorator */ "./src/tabby/terminal-decorator.ts");
+/* harmony import */ var _sftp_sftp_floating_panel_component__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./sftp/sftp-floating-panel.component */ "./src/sftp/sftp-floating-panel.component.ts");
+/* harmony import */ var _sftp_sftp_workspace_tab_component__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./sftp/sftp-workspace-tab.component */ "./src/sftp/sftp-workspace-tab.component.ts");
+/* harmony import */ var _settings_sftp_settings_component__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./settings/sftp-settings.component */ "./src/settings/sftp-settings.component.ts");
+/* harmony import */ var _tabby_config_provider__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./tabby/config-provider */ "./src/tabby/config-provider.ts");
+/* harmony import */ var _tabby_hotkey_provider__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./tabby/hotkey-provider */ "./src/tabby/hotkey-provider.ts");
+/* harmony import */ var _sftp_components_sftp_conflict_dialog_component__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./sftp/components/sftp-conflict-dialog.component */ "./src/sftp/components/sftp-conflict-dialog.component.ts");
+/* harmony import */ var _sftp_components_sftp_transfer_queue_component__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./sftp/components/sftp-transfer-queue.component */ "./src/sftp/components/sftp-transfer-queue.component.ts");
+/* harmony import */ var _sftp_components_sftp_transfer_log_dialog_component__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./sftp/components/sftp-transfer-log-dialog.component */ "./src/sftp/components/sftp-transfer-log-dialog.component.ts");
+/* harmony import */ var _sftp_components_sftp_file_pane_component__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./sftp/components/sftp-file-pane.component */ "./src/sftp/components/sftp-file-pane.component.ts");
+/* harmony import */ var _sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ./sftp/components/sftp-context-menu.component */ "./src/sftp/components/sftp-context-menu.component.ts");
+/* harmony import */ var _sftp_components_sftp_bookmark_popup_component__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./sftp/components/sftp-bookmark-popup.component */ "./src/sftp/components/sftp-bookmark-popup.component.ts");
+/* harmony import */ var _sftp_components_sftp_delete_dialog_component__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./sftp/components/sftp-delete-dialog.component */ "./src/sftp/components/sftp-delete-dialog.component.ts");
+/* harmony import */ var _sftp_components_sftp_dir_missing_dialog_component__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./sftp/components/sftp-dir-missing-dialog.component */ "./src/sftp/components/sftp-dir-missing-dialog.component.ts");
+/* harmony import */ var _sftp_components_sftp_input_dialog_component__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./sftp/components/sftp-input-dialog.component */ "./src/sftp/components/sftp-input-dialog.component.ts");
+/* harmony import */ var _sftp_components_sftp_perm_dialog_component__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./sftp/components/sftp-perm-dialog.component */ "./src/sftp/components/sftp-perm-dialog.component.ts");
+/* harmony import */ var _sftp_components_sftp_details_dialog_component__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./sftp/components/sftp-details-dialog.component */ "./src/sftp/components/sftp-details-dialog.component.ts");
+/* harmony import */ var _sftp_components_sftp_text_context_menu_component__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./sftp/components/sftp-text-context-menu.component */ "./src/sftp/components/sftp-text-context-menu.component.ts");
+/* harmony import */ var _sftp_components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./sftp/components/sftp-cwd-setup-dialog.component */ "./src/sftp/components/sftp-cwd-setup-dialog.component.ts");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -33398,7 +33451,8 @@ var __param = (undefined && undefined.__param) || function (paramIndex, decorato
 
 
 
-const testing = { PanelTransferCoordinator: _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_5__.PanelTransferCoordinator, ConflictResolveUseCase: _sftp_core_conflict__WEBPACK_IMPORTED_MODULE_0__.ConflictResolveUseCase, SftpConflictDetector: _sftp_core_conflict__WEBPACK_IMPORTED_MODULE_0__.SftpConflictDetector, folderFileProgress: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_1__.folderFileProgress, folderSkipped: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_1__.folderSkipped, folderPhase: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_1__.folderPhase, I18nService: _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_12__.SftpI18nService, PanelPasteAdapter: _sftp_core_paste__WEBPACK_IMPORTED_MODULE_8__.PanelPasteAdapter, PanelDropAdapter: _sftp_core_drop__WEBPACK_IMPORTED_MODULE_7__.PanelDropAdapter, parseDragPayload: _sftp_core_drop__WEBPACK_IMPORTED_MODULE_7__.parseDragPayload, featureApis: _features_api__WEBPACK_IMPORTED_MODULE_9__.featureApis, NavigationMemory: _sftp_core_navigation_memory__WEBPACK_IMPORTED_MODULE_10__.NavigationMemory, TransferLogService: _services_sftp_transfer_log_service__WEBPACK_IMPORTED_MODULE_11__.SftpTransferLogService, computeSelection: _sftp_core_selection__WEBPACK_IMPORTED_MODULE_13__.computeSelection, setDateFormatPattern: _sftp_core_file_utils__WEBPACK_IMPORTED_MODULE_14__.setDateFormatPattern, Panel: _sftp_sftp_floating_panel_component__WEBPACK_IMPORTED_MODULE_23__.SftpFloatingPanel, FilePane: _sftp_components_sftp_file_pane_component__WEBPACK_IMPORTED_MODULE_31__.SftpFilePaneComponent, Menu: _sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_32__.SftpContextMenuComponent, LogDialog: _sftp_components_sftp_transfer_log_dialog_component__WEBPACK_IMPORTED_MODULE_30__.SftpTransferLogDialogComponent, PanelRubberBand: _sftp_components_panel_rubber_band__WEBPACK_IMPORTED_MODULE_3__.PanelRubberBand, PanelFileDnd: _sftp_components_panel_file_dnd__WEBPACK_IMPORTED_MODULE_4__.PanelFileDnd, PanelTransferRuntime: _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_5__.PanelTransferRuntime, DownloadOneUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_6__.DownloadOneUseCase, DownloadDirUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_6__.DownloadDirUseCase, UploadPathUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_6__.UploadPathUseCase, PasteUseCase: _sftp_core_paste__WEBPACK_IMPORTED_MODULE_8__.PasteUseCase };
+
+const testing = { mapConcurrent: _sftp_core_concurrency__WEBPACK_IMPORTED_MODULE_0__.mapConcurrent, mapSettledConcurrent: _sftp_core_concurrency__WEBPACK_IMPORTED_MODULE_0__.mapSettledConcurrent, PanelTransferCoordinator: _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_6__.PanelTransferCoordinator, ConflictResolveUseCase: _sftp_core_conflict__WEBPACK_IMPORTED_MODULE_1__.ConflictResolveUseCase, SftpConflictDetector: _sftp_core_conflict__WEBPACK_IMPORTED_MODULE_1__.SftpConflictDetector, folderFileProgress: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_2__.folderFileProgress, folderSkipped: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_2__.folderSkipped, folderPhase: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_2__.folderPhase, I18nService: _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_13__.SftpI18nService, PanelPasteAdapter: _sftp_core_paste__WEBPACK_IMPORTED_MODULE_9__.PanelPasteAdapter, PanelDropAdapter: _sftp_core_drop__WEBPACK_IMPORTED_MODULE_8__.PanelDropAdapter, parseDragPayload: _sftp_core_drop__WEBPACK_IMPORTED_MODULE_8__.parseDragPayload, featureApis: _features_api__WEBPACK_IMPORTED_MODULE_10__.featureApis, NavigationMemory: _sftp_core_navigation_memory__WEBPACK_IMPORTED_MODULE_11__.NavigationMemory, TransferLogService: _services_sftp_transfer_log_service__WEBPACK_IMPORTED_MODULE_12__.SftpTransferLogService, computeSelection: _sftp_core_selection__WEBPACK_IMPORTED_MODULE_14__.computeSelection, setDateFormatPattern: _sftp_core_file_utils__WEBPACK_IMPORTED_MODULE_15__.setDateFormatPattern, Panel: _sftp_sftp_floating_panel_component__WEBPACK_IMPORTED_MODULE_24__.SftpFloatingPanel, FilePane: _sftp_components_sftp_file_pane_component__WEBPACK_IMPORTED_MODULE_32__.SftpFilePaneComponent, Menu: _sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_33__.SftpContextMenuComponent, LogDialog: _sftp_components_sftp_transfer_log_dialog_component__WEBPACK_IMPORTED_MODULE_31__.SftpTransferLogDialogComponent, PanelRubberBand: _sftp_components_panel_rubber_band__WEBPACK_IMPORTED_MODULE_4__.PanelRubberBand, PanelFileDnd: _sftp_components_panel_file_dnd__WEBPACK_IMPORTED_MODULE_5__.PanelFileDnd, PanelTransferRuntime: _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_6__.PanelTransferRuntime, DownloadOneUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_7__.DownloadOneUseCase, DownloadDirUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_7__.DownloadDirUseCase, UploadPathUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_7__.UploadPathUseCase, PasteUseCase: _sftp_core_paste__WEBPACK_IMPORTED_MODULE_9__.PasteUseCase };
 
 
 
@@ -33427,47 +33481,47 @@ const testing = { PanelTransferCoordinator: _sftp_core_transfer_coordinator__WEB
 
 let SftpPlusModule = class SftpPlusModule {
     constructor(logService) {
-        (0,_services_sftp_logger__WEBPACK_IMPORTED_MODULE_21__.bindSftpLogger)(logService);
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_21__.log.info('Module loaded OK');
+        (0,_services_sftp_logger__WEBPACK_IMPORTED_MODULE_22__.bindSftpLogger)(logService);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_22__.log.info('Module loaded OK');
     }
 };
 SftpPlusModule = __decorate([
-    (0,_angular_core__WEBPACK_IMPORTED_MODULE_17__.NgModule)({
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_18__.NgModule)({
         imports: [
-            _angular_common__WEBPACK_IMPORTED_MODULE_15__.CommonModule,
-            _angular_forms__WEBPACK_IMPORTED_MODULE_16__.FormsModule,
-            (tabby_core__WEBPACK_IMPORTED_MODULE_18___default()),
+            _angular_common__WEBPACK_IMPORTED_MODULE_16__.CommonModule,
+            _angular_forms__WEBPACK_IMPORTED_MODULE_17__.FormsModule,
+            (tabby_core__WEBPACK_IMPORTED_MODULE_19___default()),
         ],
         declarations: [
-            _sftp_sftp_floating_panel_component__WEBPACK_IMPORTED_MODULE_23__.SftpFloatingPanel,
-            _sftp_sftp_workspace_tab_component__WEBPACK_IMPORTED_MODULE_24__.SftpWorkspaceTabComponent,
-            _settings_sftp_settings_component__WEBPACK_IMPORTED_MODULE_25__.SftpSettingsTabComponent,
-            _sftp_components_sftp_conflict_dialog_component__WEBPACK_IMPORTED_MODULE_28__.SftpConflictDialogComponent,
-            _sftp_components_sftp_transfer_queue_component__WEBPACK_IMPORTED_MODULE_29__.SftpTransferQueueComponent,
-            _sftp_components_sftp_transfer_log_dialog_component__WEBPACK_IMPORTED_MODULE_30__.SftpTransferLogDialogComponent,
-            _sftp_components_sftp_file_pane_component__WEBPACK_IMPORTED_MODULE_31__.SftpFilePaneComponent,
-            _sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_32__.SftpContextMenuComponent,
-            _sftp_components_sftp_bookmark_popup_component__WEBPACK_IMPORTED_MODULE_33__.SftpBookmarkPopupComponent,
-            _sftp_components_sftp_delete_dialog_component__WEBPACK_IMPORTED_MODULE_34__.SftpDeleteDialogComponent,
-            _sftp_components_sftp_dir_missing_dialog_component__WEBPACK_IMPORTED_MODULE_35__.SftpDirMissingDialogComponent,
-            _sftp_components_sftp_input_dialog_component__WEBPACK_IMPORTED_MODULE_36__.SftpInputDialogComponent,
-            _sftp_components_sftp_perm_dialog_component__WEBPACK_IMPORTED_MODULE_37__.SftpPermDialogComponent,
-            _sftp_components_sftp_details_dialog_component__WEBPACK_IMPORTED_MODULE_38__.SftpDetailsDialogComponent,
-            _sftp_components_sftp_text_context_menu_component__WEBPACK_IMPORTED_MODULE_39__.SftpTextContextMenuComponent,
-            _sftp_components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_40__.SftpCwdSetupDialogComponent,
+            _sftp_sftp_floating_panel_component__WEBPACK_IMPORTED_MODULE_24__.SftpFloatingPanel,
+            _sftp_sftp_workspace_tab_component__WEBPACK_IMPORTED_MODULE_25__.SftpWorkspaceTabComponent,
+            _settings_sftp_settings_component__WEBPACK_IMPORTED_MODULE_26__.SftpSettingsTabComponent,
+            _sftp_components_sftp_conflict_dialog_component__WEBPACK_IMPORTED_MODULE_29__.SftpConflictDialogComponent,
+            _sftp_components_sftp_transfer_queue_component__WEBPACK_IMPORTED_MODULE_30__.SftpTransferQueueComponent,
+            _sftp_components_sftp_transfer_log_dialog_component__WEBPACK_IMPORTED_MODULE_31__.SftpTransferLogDialogComponent,
+            _sftp_components_sftp_file_pane_component__WEBPACK_IMPORTED_MODULE_32__.SftpFilePaneComponent,
+            _sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_33__.SftpContextMenuComponent,
+            _sftp_components_sftp_bookmark_popup_component__WEBPACK_IMPORTED_MODULE_34__.SftpBookmarkPopupComponent,
+            _sftp_components_sftp_delete_dialog_component__WEBPACK_IMPORTED_MODULE_35__.SftpDeleteDialogComponent,
+            _sftp_components_sftp_dir_missing_dialog_component__WEBPACK_IMPORTED_MODULE_36__.SftpDirMissingDialogComponent,
+            _sftp_components_sftp_input_dialog_component__WEBPACK_IMPORTED_MODULE_37__.SftpInputDialogComponent,
+            _sftp_components_sftp_perm_dialog_component__WEBPACK_IMPORTED_MODULE_38__.SftpPermDialogComponent,
+            _sftp_components_sftp_details_dialog_component__WEBPACK_IMPORTED_MODULE_39__.SftpDetailsDialogComponent,
+            _sftp_components_sftp_text_context_menu_component__WEBPACK_IMPORTED_MODULE_40__.SftpTextContextMenuComponent,
+            _sftp_components_sftp_cwd_setup_dialog_component__WEBPACK_IMPORTED_MODULE_41__.SftpCwdSetupDialogComponent,
         ],
         providers: [
-            { provide: tabby_terminal__WEBPACK_IMPORTED_MODULE_20__.TerminalDecorator, useClass: _tabby_terminal_decorator__WEBPACK_IMPORTED_MODULE_22__.SftpTerminalDecorator, multi: true },
-            { provide: tabby_settings__WEBPACK_IMPORTED_MODULE_19__.SettingsTabProvider, useClass: _settings_sftp_settings_component__WEBPACK_IMPORTED_MODULE_25__.SftpSettingsTabProvider, multi: true },
-            { provide: tabby_core__WEBPACK_IMPORTED_MODULE_18__.ConfigProvider, useClass: _tabby_config_provider__WEBPACK_IMPORTED_MODULE_26__.SftpPlusConfigProvider, multi: true },
-            { provide: tabby_core__WEBPACK_IMPORTED_MODULE_18__.HotkeyProvider, useClass: _tabby_hotkey_provider__WEBPACK_IMPORTED_MODULE_27__.SftpHotkeyProvider, multi: true },
+            { provide: tabby_terminal__WEBPACK_IMPORTED_MODULE_21__.TerminalDecorator, useClass: _tabby_terminal_decorator__WEBPACK_IMPORTED_MODULE_23__.SftpTerminalDecorator, multi: true },
+            { provide: tabby_settings__WEBPACK_IMPORTED_MODULE_20__.SettingsTabProvider, useClass: _settings_sftp_settings_component__WEBPACK_IMPORTED_MODULE_26__.SftpSettingsTabProvider, multi: true },
+            { provide: tabby_core__WEBPACK_IMPORTED_MODULE_19__.ConfigProvider, useClass: _tabby_config_provider__WEBPACK_IMPORTED_MODULE_27__.SftpPlusConfigProvider, multi: true },
+            { provide: tabby_core__WEBPACK_IMPORTED_MODULE_19__.HotkeyProvider, useClass: _tabby_hotkey_provider__WEBPACK_IMPORTED_MODULE_28__.SftpHotkeyProvider, multi: true },
         ],
     }),
-    __param(0, (0,_angular_core__WEBPACK_IMPORTED_MODULE_17__.Optional)()),
-    __metadata("design:paramtypes", [tabby_core__WEBPACK_IMPORTED_MODULE_18__.LogService])
+    __param(0, (0,_angular_core__WEBPACK_IMPORTED_MODULE_18__.Optional)()),
+    __metadata("design:paramtypes", [tabby_core__WEBPACK_IMPORTED_MODULE_19__.LogService])
 ], SftpPlusModule);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (SftpPlusModule);
-(0,_features_bootstrap__WEBPACK_IMPORTED_MODULE_2__.initializeFeatures)();
+(0,_features_bootstrap__WEBPACK_IMPORTED_MODULE_3__.initializeFeatures)();
 
 })();
 
