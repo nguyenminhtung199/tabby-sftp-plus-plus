@@ -42,28 +42,39 @@ export class PanelFileDnd {
     return !dest || api.resolve(dest) === api.resolve(this._dragSourceDir)
   }
 
+  /** Hover feedback changes one border, without checking Angular's file lists. */
+  private setDragOver(pane: FileDndPane, value: boolean): void {
+    const previous = pane === 'local' ? this._localDragOver : this._remoteDragOver
+    if (previous === value) return
+    if (pane === 'local') this._localDragOver = value
+    else this._remoteDragOver = value
+    const list = this.host.elRef?.nativeElement?.querySelector?.('.pane-list.' + pane + '-pane') as HTMLElement | null
+    list?.closest('.pane-list-wrap')?.classList.toggle('pane-drag-over', value)
+  }
+
   reset(): void {
     this._dragSourcePane = null
     this._dragSameDirNoop = false
-    this._localDragOver = false
-    this._remoteDragOver = false
+    this.setDragOver('local', false)
+    this.setDragOver('remote', false)
   }
 
   onEntryDragEnd(clearCustomDragPreview: () => void): void {
     clearCustomDragPreview()
     this.reset()
-    this.host.cdr.detectChanges()
   }
 
   onDragOver(ev: DragEvent, targetPane: FileDndPane): void {
     if (this.host.isHeaderReorderActive()) return
     if (this.sameDirectory(ev, targetPane)) {
       ev.preventDefault()
+      this.setDragOver(targetPane, false)
       if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'none'
       return
     }
     ev.preventDefault()
     if (ev.dataTransfer) ev.dataTransfer.dropEffect = this._dragSourcePane === targetPane ? 'move' : 'copy'
+    this.setDragOver(targetPane, true)
   }
 
   onDragEnter(ev: DragEvent, targetPane: FileDndPane): void {
@@ -73,15 +84,7 @@ export class PanelFileDnd {
       return
     }
     ev.preventDefault()
-    const wasOver = targetPane === 'remote' ? this._remoteDragOver : this._localDragOver
-    if (targetPane === 'remote') {
-      this._remoteDragOver = true
-    } else {
-      this._localDragOver = true
-    }
-    // 仅在状态真正翻转时才触发变更检测（拖拽过程中鼠标在子元素间来回移动会反复触发
-    // dragenter/dragleave，原实现每次都 detectChanges 全量重绘，导致拖拽卡顿）
-    if (!wasOver) this.host.cdr.detectChanges()
+    this.setDragOver(targetPane, true)
   }
 
   onDragLeave(ev: DragEvent, targetPane: FileDndPane): void {
@@ -91,12 +94,6 @@ export class PanelFileDnd {
     const related = ev.relatedTarget as Node | null
     const paneList = this.host.elRef.nativeElement.querySelector(`.pane-list.${targetPane}-pane`) as HTMLElement | null
     if (paneList && related && paneList.contains(related)) return
-    const wasOver = targetPane === 'remote' ? this._remoteDragOver : this._localDragOver
-    if (targetPane === 'remote') {
-      this._remoteDragOver = false
-    } else {
-      this._localDragOver = false
-    }
-    if (wasOver) this.host.cdr.detectChanges()
+    this.setDragOver(targetPane, false)
   }
 }

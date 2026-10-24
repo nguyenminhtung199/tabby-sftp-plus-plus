@@ -1,7 +1,7 @@
 [
   {
     "selector": "sftp-plus-panel",
-    "eventCount": 221,
+    "eventCount": 212,
     "actions": [
       "addBookmark",
       "applyLocalFilter",
@@ -43,9 +43,6 @@
       "onContextMenuAction",
       "onCwdSetupChoice",
       "onDetailsCalcSize",
-      "onDragEnter",
-      "onDragLeave",
-      "onDragOver",
       "onDragStartLocal",
       "onDragStartRemote",
       "onDrop",
@@ -207,7 +204,7 @@
   },
   {
     "selector": "sftp-file-pane",
-    "eventCount": 98,
+    "eventCount": 86,
     "actions": [
       "blurPathInput",
       "changeListPage",
@@ -215,7 +212,6 @@
       "onColHeaderMouseDown",
       "onColResizeDblClick",
       "onColResizeMouseDown",
-      "onHeaderDragOver",
       "onPaneAreaMouseDown",
       "onPathBlur",
       "onPathFocus",

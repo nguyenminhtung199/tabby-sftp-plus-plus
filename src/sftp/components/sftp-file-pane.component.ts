@@ -284,6 +284,7 @@ export class SftpFilePaneComponent {
   @Output() filterPendingChange = new EventEmitter<string>()
   @Output() applyFilter = new EventEmitter<void>()
   @Output() clearFilter = new EventEmitter<void>()
+  @Input() dragHoverHandler?: (kind: 'over' | 'enter' | 'leave', event: DragEvent) => void
   @Output() listDragOver = new EventEmitter<DragEvent>()
   @Output() listDragEnter = new EventEmitter<DragEvent>()
   @Output() listDragLeave = new EventEmitter<DragEvent>()
@@ -495,7 +496,38 @@ export class SftpFilePaneComponent {
       }
       list.addEventListener('scroll', scroll, { passive: true })
       list.addEventListener('wheel', wheel, { passive: false })
-      this.listListenerCleanup = () => { list.removeEventListener('scroll', scroll); list.removeEventListener('wheel', wheel) }
+      const host = this.hostRef.nativeElement
+      const surface = (event: DragEvent) => {
+        const target = event.target as Element | null
+        const area = target?.closest?.('.pane-list, [data-drop-parent]')
+        return area && host.contains(area) ? area : null
+      }
+      const hover = (kind: 'over' | 'enter' | 'leave', event: DragEvent) => {
+        const area = surface(event)
+        if (!area) return
+        if (kind === 'over' && (event.target as Element)?.closest('.entry.header')) { this.onHeaderDragOver(event); return }
+        if (kind !== 'over' && event.relatedTarget && area.contains(event.relatedTarget as Node)) return
+        if (this.dragHoverHandler) this.dragHoverHandler(kind, event)
+        else (kind === 'over' ? this.listDragOver : kind === 'enter' ? this.listDragEnter : this.listDragLeave).emit(event)
+      }
+      const over = (event: DragEvent) => hover('over', event)
+      const enter = (event: DragEvent) => hover('enter', event)
+      const leave = (event: DragEvent) => hover('leave', event)
+      const drop = (event: DragEvent) => {
+        if (!surface(event)) return
+        if ((event.target as Element)?.closest('.entry.header')) { this.onHeaderDragOver(event); return }
+        // Only the actual drop enters Angular. DataTransfer is consumed synchronously by its handler.
+        this.zone.run(() => this.listDrop.emit(event))
+      }
+      host.addEventListener('dragover', over)
+      host.addEventListener('dragenter', enter)
+      host.addEventListener('dragleave', leave)
+      host.addEventListener('drop', drop)
+      this.listListenerCleanup = () => {
+        list.removeEventListener('scroll', scroll); list.removeEventListener('wheel', wheel)
+        host.removeEventListener('dragover', over); host.removeEventListener('dragenter', enter)
+        host.removeEventListener('dragleave', leave); host.removeEventListener('drop', drop)
+      }
     })
     // Keyboard/type-to-find scrolling asks for a full-model path before looking up its DOM row.
     ;(list as any).sftpRevealRow = (attr: string, value: string) => {

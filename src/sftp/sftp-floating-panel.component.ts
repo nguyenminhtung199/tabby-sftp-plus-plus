@@ -5522,6 +5522,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
   private static readonly DRAG_CACHE_DELAY_MS = 450
   private _dragCacheTimer: ReturnType<typeof setTimeout> | null = null
   private _dragCacheGen = 0
+  private _dragCachePending = false
   private _dragCacheTransfers: Array<{ cancel: () => void | Promise<void> }> = []
   private _dragCacheInFlight = new Set<string>()
 
@@ -5534,6 +5535,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
   /** 中止延迟定时器与所有进行中的拖拽预缓存下载 */
   private _cancelRemoteDragCache(): void {
+    this._dragCachePending = false
     this._dragCacheGen++
     if (this._dragCacheTimer) {
       clearTimeout(this._dragCacheTimer)
@@ -5556,11 +5558,12 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     )
     if (!eligible.length) return
     const gen = this._dragCacheGen
-    this._dragCacheTimer = setTimeout(() => {
+    this._dragCachePending = true
+    this._dragCacheTimer = this.zone.runOutsideAngular(() => setTimeout(() => {
       this._dragCacheTimer = null
       if (gen !== this._dragCacheGen) return
       void this._cacheRemoteFilesForDrag(eligible, gen)
-    }, SftpFloatingPanel.DRAG_CACHE_DELAY_MS)
+    }, SftpFloatingPanel.DRAG_CACHE_DELAY_MS))
   }
 
   private _setCustomDragPreview(ev: DragEvent, items: Array<{ name: string; isDirectory: boolean }>): void {
@@ -5637,7 +5640,20 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     dt.setDragImage(wrap, 8, 14)
   }
 
+  readonly localDragHoverHandler = (kind: 'over' | 'enter' | 'leave', event: DragEvent): void => this._handleDragHover(kind, event, 'local')
+  readonly remoteDragHoverHandler = (kind: 'over' | 'enter' | 'leave', event: DragEvent): void => this._handleDragHover(kind, event, 'remote')
+
+  private _handleDragHover(kind: 'over' | 'enter' | 'leave', event: DragEvent, side: 'local' | 'remote'): void {
+    if (kind === 'over') this.onDragOver(event, side)
+    else if (kind === 'enter') this.onDragEnter(event, side)
+    else this.onDragLeave(event, side)
+  }
+
   onDragOver(ev: DragEvent, targetPane: 'local' | 'remote'): void {
+    if (this._dragCachePending) {
+      const destination = this._resolveDropDestDir(ev, targetPane)
+      if (targetPane === 'local' || (destination && this._normRemoteDir(destination) !== this._normRemoteDir(this.remotePath))) this._cancelRemoteDragCache()
+    }
     this._fileDnd.onDragOver(ev, targetPane)
   }
 

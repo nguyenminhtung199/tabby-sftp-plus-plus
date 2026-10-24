@@ -16,8 +16,6 @@
           <button *ngIf="isToolbarItem(item)"
             (click)="onToolbarAction(item, $event)"
             [attr.data-drop-parent]="item === 'up' ? '1' : null"
-            (dragover)="item === 'up' && listDragOver.emit($event)"
-            (drop)="item === 'up' && listDrop.emit($event)"
             [disabled]="isToolbarActionDisabled(item)"
             [title]="toolbarActionTitle(item)"
             class="icon-btn pane-toolbar-btn"
@@ -52,19 +50,13 @@
       </div>
       <div class="pane-list-wrap" [class.pane-drag-over]="dragOver">
         <div class="pane-list" [class]="listClass" [class.pane-flash]="flash" [class.has-groups]="!!groupRows"
-          (dragover)="listDragOver.emit($event)"
-          (dragenter)="listDragEnter.emit($event)"
-          (dragleave)="listDragLeave.emit($event)"
-          (drop)="listDrop.emit($event)"
           (mousedown)="listMouseDown.emit($event)"
           (mouseenter)="listMouseEnter.emit()"
           (click)="listClick.emit($event)"
           (contextmenu)="listContextMenu.emit($event)">
           <div class="entry dim" *ngIf="showNoSession">{{ labels.noSession }}</div>
           <div class="entry header" *ngIf="showHeader" [style.gridTemplateColumns]="headerColWidths || colWidths"
-            (contextmenu)="headerContextMenu.emit($event)"
-            (dragover)="onHeaderDragOver($event)"
-            (drop)="onHeaderDragOver($event)">
+            (contextmenu)="headerContextMenu.emit($event)">
             <span class="icon"></span>
             <span class="name sortable"
               [class.header-col-resizing]="resizingCol === 'name'"
