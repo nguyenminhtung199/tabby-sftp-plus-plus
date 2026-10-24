@@ -17,6 +17,7 @@
     "test-keyboard-events.cjs",
     "test-data-safety.cjs",
     "test-folder-merge.cjs",
-    "test-navigation-memory.cjs"
+    "test-navigation-memory.cjs",
+    "test-internal-move.cjs"
   ]
 }

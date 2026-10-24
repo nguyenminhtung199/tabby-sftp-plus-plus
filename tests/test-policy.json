@@ -20,7 +20,8 @@
     "test-ui-actions.cjs",
     "test-source-architecture.cjs",
     "test-folder-merge.cjs",
-    "test-navigation-memory.cjs"
+    "test-navigation-memory.cjs",
+    "test-internal-move.cjs"
   ],
   "renderer": {
     "timeoutMs": 30000,

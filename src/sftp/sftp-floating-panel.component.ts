@@ -225,7 +225,7 @@ import { PanelDropAdapter, dragDropTempDir } from './core/drop'
 import { PanelTransferCoordinator, SPEED_STALL_ZERO_MS, SPEED_STALL_ZERO_TEXT } from './core/transfer-coordinator'
 import { PanelPasteAdapter } from './core/paste'
 import { ContentDigestService } from './core/digest'
-import { copyLocalDir, copyRemoteDir, deleteLocalRecursive, deleteRemoteRecursive, tryRemoteCpViaSsh, tryRemoteRmViaSsh } from './core/fs-ops'
+import { isPathInside, copyLocalDir, copyRemoteDir, deleteLocalRecursive, deleteRemoteRecursive, tryRemoteCpViaSsh, tryRemoteRmViaSsh } from './core/fs-ops'
 import { isChannelDeadError } from './core/session-errors'
 import { ConcurrencyLimiter } from './core/concurrency'
 import { trashLocalPath } from './core/trash-local'
@@ -1880,6 +1880,8 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
   private _cancelRefs = new Set<{ current: any; active?: Set<any> }>()
   /** ★ 2026-09-20 P2-2：本面板的「拖入兜底临时目录」作用域（面板级唯一），销毁时定向清理自己产生的副本 */
   private readonly _dropTmpScope = randomUUID()
+  private _remoteDragSession: unknown = null
+  private _internalMoveBusy = false
   // ★ 2026-07-25：并发同名下载守卫（防止两个下载写同一个 .tmp 造成数据损坏，见 B3）
   private _activeDownloadTargets = new Set<string>()
   // ★ 2026-09-21 P1：并发同名上传守卫（对称下载）——防止两个并发上传互踩同一 .tabby-upload
@@ -1970,12 +1972,14 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       cdr: this.cdr,
       elRef: this.elRef,
       isHeaderReorderActive: () => !!panel._headerReorder?.active,
+      resolveDropDestDir: (ev, side) => panel._resolveDropDestDir(ev, side),
     })
     this._fileDropRuntime = new PanelDropAdapter({
       cdr: this.cdr,
       markViewDirty: () => panel._safeDetect(),
       // ★ 2026-09-20 P2-2：拖入兜底临时目录归属本面板，销毁时定向清理
       dropTmpScope: panel._dropTmpScope,
+      moveWithinPane: (payload, side, dest) => panel._moveDroppedEntries(payload, side, dest),
       get connected() { return panel.connected },
       get sftpSession() { return panel.sftpSession },
       get remotePath() { return panel.remotePath },
@@ -3710,8 +3714,13 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       if (side === 'local') { this._localCollapsedGroups.delete(group.bucketKey); this._localCollapsedVersion++ }
       else { this._remoteCollapsedGroups.delete(group.bucketKey); this._remoteCollapsedVersion++ }
     }
-    if (side === 'local') this.localNavigationReturnPath = entry.fullPath
-    else this.remoteNavigationReturnPath = entry.fullPath
+    if (side === 'local') {
+      this.selectLocal(entry as LocalEntry, {} as MouseEvent, list.indexOf(entry))
+      this._localNavAnchorKey = entry.fullPath; this._localNavCursorOn = false
+    } else {
+      this.selectRemote(entry as SFTPFile, {} as MouseEvent, list.indexOf(entry))
+      this._remoteNavAnchorKey = entry.fullPath; this._remoteNavCursorOn = false
+    }
     this._safeDetect()
     this._scrollEntryIntoView(side, entry, 'center')
   }
@@ -5626,9 +5635,10 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     if (!src) return
     this._setCustomDragPreview(ev, src.map(e => ({ name: e.name, isDirectory: e.isDirectory })))
     const cur = path.resolve(this.localPath)
-    this._fileDnd.setDragSource('local', src.every(e => path.resolve(path.dirname(e.fullPath)) === cur))
-    const p: DragPayload = { kind: 'local-paths', paths: src.map(e => ({ fullPath: e.linkTarget || e.fullPath, name: e.name, isDirectory: e.isDirectory })) }
+    this._fileDnd.setDragSource('local', src.every(e => path.resolve(path.dirname(e.fullPath)) === cur), cur)
+    const p: DragPayload = { kind: 'local-paths', sourceScope: this._dropTmpScope, paths: src.map(e => ({ fullPath: e.fullPath, name: e.name, isDirectory: e.isDirectory })) }
     ev.dataTransfer?.setData('application/x-sftp-plus', JSON.stringify(p))
+    if (ev.dataTransfer) ev.dataTransfer.effectAllowed = 'copyMove'
 
     // 本地文件真实存在于磁盘，设置 OS 拖拽数据（FilePath + text/uri-list）以支持拖到桌面/资源管理器
     const uriList: string[] = []
@@ -5643,7 +5653,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     if (uriList.length) {
       ev.dataTransfer?.setData('text/uri-list', uriList.join('\r\n'))
       ev.dataTransfer!.dropEffect = 'copy'
-      ev.dataTransfer!.effectAllowed = 'copy'
+      ev.dataTransfer!.effectAllowed = 'copyMove'
     }
   }
 
@@ -5653,10 +5663,12 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     if (!src) return
     this._setCustomDragPreview(ev, src.map(e => ({ name: e.name, isDirectory: e.isDirectory })))
     const cur = this._normRemoteDir(this.remotePath)
-    this._fileDnd.setDragSource('remote', src.every(e => this._normRemoteDir(path.posix.dirname(e.fullPath)) === cur))
+    this._fileDnd.setDragSource('remote', src.every(e => this._normRemoteDir(path.posix.dirname(e.fullPath)) === cur), cur)
+    this._remoteDragSession = this.sftpSession
     log.info('[dragstart] remote modified:', src.map(e => ({ name: e.name, modified: e.modified, modifiedMs: e.modified?.getTime?.() })))
-    const p: DragPayload = { kind: 'remote-paths', paths: src.map(e => ({ remotePath: e.fullPath, name: e.name, isDirectory: e.isDirectory, size: e.size, mode: e.mode, modified: e.modified?.getTime?.() })) }
+    const p: DragPayload = { kind: 'remote-paths', sourceScope: this._dropTmpScope, paths: src.map(e => ({ remotePath: e.fullPath, name: e.name, isDirectory: e.isDirectory, size: e.size, mode: e.mode, modified: e.modified?.getTime?.() })) }
     ev.dataTransfer?.setData('application/x-sftp-plus', JSON.stringify(p))
+    if (ev.dataTransfer) ev.dataTransfer.effectAllowed = 'copyMove'
 
     // 同步检查临时缓存：只在实际文件已缓存时设置 OS 拖拽数据，否则不设置
     // 避免生成无效的 .url 快捷方式文件
@@ -5682,7 +5694,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     if (uriList.length > 0 && uriList.length === src.length) {
       ev.dataTransfer?.setData('text/uri-list', uriList.join('\r\n'))
       ev.dataTransfer!.dropEffect = 'copy'
-      ev.dataTransfer!.effectAllowed = 'copy'
+      ev.dataTransfer!.effectAllowed = 'copyMove'
       return
     }
 
@@ -5760,6 +5772,29 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     }
   }
 
+  /** Internal moves share Cut/Paste conflict handling; never overwrite a pending operation. */
+  private async _moveDroppedEntries(payload: DragPayload, side: 'local' | 'remote', dest: string): Promise<void> {
+    if (payload.sourceScope !== this._dropTmpScope ||
+        (side === 'remote' && (!this.connected || !this.sftpSession || this._remoteDragSession !== this.sftpSession))) {
+      this.showToast('Drag again from this file pane to move files.'); return
+    }
+    if (this._internalMoveBusy || this._conflictQueue.length || this.showConflictDialog) {
+      this.showToast('Resolve the current file conflict before moving more files.'); return
+    }
+    const api = side === 'local' ? path : path.posix
+    const entries = payload.paths.map(e => ({ ...e, fullPath: 'fullPath' in e ? e.fullPath : e.remotePath }))
+      .filter(e => api.resolve(api.dirname(e.fullPath)) !== api.resolve(dest))
+    const recursive = entries.find(e => e.isDirectory && isPathInside(e.fullPath, api.join(dest, e.name), side === 'remote'))
+    if (recursive) { this.showToast(this.i18n.t('op.cannotCopyIntoSelf', { name: recursive.name })); return }
+    if (!entries.length) return
+    this._internalMoveBusy = true
+    try { await this._pasteAdapter.paste(entries, side, dest, 'cut', side) }
+    catch (error) {
+      log.error('[drop] Internal move failed:', side, dest, error)
+      this.showToast(this.i18n.t('notify.pasteFailed'))
+    } finally { this._internalMoveBusy = false }
+  }
+
   async _base_onDrop(ev: DragEvent, targetPane: 'local' | 'remote'): Promise<void> {
     const destDir = this._resolveDropDestDir(ev, targetPane)
     await this._fileDropRuntime.onDrop(ev, targetPane, destDir)
@@ -5767,6 +5802,9 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
   /** ★ 2026-09-20：拖放到文件夹行时解析落点目录；落到文件行则用其父目录 */
   private _resolveDropDestDir(ev: DragEvent, targetPane: 'local' | 'remote'): string | undefined {
+    if ((ev.target as HTMLElement | null)?.closest?.('[data-drop-parent]')) {
+      return targetPane === 'local' ? path.dirname(this.localPath) : path.posix.dirname(this.remotePath)
+    }
     const el = (ev.target as HTMLElement | null)?.closest?.('[data-path]') as HTMLElement | null
     if (!el) return undefined
     const p = el.getAttribute('data-path')

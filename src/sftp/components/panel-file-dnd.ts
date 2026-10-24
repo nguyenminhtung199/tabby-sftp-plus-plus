@@ -1,6 +1,7 @@
 /**
  * 文件拖拽悬停与基础状态（不包含 drop 传输实现）
  */
+import * as path from 'path'
 import { ChangeDetectorRef, ElementRef } from '@angular/core'
 
 export type FileDndPane = 'local' | 'remote'
@@ -8,6 +9,7 @@ export type FileDndPane = 'local' | 'remote'
 export interface FileDndHost {
   cdr: ChangeDetectorRef
   elRef: ElementRef
+  resolveDropDestDir?(ev: DragEvent, pane: FileDndPane): string | undefined
   isHeaderReorderActive(): boolean
 }
 
@@ -16,19 +18,28 @@ export class PanelFileDnd {
   private _remoteDragOver = false
   private _dragSourcePane: FileDndPane | null = null
   private _dragSameDirNoop = false
+  private _dragSourceDir = ''
 
   constructor(private readonly host: FileDndHost) {}
 
   get localDragOver(): boolean { return this._localDragOver }
   get remoteDragOver(): boolean { return this._remoteDragOver }
 
-  setDragSource(pane: FileDndPane, sameDirNoop: boolean): void {
+  setDragSource(pane: FileDndPane, sameDirNoop: boolean, sourceDir = ''): void {
+    this._dragSourceDir = sourceDir
     this._dragSourcePane = pane
     this._dragSameDirNoop = sameDirNoop
   }
 
   isInternalSameDirDrag(targetPane: FileDndPane): boolean {
     return this._dragSameDirNoop && this._dragSourcePane === targetPane
+  }
+
+  private sameDirectory(ev: DragEvent, pane: FileDndPane): boolean {
+    if (!this.isInternalSameDirDrag(pane)) return false
+    const dest = this.host.resolveDropDestDir?.(ev, pane)
+    const api = pane === 'local' ? path : path.posix
+    return !dest || api.resolve(dest) === api.resolve(this._dragSourceDir)
   }
 
   reset(): void {
@@ -46,18 +57,18 @@ export class PanelFileDnd {
 
   onDragOver(ev: DragEvent, targetPane: FileDndPane): void {
     if (this.host.isHeaderReorderActive()) return
-    if (this.isInternalSameDirDrag(targetPane)) {
+    if (this.sameDirectory(ev, targetPane)) {
       ev.preventDefault()
       if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'none'
       return
     }
     ev.preventDefault()
-    if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'copy'
+    if (ev.dataTransfer) ev.dataTransfer.dropEffect = this._dragSourcePane === targetPane ? 'move' : 'copy'
   }
 
   onDragEnter(ev: DragEvent, targetPane: FileDndPane): void {
     if (this.host.isHeaderReorderActive()) return
-    if (this.isInternalSameDirDrag(targetPane)) {
+    if (this.sameDirectory(ev, targetPane)) {
       ev.preventDefault()
       return
     }

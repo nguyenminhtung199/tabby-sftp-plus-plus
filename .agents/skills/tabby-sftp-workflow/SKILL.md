@@ -30,6 +30,11 @@ description: Use before code changes, npm commands, tests or plugin operations i
 ## Navigation return markers
 
 - Last-clicked/opened paths are stored only in the component lifetime, using src/sftp/core/navigation-memory.ts and fileList.navigationMemoryLimit in transfer-policy.json. Local and remote stores are independent; remote identity changes clear its store.
-- The host prepares a pending return marker before clearing old selections, restores it only after the current listing succeeds, and uses the existing row-scroll bridge. Do not turn the marker into selection: Back/Up must not accidentally arm Delete/Copy on an old item.
-- The FilePane navigationReturnPath input reveals the bounded page and applies the same marker to flat/grouped rows; the host expands a collapsed group only when needed for a returned item. Same-folder background refresh must not keep snapping the view back.
-- test-navigation-memory.cjs checks real local listing with Back/Forward/Up, remote scope/group/async guards and bounded state. Renderer tests cover off-page and grouped highlighting without changing selection.
+- The host prepares a pending return marker before clearing old selections, restores it only after the current listing succeeds, and uses the existing row-scroll bridge. After the accepted listing succeeds, restore normal selection via selectLocal/selectRemote and its keyboard anchor. The user requested the same appearance and behavior as a click; do not add a second highlight style.
+- The FilePane navigationReturnPath input reveals the bounded page and reveals the selected item in flat/grouped rows; the host expands a collapsed group only when needed for a returned item. Same-folder background refresh must not keep snapping the view back.
+- test-navigation-memory.cjs checks real local listing with Back/Forward/Up, remote scope/group/async guards and bounded state. Renderer tests cover off-page and grouped normal selection highlighting.
+
+## Internal drag moves
+
+- Same-pane internal drags move through PanelPasteAdapter in cut mode, sharing conflict resolution; cross-pane drags retain upload/download. A folder row targets that folder; the Up toolbar button targets the parent. Same-folder drops do nothing; self/descendant targets are rejected before conflict scanning.
+- Internal payloads carry the panel scope; remote moves also require the same live SFTP session as dragstart. Do not use drag-out cached OS files for internal moves. External Explorer drops keep their copy/upload behavior.

@@ -336,6 +336,7 @@ export interface PanelDropHost {
   streamUploadOne(localPath: string, destRemoteDir?: string): Promise<void>
   /** ★ 2026-09-29（四）：多选批量打包入口（可选，未实现则一律逐项） */
   tryUploadBatch?(localPaths: string[], remoteDir: string): Promise<boolean>
+  moveWithinPane?(payload: DragPayload, pane: DropPane, destDir: string): Promise<void>
   streamDownloadOne(file: SFTPFile, targetLocalDir?: string): Promise<void>
   refreshLocal(): Promise<unknown>
   refreshRemote(): Promise<unknown>
@@ -352,7 +353,18 @@ export class PanelDropAdapter {
   async onDrop(ev: DragEvent, targetPane: DropPane, destDirOverride?: string): Promise<void> {
     ev.preventDefault()
     const rawPayload = parseDragPayload(ev)
-    const osPaths = await getDroppedOsPaths(ev, this.host.dropTmpScope)
+    if (!rawPayload && Array.from(ev.dataTransfer?.types || []).includes('application/x-sftp-plus')) {
+      this.host.resetFileDragState(); this.host.markViewDirty?.(); return
+    }
+    const samePane = rawPayload && ((rawPayload.kind === 'local-paths' && targetPane === 'local') || (rawPayload.kind === 'remote-paths' && targetPane === 'remote'))
+    if (samePane) {
+      this.host.resetFileDragState()
+      try {
+        await this.host.moveWithinPane?.(rawPayload!, targetPane, destDirOverride || (targetPane === 'local' ? this.host.localPath : this.host.remotePath))
+      } finally { this.host.markViewDirty?.() }
+      return
+    }
+    const osPaths = rawPayload ? [] : await getDroppedOsPaths(ev, this.host.dropTmpScope)
     await this.useCase.execute({ targetPane, rawPayload, osPaths, destDirOverride })
   }
 
@@ -502,6 +514,13 @@ export function parseDragPayload(ev: DragEvent): DragPayload | null {
       return null
     }
     if (parsed.kind !== 'local-paths' && parsed.kind !== 'remote-paths') return null
+    if (!parsed.paths.length || ![...parsed.paths].every(e => {
+      if (!e || typeof e !== 'object') return false
+      const source = parsed.kind === 'local-paths' ? (e as any).fullPath : (e as any).remotePath
+      return typeof source === 'string' && !source.includes('\0') &&
+        typeof e.name === 'string' && safeEntryName(e.name) === e.name && typeof e.isDirectory === 'boolean' &&
+        (parsed.kind === 'local-paths' ? path.isAbsolute(source) && path.basename(source) === e.name : path.posix.isAbsolute(source) && path.posix.basename(source) === e.name)
+    })) return null
     return parsed
   } catch { return null }
 }

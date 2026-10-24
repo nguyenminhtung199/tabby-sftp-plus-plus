@@ -65,10 +65,10 @@ const root=path.resolve(__dirname,'../..'),cfg=require('../test-policy.json').re
  model._invalidateLocalCache();model.cachedColumnValue('size',sample);assert.equal(calls,2);
  setDateFormatPattern('YYYY');model.cachedColumnValue('size',sample);assert.equal(calls,3);setDateFormatPattern('');
  const filtered=model.getFilteredLocalEntries();assert.equal(filtered.length,full.length);assert.ok(!filtered[0]._cells);model.localFilter='file49999';model._invalidateLocalCache();assert.equal(model.getFilteredLocalEntries().length,1);
- // Return highlights reveal their page without changing selection or stealing keyboard focus.
- host.entries=full;host.navKey=null;host.returnPath=full.at(-1).fullPath;app.tick();
- const returned=document.querySelector('.entry.navigation-return');assert.ok(returned);assert.equal(returned.getAttribute('data-path'),full.at(-1).fullPath);assert.equal(returned.classList.contains('selected'),false);assert.ok(document.querySelectorAll('.entry[data-path]').length<=cfg.largeLists.maxPageRows);
- host.groups=[{kind:'header',bucketKey:'return',label:'Return',items:[full.at(-1)],count:1},{kind:'entry',entry:full.at(-1),index:full.length-1}];app.tick();assert.ok(document.querySelector('.entry.navigation-return'),'grouped rows use the same return highlight');
+ // Return highlights reveal their page using normal selection without stealing keyboard focus.
+ host.entries=full;host.navKey=null;host.returnPath=full.at(-1).fullPath;host.selection=[full.at(-1)];app.tick();
+ const returned=document.querySelector('.entry.selected');assert.ok(returned);assert.equal(returned.getAttribute('data-path'),full.at(-1).fullPath);assert.equal(returned.classList.contains('navigation-return'),false);assert.ok(document.querySelectorAll('.entry[data-path]').length<=cfg.largeLists.maxPageRows);
+ host.groups=[{kind:'header',bucketKey:'return',label:'Return',items:[full.at(-1)],count:1},{kind:'entry',entry:full.at(-1),index:full.length-1}];app.tick();assert.ok(document.querySelector('.entry.selected'),'grouped rows use the same return highlight');
  host.groups=null;host.returnPath='';pane.changeListPage(0);app.tick();
  // Two simultaneously mounted panes must skip unrelated app ticks and sibling actions.
  host.entries=full;host.otherEntries=full.map(e=>({...e,fullPath:'/remote'+e.fullPath}));host.dual=true;app.tick();

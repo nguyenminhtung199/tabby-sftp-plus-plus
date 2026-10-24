@@ -206,7 +206,7 @@
   },
   {
     "selector": "sftp-file-pane",
-    "eventCount": 94,
+    "eventCount": 98,
     "actions": [
       "blurPathInput",
       "changeListPage",

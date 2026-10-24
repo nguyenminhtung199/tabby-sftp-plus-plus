@@ -35,8 +35,8 @@ export type LocalEntry = {
 }
 
 export type DragPayload =
-  | { kind: 'local-paths'; paths: Array<{ fullPath: string; name: string; isDirectory: boolean }> }
-  | { kind: 'remote-paths'; paths: Array<{ remotePath: string; name: string; isDirectory: boolean; size?: number; mode?: number; modified?: number }> }
+  | { kind: 'local-paths'; sourceScope?: string; paths: Array<{ fullPath: string; name: string; isDirectory: boolean }> }
+  | { kind: 'remote-paths'; sourceScope?: string; paths: Array<{ remotePath: string; name: string; isDirectory: boolean; size?: number; mode?: number; modified?: number }> }
 
 export type ConflictFileInfo = {
   localPath: string
