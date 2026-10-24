@@ -124,7 +124,6 @@ export interface SftpPlusPluginConfig {
 
   conflictDigestEnabled: boolean
 
-  conflictAutoSkipSameContent: boolean
 
   conflictDigestMaxSizeMB: number
 
@@ -282,7 +281,6 @@ export function defaultSftpPlusConfig(): SftpPlusPluginConfig {
   "disabledIconSvgs": [],
   "folderIconSvg": "folder.svg",
   "conflictDigestEnabled": true,
-  "conflictAutoSkipSameContent": true,
   "conflictDigestMaxSizeMB": 256,
   "conflictDigestAlgo": "sha1",
   "paneCustomOrder": [

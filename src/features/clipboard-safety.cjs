@@ -9,12 +9,12 @@ module.exports=function installPasteSafety({apis,Panel}){
         if(this._destroyed||this._customPasteBusy)return Promise.resolve(false);
         const entries=[...(this.clipboardEntries||[])],pane=this.contextMenuPane,source=this.clipboardSource;
         const destination=pane==='local'?this.localPath:this.remotePath;
-        const remaining=source===pane?entries.filter(entry=>{
+        const remaining=source===pane&&this.clipboardMode==='cut'?entries.filter(entry=>{
             if(!entry.fullPath||!entry.name)return true;
             const target=(pane==='local'?path:path.posix).join(destination,entry.name);
             return !same(pane,entry.fullPath,target);
         }):entries;
-        // A same-path copy/cut must never reach conflict hashing, SSH exec or I/O.
+        // A same-path cut must never reach conflict hashing, SSH exec or I/O.
         if(entries.length&&!remaining.length){
             try{this.closeContextMenu?.();this.showToast?.('Source and destination are the same; nothing to paste.',4000);}catch{}
             return Promise.resolve(false);

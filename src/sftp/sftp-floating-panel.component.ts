@@ -1,3 +1,6 @@
+const fileOperation = require('../runtime/file-operation.cjs')
+import type { FileOperationBatch } from './core/panel-types'
+import type { ConflictQueueItem } from './core/panel-types'
 const {getPluginUpdater,panelHasWork}=require('../runtime/plugin-updater.cjs')
 import { NavigationMemory } from './core/navigation-memory'
 import { fileList as fileListPolicy } from '../../transfer-policy.json'
@@ -1388,22 +1391,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
   conflictOriginalTotal = 1
 
-  private _conflictQueue: Array<{
-    localPath: string; remoteDir: string; fileName: string;
-    remotePath: string; localStat: fsSync.Stats;
-
-    direction: 'upload' | 'download';
-
-    remoteFileSize?: number;
-
-    remoteFileMtime?: number;
-
-    isSamePane?: boolean;
-
-    samePaneSource?: 'local' | 'remote';
-
-    isDirectory?: boolean;
-  }> = []
+  private _conflictQueue: ConflictQueueItem[] = []
 
   private _conflictAllMode: string = 'ask'
 
@@ -1533,6 +1521,10 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       markViewDirty: () => panel._safeDetect(),
 
       dropTmpScope: panel._dropTmpScope,
+      copyLocalPaths: async (paths, destination) => {
+        const entries = await Promise.all(paths.map(async fullPath => { const stat = await fs.lstat(fullPath); return {name:path.basename(fullPath),fullPath,isDirectory:stat.isDirectory(),isSymlink:stat.isSymbolicLink(),size:stat.size,mtimeMs:stat.mtimeMs} }))
+        await panel._pasteAdapter.paste(entries,'local',destination,'copy','local')
+      },
       moveWithinPane: (payload, side, dest) => panel._moveDroppedEntries(payload, side, dest),
       get connected() { return panel.connected },
       get sftpSession() { return panel.sftpSession },
@@ -1548,10 +1540,10 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       hasConflictQueue: () => panel._conflictQueue.length > 0,
       resetFileDragState: () => panel._resetFileDragState(),
       uploadPathToRemote: (remoteDir, localPath) => panel.uploadPathToRemote(remoteDir, localPath),
-      streamUploadOne: (localPath, destRemoteDir) => panel._streamUploadOne(localPath, destRemoteDir),
+      streamUploadOne: (localPath, destRemoteDir, batch) => panel._streamUploadOne(localPath, destRemoteDir, batch),
 
       tryUploadBatch: (localPaths, remoteDir) => panel._tryBatchUpload(localPaths, remoteDir),
-      streamDownloadOne: (file, targetLocalDir) => panel._streamDownloadOne(file, targetLocalDir),
+      streamDownloadOne: (file, targetLocalDir, batch) => panel._streamDownloadOne(file, targetLocalDir, batch),
       refreshLocal: () => panel.refreshLocal(),
       refreshRemote: () => panel.refreshRemote(),
       showConflictDialog: () => panel._showConflictDialog(),
@@ -1594,7 +1586,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
       conflictDigestOptions: () => (panel._conflictDigestEnabled ? {
         enabled: true,
-        autoSkipSameContent: panel._conflictAutoSkipSameContent,
+        autoSkipSameContent: false,
         maxBytes: panel._conflictDigestMaxSizeMB * 1024 * 1024,
         algo: panel._conflictDigestAlgo,
       } : null),
@@ -1604,11 +1596,16 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
         const { transferEntry: t, startTime, logEntryId } = panel._startFolderTransfer(
           name, direction, remotePath, localPath, totalSize, itemCount, reuseLogEntryId,
         )
-        return { t, startTime, logEntryId, bytesDone: 0, itemDone: 0 }
+        return { t, startTime, logEntryId, bytesDone: 0, itemDone: 0, session:panel.sftpSession }
       },
-      finishFolderTransfer: (ctx, success) =>
-        panel._finishFolderTransfer(ctx.t, ctx.startTime, ctx.logEntryId, success),
+      finishFolderTransfer: (ctx, success) => {
+        if (ctx.hadConflict && panel._conflictQueue.some(item => item.transferCtx === ctx) && !ctx.t?._aborted) {
+          ctx.t.phase = 'waiting'; panel._safeDetect(); return
+        }
+        panel._finishFolderTransfer(ctx.t, ctx.startTime, ctx.logEntryId, success || (!!ctx.hadConflict && !ctx.failed && !ctx.t?._aborted))
+      },
       discardFolderTransfer: (ctx) => {
+        panel._transferRuntime.unwatchFolder?.(ctx.t)
         panel.transfers = panel.transfers.filter(x => x !== ctx.t)
         try { panel.transferLog.remove(ctx.logEntryId) } catch { /* ignore */ }
         panel._safeDetect()
@@ -1626,12 +1623,14 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       updateFolderLogSize: (ctx, size) => {
         try { panel.transferLog.update(ctx.logEntryId, { size }) } catch { /* ignore */ }
       },
-      updateFolderProgress: (ctx, bytesDone, currentItem, itemDone, currentItemSize) =>
-        panel._updateFolderProgress(ctx.t, bytesDone, currentItem, itemDone, currentItemSize),
+      updateFolderProgress: (ctx, bytesDone, currentItem, itemDone, currentItemSize) => {
+        ctx.t.bytesTransferred = ctx.t.transferMode === 'tar' ? bytesDone : ctx.bytesDone + [...(ctx.liveBytes?.values() || [])].reduce((sum,n)=>sum+n,0)
+        panel._updateFolderProgress(ctx.t, bytesDone, currentItem, itemDone, currentItemSize)
+      },
 
       onTransferSkipped: (info) => panel._markTransferAsSkipped(info),
       uploadTopLevel: (remotePath, localPath) => panel._doUpload(remotePath, localPath),
-      uploadRaw: (remotePath, localPath) => panel._doUploadRaw(remotePath, localPath),
+      uploadRaw: (remotePath, localPath, onProgress) => panel._doUploadRaw(remotePath, localPath, onProgress),
       downloadTopLevel: (remotePath, localPath, mode, size) =>
         panel._doDownload(remotePath, localPath, mode, size),
       downloadRaw: (remotePath, localPath, mode, size, onProgress) =>
@@ -1651,10 +1650,10 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       uploadFile: (remotePath, localPath) => panel._doUpload(remotePath, localPath),
       downloadFile: (remotePath, localPath, mode, size) =>
         panel._doDownload(remotePath, localPath, mode, size),
-      uploadDirectory: (localSrc, remoteDestParent) =>
-        panel.uploadPathToRemote(remoteDestParent, localSrc),
-      downloadDirectory: (remoteSrc, localDestParent) =>
-        panel.downloadRemoteDir(remoteSrc, localDestParent, 'local'),
+      uploadDirectory: (localSrc, remoteDestParent, batch, moveSource) =>
+        panel.uploadPathToRemote(remoteDestParent, localSrc, undefined, batch, moveSource),
+      downloadDirectory: (remoteSrc, localDestParent, batch, moveSource) =>
+        panel._transferCoordinator.downloadRemoteDir(remoteSrc,localDestParent,undefined,undefined,undefined,batch,moveSource),
       checkRemotePathExists: (remotePath, expectDir) =>
         panel._transferCoordinator.checkRemotePathExists(remotePath, expectDir),
       enqueueConflict: (item) => {
@@ -1678,6 +1677,29 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       refreshRemote: () => panel.refreshRemote(),
     })
     this._conflictResolver = new PanelConflictResolver({
+      cleanupMoveFolders: async ctx => {
+        for (const folder of [...new Set(ctx.sourceDirectories || [])].sort((a,b)=>b.length-a.length)) {
+          try {
+            if (ctx.t.direction === 'upload') await fs.rmdir(folder)
+            else {
+              if (panel.sftpSession !== ctx.session) throw new Error('The SFTP session changed.')
+              if ((await panel.sftpSession.readdir(folder)).length) continue
+              await (panel.sftpSession as any).rmdir(folder)
+            }
+          } catch(error:any) { if (!['ENOENT','ENOTEMPTY','EEXIST'].includes(error.code) && !/no such file|not empty/i.test(error.message)) throw error }
+        }
+      },
+      notifyConflictError: (name, error) => this.showToast('Could not complete ' + name + ': ' + String((error as any)?.message || error), 7000),
+      onConflictResolved: (item, action) => {
+        if (item.transferCtx) return
+        const queued = this.transfers.filter(row => row.queued && row.remotePath === item.remotePath && row.localPath === item.localPath)
+        for (const row of queued) {
+          this.transfers = this.transfers.filter(other => other !== row)
+          if (row.logEntryId) this.transferLog.update(row.logEntryId, { pending: false, success: false, failReason: 'cancelled', error: action === 'cancel' ? 'Cancelled' : action === 'error' ? 'Transfer failed' : 'Skipped' })
+        }
+        this._safeDetect()
+      },
+      cancelBatch: batch => { for (const row of this.transfers.filter(item => item.batch === batch)) this.cancelTransfer(row) },
       get sftpSession() { return panel.sftpSession },
       get cdr() { return panel.cdr },
 
@@ -1729,19 +1751,24 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
       refreshRemote: () => panel.refreshRemote(),
       refreshLocal: () => panel.refreshLocal(),
-      executePaste: (entries, destPane, destPath, mode, source) =>
-        panel._pasteAdapter.executePaste(entries as any, destPane, destPath, mode, source),
+      executePaste: (entries, destPane, destPath, mode, source, resolvedKeys) =>
+        panel._pasteAdapter.executePaste(entries as any, destPane, destPath, mode, source, resolvedKeys),
 
-      doDownload: (remotePath, localPath, mode, size) => panel._doDownload(remotePath, localPath, mode, size),
-      doUpload: (remotePath, localPath) => panel._doUpload(remotePath, localPath),
+      doDownload: (remotePath, localPath, mode, size, progress) => progress ? panel._doDownloadRaw(remotePath,localPath,mode,size,progress) : panel._doDownload(remotePath,localPath,mode,size),
+      doUpload: (remotePath, localPath, progress) => progress ? panel._doUploadRaw(remotePath,localPath,progress) : panel._doUpload(remotePath,localPath),
       downloadRemoteDir: (remoteDir, localDestDir, targetPane, top, renameTo, forceOverwrite) =>
         panel._transferCoordinator.downloadRemoteDir(remoteDir, localDestDir, top, renameTo, forceOverwrite),
 
       mergeLocalDirToRemote: (localSrc, remoteDest, reuseLogEntryId) =>
         panel._transferCoordinator.mergeLocalDirToRemote(localSrc, remoteDest, reuseLogEntryId),
 
-      markTransferSucceeded: (ctx) => panel._finishFolderTransfer(ctx.t, ctx.startTime, ctx.logEntryId, true),
+      updateFolderProgress:(ctx,bytes,name,done,size)=>{ ctx.t.bytesTransferred=ctx.bytesDone+[...(ctx.liveBytes?.values()||[])].reduce((sum,n)=>sum+n,0); panel._updateFolderProgress(ctx.t,bytes,name,done,size) },
+      markTransferSucceeded: (ctx) => { if (!ctx.producing) panel._finishFolderTransfer(ctx.t, ctx.startTime, ctx.logEntryId, !ctx.failed) },
       discardTransferLog: (ctx) => {
+        if (ctx.producing) return
+        panel._transferRuntime.unwatchFolder?.(ctx.t)
+        panel.transfers = panel.transfers.filter(item => item !== ctx.t)
+        panel._safeDetect()
         try { panel.transferLog.remove(ctx.logEntryId) } catch { /* ignore */ }
       },
       copyLocalDir: (src, dest) => copyLocalDir(src, dest),
@@ -1749,7 +1776,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       scanRemoteDir: (p) => panel._scanRemoteDir(p),
       computeConflictDigests: (args) => panel._computeConflictDigests(args),
       shouldAutoSkipSameContent: () =>
-        !!(panel._conflictDigestEnabled && panel._conflictAutoSkipSameContent),
+        false,
       notifyConflictAutoSkipped: (fileName) => {
         try {
           const tip = panel.i18n.t('transfer.skippedAsDuplicate')
@@ -2182,6 +2209,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
   }
 
   _base_ngOnDestroy(): void {
+    if (this._folderProgressDetect) clearTimeout(this._folderProgressDetect)
     this._stopPluginUpdates?.()
     this._destroyed = true
 
@@ -5070,7 +5098,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     reuseLogEntryId?: string,
   ): { transferEntry: typeof this.transfers[0]; startTime: number; logEntryId: string } {
 
-    const taskRef = currentTaskScope() ?? this._cancelRef
+    const taskRef: TaskCancelRef = { current: null, active: new Set<any>() }
 
     const queuedEntries = this.transfers.filter(
       e => e.queued && e.direction === direction && e.localPath === localPath,
@@ -5093,7 +5121,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
         transfer: null, name, remotePath,
         percent: 0, speed: '', bytesDone: 0, bytesTotal: totalSize,
         paused: false, queued: false,
-        isFolder: true, currentItem: '', itemCount, itemDone: 0,
+        isFolder: true, phase: 'transferring', currentItem: '', itemCount, itemDone: 0,
         _taskCancelRef: taskRef,
 
         transferMode: 'sftp',
@@ -5109,6 +5137,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       this.transfersMinimized = false
       this.transfersHidden = false
       this._safeDetect()
+      this._transferRuntime.watchFolder?.(queuedEntry)
       return { transferEntry: queuedEntry, startTime: Date.now(), logEntryId: queuedEntry.logEntryId! }
     }
     const logEntry = reuseLogEntryId
@@ -5141,15 +5170,24 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       transfer: null, direction, name, remotePath, localPath,
       percent: 0, speed: '', bytesDone: 0, bytesTotal: totalSize,
       paused: false, logEntryId: logEntry.id,
-      isFolder: true, currentItem: '', itemCount, itemDone: 0,
+      isFolder: true, phase: 'transferring', currentItem: '', itemCount, itemDone: 0,
       _taskCancelRef: taskRef,
       transferMode: 'sftp',
     } as PanelTransferItem
     this.transfers.push(transferEntry)
+    this._transferRuntime.watchFolder?.(transferEntry)
     this.transfersMinimized = false
     this.transfersHidden = false
     this._safeDetect()
     return { transferEntry, startTime: Date.now(), logEntryId: logEntry.id }
+  }
+
+  private _folderProgressDetect: ReturnType<typeof setTimeout> | null = null
+
+  private _scheduleFolderProgressDetect(): void {
+    if (this._folderProgressDetect || this._destroyed) return
+    const schedule = () => setTimeout(() => { this._folderProgressDetect = null; this._safeDetect() }, 100)
+    this._folderProgressDetect = this.zone?.runOutsideAngular ? this.zone.runOutsideAngular(schedule) : schedule()
   }
 
   private _updateFolderProgress(
@@ -5158,17 +5196,18 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
   ): void {
 
     if (t.paused) return
+    if (bytesDone > t.bytesDone) t.waitingForServer = false
     t.bytesDone = bytesDone
     t.currentItem = currentItem
     t.currentItemSize = currentItemSize
     t.itemDone = itemDone
-    t.percent = t.bytesTotal > 0 ? Math.min(100, Math.round((bytesDone / t.bytesTotal) * 100)) : 0
+    t.percent = t.bytesTotal > 0 ? Math.min(99, (bytesDone / t.bytesTotal) * 100) : t.itemCount > 0 ? Math.min(99, itemDone / t.itemCount * 100) : 0
 
     const now = Date.now()
     const lastUpdate = (t as any)._lastSpeedUpdate || 0
     const lastBytes = (t as any)._lastBytes || 0
     if (now - lastUpdate >= 500) {
-      const deltaBytes = bytesDone - lastBytes
+      const deltaBytes = (t.bytesTransferred ?? bytesDone) - lastBytes
       const deltaTime = Math.max(1, now - lastUpdate)
 
       const baselineOk = lastUpdate > 0
@@ -5191,26 +5230,32 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       }
 
       ;(t as any)._lastSpeedUpdate = now
-      ;(t as any)._lastBytes = bytesDone
+      ;(t as any)._lastBytes = t.bytesTransferred ?? bytesDone
     }
-    this._safeDetect()
+    this._scheduleFolderProgressDetect()
   }
 
   private _finishFolderTransfer(
     t: typeof this.transfers[0], startTime: number, logEntryId: string, success: boolean,
   ): void {
+    this._transferRuntime.unwatchFolder?.(t)
     this.transfers = this.transfers.filter(x => x !== t)
+    if (this._folderProgressDetect) { clearTimeout(this._folderProgressDetect); this._folderProgressDetect = null }
+    this._safeDetect()
     const now = Date.now()
 
     const patch: { success: boolean; duration: number; endTime: number; pending: boolean; size?: number } =
       { success, duration: now - startTime, endTime: now, pending: false }
     if (!(t.bytesTotal > 0) && t.bytesDone > 0) patch.size = t.bytesDone
+    patch.size = t.bytesTransferred ?? t.bytesDone
     this.transferLog.update(logEntryId, patch)
   }
 
   private async uploadPathToRemote(
     remoteDir: string, localPath: string,
     _top?: FolderTransferCtx,
+    batch?: FileOperationBatch,
+    moveSource = false,
   ): Promise<boolean> {
 
     const slotBaseName = path.basename(localPath)
@@ -5224,7 +5269,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     try {
 
       return await runInTaskScope(cancelRef, () =>
-        this._transferCoordinator.uploadPathToRemote(remoteDir, localPath, _top))
+        this._transferCoordinator.uploadPathToRemote(remoteDir, localPath, _top, batch, moveSource))
     } finally {
       this._cancelRefs.delete(cancelRef)
       if (this._cancelRef === cancelRef) this._cancelRef = prevRef
@@ -5244,10 +5289,11 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     })
   }
 
-  private async _base__doUploadRaw(remotePath: string, localPath: string): Promise<boolean> {
+  private async _base__doUploadRaw(remotePath: string, localPath: string, onProgress?: (bytes: number) => void): Promise<boolean> {
     if (!this.sftpSession) return false
-    return uploadLocalFile(this._byteTransferCtx(), remotePath, localPath, {
+    return uploadLocalFile(this._byteTransferCtx((onProgress as any)?.cancelRef), remotePath, localPath, {
       exposeCancel: true,
+      onProgress,
     })
   }
 
@@ -5381,6 +5427,14 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
   _base_cancelTransfer(entry: { transfer: any; logEntryId?: string; paused?: boolean; isFolder?: boolean }): void {
     this._transferRuntime.cancelTransfer(entry)
+    const removed = this._conflictQueue.filter(item => item.transferCtx?.t === entry || (!item.transferCtx && item.localPath === (entry as any).localPath && item.remotePath === (entry as any).remotePath))
+    if (removed.length) {
+      const headRemoved = removed.includes(this._conflictQueue[0])
+      this._conflictQueue = this._conflictQueue.filter(item => !removed.includes(item))
+      for (const item of removed) fileOperation.settle(item)
+      if (headRemoved) { this.showConflictDialog = false; this.conflictData = null; if (this._conflictQueue.length) this._showConflictDialog() }
+      this._safeDetect()
+    }
 
     if ((entry as any).queued) return
 
@@ -6731,7 +6785,8 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       this._safeDetect()
       return
     }
-    await Promise.all(items.map(e => this._streamUploadOne(e.fullPath, uploadDir)))
+    const batch = fileOperation.create(items.length)
+    await Promise.all(items.map(e => this._streamUploadOne(e.fullPath, uploadDir, batch)))
     await this.refreshRemote()
     this._safeDetect()
   }
@@ -6748,7 +6803,8 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     const requestedDownloadDir = this._defaultDownloadPath || this.localPath
     const downloadDir = await this._ensureTransferTargetDir('download', requestedDownloadDir)
     if (!downloadDir) return
-    await Promise.all(items.map(p => this._streamDownloadOne(p, downloadDir)))
+    const batch = fileOperation.create(items.length)
+    await Promise.all(items.map(p => this._streamDownloadOne(p, downloadDir, batch)))
     if (this._conflictQueue.length) this._showConflictDialog()
 
     await this.refreshLocal()
@@ -6759,7 +6815,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
   private _dlActiveCount = 0
   private _dlQueue: Array<{ file: SFTPFile; entry: PanelTransferItem; finish: () => void }> = []
 
-  private async _base__streamDownloadOne(p: SFTPFile, targetLocalDir?: string): Promise<void> {
+  private async _base__streamDownloadOne(p: SFTPFile, targetLocalDir?: string, batch: FileOperationBatch = fileOperation.create()): Promise<void> {
     const safeName = safeEntryName(p.name)
     if (!safeName) {
       log.warn('skip download with unsafe name:', p.name)
@@ -6780,7 +6836,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       pending: true,
     })
     const entry: PanelTransferItem = {
-      transfer: null, direction: 'download', name: safeName,
+      batch, transfer: null, direction: 'download', name: safeName,
       remotePath: p.fullPath, localPath: localTarget,
       percent: 0, speed: '', bytesDone: 0, bytesTotal: p.size ?? 0,
       paused: false, queued: true, logEntryId: logEntry.id,
@@ -6824,16 +6880,17 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     item: { file: SFTPFile; entry: PanelTransferItem; finish: () => void },
   ): Promise<void> {
     try {
-
+      if (item.entry.isFolder) { item.entry.phase = 'preparing'; this._safeDetect() }
       if (this.transfers.includes(item.entry)) {
 
         const targetDir = item.entry.localPath ? path.dirname(item.entry.localPath) : undefined
-        await this._transferCoordinator.streamDownloadOne(item.file, targetDir)
+        await this._transferCoordinator.streamDownloadOne(item.file, targetDir, item.entry.batch)
       }
     } catch (e) {
       log.error('Queued download failed for', item.file.fullPath, e)
     } finally {
 
+      fileOperation.finish(item.entry.batch)
       this._dlActiveCount--
       item.finish()
       try { this._pumpDownloadQueue() } catch (e) { log.error('Pump download queue failed', e) }
@@ -6983,7 +7040,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     }
   }
 
-  private async _base__streamUploadOne(localPath: string, targetRemoteDir?: string): Promise<void> {
+  private async _base__streamUploadOne(localPath: string, targetRemoteDir?: string, batch: FileOperationBatch = fileOperation.create()): Promise<void> {
     const sourceSession=this.sftpSession,capturedRemoteDir=targetRemoteDir||this.remotePath
     const base = path.basename(localPath)
     const safeName = safeEntryName(base)
@@ -7014,7 +7071,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       pending: true,
     })
     const entry: PanelTransferItem = {
-      transfer: null, direction: 'upload', name: safeName,
+      batch, transfer: null, direction: 'upload', name: safeName,
       remotePath: remoteTarget, localPath,
       percent: 0, speed: '', bytesDone: 0, bytesTotal: size,
       paused: false, queued: true, logEntryId: logEntry.id,
@@ -7061,12 +7118,13 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
       if (this.transfers.includes(item.entry)) {
 
-        await this.uploadPathToRemote(item.remoteDir, item.localPath)
+        await this.uploadPathToRemote(item.remoteDir, item.localPath, undefined, item.entry.batch)
       }
     } catch (e) {
       log.error('Queued upload failed for', item.localPath, e)
     } finally {
 
+      fileOperation.finish(item.entry.batch)
       this._upActiveCount--
       item.finish()
       try { this._pumpUploadQueue() } catch (e) { log.error('Pump upload queue failed', e) }
@@ -7103,7 +7161,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     const source = this.clipboardSource
 
     log.info(`Paste ${entries.length} items (${mode}) from ${source} to ${destPane}`)
-    this.clipboardEntries = []
+    if (mode === 'cut') this.clipboardEntries = []
 
     await this._pasteAdapter.paste(
       entries.map(e => ({

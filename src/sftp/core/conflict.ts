@@ -1,3 +1,5 @@
+import { folderFileProgress, folderSkipped } from './transfer-progress'
+const fileOperation = require('../../runtime/file-operation.cjs')
 import * as path from 'path'
 
 import { type ConflictQueueItem, type ConflictFileInfo, type FolderTransferCtx } from './panel-types'
@@ -13,7 +15,7 @@ export type ConflictActionMode = 'ask' | 'overwrite' | 'skip' | 'rename'
 
 export function conflictItemKey(item: ConflictQueueItem): string {
 
-  return item.entryKey ?? `${item.direction}|${item.remotePath}|${item.localPath}`
+  return item.entryKey ?? `${item.batch?.id || ''}|${item.direction}|${item.remotePath}|${item.localPath}`
 }
 
 export function pasteEntryKey(e: {
@@ -21,10 +23,11 @@ export function pasteEntryKey(e: {
   fullPath?: string
   remotePath?: string
   sourcePane?: 'local' | 'remote'
+  batch?: import('./panel-types').FileOperationBatch
 }): string {
   const pane = e.sourcePane ?? 'local'
-  const p = pane === 'remote' ? (e.remotePath ?? e.name) : (e.fullPath ?? e.name)
-  return `${pane}|${p}`
+  const p = e.fullPath ?? e.remotePath ?? e.name
+  return `${e.batch?.id || ''}|${pane}|${p}`
 }
 
 export function normalizeConflictAction(action: string): {
@@ -40,18 +43,12 @@ export function normalizeConflictAction(action: string): {
   return { action: 'skip', allMode: null }
 }
 
-let _renameCounter = 0
-export function buildConflictRenameName(fileName: string): string {
-  const ext = path.extname(fileName)
-  const nameNoExt = path.basename(fileName, ext)
-  const suffix = Date.now().toString(36).toUpperCase() + (++_renameCounter).toString(36).toUpperCase() + Math.floor(Math.random() * 0xFFFF).toString(16).toUpperCase().padStart(4, '0')
-  return `${nameNoExt}_${suffix}${ext}`
+export function buildConflictRenameName(fileName: string, index = 2): string {
+  const ext = path.extname(fileName), base = path.basename(fileName, ext)
+  return base + ' (' + index + ')' + ext
 }
 
-export function buildConflictRenameDirName(dirName: string): string {
-  const suffix = Date.now().toString(36).toUpperCase() + (++_renameCounter).toString(36).toUpperCase() + Math.floor(Math.random() * 0xFFFF).toString(16).toUpperCase().padStart(4, '0')
-  return `${dirName}_${suffix}`
-}
+export function buildConflictRenameDirName(name: string, index = 2): string { return name + ' (' + index + ')' }
 
 const EPOCH_THRESHOLD_MS = 86400000
 
@@ -112,8 +109,8 @@ export interface ConflictResolveExecutionPort {
   mergeLocalDirToRemote(localSrc: string, remoteDest: string, reuseLogEntryId?: string): Promise<boolean>
 
   downloadRemoteDir(remotePath: string, localDestParent: string, localName?: string, forceOverwrite?: boolean): Promise<boolean>
-  doDownload(remotePath: string, localPath: string, mode?: number, size?: number): Promise<boolean>
-  doUpload(remotePath: string, localPath: string): Promise<boolean>
+  doDownload(remotePath: string, localPath: string, mode?: number, size?: number, onProgress?: (bytes: number) => void): Promise<boolean>
+  doUpload(remotePath: string, localPath: string, onProgress?: (bytes: number) => void): Promise<boolean>
   copyLocalDir(src: string, dest: string): Promise<void>
   copyLocalFile(src: string, dest: string): Promise<void>
   copyRemoteDir(srcRemotePath: string, destRemotePath: string, isDirectory: boolean): Promise<void>
@@ -122,9 +119,12 @@ export interface ConflictResolveExecutionPort {
   statLocal(path: string): Promise<{ isDirectory: boolean } | null>
   readdirRemote(parentDir: string): Promise<Array<{ name: string; isDirectory: boolean }>>
 
+  cleanupMoveFolders?(ctx: FolderTransferCtx): Promise<void>
+  updateFolderProgress?(ctx: FolderTransferCtx, bytes: number, name: string, done: number, size?: number): void
   markTransferSucceeded(ctx: FolderTransferCtx): void
 
   discardTransferLog(ctx: FolderTransferCtx): void
+  isCurrentSession?(session:unknown): boolean
   hasSftpSession(): boolean
 
   unlinkLocal(path: string): Promise<void>
@@ -136,6 +136,7 @@ export interface ConflictResolveExecutionPort {
 }
 
 export interface ConflictPendingPastePort {
+  getBatch?(): import('./panel-types').FileOperationBatch | undefined
   hasPendingPaste(): boolean
   restoreClipboardFromPending(): void
   clearPending(): void
@@ -145,6 +146,7 @@ export interface ConflictPendingPastePort {
 export interface ConflictQueueStatePort {
   shift(): ConflictQueueItem | undefined
   clear(): void
+  replace?(items: ConflictQueueItem[]): void
   length(): number
 
   snapshot(): ConflictQueueItem[]
@@ -162,6 +164,9 @@ export interface ConflictResolveUiPort {
   clearSelection(): void
   refreshPanes(): void
   showNextDialog(): void
+  reportError?(fileName: string, error: unknown): void
+  onResolved?(item: ConflictQueueItem, action: string): void
+  cancelBatch?(batch: import('./panel-types').FileOperationBatch): void
 }
 
 export interface ConflictResolvePorts {
@@ -175,6 +180,12 @@ export class ConflictResolveUseCase {
   constructor(private readonly ports: ConflictResolvePorts) {}
 
   private _processing = false
+  private readonly legacyActions = new WeakMap<ConflictQueueItem, 'overwrite' | 'skip' | 'rename'>()
+
+  autoAction(item: ConflictQueueItem): 'overwrite' | 'skip' | 'rename' | null {
+    const action = item.batch?.decision || this.legacyActions.get(item) || 'ask'
+    return action === 'ask' || (action === 'overwrite' && item.typeMismatch) ? null : action
+  }
 
   private _ctxHadSuccess = new Set<string>()
 
@@ -184,7 +195,6 @@ export class ConflictResolveUseCase {
     try {
       this.ports.ui.hideDialog()
       const { action: normalized, allMode } = normalizeConflictAction(action)
-      if (allMode) this.ports.queue.setAllMode(allMode)
 
       const current = this.ports.queue.shift()
       if (!current) {
@@ -193,14 +203,23 @@ export class ConflictResolveUseCase {
         return
       }
 
+      if (allMode) {
+        this.ports.queue.setAllMode(allMode)
+        if (current.batch) current.batch.decision = allMode
+        else for (const item of [current, ...this.ports.queue.snapshot()]) if (!item.batch) this.legacyActions.set(item, allMode as any)
+      }
+      let outcome: string = normalized
       let shouldContinue = true
       try {
         shouldContinue = await this.applyAction(current, normalized)
       } catch (e) {
+        outcome = 'error'
+        if (current.transferCtx) { current.transferCtx.failed = true; this._flipTransferLog(current, true) }
         log.error('Conflict resolve failed for item', current.fileName, e)
-      }
+        this.ports.ui.reportError?.(current.fileName, e)
+      } finally { fileOperation.settle(current); this.ports.ui.onResolved?.(current, outcome) }
 
-      if (shouldContinue) await this._drainQueue()
+      if (shouldContinue || this.ports.queue.length()) await this._drainQueue()
     } finally {
       this._processing = false
     }
@@ -225,22 +244,17 @@ export class ConflictResolveUseCase {
       return
     }
 
-    if (this.ports.queue.getAllMode() !== 'ask') {
-      const item = this.ports.queue.shift()
-      const mode = this.ports.queue.getAllMode()
-
-      if (item && mode !== 'ask') {
-        try {
-          await this.applyAction(item, mode)
-        } catch (e) {
-          log.error('Conflict resolve failed for item', item.fileName, e)
-        }
-      }
-      await this._drainQueue()
-      return
+    while (this.ports.queue.length() > 0) {
+      const head = this.ports.queue.snapshot()[0]
+      const mode = head && this.autoAction(head)
+      if (!mode) { this.ports.ui.showNextDialog(); return }
+      const item = this.ports.queue.shift()!
+      let outcome: string = mode
+      try { await this.applyAction(item, mode) }
+      catch (error) { outcome='error'; if (item.transferCtx) { item.transferCtx.failed = true; this._flipTransferLog(item, true) }; this.ports.ui.reportError?.(item.fileName, error) }
+      finally { fileOperation.settle(item); this.ports.ui.onResolved?.(item, outcome) }
     }
-
-    this.ports.ui.showNextDialog()
+    await this._drainQueue()
   }
 
   async applyAction(
@@ -249,94 +263,140 @@ export class ConflictResolveUseCase {
   ): Promise<boolean> {
     this.ports.queue.markResolved(conflictItemKey(item))
     const exec = this.ports.execution
+    if (action !== 'cancel' && (item.batch?.cancelled || item.transferCtx?.t?._aborted)) throw new Error('Transfer cancelled; source retained.')
+    if (action !== 'cancel' && item.transferCtx?.session && exec.isCurrentSession && !exec.isCurrentSession(item.transferCtx.session)) throw new Error('The SFTP session changed; source retained.')
 
     switch (action) {
       case 'cancel': {
 
+        const cancelled = this.ports.queue.snapshot().filter(q => !item.batch || q.batch === item.batch)
+        if (item.batch) { item.batch.cancelled = true; this.ports.ui.cancelBatch?.(item.batch) }
         this._discardConflictTransferLog(item, true)
-        for (const q of this.ports.queue.snapshot()) this._discardConflictTransferLog(q, true)
+        for (const q of cancelled) { this._discardConflictTransferLog(q, true); fileOperation.settle(q); this.ports.ui.onResolved?.(q, 'cancel') }
         this._ctxHadSuccess.clear()
-        this.ports.queue.clear()
-        this.ports.pendingPaste.restoreClipboardFromPending()
-        this.ports.pendingPaste.clearPending()
-        this.ports.queue.clearResolvedKeys()
+        if (item.batch && this.ports.queue.replace) this.ports.queue.replace(this.ports.queue.snapshot().filter(q => q.batch !== item.batch))
+        else this.ports.queue.clear()
+        this.ports.queue.resetAllMode()
+        if (!item.batch || !this.ports.pendingPaste.getBatch || this.ports.pendingPaste.getBatch() === item.batch) {
+          this.ports.pendingPaste.restoreClipboardFromPending()
+          this.ports.pendingPaste.clearPending()
+        }
+        if (!item.batch) this.ports.queue.clearResolvedKeys()
         return false
       }
       case 'skip':
-
+        if(item.transferCtx) folderSkipped({updateProgress:(...args:any[])=>this.ports.execution.updateFolderProgress?.(args[0],args[1],args[2],args[3],args[4])} as any,item.transferCtx,item.fileName,item.direction==='upload'?item.localStat.size:item.remoteFileSize||0)
+        await this.cleanupMoveFolders(item)
         this._finalizeSharedCtxOnSkip(item)
         return true
       case 'overwrite':
+        if (item.typeMismatch) throw new Error('A file cannot replace a folder, or a folder replace a file. Choose Keep both or Skip.')
 
         if (item.isSamePane) {
           const outcome = await this._samePaneOverwrite(item)
+          if (outcome === 'failed') throw new Error('Could not replace the destination; source retained.')
           if (outcome === 'copied') await this._deleteSourceIfCut(item, true)
 
         } else if (item.isDirectory) {
           let ok: boolean
           if (item.direction === 'upload') {
 
-            ok = await exec.mergeLocalDirToRemote(item.localPath, item.remotePath, item.transferCtx?.logEntryId)
+            ok = await exec.mergeLocalDirToRemote(item.localPath, item.remotePath)
           } else {
 
             ok = await exec.downloadRemoteDir(item.remotePath, path.dirname(item.localPath), undefined, true)
-            this._flipTransferLog(item, ok)
           }
+          if (!ok) throw new Error('Folder transfer did not finish; source retained.')
           await this._deleteSourceIfCut(item, ok)
+          await this.cleanupMoveFolders(item)
+          this._flipTransferLog(item, ok)
         } else if (item.direction === 'download') {
-          const ok = await exec.doDownload(item.remotePath, item.localPath, 0o644, item.remoteFileSize)
+          const ok = await this.transferFile(item,item.remotePath,item.localPath)
           await this._deleteSourceIfCut(item, ok)
+          await this.cleanupMoveFolders(item)
           this._flipTransferLog(item, ok)
         } else {
-          const ok = await exec.doUpload(item.remotePath, item.localPath)
+          const ok = await this.transferFile(item,item.remotePath,item.localPath)
           await this._deleteSourceIfCut(item, ok)
+          await this.cleanupMoveFolders(item)
           this._flipTransferLog(item, ok)
         }
+        await this.cleanupMoveFolders(item)
         return true
       case 'rename': {
 
         if (item.isSamePane) {
-          const newName = item.isDirectory
-            ? buildConflictRenameDirName(item.fileName)
-            : buildConflictRenameName(item.fileName)
+          const newName = await this.availableName(item)
           const outcome = await this._samePaneRename(item, newName)
+          if (outcome === 'failed') throw new Error('Could not keep both files; source retained.')
           if (outcome === 'copied') await this._deleteSourceIfCut(item, true)
           return true
         }
         if (item.isDirectory) {
-          const newName = buildConflictRenameDirName(item.fileName)
+          const newName = await this.availableName(item)
           let ok: boolean
           if (item.direction === 'upload') {
             const newRemote = path.posix.join(item.remoteDir, newName)
-            ok = await exec.mergeLocalDirToRemote(item.localPath, newRemote, item.transferCtx?.logEntryId)
+            ok = await exec.mergeLocalDirToRemote(item.localPath, newRemote)
           } else {
             ok = await exec.downloadRemoteDir(item.remotePath, path.dirname(item.localPath), newName, true)
-            this._flipTransferLog(item, ok)
           }
+          if (!ok) throw new Error('Folder transfer did not finish; source retained.')
           await this._deleteSourceIfCut(item, ok)
+          await this.cleanupMoveFolders(item)
+          this._flipTransferLog(item, ok)
           return true
         }
-        const newName = buildConflictRenameName(item.fileName)
+        const newName = await this.availableName(item)
         if (item.direction === 'download') {
           const newLocal = path.join(path.dirname(item.localPath), newName)
-          const ok = await exec.doDownload(item.remotePath, newLocal, 0o644, item.remoteFileSize)
+          const ok = await this.transferFile(item,item.remotePath,newLocal)
           await this._deleteSourceIfCut(item, ok)
+          await this.cleanupMoveFolders(item)
           this._flipTransferLog(item, ok)
         } else {
           const newRemote = path.posix.join(item.remoteDir, newName)
-          const ok = await exec.doUpload(newRemote, item.localPath)
+          const ok = await this.transferFile(item,newRemote,item.localPath)
           await this._deleteSourceIfCut(item, ok)
+          await this.cleanupMoveFolders(item)
           this._flipTransferLog(item, ok)
         }
+        await this.cleanupMoveFolders(item)
         return true
       }
     }
   }
 
+  private async availableName(item: ConflictQueueItem): Promise<string> {
+    const local = item.isSamePane ? item.samePaneSource === 'local' : item.direction === 'download'
+    const api = local ? path : path.posix, folder = local || item.isSamePane ? api.dirname(item.localPath) : item.remoteDir
+    const remoteNames = local ? null : new Set((await this.ports.execution.readdirRemote(folder)).map(e => e.name))
+    for (let index=2;index<10000;index++) {
+      const name = item.isDirectory ? buildConflictRenameDirName(item.fileName,index) : buildConflictRenameName(item.fileName,index)
+      if (local ? !await this.ports.execution.statLocal(api.join(folder,name)) : !remoteNames!.has(name)) return name
+    }
+    throw new Error('Could not find an unused copy name.')
+  }
+
+  private async transferFile(item: ConflictQueueItem, remote: string, local: string): Promise<boolean> {
+    const folder = { updateProgress: (ctx:any, bytes:number, name:string, done:number, size?:number) => this.ports.execution.updateFolderProgress?.(ctx,bytes,name,done,size) } as any
+    const size = item.direction === 'upload' ? item.localStat.size : item.remoteFileSize || 0
+    const progress = folderFileProgress(folder, item.transferCtx, local + '|' + remote, item.fileName, size)
+    let ok = false
+    try { ok = item.direction === 'upload' ? await this.ports.execution.doUpload(remote,local,item.transferCtx ? progress.report : undefined) : await this.ports.execution.doDownload(remote,local,0o644,item.remoteFileSize,item.transferCtx ? progress.report : undefined) }
+    finally { progress.finish(ok) }
+    if (!ok) { if(item.transferCtx)item.transferCtx.failed=true; throw new Error('File transfer did not finish; source retained.') }
+    return ok
+  }
+
+  private async cleanupMoveFolders(item: ConflictQueueItem): Promise<void> {
+    if (item.transferCtx?.moveSource && !this._remainingSharedCtxCount(item)) await this.ports.execution.cleanupMoveFolders?.(item.transferCtx)
+  }
+
   private _remainingSharedCtxCount(item: ConflictQueueItem): number {
     const id = item.transferCtx?.logEntryId
     if (id == null || id === '') return 0
-    return this.ports.queue.snapshot().filter(q => q.transferCtx?.logEntryId === id).length
+    return this.ports.queue.snapshot().filter(q => q.transferCtx?.logEntryId === id).length + (item.transferCtx?.producing ? 1 : 0)
   }
 
   private _flipTransferLog(item: ConflictQueueItem, ok: boolean): void {
@@ -352,12 +412,8 @@ export class ConflictResolveUseCase {
     if (!item.transferCtx) return
     if (this._remainingSharedCtxCount(item) > 0) return
     const id = item.transferCtx.logEntryId
-    if (id && this._ctxHadSuccess.has(id)) {
-      try { this.ports.execution.markTransferSucceeded(item.transferCtx) } catch { /* ignore */ }
-      this._ctxHadSuccess.delete(id)
-      return
-    }
-    this._discardConflictTransferLog(item, true)
+    try { this.ports.execution.markTransferSucceeded(item.transferCtx) } catch { /* ignore */ }
+    if (id) this._ctxHadSuccess.delete(id)
   }
 
   private _discardConflictTransferLog(item: ConflictQueueItem, force = false): void {
@@ -408,6 +464,7 @@ export class ConflictResolveUseCase {
       }
     } catch (e) {
       log.error('Cut source delete failed', item.remotePath, e)
+      throw e
     }
   }
 
@@ -555,7 +612,7 @@ export class ConflictResolveUseCase {
 }
 
 export interface SftpConflictSession {
-  stat?(remotePath: string): Promise<{ size?: number; modified?: Date; mtime?: number }>
+  stat?(remotePath: string): Promise<{ size?: number; modified?: Date; mtime?: number; isDirectory?: boolean }>
   readdir(parentDir: string): Promise<Array<{ name: string; size?: number; modified?: Date; isDirectory?: boolean }>>
 }
 
@@ -566,18 +623,18 @@ export class SftpConflictDetector implements ConflictDetectionPort {
 
     private readonly digest: ContentDigestPort | null = null,
 
-    private readonly isAutoSkipSameContent: () => boolean = () => true,
+    private readonly isAutoSkipSameContent: () => boolean = () => false,
 
     private readonly onAutoSkipped: (info: AutoSkippedInfo) => void = () => {},
   ) {}
 
-  private _dirListingCache = new Map<string, Promise<Map<string, { size?: number; mtime?: number }>>>()
+  private _dirListingCache = new Map<string, Promise<Map<string, { size?: number; mtime?: number; isDirectory?: boolean }>>>()
 
-  private async _getDirListing(parentDir: string): Promise<Map<string, { size?: number; mtime?: number }>> {
+  private async _getDirListing(parentDir: string): Promise<Map<string, { size?: number; mtime?: number; isDirectory?: boolean }>> {
     const existing = this._dirListingCache.get(parentDir)
     if (existing) return existing
     const p = (async () => {
-      const map = new Map<string, { size?: number; mtime?: number }>()
+      const map = new Map<string, { size?: number; mtime?: number; isDirectory?: boolean }>()
       try {
         const session = this.getSession()
         if (!session) return map
@@ -588,6 +645,7 @@ export class SftpConflictDetector implements ConflictDetectionPort {
           map.set(e.name, {
             size: size != null && Number.isFinite(size) ? size : undefined,
             mtime: parseRemoteMtime(e),
+            isDirectory: typeof e.isDirectory === 'function' ? e.isDirectory() : !!e.isDirectory,
           })
         }
       } catch {
@@ -626,8 +684,18 @@ export class SftpConflictDetector implements ConflictDetectionPort {
 
     log.info('[check-upload-conflict] remotePath:', remotePath, 'localSize:', localSize, 'localMtime:', localMtime)
 
-    const listing = await this._getDirListing(parentDir)
-    const found = listing.get(fileName)
+    let found: {size?:number;mtime?:number;isDirectory?:boolean} | undefined
+    if (session.stat) {
+      try {
+        const st:any = await session.stat(remotePath)
+        const isDirectory = typeof st.isDirectory === 'function' ? st.isDirectory() : st.isDirectory ?? ((Number(st.mode||st.attrs?.mode)||0)&0o170000)===0o040000
+        found = {size:st.size??st.attrs?.size,mtime:parseRemoteMtime(st),isDirectory}
+      } catch(error:any) {
+        if(error.code==='ENOENT'||/no such file|not found|does not exist/i.test(error.message))return {kind:'no-conflict'}
+        throw error
+      }
+    } else found = (await this._getDirListing(parentDir)).get(fileName)
+    if(found?.isDirectory)return {kind:'conflict',info:{...buildUploadConflictInfo(remotePath,localPath,fileName,localSize,localMtime,0,0),typeMismatch:true}}
 
     if (found) {
       remoteSize = found.size
@@ -669,13 +737,8 @@ export class SftpConflictDetector implements ConflictDetectionPort {
     const rs = remoteSize
     const rm = remoteMtime ?? 0
 
-    if (filesAreSame(localSize, localMtime, rs, rm, this.mtimeToleranceMs)) {
-      log.info('[check-upload-conflict] size+mtime same, auto-skipped:', remotePath)
-      this.onAutoSkipped({ direction: 'upload', localPath, remotePath, digest: null })
-      return { kind: 'auto-skipped', digest: null }
-    }
 
-    const digest = await this._resolveDigest(localPath, remotePath, localSize, localMtime, rs, rm)
+    const digest = this.isAutoSkipSameContent() ? await this._resolveDigest(localPath, remotePath, localSize, localMtime, rs, rm) : null
     if (this.isAutoSkipSameContent() && isContentIdentical(digest)) {
       log.info('[check-upload-conflict] content identical, auto-skipped:', remotePath)
       this.onAutoSkipped({ direction: 'upload', localPath, remotePath, digest: digest ?? null })
@@ -697,24 +760,20 @@ export class SftpConflictDetector implements ConflictDetectionPort {
         log.info('[check-local-conflict] local path is a symlink, forcing conflict:', localPath)
         return {
           kind: 'conflict',
-          info: buildDownloadConflictInfo(localPath, remotePath, remoteSize, remoteMtime, lst.size, lst.mtimeMs),
+          info: {...buildDownloadConflictInfo(localPath, remotePath, remoteSize, remoteMtime, lst.size, lst.mtimeMs),typeMismatch:true},
         }
       }
       const st = await fs.stat(localPath)
-      if (filesAreSame(st.size, st.mtimeMs, remoteSize, remoteMtime, this.mtimeToleranceMs)) {
-        log.info('[check-local-conflict] size+mtime same, auto-skipped:', localPath)
-        this.onAutoSkipped({ direction: 'download', localPath, remotePath, digest: null })
-        return { kind: 'auto-skipped', digest: null }
-      }
+      if(st.isDirectory())return {kind:'conflict',info:{...buildDownloadConflictInfo(localPath,remotePath,remoteSize,remoteMtime,0,0),typeMismatch:true}}
 
-      const digest = await this._resolveDigest(localPath, remotePath, st.size, st.mtimeMs, remoteSize, remoteMtime)
+      const digest = this.isAutoSkipSameContent() ? await this._resolveDigest(localPath, remotePath, st.size, st.mtimeMs, remoteSize, remoteMtime) : null
       if (this.isAutoSkipSameContent() && isContentIdentical(digest)) {
         log.info('[check-local-conflict] content identical, auto-skipped:', remotePath)
         this.onAutoSkipped({ direction: 'download', localPath, remotePath, digest: digest ?? null })
         return { kind: 'auto-skipped', digest: digest ?? null }
       }
       return { kind: 'conflict', info: buildDownloadConflictInfo(localPath, remotePath, remoteSize, remoteMtime, st.size, st.mtimeMs, digest) }
-    } catch {   }
+    } catch (error:any) { if (error.code !== 'ENOENT') throw error }
     return { kind: 'no-conflict' }
   }
 

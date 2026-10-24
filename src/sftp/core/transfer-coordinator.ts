@@ -1,3 +1,5 @@
+const fileOperation = require('../../runtime/file-operation.cjs')
+import type { FileOperationBatch } from './panel-types'
 import { featureApis, invokeFeature, readFeature, writeFeature } from "../../features/api"
 
 import * as fs from 'fs/promises'
@@ -86,7 +88,7 @@ export interface PanelTransferHost {
   onTransferSkipped?(info: AutoSkippedInfo): void
 
   uploadTopLevel(remotePath: string, localPath: string): Promise<boolean>
-  uploadRaw(remotePath: string, localPath: string): Promise<boolean>
+  uploadRaw(remotePath: string, localPath: string, onProgress?: (bytes: number) => void): Promise<boolean>
   downloadTopLevel(remotePath: string, localPath: string, mode?: number, size?: number): Promise<boolean>
 
   downloadRaw(
@@ -157,7 +159,7 @@ export class PanelTransferCoordinator {
     )
     this.downloadOneUseCase = new DownloadOneUseCase(ports, {
       getLocalPath: () => host.localPath,
-      downloadDir: (remoteSrc, localDest) => this.downloadRemoteDir(remoteSrc, localDest),
+      downloadDir: (remoteSrc, localDest, batch) => this.downloadRemoteDir(remoteSrc, localDest, undefined, undefined, undefined, batch),
     })
     this.uploadUseCase = new UploadPathUseCase(ports, () => host.dirUploadConcurrency?.())
 
@@ -203,20 +205,20 @@ export class PanelTransferCoordinator {
     this._activeTransferSlots.delete(buildTransferSlotKey(direction, remotePath, localPath))
   }
 
-  uploadPathToRemote(remoteDir: string, localPath: string, top?: FolderTransferCtx): Promise<boolean> {
+  uploadPathToRemote(remoteDir: string, localPath: string, top?: FolderTransferCtx, batch?: FileOperationBatch, moveSource = false): Promise<boolean> {
 
     if (top) {
-      return this._runScopedFolderTask(() => this.uploadUseCase.execute(remoteDir, localPath, top))
+      return this._runScopedFolderTask(() => this.uploadUseCase.execute(remoteDir, localPath, top, undefined, fileOperation.ensure(batch), moveSource))
     }
     const slotName = path.basename(localPath)
     const slotRemote = path.posix.join(remoteDir, slotName)
     if (!this._claimTransferSlot('upload', slotRemote, localPath, slotName)) return Promise.resolve(false)
-    return this._runScopedFolderTask(() => this.uploadUseCase.execute(remoteDir, localPath, top))
+    return this._runScopedFolderTask(() => this.uploadUseCase.execute(remoteDir, localPath, top, undefined, fileOperation.ensure(batch), moveSource))
       .finally(() => this._releaseTransferSlot('upload', slotRemote, localPath))
   }
 
-  streamDownloadOne(file: SFTPFile, targetLocalDir?: string): Promise<void> {
-    return this.downloadOneUseCase.execute(file, targetLocalDir)
+  streamDownloadOne(file: SFTPFile, targetLocalDir?: string, batch?: FileOperationBatch): Promise<void> {
+    return this.downloadOneUseCase.execute(file, targetLocalDir, fileOperation.ensure(batch))
   }
 
   downloadRemoteDir(
@@ -225,9 +227,11 @@ export class PanelTransferCoordinator {
     top?: FolderTransferCtx,
     localName?: string,
     forceOverwrite?: boolean,
+    batch?: FileOperationBatch,
+    moveSource = false,
   ): Promise<boolean> {
     const run = () => this._runScopedFolderTask(
-      () => this.downloadDirUseCase.execute(remoteSrc, localDest, top, localName, undefined, !!forceOverwrite),
+      () => this.downloadDirUseCase.execute(remoteSrc, localDest, top, localName, undefined, !!forceOverwrite, fileOperation.ensure(batch), moveSource),
     )
     if (top) return run()
 
@@ -380,6 +384,8 @@ export class PanelTransferCoordinator {
       },
       scanDir: (p) => host.scanLocalDir(p),
       pathExists: (p) => fs.stat(p).then(() => true).catch(() => false),
+      removeFile: p => fs.unlink(p),
+      removeEmptyDirectory: async p => {try{await fs.rmdir(p)}catch(error:any){if(!['ENOTEMPTY','EEXIST','ENOENT'].includes(error.code))throw error}},
       mkdirRecursive: async (p) => { try { await fs.mkdir(p, { recursive: true }) } catch {} },
     }
     const sftp: SftpTransferPort = {
@@ -419,6 +425,8 @@ export class PanelTransferCoordinator {
           return null
         }
       },
+      unlink: async p => {await (host.sftpSession as any).unlink(p)},
+      rmdir: async p => {try{if ((await (host.sftpSession as any).readdir(p)).some((e:any)=>e.name!=='.'&&e.name!=='..')) return; await (host.sftpSession as any).rmdir(p)}catch(error:any){if(!/not empty|no such file/i.test(error.message)&&!['ENOTEMPTY','ENOENT'].includes(error.code))throw error}},
       isSymlink: async (remotePath) => {
         const session = host.sftpSession as any
         try {
@@ -474,7 +482,7 @@ export class PanelTransferCoordinator {
     }
     const execution: TransferExecutionPort = {
       uploadTopLevel: (remotePath, localPath) => host.uploadTopLevel(remotePath, localPath),
-      uploadRaw: (remotePath, localPath) => host.uploadRaw(remotePath, localPath),
+      uploadRaw: (remotePath, localPath, onProgress) => host.uploadRaw(remotePath, localPath, onProgress),
       downloadTopLevel: (remotePath, localPath, mode, size) =>
         host.downloadTopLevel(remotePath, localPath, mode, size),
       downloadRaw: (remotePath, localPath, mode, size, onProgress) =>
@@ -541,6 +549,18 @@ export class PanelTransferRuntime {
     else {
       try { this.host.cdr.detectChanges() } catch { /* destroyed view */ }
     }
+  }
+
+  watchFolder(entry: PanelTransferItem): void {
+    if (this._transferMeta.has(entry)) return
+    const now = Date.now()
+    this._transferMeta.set(entry, { prevBytes: entry.bytesDone || 0, prevTime: now, startTime: now, lastProgressTime: now })
+    this._trackedTransferCount++; this._startTransferTimer()
+  }
+
+  unwatchFolder(entry: PanelTransferItem): void {
+    if (this._transferMeta.delete(entry)) this._trackedTransferCount--
+    if (this._trackedTransferCount <= 0) { this._trackedTransferCount = 0; this._stopTransferTimer() }
   }
 
   private _queuedCancelKey(direction: string, localPath: string, remotePath?: string): string {
@@ -872,6 +892,16 @@ export class PanelTransferRuntime {
       const meta = this._transferMeta.get(entry as any)
       if (!meta) continue
       const t = entry.transfer
+      if (entry.isFolder && !t) {
+        const now = Date.now(), bytes = entry.bytesDone || 0
+        const transmitting = !entry.paused && entry.phase === 'transferring'
+        if (!transmitting || bytes > meta.prevBytes) meta.lastProgressTime = now
+        const waiting = transmitting && now - meta.lastProgressTime >= SPEED_STALL_ZERO_MS
+        if (entry.waitingForServer !== waiting) { entry.waitingForServer = waiting; needsDetect = true }
+        if (waiting) { entry.speed = SPEED_STALL_ZERO_TEXT; entry.speedBps = 0 }
+        meta.prevBytes = bytes
+        continue
+      }
       try {
         if (!this.host.connected) {
 

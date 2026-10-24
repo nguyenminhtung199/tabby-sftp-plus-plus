@@ -1,3 +1,4 @@
+const fileOperation = require('../../runtime/file-operation.cjs')
 import * as fs from 'fs/promises'
 import * as path from 'path'
 
@@ -10,6 +11,10 @@ import { log } from '../../services/sftp-logger'
 type ConflictActionMode = 'ask' | 'overwrite' | 'skip' | 'rename'
 
 export interface PanelConflictResolverHost {
+  cleanupMoveFolders?(ctx:FolderTransferCtx):Promise<void>
+  notifyConflictError?(name: string, error: unknown): void
+  onConflictResolved?(item: ConflictQueueItem, action: string): void
+  cancelBatch?(batch: import('../core/panel-types').FileOperationBatch): void
   sftpSession: any
   cdr: { detectChanges(): void }
 
@@ -45,14 +50,16 @@ export interface PanelConflictResolverHost {
     destPath: string,
     mode: 'copy' | 'cut',
     source: 'local' | 'remote',
+    resolvedKeys?: Set<string>,
   ): Promise<void>
-  doDownload(remotePath: string, localPath: string, mode?: number, size?: number): Promise<boolean>
-  doUpload(remotePath: string, localPath: string): Promise<boolean>
+  doDownload(remotePath: string, localPath: string, mode?: number, size?: number, onProgress?: (bytes:number)=>void): Promise<boolean>
+  doUpload(remotePath: string, localPath: string, onProgress?: (bytes:number)=>void): Promise<boolean>
   downloadRemoteDir(remoteDir: string, localDestDir: string, targetPane?: 'local' | 'remote', _top?: any, renameTo?: string, forceOverwrite?: boolean): Promise<boolean>
   mergeLocalDirToRemote(localSrc: string, remoteDest: string, reuseLogEntryId?: string): Promise<boolean>
   copyLocalDir(src: string, dest: string): Promise<void>
   copyRemoteDir(srcRemotePath: string, destRemotePath: string, isDirectory: boolean): Promise<void>
 
+  updateFolderProgress?(ctx: FolderTransferCtx, bytes:number, name:string, done:number, size?:number):void
   markTransferSucceeded(ctx: FolderTransferCtx): void
 
   discardTransferLog(ctx: FolderTransferCtx): void
@@ -132,92 +139,9 @@ export class PanelConflictResolver {
       return
     }
 
-    if (!item.isDirectory) {
-      await this._ensureQueueItemDigests(item)
-      const ld = item.localDigest
-      const rd = item.remoteDigest
-      if (
-        this.host.shouldAutoSkipSameContent?.()
-        && ld && rd && ld === rd
-      ) {
-        log.info('[conflict-dialog] auto-skip identical content:', item.fileName)
-        try { this.host.notifyConflictAutoSkipped?.(item.fileName) } catch { /* ignore */ }
-
-        await this._autoSkipHeadAndContinue()
-        return
-      }
-    }
-
+    if (this.useCase.autoAction(item)) { await this.useCase.processNext(); return }
     this._presentConflictDialog(item)
-  }
 
-  private async _autoSkipHeadAndContinue(): Promise<void> {
-
-    if (!this._alive) return
-    const current = this.host.conflictQueue.shift()
-    if (!current) return
-    this.host.conflictResolvedKeys.add(conflictItemKey(current))
-
-    if (current.transferCtx) {
-      try { this.host.discardTransferLog(current.transferCtx) } catch { /* ignore */ }
-    }
-
-    if (this.host.conflictQueue.length > 0) {
-      await this._showConflictDialogAsync()
-      return
-    }
-
-    this.host.conflictAllMode = 'ask'
-    this.host.conflictOriginalTotal = 1
-    this.host.selectedLocal = []
-    this.host.selectedRemote = []
-    if (this.host.pendingPasteEntries.length > 0) {
-      const entries = this.host.pendingPasteEntries
-      const destPane = this.host.pendingPasteDestPane
-      const destPath = this.host.pendingPasteDestPath
-      const mode = this.host.pendingPasteMode
-      const source = this.host.pendingPasteSource
-      const resolvedKeys = new Set(this.host.conflictResolvedKeys)
-      this.host.pendingPasteEntries = []
-      this.host.pendingPasteDestPane = 'local'
-      this.host.pendingPasteDestPath = ''
-      this.host.pendingPasteMode = 'copy'
-      this.host.pendingPasteSource = 'local'
-      this.host.conflictResolvedKeys.clear()
-      await this.host.executePaste(
-        entries.filter(e => !resolvedKeys.has(pasteEntryKey(e))),
-        destPane, destPath, mode, source,
-      )
-      if (this.host.conflictQueue.length > 0) {
-        await this._showConflictDialogAsync()
-      }
-    } else {
-      void this.host.refreshRemote()
-      void this.host.refreshLocal()
-    }
-    this._detect()
-  }
-
-  private async _ensureQueueItemDigests(item: ConflictQueueItem): Promise<void> {
-    if (item.localDigest && item.remoteDigest) return
-    if (!this.host.computeConflictDigests) return
-    const remoteFilePath = item.remotePath || path.posix.join(item.remoteDir, item.fileName)
-    try {
-      const { localDigest, remoteDigest } = await this.host.computeConflictDigests({
-        localPath: item.localPath,
-        remotePath: remoteFilePath,
-        localSize: Number(item.localStat?.size) || undefined,
-        localMtime: Number(item.localStat?.mtimeMs) || undefined,
-        remoteSize: item.remoteFileSize,
-        remoteMtime: item.remoteFileMtime,
-
-        samePaneSource: item.isSamePane ? item.samePaneSource : undefined,
-      })
-      if (localDigest) item.localDigest = localDigest
-      if (remoteDigest) item.remoteDigest = remoteDigest
-    } catch (e: any) {
-      log.warn('[conflict-dialog] ensure digests failed:', e?.message ?? e)
-    }
   }
 
   private _presentConflictDialog(item: ConflictQueueItem): void {
@@ -238,6 +162,7 @@ export class PanelConflictResolver {
       direction: item.direction,
       isSamePane: item.isSamePane ?? false,
       isDirectory: isDir,
+      typeMismatch: item.typeMismatch,
       localSizePending: isDir && !knownLocalContent,
       remoteSizePending: isDir,
 
@@ -313,7 +238,7 @@ export class PanelConflictResolver {
       }
     }
 
-    if (!isDir && (!item.localDigest || !item.remoteDigest) && this.host.computeConflictDigests) {
+    if (!item.typeMismatch && !isDir && (!item.localDigest || !item.remoteDigest) && this.host.computeConflictDigests) {
       const digestLocalPath = item.localPath
       const digestRemotePath = remoteFilePath
       void this.host.computeConflictDigests({
@@ -351,11 +276,13 @@ export class PanelConflictResolver {
     const host = this.host
     return {
       execution: {
+        cleanupMoveFolders: ctx => host.cleanupMoveFolders?.(ctx) || Promise.resolve(),
+        isCurrentSession: session => host.sftpSession === session,
         mergeLocalDirToRemote: (localSrc, remoteDest, reuseLogEntryId) => host.mergeLocalDirToRemote(localSrc, remoteDest, reuseLogEntryId),
         downloadRemoteDir: (remotePath, localDestParent, localName, forceOverwrite) =>
           host.downloadRemoteDir(remotePath, localDestParent, 'local', undefined, localName, forceOverwrite),
-        doDownload: (remotePath, localPath, mode, size) => host.doDownload(remotePath, localPath, mode, size),
-        doUpload: (remotePath, localPath) => host.doUpload(remotePath, localPath),
+        doDownload: (remotePath, localPath, mode, size, progress) => host.doDownload(remotePath, localPath, mode, size, progress),
+        doUpload: (remotePath, localPath, progress) => host.doUpload(remotePath, localPath, progress),
         copyLocalDir: (src, dest) => host.copyLocalDir(src, dest),
         copyLocalFile: async (src, dest) => {
 
@@ -374,9 +301,9 @@ export class PanelConflictResolver {
         renameRemote: (src, dest) => host.renameRemote(src, dest),
         statLocal: async (p) => {
           try {
-            const st = await fs.stat(p)
+            const st = await fs.lstat(p)
             return { isDirectory: st.isDirectory() }
-          } catch { return null }
+          } catch(error:any) { if(error.code === 'ENOENT') return null; throw error }
         },
         readdirRemote: async (parentDir) => {
           const entries = await host.sftpSession.readdir(parentDir)
@@ -390,11 +317,13 @@ export class PanelConflictResolver {
         deleteLocalRecursive: async (p) => { await deleteLocalRecursive(p) },
         deleteRemoteRecursive: async (p) => { await deleteRemoteRecursive(host.sftpSession, p) },
 
+        updateFolderProgress:(...args)=>host.updateFolderProgress?.(...args),
         markTransferSucceeded: (ctx) => host.markTransferSucceeded(ctx),
 
         discardTransferLog: (ctx) => host.discardTransferLog(ctx),
       },
       pendingPaste: {
+        getBatch: () => (host.pendingPasteEntries[0] as any)?.batch,
         hasPendingPaste: () => host.pendingPasteEntries.length > 0,
         restoreClipboardFromPending: () => {
           host.clipboardEntries = host.pendingPasteEntries.slice()
@@ -402,6 +331,7 @@ export class PanelConflictResolver {
           host.clipboardMode = host.pendingPasteMode
         },
         clearPending: () => {
+          for (const batch of new Set(host.pendingPasteEntries.map((e:any)=>e.batch))) fileOperation.finish(batch)
           host.pendingPasteEntries = []
         },
         resumePaste: async (resolvedKeys) => {
@@ -415,15 +345,16 @@ export class PanelConflictResolver {
           host.pendingPasteDestPath = ''
           host.pendingPasteMode = 'copy'
           host.pendingPasteSource = 'local'
-          await host.executePaste(
+          try { await host.executePaste(
             entries.filter(e => !resolvedKeys.has(pasteEntryKey(e))),
-            destPane, destPath, mode, source,
-          )
+            destPane, destPath, mode, source, resolvedKeys,
+          ) } finally { for (const batch of new Set(entries.map((e:any)=>e.batch))) fileOperation.finish(batch) }
         },
       },
       queue: {
         shift: () => host.conflictQueue.shift(),
         clear: () => { host.conflictQueue = [] },
+        replace: items => { host.conflictQueue = items },
         length: () => host.conflictQueue.length,
         snapshot: () => host.conflictQueue.slice(),
         markResolved: (key) => { host.conflictResolvedKeys.add(key) },
@@ -435,6 +366,9 @@ export class PanelConflictResolver {
         resetOriginalTotal: () => { host.conflictOriginalTotal = 1 },
       },
       ui: {
+        reportError: (name, error) => host.notifyConflictError?.(name, error),
+        onResolved: (item, action) => host.onConflictResolved?.(item, action),
+        cancelBatch: batch => host.cancelBatch?.(batch),
         hideDialog: () => { host.showConflictDialog = false },
         clearSelection: () => {
           host.selectedLocal = []

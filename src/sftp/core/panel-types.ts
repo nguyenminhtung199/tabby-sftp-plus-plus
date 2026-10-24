@@ -25,6 +25,7 @@ export type DragPayload =
   | { kind: 'remote-paths'; sourceScope?: string; paths: Array<{ remotePath: string; name: string; isDirectory: boolean; size?: number; mode?: number; modified?: number }> }
 
 export type ConflictFileInfo = {
+  typeMismatch?: boolean
   localPath: string
   remotePath: string
   fileName: string
@@ -48,7 +49,19 @@ export type ConflictFileInfo = {
   contentDiffers?: boolean
 }
 
+export type FileOperationBatch = {
+  id: string
+  session?: unknown
+  pendingRoots: number
+  pendingConflicts: number
+  decision: 'ask' | 'overwrite' | 'skip' | 'rename'
+  cancelled: boolean
+}
+
 export type ConflictQueueItem = {
+  batch?: FileOperationBatch
+  _batchSettled?: boolean
+  typeMismatch?: boolean
   localPath: string
   remoteDir: string
   fileName: string
@@ -72,6 +85,14 @@ export type ConflictQueueItem = {
 }
 
 export type FolderTransferCtx = {
+  session?: unknown
+  moveSource?: boolean
+  sourceDirectories?: string[]
+  batch?: FileOperationBatch
+  skippedBytes?: number
+  producing?: boolean
+  failed?: boolean
+  lastLiveReportAt?: number
   t: any
   startTime: number
   logEntryId: string
@@ -85,6 +106,7 @@ export type FolderTransferCtx = {
 export type BookmarkScope = 'connection' | 'global' | 'all'
 
 export type PanelTransferItem = {
+  batch?: FileOperationBatch
   transfer: any
   direction: 'upload' | 'download'
   name: string
@@ -95,12 +117,15 @@ export type PanelTransferItem = {
 
   speedBps?: number
   bytesDone: number
+  bytesTransferred?: number
   bytesTotal: number
   paused: boolean
 
   queued?: boolean
   logEntryId?: string
   isFolder?: boolean
+  waitingForServer?: boolean
+  phase?: 'preparing' | 'scanning' | 'checking' | 'transferring' | 'extracting' | 'waiting'
   currentItem?: string
   currentItemSize?: number
   itemCount?: number

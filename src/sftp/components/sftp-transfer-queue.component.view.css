@@ -85,3 +85,7 @@
       border: 1px solid var(--_border); margin-top: 4px;
     }
     .sftp-transfers-mini:hover { opacity: 0.8; }
+
+.bar.indeterminate { overflow:hidden; }
+.bar.indeterminate .fill { animation:folder-transfer-busy 1.2s ease-in-out infinite; }
+@keyframes folder-transfer-busy { from { transform:translateX(-100%); } to { transform:translateX(340%); } }

@@ -25,11 +25,11 @@ module.exports = function installClipboardUpload({apis,Panel, electron, stagingR
     apis.Panel._customUploadLocalPaths=async function(paths,destination){
         if(blocked(this))throw new Error('Connect SFTP before uploading.');
         const session=this.sftpSession;
-        const unique=[...new Set(paths)];
+        const unique=[...new Set(paths)],batch=require('../runtime/file-operation.cjs').create(unique.length);
         // Capture destination once, so navigation during staging never redirects an upload.
         await Promise.all(unique.map(local=>{
             if(blocked(this)||this.sftpSession!==session)throw Error('Connection changed before upload started.');
-            return this._streamUploadOne(local,destination);
+            return this._streamUploadOne(local,destination,batch);
         }));
         if(!this._destroyed&&this.connected&&this.sftpSession===session){await this.refreshRemote();this._safeDetect?.();}
     };

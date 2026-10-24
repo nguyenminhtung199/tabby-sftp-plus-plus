@@ -1,3 +1,4 @@
+import { folderPhase } from './transfer-progress'
 import { spawn } from 'child_process'
 import { existsSync } from 'fs'
 import * as fs from 'fs/promises'
@@ -748,9 +749,11 @@ export class TarChannel {
       remoteExtractDir = path.posix.join(parent, makeTempName(path.posix.basename(remoteTarget), 'untar'))
       const expectedBase = path.posix.basename(remoteTarget)
 
+      folderPhase(folder, ctx, 'extracting', name)
       const landing = buildRemoteUploadLanding({
         remoteTar, remoteExtractDir, expectedBase, remoteTarget, mergeIntoExisting,
       })
+      folderPhase(folder, ctx, 'extracting', name)
       const out = await this.deps.exec(
         landing.cmd,
         REMOTE_TAR_TIMEOUT_MS,
@@ -1029,6 +1032,7 @@ export class TarChannel {
         return this._decline(mode, name, 'tarballFailed', `tarball download failed: ${remoteSrc}`, folder, ctx)
       }
 
+      folderPhase(folder, ctx, 'extracting', name)
       const extracted = await extractTarSafely(tarFile, localDest, base, stagingRoot, mergeIntoExisting)
       if (extracted.ok === false) {
         return this._decline(mode, name, extracted.code, extracted.detail, folder, ctx)

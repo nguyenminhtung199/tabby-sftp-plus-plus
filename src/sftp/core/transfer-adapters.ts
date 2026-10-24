@@ -662,6 +662,7 @@ export interface ByteTransferContext {
 }
 
 export interface UploadByteOptions {
+  onProgress?: (bytes: number) => void
 
   track?: boolean
   logOperation?: 'upload' | 'edit-upload'
@@ -763,6 +764,7 @@ export async function uploadLocalFile(
   }
   ctx.activeUploadTargets?.add(remotePath)
   const up = new LocalPathFileUpload(localPath)
+  const progressTimer = opts.onProgress ? setInterval(() => opts.onProgress?.(Number(up.getCompletedBytes()) || 0), 250) : null
   if (opts.track && ctx.trackTransfer) {
     ctx.trackTransfer(up, 'upload', remotePath, localPath, opts.logOperation)
   }
@@ -800,6 +802,7 @@ export async function uploadLocalFile(
     if (opts.track) ctx.onUploadError?.(remotePath, localPath, e)
     return false
   } finally {
+    if (progressTimer) clearInterval(progressTimer)
     ctx.activeUploadTargets?.delete(remotePath)
     if (opts.exposeCancel && ctx.cancelRef) unregisterCancelRef(ctx.cancelRef, up)
   }

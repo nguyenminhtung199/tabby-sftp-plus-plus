@@ -57,7 +57,7 @@ module.exports = function installTransferEngine({apis,Panel,resume}) {
             transfer=new Transfer(local,size,mode);transfer.bytes=state?.offset||0;(panel._customStreamTransfers ||= new Set()).add(transfer);
             if(session.closed$)closedSub=session.closed$.subscribe(()=>transfer.interrupt());
             if(track){await trace('track-transfer:start',{size,offset:transfer.bytes});panel.trackTransfer(transfer,direction,remote,local,operation);await trace('track-transfer:end',{size,offset:transfer.bytes});await Promise.resolve();}
-            const cancelRef=panel._byteTransferCtx?.().cancelRef;
+            const cancelRef=onProgress?.cancelRef||panel._byteTransferCtx?.().cancelRef;
             transfer.cancelRef=cancelRef;if(cancelRef){cancelRef.active ||= new Set();cancelRef.active.add(transfer);cancelRef.current=transfer;}
             await transfer.gate(panel,session);
             if(direction==='download'){
@@ -120,7 +120,7 @@ module.exports = function installTransferEngine({apis,Panel,resume}) {
     apis.Panel._doDownload=function(remote,local,mode,size,operation){return run(this,'download',remote,local,mode,size,operation||'download');};
     for(const [direction,method]of [['upload','_doUploadRaw'],['download','_doDownloadRaw']]){
         const fallback=apis.Panel[method];
-        apis.Panel[method]=function(remote,local,mode,size,onProgress){if(!this.sftpSession?.open)return fallback?.call(this,remote,local,mode,size,onProgress);return run(this,direction,remote,local,mode,size,direction,false,onProgress);};
+        apis.Panel[method]=function(remote,local,mode,size,onProgress){if(direction==='upload'){onProgress=mode;mode=undefined;size=undefined;}if(!this.sftpSession?.open)return direction==='upload'?fallback?.call(this,remote,local,onProgress):fallback?.call(this,remote,local,mode,size,onProgress);return run(this,direction,remote,local,mode,size,direction,false,onProgress);};
     }
     for(const direction of ['upload','download']){
         const method=direction==='upload'?'_runQueuedUpload':'_runQueuedDownload',counter=direction==='upload'?'_upActiveCount':'_dlActiveCount',pump=direction==='upload'?'_pumpUploadQueue':'_pumpDownloadQueue';

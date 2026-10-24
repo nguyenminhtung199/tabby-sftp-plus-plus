@@ -82,6 +82,7 @@
             </div>
           </div>
 
+          <div class="conflict-identical-hint" *ngIf="data.typeMismatch">A file and a folder have the same name. Choose Keep both or Skip.</div>
           <div class="conflict-identical-hint" *ngIf="data.contentIdentical">
             <span>✅</span> {{ i18n.t('conflict.contentIdentical') }}
           </div>
@@ -94,7 +95,7 @@
                     [class.conflict-btn-skip--identical]="data.contentIdentical"
                     (click)="resolve.emit('skip')">{{ i18n.t('conflict.skip') }}</button>
             <button class="conflict-btn conflict-btn-rename" (click)="resolve.emit('rename')">{{ i18n.t('conflict.rename') }}</button>
-            <button class="conflict-btn conflict-btn-danger" (click)="resolve.emit('overwrite')">{{ i18n.t('conflict.overwrite') }}</button>
+            <button class="conflict-btn conflict-btn-danger" [disabled]="data.typeMismatch" (click)="resolve.emit('overwrite')">{{ i18n.t('conflict.overwrite') }}</button>
           </div>
           <div class="conflict-all-row">
             <span class="conflict-all-label">{{ i18n.t('conflict.batch') }}</span>
@@ -102,7 +103,7 @@
             <span class="conflict-sep">·</span>
             <button class="conflict-link" (click)="resolve.emit('rename-all')">{{ i18n.t('conflict.renameAll') }}</button>
             <span class="conflict-sep">·</span>
-            <button class="conflict-link" (click)="resolve.emit('overwrite-all')">{{ i18n.t('conflict.overwriteAll') }}</button>
+            <button class="conflict-link" [disabled]="data.typeMismatch" (click)="resolve.emit('overwrite-all')">{{ i18n.t('conflict.overwriteAll') }}</button>
           </div>
         </div>
       </div>

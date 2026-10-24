@@ -1,3 +1,5 @@
+import type { FileOperationBatch } from './panel-types'
+const fileOperation = require('../../runtime/file-operation.cjs')
 import * as path from 'path'
 
 import { type Stats } from 'fs'
@@ -15,6 +17,9 @@ import { copyLocalDir, copyRemoteDir, deleteLocalRecursive, deleteRemoteRecursiv
 import { log } from '../../services/sftp-logger'
 
 export type PasteEntry = {
+  batch?: FileOperationBatch
+  sourcePane?: 'local' | 'remote'
+  isSymlink?: boolean
   name: string
   fullPath?: string
   isDirectory: boolean
@@ -27,8 +32,8 @@ export interface PasteTransferPort {
 
   uploadFile(remotePath: string, localPath: string): Promise<boolean>
   downloadFile(remotePath: string, localPath: string, mode?: number, size?: number): Promise<boolean>
-  uploadDirectory(localSrc: string, remoteDestParent: string): Promise<boolean>
-  downloadDirectory(remoteSrc: string, localDestParent: string): Promise<boolean>
+  uploadDirectory(localSrc: string, remoteDestParent: string, batch?:FileOperationBatch, moveSource?:boolean): Promise<boolean>
+  downloadDirectory(remoteSrc: string, localDestParent: string, batch?:FileOperationBatch, moveSource?:boolean): Promise<boolean>
 }
 
 export interface PasteFsPort {
@@ -41,10 +46,15 @@ export interface PasteFsPort {
   deleteRemoteRecursive(path: string): Promise<void>
   localDirExists(path: string): Promise<boolean>
   statLocal(path: string): Promise<Stats | null>
+  listLocalEntries?(folder: string): Promise<PasteEntry[]>
+  removeEmptyDirectory?(side: 'local' | 'remote', folder: string): Promise<void>
 
   scanLocalDir?(dirPath: string): Promise<{ size: number; count: number }>
   readdirRemote(parentDir: string): Promise<Array<{
     name: string
+    isDirectory?: boolean
+    isSymlink?: boolean
+    mode?: number
     size?: number
     modified?: Date | number | string
     mtime?: number
@@ -105,29 +115,19 @@ export class PasteUseCase {
         ? path.join(destPath, safeName)
         : path.posix.join(destPath, safeName)
 
+      if (source === destPane && entry.fullPath) {
+        const api = source === 'local' ? path : path.posix
+        if (api.resolve(entry.fullPath) === api.resolve(destFilePath)) continue
+        if (entry.isDirectory && isPathInside(entry.fullPath, destFilePath, source === 'remote')) throw new Error('Cannot copy or move a folder into itself.')
+      }
       if (entry.isDirectory) {
-        // Cross-pane directories use the recursive upload/download file conflict checks.
-        if (source === destPane) {
-
-          const exists = await this.ports.conflict.checkDestExists(destPane, destFilePath)
-          if (exists) {
-            const srcPath = entry.fullPath ?? ''
-            const destStat: Stats = { size: entry.size ?? 0, mtimeMs: entry.mtimeMs ?? Date.now() } as Stats
-            this.ports.conflict.enqueue({
-              localPath: destFilePath,
-              remoteDir: destPane === 'remote' ? destPath : path.posix.dirname(srcPath),
-              fileName: safeName,
-              remotePath: srcPath,
-              localStat: destStat,
-              direction: 'upload',
-              isDirectory: true,
-              isSamePane: true,
-              samePaneSource: source,
-              remoteFileSize: entry.size ?? 0,
-              remoteFileMtime: entry.mtimeMs ?? Date.now(),
-              entryKey: pasteEntryKey(entry),
-              mode,
-            })
+        if (source === destPane && await this.ports.conflict.checkDestExists(destPane, destFilePath)) {
+          const destination = await this.destinationEntry(destPane, destFilePath)
+          if (destination?.isDirectory && !destination.isSymlink) {
+            await this.scanConflicts(await this.children(entry, source), destPane, destFilePath, source, mode)
+          } else {
+            const conflict = this._buildFileConflictItem(entry, destPane, destPath, source, destFilePath, true, 'upload', {size:0,mtimeMs:0} as Stats, mode)
+            fileOperation.enqueue(this.ports.conflict, { ...conflict, isDirectory:true, typeMismatch:true }, entry.batch)
           }
         }
         continue
@@ -172,12 +172,58 @@ export class PasteUseCase {
         if (st) destStat = st
       }
 
-      this.ports.conflict.enqueue(this._buildFileConflictItem(
+      const destination = await this.destinationEntry(destPane, destFilePath)
+      fileOperation.enqueue(this.ports.conflict, { ...this._buildFileConflictItem(
         entry, destPane, destPath, source, destFilePath, isSamePane, direction, destStat, mode,
-      ))
+      ), typeMismatch: !!destination?.isDirectory || !!destination?.isSymlink }, entry.batch)
     }
 
     return this.ports.conflict.queueLength() > 0
+  }
+
+  private async destinationEntry(side: 'local' | 'remote', fullPath: string): Promise<PasteEntry | null> {
+    if (side === 'local') {
+      const stat = await this.ports.fs.statLocal(fullPath)
+      return stat ? { name:path.basename(fullPath), fullPath, isDirectory:stat.isDirectory(), isSymlink:stat.isSymbolicLink?.(), size:stat.size, mtimeMs:stat.mtimeMs } : null
+    }
+    const entry = (await this.ports.fs.readdirRemote(path.posix.dirname(fullPath))).find(e => e.name === path.posix.basename(fullPath))
+    return entry ? { ...entry, name:entry.name, fullPath, isDirectory:!!entry.isDirectory } : null
+  }
+
+  private async children(entry: PasteEntry, side: 'local' | 'remote'): Promise<PasteEntry[]> {
+    const entries = side === 'local' ? await this.ports.fs.listLocalEntries!(entry.fullPath!) :
+      (await this.ports.fs.readdirRemote(entry.fullPath!)).map(child => ({ ...child, fullPath:path.posix.join(entry.fullPath!, child.name), isDirectory:!!child.isDirectory }))
+    return [...entries].filter(child => !child.isSymlink).map(child => ({ ...child, sourcePane:side, batch:entry.batch }))
+  }
+
+  async prepare(entries: PasteEntry[], side: 'local' | 'remote', folder: string, mode: 'copy' | 'cut', source: 'local' | 'remote'): Promise<PasteEntry[]> {
+    const api = side === 'local' ? path : path.posix, result:PasteEntry[] = []
+    for (const entry of entries) {
+      let name = entry.name
+      if (mode === 'copy' && side === source && entry.fullPath && (side === 'local' && process.platform === 'win32' ? api.resolve(entry.fullPath).toLowerCase() === api.resolve(api.join(folder, name)).toLowerCase() : api.resolve(entry.fullPath) === api.resolve(api.join(folder, name)))) {
+        const ext = entry.isDirectory ? '' : api.extname(name), base = name.slice(0, name.length-ext.length)
+        let index = 1
+        do { name = base + ' - Copy' + (index === 1 ? '' : ' ('+index+')') + ext; index++ }
+        while (await this.ports.conflict.checkDestExists(side, api.join(folder, name)))
+      }
+      result.push({ ...entry, name })
+    }
+    return result
+  }
+
+  private async mergeSamePane(entry: PasteEntry, side: 'local' | 'remote', parent: string, mode: 'copy' | 'cut', resolved: Set<string>): Promise<void> {
+    if (resolved.has(pasteEntryKey(entry)) || entry.batch?.cancelled) return
+    const api = side === 'local' ? path : path.posix, destination = api.join(parent, entry.name)
+    if (api.resolve(entry.fullPath!) === api.resolve(destination)) return
+    if (entry.isDirectory && await this.ports.conflict.checkDestExists(side, destination)) {
+      if (isPathInside(entry.fullPath!, destination, side === 'remote')) throw new Error('Cannot copy or move a folder into itself.')
+      const target = await this.destinationEntry(side, destination)
+      if (!target?.isDirectory || target.isSymlink) throw new Error('Destination type changed; choose Keep both or Skip.')
+      for (const child of await this.children(entry, side)) await this.mergeSamePane(child, side, destination, mode, resolved)
+      if (mode === 'cut') await this.ports.fs.removeEmptyDirectory?.(side, entry.fullPath!)
+      return
+    }
+    await this._pasteSamePane(entry, entry.fullPath!, destination, side, mode)
   }
 
   async execute(
@@ -186,11 +232,13 @@ export class PasteUseCase {
     destPath: string,
     mode: 'copy' | 'cut',
     source: 'local' | 'remote',
+    resolvedKeys: Set<string> = new Set(),
   ): Promise<void> {
 
     let failed = 0
     for (const entry of entries) {
       try {
+        if (resolvedKeys.has(pasteEntryKey(entry)) || entry.batch?.cancelled) continue
         const srcPath = entry.fullPath ?? ''
         if (!srcPath) continue
 
@@ -204,7 +252,7 @@ export class PasteUseCase {
           : path.posix.join(destPath, safeName)
 
         if (source === destPane) {
-          await this._pasteSamePane(entry, srcPath, destFilePath, destPane, mode)
+          await this.mergeSamePane(entry, destPane, destPath, mode, resolvedKeys)
         } else if (source === 'local' && destPane === 'remote') {
           await this._pasteLocalToRemote(entry, srcPath, destPath, destFilePath, mode)
         } else {
@@ -272,15 +320,9 @@ export class PasteUseCase {
     mode: 'copy' | 'cut',
   ): Promise<void> {
     if (entry.isDirectory) {
-      const ok = await this.ports.transfer.uploadDirectory(srcPath, destPath)
+      const ok = await this.ports.transfer.uploadDirectory(srcPath, destPath, entry.batch, mode === 'cut')
 
-      if (mode === 'cut') {
-        if (!ok) throw new Error('Cut-paste aborted: directory upload not completed: ' + srcPath)
-        if (!await this.ports.conflict.checkRemotePathExists(destFilePath, true)) {
-          throw new Error('Cut-paste aborted: destination directory not found: ' + destFilePath)
-        }
-        await this.ports.fs.deleteLocalRecursive(srcPath)
-      }
+      if (!ok && this.ports.conflict.queueLength() === 0) throw new Error('Folder upload did not complete; remaining source files retained.')
     } else {
       const ok = await this.ports.transfer.uploadFile(destFilePath, srcPath)
 
@@ -301,15 +343,9 @@ export class PasteUseCase {
     if (entry.isDirectory) {
 
       const destDir = destFilePath
-      const ok = await this.ports.transfer.downloadDirectory(srcPath, destPath)
+      const ok = await this.ports.transfer.downloadDirectory(srcPath, destPath, entry.batch, mode === 'cut')
 
-      if (mode === 'cut' && this.ports.ui.hasSftpSession()) {
-        if (!ok) throw new Error('Cut-paste aborted: directory download not completed: ' + srcPath)
-        if (!await this.ports.fs.localDirExists(destFilePath)) {
-          throw new Error('Cut-paste aborted: destination directory not found: ' + destFilePath)
-        }
-        await this.ports.fs.deleteRemoteRecursive(srcPath)
-      }
+      if (!ok && this.ports.conflict.queueLength() === 0) throw new Error('Folder download did not complete; remaining source files retained.')
     } else {
       const ok = await this.ports.transfer.downloadFile(srcPath, destFilePath, entry.mode, entry.size)
 
@@ -393,8 +429,8 @@ export interface PanelPasteHost {
 
   uploadFile(remotePath: string, localPath: string): Promise<boolean>
   downloadFile(remotePath: string, localPath: string, mode?: number, size?: number): Promise<boolean>
-  uploadDirectory(localSrc: string, remoteDestParent: string): Promise<boolean>
-  downloadDirectory(remoteSrc: string, localDestParent: string): Promise<boolean>
+  uploadDirectory(localSrc: string, remoteDestParent: string, batch?:FileOperationBatch, moveSource?:boolean): Promise<boolean>
+  downloadDirectory(remoteSrc: string, localDestParent: string, batch?:FileOperationBatch, moveSource?:boolean): Promise<boolean>
 
   checkRemotePathExists(remotePath: string, expectDir?: boolean): Promise<boolean>
   enqueueConflict(item: import('../core/panel-types').ConflictQueueItem): void
@@ -429,14 +465,21 @@ export class PanelPasteAdapter {
     mode: 'copy' | 'cut',
     source: 'local' | 'remote',
   ): Promise<void> {
+    if (this.host.getConflictQueueLength()) throw new Error('Resolve the current file conflicts before starting another paste.')
+    const batch = fileOperation.create()
+    entries = await this.useCase.prepare(entries.map(entry => ({ ...entry, sourcePane:source, batch })), destPane, destPath, mode, source)
+    let deferred = false
+    try {
     const hasConflicts = await this.useCase.scanConflicts(entries, destPane, destPath, source, mode)
     if (hasConflicts) {
+      deferred = true
       this.host.savePendingPaste(entries, destPane, destPath, mode, source)
       this.host.setConflictOriginalTotal(this.host.getConflictQueueLength())
       this.host.showConflictDialog()
       return
     }
     await this.useCase.execute(entries, destPane, destPath, mode, source)
+    } finally { if (!deferred) fileOperation.finish(batch) }
   }
 
   executePaste(
@@ -445,8 +488,9 @@ export class PanelPasteAdapter {
     destPath: string,
     mode: 'copy' | 'cut',
     source: 'local' | 'remote',
+    resolvedKeys: Set<string> = new Set(),
   ): Promise<void> {
-    return this.useCase.execute(entries, destPane, destPath, mode, source)
+    return this.useCase.execute(entries, destPane, destPath, mode, source, resolvedKeys)
   }
 
   private _buildPorts(): PastePorts {
@@ -472,10 +516,10 @@ export class PanelPasteAdapter {
         uploadFile: (remotePath, localPath) => host.uploadFile(remotePath, localPath),
         downloadFile: (remotePath, localPath, mode, size) =>
           host.downloadFile(remotePath, localPath, mode, size),
-        uploadDirectory: (localSrc, remoteDestParent) =>
-          host.uploadDirectory(localSrc, remoteDestParent),
-        downloadDirectory: (remoteSrc, localDestParent) =>
-          host.downloadDirectory(remoteSrc, localDestParent),
+        uploadDirectory: (localSrc, remoteDestParent, batch, moveSource) =>
+          host.uploadDirectory(localSrc, remoteDestParent, batch, moveSource),
+        downloadDirectory: (remoteSrc, localDestParent, batch, moveSource) =>
+          host.downloadDirectory(remoteSrc, localDestParent, batch, moveSource),
       },
       notify: {
         error: (key, params) => {
@@ -495,15 +539,32 @@ export class PanelPasteAdapter {
             }
           } catch {   }
           log.info('copyLocalFile:', src, '->', dest)
-          return fs.copyFile(src, dest)
+          return fs.copyFile(src, dest, 1)
         },
-        renameLocal: (src, dest) => fs.rename(src, dest),
+        renameLocal: async (src, dest) => {
+          try { await fs.rename(src, dest) }
+          catch (error:any) {
+            if (error.code !== 'EXDEV') throw error
+            const stat = await fs.lstat(src)
+            if (stat.isDirectory()) await copyLocalDir(src, dest)
+            else await fs.copyFile(src, dest, 1)
+            await deleteLocalRecursive(src)
+          }
+        },
         copyRemoteDir: (src, dest, isDir) => copyRemoteDir(src, dest, isDir, remoteCopyDeps),
         renameRemote: (src, dest) => host.renameRemote(src, dest),
         deleteLocalRecursive: (p) => deleteLocalRecursive(p),
         deleteRemoteRecursive: (p) => deleteRemoteRecursive(host.sftpSession as any, p),
         localDirExists: (p) => fs.stat(p).then(() => true).catch(() => false),
-        statLocal: (p) => fs.stat(p).catch(() => null),
+        statLocal: (p) => fs.lstat(p).catch(error => { if (error.code === 'ENOENT') return null; throw error }),
+        listLocalEntries: async folder => {
+          const entries = await fs.readdir(folder, {withFileTypes:true})
+          return Promise.all(entries.map(async entry => { const fullPath=path.join(folder,entry.name), stat=await fs.lstat(fullPath); return {name:entry.name,fullPath,isDirectory:stat.isDirectory(),isSymlink:stat.isSymbolicLink(),size:stat.size,mtimeMs:stat.mtimeMs} }))
+        },
+        removeEmptyDirectory: async (side, folder) => {
+          try { if (side === 'local') await fs.rmdir(folder); else { if ((await (host.sftpSession as any).readdir(folder)).some((e:any)=>e.name!=='.'&&e.name!=='..')) return; await (host.sftpSession as any).rmdir(folder) } }
+          catch(error:any) { if (!['ENOTEMPTY','EEXIST','ENOENT'].includes(error.code) && !/not empty|no such file/i.test(error.message)) throw error }
+        },
         scanLocalDir: host.scanLocalDir
           ? (p) => host.scanLocalDir!(p)
           : undefined,
@@ -511,6 +572,9 @@ export class PanelPasteAdapter {
           const entries = await (host.sftpSession as any).readdir(parentDir)
           return entries.map((e: any) => ({
             name: e.name,
+            isDirectory: !!e.isDirectory,
+            isSymlink: !!e.isSymlink || (typeof e.isSymbolicLink === 'function' ? e.isSymbolicLink() : !!e.isSymbolicLink),
+            mode: e.mode,
             size: e.size ?? e.attrs?.size,
             modified: e.modified ?? e.attrs?.modified,
             mtime: e.mtime ?? e.attrs?.mtime,
@@ -521,7 +585,7 @@ export class PanelPasteAdapter {
       conflict: {
         checkDestExists: async (pane, filePath) => {
           if (pane === 'local') {
-            try { await fs.access(filePath); return true } catch { return false }
+            try { await fs.lstat(filePath); return true } catch(error:any) { if(error.code === 'ENOENT') return false; throw error }
           }
           if (!host.sftpSession) return false
           const dir = path.posix.dirname(filePath)
@@ -529,8 +593,9 @@ export class PanelPasteAdapter {
           try {
             const entries = await (host.sftpSession as any).readdir(dir)
             return entries.some((e: any) => e.name === name)
-          } catch {
-            return false
+          } catch(error:any) {
+            if(error.code === 'ENOENT' || /no such file|not found/i.test(error.message)) return false
+            throw error
           }
         },
         checkRemotePathExists: (remotePath, expectDir) =>

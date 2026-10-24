@@ -120,7 +120,7 @@ const EXPORT_CATEGORY_FIELDS: Record<string, string[]> = {
 
   transfer: [
     'transferUploadConcurrency', 'transferDownloadConcurrency', 'transferChannelMode',
-    'conflictDigestEnabled', 'conflictAutoSkipSameContent',
+    'conflictDigestEnabled',
     'conflictDigestMaxSizeMB', 'conflictDigestAlgo',
     'defaultUploadPath', 'defaultDownloadPath',
   ],
@@ -355,7 +355,6 @@ export class SftpSettingsTabComponent implements OnDestroy {
   transferChannelMode = 'smart'
 
   conflictDigestEnabled = true
-  conflictAutoSkipSameContent = true
   conflictDigestMaxSizeMB = 256
 
   defaultUploadPath = ''
@@ -1012,7 +1011,6 @@ export class SftpSettingsTabComponent implements OnDestroy {
       }
 
       if (cfg.conflictDigestEnabled !== undefined) this.conflictDigestEnabled = cfg.conflictDigestEnabled !== false
-      if (cfg.conflictAutoSkipSameContent !== undefined) this.conflictAutoSkipSameContent = cfg.conflictAutoSkipSameContent !== false
       if (cfg.conflictDigestMaxSizeMB !== undefined) {
         this.conflictDigestMaxSizeMB = this._clampDigestMaxMB(cfg.conflictDigestMaxSizeMB)
       }
@@ -1128,7 +1126,6 @@ export class SftpSettingsTabComponent implements OnDestroy {
       target.transferChannelMode = this.transferChannelMode
 
       target.conflictDigestEnabled = this.conflictDigestEnabled
-      target.conflictAutoSkipSameContent = this.conflictAutoSkipSameContent
       target.conflictDigestMaxSizeMB = this.conflictDigestMaxSizeMB
       target.defaultUploadPath = this.defaultUploadPath
       target.defaultDownloadPath = this.defaultDownloadPath
@@ -1912,11 +1909,6 @@ export class SftpSettingsTabComponent implements OnDestroy {
     this.notifyPanels()
   }
 
-  toggleConflictAutoSkip(): void {
-    this.conflictAutoSkipSameContent = !this.conflictAutoSkipSameContent
-    this._saveToConfig()
-    this.notifyPanels()
-  }
 
   private _clampDigestMaxMB(v: unknown): number {
     const mb = Number(v)
@@ -2214,7 +2206,6 @@ export class SftpSettingsTabComponent implements OnDestroy {
           data.transferDownloadConcurrency = cfg.transferDownloadConcurrency ?? 3
           data.transferChannelMode = (cfg as any).transferChannelMode ?? 'smart'
           data.conflictDigestEnabled = cfg.conflictDigestEnabled ?? true
-          data.conflictAutoSkipSameContent = cfg.conflictAutoSkipSameContent ?? true
           data.conflictDigestMaxSizeMB = cfg.conflictDigestMaxSizeMB ?? 256
           data.conflictDigestAlgo = cfg.conflictDigestAlgo === 'sha256' ? 'sha256' : 'sha1'
           data.defaultUploadPath = cfg.defaultUploadPath ?? ''
@@ -2282,7 +2273,6 @@ export class SftpSettingsTabComponent implements OnDestroy {
     data.showTextLineNumbers = load('showTextLineNumbers', true)
     data.textCaretShape = normalizeCaretShape(load<unknown>('textCaretShape', 'beam'))
     data.conflictDigestEnabled = load('conflictDigestEnabled', true)
-    data.conflictAutoSkipSameContent = load('conflictAutoSkipSameContent', true)
     data.conflictDigestMaxSizeMB = load('conflictDigestMaxSizeMB', 256)
     data.conflictDigestAlgo = load<'sha1' | 'sha256'>('conflictDigestAlgo', 'sha1')
     try { data.contextMenuOrder = JSON.parse(localStorage.getItem('sftp-plus-context-menu-order') || '[]') } catch { data.contextMenuOrder = [] }
@@ -2412,7 +2402,6 @@ export class SftpSettingsTabComponent implements OnDestroy {
           if (data.transferDownloadConcurrency !== undefined) target.transferDownloadConcurrency = data.transferDownloadConcurrency
           if ((data as any).transferChannelMode !== undefined) target.transferChannelMode = (data as any).transferChannelMode
           if (data.conflictDigestEnabled !== undefined) target.conflictDigestEnabled = data.conflictDigestEnabled !== false
-          if (data.conflictAutoSkipSameContent !== undefined) target.conflictAutoSkipSameContent = data.conflictAutoSkipSameContent !== false
           if (data.conflictDigestMaxSizeMB !== undefined) {
 
             target.conflictDigestMaxSizeMB = this._clampDigestMaxMB(data.conflictDigestMaxSizeMB)

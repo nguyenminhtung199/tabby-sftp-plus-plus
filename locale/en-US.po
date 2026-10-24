@@ -78,22 +78,22 @@ msgid "conflict.skip"
 msgstr "Skip"
 
 msgid "conflict.rename"
-msgstr "Rename"
+msgstr "Keep both"
 
 msgid "conflict.overwrite"
-msgstr "Overwrite"
+msgstr "Replace"
 
 msgid "conflict.batch"
 msgstr "Batch:"
 
 msgid "conflict.skipAll"
-msgstr "Skip All"
+msgstr "Skip all"
 
 msgid "conflict.renameAll"
-msgstr "Rename All"
+msgstr "Keep both for all"
 
 msgid "conflict.overwriteAll"
-msgstr "Overwrite All"
+msgstr "Replace all"
 
 msgid "conflict.existsLocal"
 msgstr "Already exists locally"

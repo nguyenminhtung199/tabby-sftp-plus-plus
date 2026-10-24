@@ -18,7 +18,7 @@
               [title]="directionTitle(t)">{{ directionBadge(t) }}</span>
             <span *ngIf="t.isFolder">📁</span>
             <span class="transfer-name" [title]="t.name">{{ t.name }}</span>
-            <span class="transfer-size" *ngIf="t.bytesTotal > 0">{{ formatSize(t.bytesTotal) }}</span>
+            <span class="transfer-size" *ngIf="t.bytesTotal > 0">{{ t.isFolder ? formatSize(t.bytesDone || 0) + ' / ' : '' }}{{ formatSize(t.bytesTotal) }}</span>
             <span class="transfer-size" *ngIf="!(t.bytesTotal > 0) && t.bytesDone > 0">{{ formatSize(t.bytesDone) }}</span>
 
             <span *ngIf="modeOf(t) === 'tar'" class="mode-tag tag-tar" [title]="i18n.t('log.modeTar')">📦 {{ i18n.t('log.modeTar') }}</span>
@@ -28,6 +28,7 @@
 
             <span class="skipped-tag" *ngIf="t.skippedAsDuplicate" title="issue #15: content identical, transfer not executed">↪ {{ i18n.t('transfer.skippedAsDuplicate') }}</span>
           </div>
+          <div class="transfer-sub" *ngIf="phaseLabel(t) as phase">{{ phase }}</div>
           <div class="transfer-sub" *ngIf="t.isFolder && t.currentItem">
             {{ t.currentItem }}<span *ngIf="t.currentItemSize != null">  {{ formatSize(t.currentItemSize) }}</span> ({{ t.itemDone }}{{ t.itemCount > 0 ? '/' + t.itemCount : '' }})
           </div>
@@ -35,7 +36,7 @@
         <div class="transfer-stats">
 
           <span>{{ (t.queued || t.skippedAsDuplicate) ? '--' : (t.speed || '--') }}</span>
-          <span *ngIf="!t.skippedAsDuplicate">{{ t.bytesTotal > 0 ? formatPercent(t.percent) + '%' : '--' }}</span>
+          <span *ngIf="!t.skippedAsDuplicate">{{ !indeterminate(t) && (t.bytesTotal > 0 || t.itemCount > 0) ? formatPercent(t.percent) + '%' : '--' }}</span>
 
           <span class="transfer-eta" *ngIf="etaText(t) as eta">{{ eta }}</span>
           <button *ngIf="!t.paused && !t.queued && !t.skippedAsDuplicate" class="btn-pause" (click)="pause.emit(t)" title="{{ i18n.t('transfer.pause') }}">⏸</button>
@@ -45,7 +46,7 @@
           <button *ngIf="t.isFolder && !t.skippedAsDuplicate" class="btn-cancel" (click)="cancel.emit(t)" title="{{ i18n.t('transfer.cancelAll') }}">✕</button>
         </div>
 
-        <div class="bar" *ngIf="!t.skippedAsDuplicate"><div class="fill" [style.width.%]="t.percent"></div></div>
+        <div class="bar" [class.indeterminate]="indeterminate(t) && !t.paused" *ngIf="!t.skippedAsDuplicate"><div class="fill" [style.width.%]="indeterminate(t) ? 30 : t.percent"></div></div>
       </div>
     </div>
     <div class="sftp-transfers-mini" *ngIf="transfers.length && !hidden && minimized"

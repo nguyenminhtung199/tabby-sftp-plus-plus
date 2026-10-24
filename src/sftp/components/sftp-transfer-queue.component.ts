@@ -44,6 +44,16 @@ export class SftpTransferQueueComponent {
       : `⬇ ${this.i18n.t('transfer.download')}：${remote} → ${local}`
   }
 
+  phaseLabel(t: PanelTransferItem): string {
+    if (!t.isFolder) return ''
+    if (t.waitingForServer) return 'Waiting for server…'
+    return ({ preparing: 'Preparing folder…', scanning: 'Scanning files…', checking: 'Checking existing files…', extracting: 'Extracting files…', waiting: 'Waiting for file conflict decisions…' } as Record<string, string>)[t.phase || ''] || ''
+  }
+
+  indeterminate(t: PanelTransferItem): boolean {
+    return !!t.isFolder && (['preparing', 'scanning', 'checking', 'extracting', 'waiting'].includes(t.phase || '') || (!(t.bytesTotal > 0) && !(t.itemCount > 0)))
+  }
+
   modeOf(t: PanelTransferItem): 'sftp' | 'tar' | null {
     if (t.queued || t.skippedAsDuplicate) return null
     if (t.transferMode === 'tar' || t.transferMode === 'sftp') {

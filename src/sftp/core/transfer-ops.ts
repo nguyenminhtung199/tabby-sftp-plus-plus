@@ -1,3 +1,6 @@
+import type { FileOperationBatch } from './panel-types'
+const fileOperation = require('../../runtime/file-operation.cjs')
+import { folderFileProgress, folderPhase, folderSkipped } from './transfer-progress'
 import * as path from 'path'
 
 import { type Stats } from 'fs'
@@ -60,7 +63,7 @@ async function dirGate(
   ctx: FolderTransferCtx | undefined,
 ): Promise<boolean> {
   if (!ctx) return true
-  if (folder.isAborted(ctx)) return false
+  if (ctx.batch?.cancelled || folder.isAborted(ctx)) return false
   await folder.waitWhilePaused(ctx)
   if (folder.isAborted(ctx)) return false
   return true
@@ -108,6 +111,8 @@ export class DownloadDirUseCase {
     inLimiter?: ConcurrencyLimiter,
 
     forceOverwrite = false,
+    batch?: FileOperationBatch,
+    moveSource = false,
   ): Promise<boolean> {
     if (!this.ports.sftp.hasSession()) return false
 
@@ -121,10 +126,17 @@ export class DownloadDirUseCase {
     const isTop = !topCtx
     let ctx = topCtx
 
+    const existing = await this.ports.localFs.lstat(localDir)
+    if (existing && (!existing.isDirectory() || existing.isSymbolicLink())) {
+      fileOperation.enqueue(this.ports.conflictQueue, {localPath:localDir,remotePath:remoteSrc,remoteDir:path.posix.dirname(remoteSrc),fileName:base,localStat:existing,direction:'download',isDirectory:true,typeMismatch:true,transferCtx:ctx,mode:ctx?.moveSource?'cut':undefined},ctx?.batch || batch)
+      if (ctx) this.ports.folder.markHadConflict(ctx)
+      this.ports.conflictQueue.showDialog()
+      return !isTop
+    }
     if (isTop) {
 
       const targetExists = await this.ports.localFs.pathExists(localDir)
-      if (this.ports.tarChannel && (!targetExists || forceOverwrite)) {
+      if (!moveSource && this.ports.tarChannel && (!targetExists || forceOverwrite)) {
         const r = await this.ports.tarChannel.tryDownloadDir(remoteSrc, localDest, this.ports.folder, base, targetExists, this.ports.tarChannelMode)
         if (r === 'success') return true
         if (r === 'failed') return false
@@ -138,12 +150,22 @@ export class DownloadDirUseCase {
 
       let totalSize = 0
       let itemCount = 0
-      const s = await this.remoteStats.scanDir(remoteSrc)
-      totalSize = s.size
-      itemCount = s.count
-      ctx = this.ports.folder.start(base, 'download', remoteSrc, localDir, totalSize, itemCount)
+      ctx = this.ports.folder.start(base, 'download', remoteSrc, localDir, 0, 0)
+      ctx.moveSource = moveSource
+      ctx.sourceDirectories = []
+      ctx.batch = batch; if (ctx.t) ctx.t.batch = batch
+      ctx.producing = true
+      folderPhase(this.ports.folder, ctx, 'scanning', remoteSrc)
+      try {
+        const stats = await this.remoteStats.scanDir(remoteSrc)
+        totalSize = stats.size; itemCount = stats.count
+        if (ctx.t) { ctx.t.bytesTotal = totalSize; ctx.t.itemCount = itemCount }
+        this.ports.folder.updateLogSize?.(ctx, totalSize)
+      } catch (error) { ctx.producing = false; ctx.failed = true; this.ports.folder.finish(ctx, false); throw error }
+      if (this.ports.folder.isAborted(ctx)) { ctx.producing = false; this.ports.folder.finish(ctx, false); return false }
     }
 
+    if (ctx?.moveSource) ctx.sourceDirectories!.push(remoteSrc)
     let success = true
 
     const limiter = inLimiter ?? new ConcurrencyLimiter(clampDirConcurrency(this.dirConcurrency?.()))
@@ -184,16 +206,20 @@ export class DownloadDirUseCase {
               log.warn('stat fallback for folder download conflict failed:', remoteP, e)
             }
           }
+          if (ctx) folderPhase(this.ports.folder, ctx, 'checking', safeName)
           if (!forceOverwrite) {
             const conflictResult = await this.ports.conflictDetection.checkLocalConflict(localP, remoteP, sz, remoteMtime)
             if (conflictResult.kind === 'auto-skipped') {
               log.info('[download-dir] auto-skipped (content identical):', remoteP)
+              ctx && folderSkipped(this.ports.folder,ctx,safeName,sz)
               return true
             }
             if (conflictResult.kind === 'conflict') {
               const conflictInfo = conflictResult.info
-              this.ports.conflictQueue.enqueue({
-                localPath: localP,
+              fileOperation.enqueue(this.ports.conflictQueue, {
+                mode: ctx?.moveSource ? 'cut' : undefined,
+                typeMismatch: conflictInfo.typeMismatch,
+              localPath: localP,
                 remoteDir: path.posix.dirname(remoteP),
                 fileName: safeName,
                 remotePath: remoteP,
@@ -204,51 +230,25 @@ export class DownloadDirUseCase {
                 transferCtx: ctx,
                 localDigest: conflictInfo.localDigest,
                 remoteDigest: conflictInfo.remoteDigest,
-              })
+              }, ctx?.batch || batch)
               if (ctx) this.ports.folder.markHadConflict(ctx)
               this.ports.conflictQueue.showDialog()
               return true
             }
           }
 
-          const liveMap = ctx ? (ctx.liveBytes || (ctx.liveBytes = new Map<string, number>())) : null
-
-          const inFlightBytes = (): number => {
-            if (!liveMap) return 0
-            let sum = 0
-            for (const v of liveMap.values()) sum += v
-            return sum
-          }
-          let liveReportAt = 0
-          const onLive = ctx && liveMap
-            ? (bytes: number): void => {
-                if (bytes > 0) liveMap.set(localP, Math.max(liveMap.get(localP) || 0, bytes))
-                const now = Date.now()
-                if (now - liveReportAt < FOLDER_LIVE_PROGRESS_MS) return
-                liveReportAt = now
-                this.ports.folder.updateProgress(ctx, ctx.bytesDone + inFlightBytes(), safeName, ctx.itemDone, sz)
-              }
-            : undefined
-          const ok = await this.ports.execution.downloadRaw(remoteP, localP, entry.mode, entry.size, onLive)
-
-          liveMap?.delete(localP)
-
-          if (ctx && this.ports.folder.consumeAbortCurrent(ctx)) {
-            if (!ok) return false
-          } else if (!ok) {
-            return false
-          }
-          if (ctx) {
-            if (sz > 0) ctx.bytesDone += sz
-            ctx.itemDone++
-
-            this.ports.folder.updateProgress(ctx, ctx.bytesDone + inFlightBytes(), safeName, ctx.itemDone, sz)
-          }
-          return true
+          const progress = folderFileProgress(this.ports.folder, ctx, localP, safeName, sz)
+          let ok = false
+          try { ok = await this.ports.execution.downloadRaw(remoteP, localP, entry.mode, entry.size, progress.report) }
+          finally { progress.finish(ok) }
+          if (ok && ctx?.moveSource) await this.ports.sftp.unlink?.(remoteP)
+          if (ctx) this.ports.folder.consumeAbortCurrent(ctx)
+          return ok
         })
       })
       const folded = foldSettled(await Promise.allSettled(tasks))
       success = folded.success
+      if (success && ctx?.moveSource) await this.ports.sftp.rmdir?.(remoteSrc)
       if (folded.firstErr != null) throw folded.firstErr
     } catch (e) {
       success = false
@@ -257,6 +257,8 @@ export class DownloadDirUseCase {
     } finally {
 
       if (isTop && ctx) {
+        ctx.producing = false
+        ctx.failed ||= !success || this.ports.folder.isAborted(ctx)
         const ok = success && !ctx.hadConflict && !this.ports.folder.isAborted(ctx)
         this.ports.folder.finish(ctx, ok)
       }
@@ -271,7 +273,7 @@ export class DownloadOneUseCase {
     private readonly downloadOne: DownloadOnePort,
   ) {}
 
-  async execute(file: SFTPFile, targetLocalDir?: string): Promise<void> {
+  async execute(file: SFTPFile, targetLocalDir?: string, batch?: FileOperationBatch): Promise<void> {
     const localBase = targetLocalDir?.trim() || this.downloadOne.getLocalPath()
     if((file as any)._customSaveAs&&!file.isDirectory){const name=safeEntryName(file.name);if(!name||name!==file.name)throw Error('Invalid download filename');await this.ports.execution.downloadTopLevel(file.fullPath,path.join(localBase,name),file.mode,file.size);return}
 
@@ -284,9 +286,7 @@ export class DownloadOneUseCase {
       }
       const localDir = path.join(localBase, safeName)
 
-      const existing = await this.ports.localFs.lstat(localDir)
-      if (existing && (!existing.isDirectory() || existing.isSymbolicLink())) throw new Error('Cannot merge a folder into an existing file or link: ' + localDir)
-      await this.downloadOne.downloadDir(file.fullPath, localBase)
+      await this.downloadOne.downloadDir(file.fullPath, localBase, batch)
       return
     }
 
@@ -321,7 +321,8 @@ export class DownloadOneUseCase {
     }
     if (conflictResult.kind === 'conflict') {
       const conflictInfo = conflictResult.info
-      this.ports.conflictQueue.enqueue({
+      fileOperation.enqueue(this.ports.conflictQueue, {
+        typeMismatch: conflictInfo.typeMismatch,
         localPath,
         remoteDir: path.posix.dirname(file.fullPath),
         fileName: safeName,
@@ -333,7 +334,7 @@ export class DownloadOneUseCase {
 
         localDigest: conflictInfo.localDigest,
         remoteDigest: conflictInfo.remoteDigest,
-      })
+      }, batch)
       return
     }
 
@@ -424,22 +425,17 @@ export class MergeLocalDirUseCase {
           const childOk = await this.execute(localP, remoteP, false, undefined, ctx)
           if (!childOk) success = false
         } else {
-          const ok = await this.ports.execution.uploadRaw(remoteP, localP)
+          const progress = folderFileProgress(this.ports.folder!, ctx || undefined, localP, c.name, st.size)
+          let ok = false
+          try { ok = await this.ports.execution.uploadRaw(remoteP, localP, progress.report) }
+          finally { progress.finish(ok) }
           if (ctx && this.ports.folder?.consumeAbortCurrent(ctx)) {
             if (!ok) success = false
-            else {
-              ctx.itemDone++
-              if (st.size > 0) ctx.bytesDone += st.size
-              this.ports.folder.updateProgress(ctx, ctx.bytesDone, c.name, ctx.itemDone, st.size)
-            }
+
             continue
           }
           if (!ok) success = false
-          else if (ctx && this.ports.folder) {
-            ctx.itemDone++
-            if (st.size > 0) ctx.bytesDone += st.size
-            this.ports.folder.updateProgress(ctx, ctx.bytesDone, c.name, ctx.itemDone, st.size)
-          }
+
         }
       }
     } catch (e) {
@@ -537,6 +533,8 @@ export class UploadPathUseCase {
     localPath: string,
     topCtx?: FolderTransferCtx,
     inLimiter?: ConcurrencyLimiter,
+    batch?: FileOperationBatch,
+    moveSource = false,
   ): Promise<boolean> {
     if (!this.ports.sftp.hasSession()) return false
     const st = await this.ports.localFs.lstat(localPath)
@@ -548,10 +546,10 @@ export class UploadPathUseCase {
     const isTop = !topCtx
 
     if (st.isDirectory()) {
-      return this._uploadDirectory(remoteDir, localPath, remoteTarget, st, isTop, topCtx, inLimiter)
+      return this._uploadDirectory(remoteDir, localPath, remoteTarget, st, isTop, topCtx, inLimiter, batch, moveSource)
     }
 
-    return this._uploadFile(remoteDir, localPath, remoteTarget, st, isTop, topCtx)
+    return this._uploadFile(remoteDir, localPath, remoteTarget, st, isTop, topCtx, batch)
   }
 
   private async _uploadDirectory(
@@ -562,12 +560,20 @@ export class UploadPathUseCase {
     isTop: boolean,
     topCtx?: FolderTransferCtx,
     inLimiter?: ConcurrencyLimiter,
+    batch?: FileOperationBatch,
+    moveSource = false,
   ): Promise<boolean> {
     let ctx = topCtx
+    if (await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, false)) {
+      fileOperation.enqueue(this.ports.conflictQueue, {localPath,remotePath:remoteTarget,remoteDir,fileName:path.basename(localPath),localStat:st,direction:'upload',isDirectory:true,typeMismatch:true,transferCtx:ctx,mode:ctx?.moveSource?'cut':undefined},ctx?.batch || batch)
+      if (ctx) this.ports.folder.markHadConflict(ctx)
+      this.ports.conflictQueue.showDialog()
+      return !isTop
+    }
     if (isTop) {
       const base = path.basename(localPath)
 
-      if (this.ports.tarChannel && !(await this.ports.conflictDetection.checkRemotePathExists(remoteTarget))) {
+      if (!moveSource && this.ports.tarChannel && !(await this.ports.conflictDetection.checkRemotePathExists(remoteTarget))) {
         // Archive only fresh targets. Existing directories need individual file conflict choices.
         const r = await this.ports.tarChannel.tryUploadDir(localPath, remoteTarget, this.ports.folder, base, false, this.ports.tarChannelMode)
         if (r === 'success') return true
@@ -578,25 +584,35 @@ export class UploadPathUseCase {
 
       let totalSize = 0
       let itemCount = 0
-      const s = await this.ports.localFs.scanDir(localPath)
-      totalSize = s.size
-      itemCount = s.count
-      ctx = this.ports.folder.start(base, 'upload', remoteTarget, localPath, totalSize, itemCount)
+      ctx = this.ports.folder.start(base, 'upload', remoteTarget, localPath, 0, 0)
+      ctx.moveSource = moveSource
+      ctx.sourceDirectories = []
+      ctx.batch = batch; if (ctx.t) ctx.t.batch = batch
+      ctx.producing = true
+      folderPhase(this.ports.folder, ctx, 'scanning', localPath)
+      try {
+        const stats = await this.ports.localFs.scanDir(localPath)
+        totalSize = stats.size; itemCount = stats.count
+        if (ctx.t) { ctx.t.bytesTotal = totalSize; ctx.t.itemCount = itemCount }
+        this.ports.folder.updateLogSize?.(ctx, totalSize)
+      } catch (error) { ctx.producing = false; ctx.failed = true; this.ports.folder.finish(ctx, false); throw error }
+      if (this.ports.folder.isAborted(ctx)) { ctx.producing = false; this.ports.folder.finish(ctx, false); return false }
 
     }
 
     // Same-named directories merge; files are checked individually below.
     if (await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, false)) {
-      if (ctx && isTop) this.ports.folder.finish(ctx, false)
+      if (ctx && isTop) { ctx.producing = false; ctx.failed = true; this.ports.folder.finish(ctx, false) }
       throw new Error('Cannot merge a folder into an existing file: ' + remoteTarget)
     }
     try { await this.ports.sftp.mkdir(remoteTarget) } catch (error) {
       if (!await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, true)) {
-        if (ctx && isTop) this.ports.folder.finish(ctx, false)
+        if (ctx && isTop) { ctx.producing = false; ctx.failed = true; this.ports.folder.finish(ctx, false) }
         throw error
       }
     }
 
+    if (ctx?.moveSource) ctx.sourceDirectories!.push(localPath)
     const limiter = inLimiter ?? new ConcurrencyLimiter(clampDirConcurrency(this.dirConcurrency?.()))
 
     let success = true
@@ -627,6 +643,7 @@ export class UploadPathUseCase {
         })
       const folded = foldSettled(await Promise.allSettled(tasks))
       success = folded.success
+      if (success && ctx?.moveSource) await this.ports.localFs.removeEmptyDirectory?.(localPath)
       if (folded.firstErr != null) throw folded.firstErr
     } catch (e) {
 
@@ -635,6 +652,8 @@ export class UploadPathUseCase {
       throw e
     } finally {
       if (isTop && ctx) {
+        ctx.producing = false
+        ctx.failed ||= !success || this.ports.folder.isAborted(ctx)
         const ok = success && !ctx.hadConflict && !this.ports.folder.isAborted(ctx)
         this.ports.folder.finish(ctx, ok)
       }
@@ -649,21 +668,27 @@ export class UploadPathUseCase {
     st: import('fs').Stats,
     isTop: boolean,
     topCtx?: FolderTransferCtx,
+    batch?: FileOperationBatch,
+    moveSource = false,
   ): Promise<boolean> {
     const base = path.basename(localPath)
+    if (topCtx) folderPhase(this.ports.folder, topCtx, 'checking', base)
     const conflictResult = await this.ports.conflictDetection.checkUploadConflict(
       remoteTarget, localPath, st.size, st.mtimeMs,
     )
     if (conflictResult.kind === 'auto-skipped') {
 
       log.info('[upload-file] auto-skipped (content identical):', remoteTarget)
+      topCtx && folderSkipped(this.ports.folder,topCtx,base,st.size)
 
       return true
     }
     if (conflictResult.kind === 'conflict') {
       const conflictInfo = conflictResult.info
       log.info('[upload-one] conflict for', remoteTarget, 'remoteSize:', conflictInfo.remoteSize, 'remoteMtime:', conflictInfo.remoteMtime)
-      this.ports.conflictQueue.enqueue({
+      fileOperation.enqueue(this.ports.conflictQueue, {
+        mode: topCtx?.moveSource ? 'cut' : undefined,
+        typeMismatch: conflictInfo.typeMismatch,
         localPath,
         remoteDir,
         fileName: base,
@@ -677,7 +702,7 @@ export class UploadPathUseCase {
 
         localDigest: conflictInfo.localDigest,
         remoteDigest: conflictInfo.remoteDigest,
-      })
+      }, topCtx?.batch || batch)
       if (topCtx) this.ports.folder.markHadConflict(topCtx)
       this.ports.conflictQueue.showDialog()
       return true
@@ -687,17 +712,16 @@ export class UploadPathUseCase {
       return this.ports.execution.uploadTopLevel(remoteTarget, localPath)
     }
 
-    const ok = await this.ports.execution.uploadRaw(remoteTarget, localPath)
+    const progress = folderFileProgress(this.ports.folder, topCtx, localPath, base, st.size)
+    let ok = false
+    try { ok = await this.ports.execution.uploadRaw(remoteTarget, localPath, progress.report) }
+    finally { progress.finish(ok) }
 
+    if (ok && topCtx?.moveSource) await this.ports.localFs.removeFile?.(localPath)
     if (topCtx && this.ports.folder.consumeAbortCurrent(topCtx)) {
       if (!ok) return false
     } else if (!ok) {
       return false
-    }
-    if (topCtx) {
-      topCtx.itemDone++
-      if (st.size > 0) topCtx.bytesDone += st.size
-      this.ports.folder.updateProgress(topCtx, topCtx.bytesDone, base, topCtx.itemDone, st.size)
     }
     return true
   }

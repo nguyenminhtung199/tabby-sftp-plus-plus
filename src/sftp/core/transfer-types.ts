@@ -2,7 +2,7 @@ import { type Stats } from 'fs'
 
 import { type SFTPFile } from '../../services/sftp.service'
 
-import { type FolderTransferCtx, type ConflictFileInfo } from './panel-types'
+import { type FileOperationBatch, type FolderTransferCtx, type ConflictFileInfo } from './panel-types'
 
 import * as path from 'path'
 
@@ -28,6 +28,8 @@ export interface LocalTransferFsPort {
   scanDir(localPath: string): Promise<{ size: number; count: number }>
   pathExists(localPath: string): Promise<boolean>
   mkdirRecursive(localPath: string): Promise<void>
+  removeFile?(localPath:string):Promise<void>
+  removeEmptyDirectory?(localPath:string):Promise<void>
 }
 
 export interface SftpTransferPort {
@@ -38,6 +40,8 @@ export interface SftpTransferPort {
   stat(remotePath: string): Promise<SftpDirEntry | null>
 
   isSymlink(remotePath: string): Promise<boolean>
+  unlink?(remotePath:string):Promise<void>
+  rmdir?(remotePath:string):Promise<void>
 }
 
 export interface RemoteDirStatsPort {
@@ -97,7 +101,7 @@ export interface FolderTransferPort {
 export interface TransferExecutionPort {
 
   uploadTopLevel(remotePath: string, localPath: string): Promise<boolean>
-  uploadRaw(remotePath: string, localPath: string): Promise<boolean>
+  uploadRaw(remotePath: string, localPath: string, onProgress?: (bytes: number) => void): Promise<boolean>
   downloadTopLevel(remotePath: string, localPath: string, mode?: number, size?: number): Promise<boolean>
 
   downloadRaw(
@@ -111,7 +115,7 @@ export interface TransferExecutionPort {
 
 export interface DownloadOnePort {
   getLocalPath(): string
-  downloadDir(remoteSrc: string, localDest: string): Promise<boolean>
+  downloadDir(remoteSrc: string, localDest: string, batch?: FileOperationBatch): Promise<boolean>
 }
 
 export interface TransferUseCasePorts {

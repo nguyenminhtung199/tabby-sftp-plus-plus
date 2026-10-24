@@ -1,7 +1,9 @@
+import { ConflictResolveUseCase, SftpConflictDetector } from './sftp/core/conflict'
+import { folderFileProgress, folderSkipped, folderPhase } from './sftp/core/transfer-progress'
 import { initializeFeatures } from './features/bootstrap'
 import { PanelRubberBand } from './sftp/components/panel-rubber-band'
 import { PanelFileDnd } from './sftp/components/panel-file-dnd'
-import { PanelTransferRuntime } from './sftp/core/transfer-coordinator'
+import { PanelTransferCoordinator, PanelTransferRuntime } from './sftp/core/transfer-coordinator'
 import { DownloadOneUseCase, DownloadDirUseCase, UploadPathUseCase } from './sftp/core/transfer-ops'
 import { PanelDropAdapter, parseDragPayload } from './sftp/core/drop'
 import { PanelPasteAdapter, PasteUseCase } from './sftp/core/paste'
@@ -11,7 +13,7 @@ import { SftpTransferLogService } from './services/sftp-transfer-log.service'
 import { SftpI18nService } from './services/sftp-i18n.service'
 import { computeSelection } from './sftp/core/selection'
 import { setDateFormatPattern } from './sftp/core/file-utils'
-export const testing={I18nService:SftpI18nService,PanelPasteAdapter,PanelDropAdapter,parseDragPayload,featureApis,NavigationMemory,TransferLogService:SftpTransferLogService,computeSelection,setDateFormatPattern,Panel:SftpFloatingPanel,FilePane: SftpFilePaneComponent,Menu:SftpContextMenuComponent,LogDialog:SftpTransferLogDialogComponent,PanelRubberBand,PanelFileDnd,PanelTransferRuntime,DownloadOneUseCase,DownloadDirUseCase,UploadPathUseCase,PasteUseCase}
+export const testing={PanelTransferCoordinator,ConflictResolveUseCase,SftpConflictDetector,folderFileProgress,folderSkipped,folderPhase,I18nService:SftpI18nService,PanelPasteAdapter,PanelDropAdapter,parseDragPayload,featureApis,NavigationMemory,TransferLogService:SftpTransferLogService,computeSelection,setDateFormatPattern,Panel:SftpFloatingPanel,FilePane: SftpFilePaneComponent,Menu:SftpContextMenuComponent,LogDialog:SftpTransferLogDialogComponent,PanelRubberBand,PanelFileDnd,PanelTransferRuntime,DownloadOneUseCase,DownloadDirUseCase,UploadPathUseCase,PasteUseCase}
 
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'

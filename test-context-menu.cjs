@@ -163,7 +163,7 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
 
 
  const selfCopy=panel();selfCopy.remotePath='/';selfCopy._pasteAdapter={paste:()=>{throw Error('self-paste must not reach conflict/digest/server copy');}};
- await selfCopy.onContextMenuAction('copy');
+ await selfCopy.onContextMenuAction('cut');
  for(let i=0;i<5;i++)assert.equal(await selfCopy.onContextMenuAction('paste'),false);
  assert.equal(selfCopy.clipboardEntries.length,1,'self-paste retains the internal selfCopy file and cannot fall back to a stale screenshot');
  assert.match(selfCopy.toast,/Source and destination are the same/);

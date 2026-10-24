@@ -105,7 +105,7 @@
   },
   {
     "selector": "settings",
-    "eventCount": 157,
+    "eventCount": 156,
     "actions": [
       "_saveToConfig",
       "cancelAddCustomRule",
@@ -169,7 +169,6 @@
       "toggleAddCustomRule",
       "toggleBookmarkPanelGroupByScope",
       "toggleCloseBookmarkPanelOnSelect",
-      "toggleConflictAutoSkip",
       "toggleConflictDigest",
       "toggleCustomFolderAutocomplete",
       "toggleCustomSidebar",

@@ -516,12 +516,6 @@
           <span class="ss-toggle-thumb"></span>
           </span>
           </label>
-          <label class="ss-toggle-row" *ngIf="conflictDigestEnabled" title="{{ i18n.t('settings.conflictAutoSkipDesc') }}">
-          <span class="ss-toggle-label">{{ i18n.t('settings.conflictAutoSkip') }}</span>
-          <span class="ss-toggle-track" [class.active]="conflictAutoSkipSameContent" (click)="toggleConflictAutoSkip()">
-          <span class="ss-toggle-thumb"></span>
-          </span>
-          </label>
           <div class="ss-toggle-row ss-concurrency-row" *ngIf="conflictDigestEnabled"
           title="{{ i18n.t('settings.conflictDigestMaxSizeDesc') }}">
           <span class="ss-toggle-label">{{ i18n.t('settings.conflictDigestMaxSize') }}</span>

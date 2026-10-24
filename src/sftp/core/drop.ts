@@ -1,3 +1,5 @@
+import type { FileOperationBatch } from './panel-types'
+const fileOperation = require('../../runtime/file-operation.cjs')
 import * as path from 'path'
 import { randomUUID } from 'crypto'
 
@@ -74,10 +76,10 @@ export interface DropContextPort {
 export interface DropTransferPort {
   uploadToRemote(remoteDir: string, localPath: string): Promise<boolean>
 
-  streamUploadOne(localPath: string, destRemoteDir?: string): Promise<void>
+  streamUploadOne(localPath: string, destRemoteDir?: string, batch?: FileOperationBatch): Promise<void>
 
   tryUploadBatch?(localPaths: string[], remoteDir: string): Promise<boolean>
-  downloadRemoteEntry(entry: RemoteDropEntry, destLocalDir?: string): Promise<void>
+  downloadRemoteEntry(entry: RemoteDropEntry, destLocalDir?: string, batch?: FileOperationBatch): Promise<void>
 }
 
 export interface DropPanePort {
@@ -125,6 +127,7 @@ export class DropUseCase {
   async execute(input: DropExecuteInput): Promise<void> {
     const { targetPane, rawPayload, osPaths, destDirOverride } = input
     const ctx = this.ports.context
+    const batch = fileOperation.create(Math.max(rawPayload?.paths.length || osPaths.length, 1))
 
     if (rawPayload && isSameDirInternalDrop(
       rawPayload,
@@ -140,11 +143,11 @@ export class DropUseCase {
     this.ports.dragState.reset()
 
     if (rawPayload) {
-      const handled = await this._handleInternalPayload(rawPayload, targetPane, destDirOverride)
+      const handled = await this._handleInternalPayload(rawPayload, targetPane, destDirOverride, batch)
       if (handled) return
     }
 
-    await this._handleOsPaths(osPaths, targetPane, destDirOverride)
+    await this._handleOsPaths(osPaths, targetPane, destDirOverride, batch)
   }
 
   private async _tryBatchUpload(paths: string[], remoteDir: string): Promise<boolean> {
@@ -163,6 +166,7 @@ export class DropUseCase {
     payload: DragPayload,
     targetPane: DropPane,
     destDirOverride?: string,
+    batch?: FileOperationBatch,
   ): Promise<boolean> {
     const ctx = this.ports.context
     if (!ctx.isConnected() || !ctx.hasSftpSession()) return false
@@ -181,7 +185,7 @@ export class DropUseCase {
       }
       await Promise.all(payload.paths.map(async (p) => {
         try {
-          await this.ports.transfer.streamUploadOne(p.fullPath, remoteDir)
+          await this.ports.transfer.streamUploadOne(p.fullPath, remoteDir, batch)
         } catch (e) {
           log.error('Upload failed for', p.fullPath, e)
         }
@@ -201,7 +205,7 @@ export class DropUseCase {
       await Promise.all(payload.paths.map(async (p, i) => {
         log.info('[drop] downloading remote entry #' + i + ':', p.name, p.remotePath, 'isDir:', p.isDirectory)
         try {
-          await this.ports.transfer.downloadRemoteEntry(p, localDir)
+          await this.ports.transfer.downloadRemoteEntry(p, localDir, batch)
         } catch (e) {
           log.error('Download failed for', p.remotePath, e)
         }
@@ -218,17 +222,11 @@ export class DropUseCase {
     return false
   }
 
-  private async _handleOsPaths(osPaths: string[], targetPane: DropPane, destDirOverride?: string): Promise<void> {
+  private async _handleOsPaths(osPaths: string[], targetPane: DropPane, destDirOverride?: string, batch?: FileOperationBatch): Promise<void> {
     if (!osPaths.length) return
 
     const ctx = this.ports.context
     const localDest = destDirOverride || ctx.getLocalPath()
-
-    if (targetPane === 'local' && isOsDropIntoSameLocalDir(osPaths, localDest)) {
-      this.ports.dragState.reset()
-      this.ports.ui.markViewDirty()
-      return
-    }
 
     if (targetPane === 'remote') {
       if (!ctx.isConnected() || !ctx.hasSftpSession()) return
@@ -243,7 +241,7 @@ export class DropUseCase {
       }
       await Promise.all(osPaths.map(async (p) => {
         try {
-          await this.ports.transfer.streamUploadOne(p, remoteDir)
+          await this.ports.transfer.streamUploadOne(p, remoteDir, batch)
         } catch (e) {
           log.error('Upload failed for', p, e)
         }
@@ -281,11 +279,12 @@ export interface PanelDropHost {
   hasConflictQueue(): boolean
   resetFileDragState(): void
   uploadPathToRemote(remoteDir: string, localPath: string): Promise<boolean>
-  streamUploadOne(localPath: string, destRemoteDir?: string): Promise<void>
+  streamUploadOne(localPath: string, destRemoteDir?: string, batch?: FileOperationBatch): Promise<void>
 
   tryUploadBatch?(localPaths: string[], remoteDir: string): Promise<boolean>
+  copyLocalPaths?(paths: string[], destination: string): Promise<void>
   moveWithinPane?(payload: DragPayload, pane: DropPane, destDir: string): Promise<void>
-  streamDownloadOne(file: SFTPFile, targetLocalDir?: string): Promise<void>
+  streamDownloadOne(file: SFTPFile, targetLocalDir?: string, batch?: FileOperationBatch): Promise<void>
   refreshLocal(): Promise<unknown>
   refreshRemote(): Promise<unknown>
   showConflictDialog(): void
@@ -327,11 +326,11 @@ export class PanelDropAdapter {
       },
       transfer: {
         uploadToRemote: (remoteDir, localPath) => host.uploadPathToRemote(remoteDir, localPath),
-        streamUploadOne: (localPath, destRemoteDir) => host.streamUploadOne(localPath, destRemoteDir),
+        streamUploadOne: (localPath, destRemoteDir, batch) => host.streamUploadOne(localPath, destRemoteDir, batch),
 
         tryUploadBatch: (localPaths, remoteDir) =>
           host.tryUploadBatch ? host.tryUploadBatch(localPaths, remoteDir) : Promise.resolve(false),
-        downloadRemoteEntry: (entry, destLocalDir) => host.streamDownloadOne(this._toSftpFile(entry), destLocalDir),
+        downloadRemoteEntry: (entry, destLocalDir, batch) => host.streamDownloadOne(this._toSftpFile(entry), destLocalDir, batch),
       },
       pane: {
         refreshLocal: async () => { await host.refreshLocal() },
@@ -344,7 +343,7 @@ export class PanelDropAdapter {
         showConflictDialog: () => host.showConflictDialog(),
       },
       filesystem: {
-        copyIntoLocalDir: (sources, destDir) => this._copyIntoLocalDir(sources, destDir),
+        copyIntoLocalDir: (sources, destDir) => host.copyLocalPaths ? host.copyLocalPaths(sources,destDir) : this._copyIntoLocalDir(sources, destDir),
       },
       notify: {
         copyFailed: (fileName) => this._notifyCopyFailed(fileName),

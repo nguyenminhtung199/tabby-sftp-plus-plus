@@ -56,7 +56,8 @@ module.exports = function installActivity({apis, Panel, recovery }) {
             const entry = rowEntry(this, row);
             if (entry?.logEntryId) row.logEntryId = entry.logEntryId;
             if (row.status === 'Cancelled') return false;
-            if (entry?.paused || row.status === 'Paused') row.status = 'Paused';
+            if (entry?.phase === 'waiting') {row.status='Conflict';row.error='Waiting for file conflict decisions';}
+            else if (entry?.paused || row.status === 'Paused') row.status = 'Paused';
             else row.status = ok ? 'Completed' : (this._customPartialStatus?.(row.direction,row.remotePath,row.localPath) || (!this.connected || this._destroyed ? 'Interrupted' : 'Failed'));
             if (row.status === 'Completed') { row.percent = 100; row.error = ''; }
             else if (row.status !== 'Paused') row.error = row.error || 'Transfer did not complete; use Retry';
@@ -65,7 +66,7 @@ module.exports = function installActivity({apis, Panel, recovery }) {
             if (row.status !== 'Cancelled') { row.status = !this.connected || this._destroyed ? 'Interrupted' : 'Failed'; row.error = e.message; }
             return false;
         } finally {
-            if (row.status !== 'Paused') release(row);
+            if (!['Paused','Conflict'].includes(row.status)) release(row);
             save(this, row);
         }
     };
@@ -281,8 +282,8 @@ module.exports = function installActivity({apis, Panel, recovery }) {
                         if(partial){row.status=partial;row.error=partial==='Interrupted'?'Waiting for reconnection; resume checkpoint saved':row.error||'Partial file retained; use Retry';release(row);save(this,row);continue;}
                     }
                     row.percent = entry.percent || 0; row.speed = entry.speed || ''; row.logEntryId = entry.logEntryId;
-                    if (row.status !== 'Conflict' && this.connected) row.status = entry.paused ? 'Paused' : entry.queued ? 'Queued' : 'Running';
-                } else if (row.logEntryId && ['Running','Paused'].includes(row.status)) {
+                    if (this.connected) row.status = entry.phase==='waiting'?'Conflict':entry.paused?'Paused':entry.queued?'Queued':'Running';
+                } else if (row.logEntryId && ['Running','Paused','Conflict'].includes(row.status)) {
                     const log = this.transferLog?.getAll?.().find(l => l.id === row.logEntryId);
                     if (log && !log.pending && log.endTime) { row.status = log.success ? 'Completed' : 'Failed'; row.error = log.success ? '' : 'Transfer failed; use Retry'; release(row); save(this, row); }
                 }
