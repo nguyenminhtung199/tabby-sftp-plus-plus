@@ -25,6 +25,7 @@
     "test-conflict-preflight.cjs",
     "test-transfer-performance.cjs",
     "test-remote-drag-hover.cjs",
-    "test-selection-performance.cjs"
+    "test-selection-performance.cjs",
+    "test-inline-toast-dismissal.cjs"
   ]
 }

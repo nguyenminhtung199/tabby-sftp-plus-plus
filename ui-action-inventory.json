@@ -1,7 +1,7 @@
 [
   {
     "selector": "sftp-plus-panel",
-    "eventCount": 212,
+    "eventCount": 206,
     "actions": [
       "addBookmark",
       "applyLocalFilter",
@@ -26,7 +26,6 @@
       "customSyncNow",
       "cycleLayoutMode",
       "cyclePathMode",
-      "dismissToast",
       "exportLog",
       "goToLocalPathInput",
       "goToRemotePathInput",
@@ -77,8 +76,6 @@
       "onResizeStart",
       "onSplitterDblClick",
       "onSplitterDown",
-      "onToastMouseEnter",
-      "onToastMouseLeave",
       "onTopBarContextMenu",
       "onTopBarMouseDown",
       "openBookmarkAddForm",
@@ -202,7 +199,7 @@
   },
   {
     "selector": "sftp-file-pane",
-    "eventCount": 86,
+    "eventCount": 80,
     "actions": [
       "blurPathInput",
       "changeListPage",

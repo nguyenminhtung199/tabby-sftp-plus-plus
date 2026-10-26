@@ -16,6 +16,11 @@ module.exports = function installInlineEdit({apis,Panel,FilePane,Angular}) {
  };
  apis.Panel.cancelInputDialog=function(...args){this._customInlineEdit=null;return cancel.apply(this,args);};
  apis.Panel.customInlineValue=function(value){this._customInlineUpdate({value,error:''});};
+ apis.Panel.customInlineBlur=function(){
+  const edit=this._customInlineEdit;if(!edit||edit.busy||this._inputBusy)return;
+  if(!edit.value.trim()||edit.error){this.customInlineCancel();return;}
+  return this.customInlineCommit();
+ };
  apis.Panel.customInlineCommit=async function(){
   const edit=this._customInlineEdit;if(!edit||edit.busy||this._inputBusy)return;
   if(this._destroyed||this[edit.pane+'Path']!==edit.folder||(edit.pane==='remote'&&(!this.connected||this.sftpSession!==edit.session))){this.customInlineCancel();return;}

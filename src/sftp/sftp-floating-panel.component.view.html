@@ -5,9 +5,7 @@
       [class.workspace-mode]="displayMode === 'workspace'"
       [class.dragging]="panelDragging"
       [class.resizing]="panelResizing">
-      <div class="sftp-toast" *ngIf="toastMessage"
-        (mouseenter)="onToastMouseEnter()"
-        (mouseleave)="onToastMouseLeave()" role="alert"><span>{{ toastMessage }}</span><button type="button" title="Dismiss notification" aria-label="Dismiss notification" (mousedown)="$event.preventDefault(); $event.stopPropagation()" (click)="dismissToast()">×</button></div>
+      <div class="sftp-toast" *ngIf="toastMessage" role="alert">{{ toastMessage }}</div>
 
       <div class="resize-layer" *ngIf="displayMode !== 'workspace' && panelDraggable && !panelMaximized">
         <div class="resize-handle rh-n" (mousedown)="onResizeStart($event, 'n')"></div>

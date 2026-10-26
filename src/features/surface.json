@@ -158,6 +158,7 @@
     "customInlineCancel",
     "customInlineValue",
     "customInlineCommit",
+    "customInlineBlur",
     "_customTraceClipboard",
     "_customTraceTransfer",
     "_customTraceQueueEntry"

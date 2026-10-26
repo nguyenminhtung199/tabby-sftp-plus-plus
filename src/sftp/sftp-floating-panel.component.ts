@@ -6520,14 +6520,12 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     if (this.toastTimer) clearTimeout(this.toastTimer)
     this.toastTimer = null
     this.toastMessage = ''
-    this._toastHovering = false
   }
 
   showToast(message: string, ms?: number): void {
     this.toastMessage = message
     const base = ms ?? (message.length > 40 ? 4500 : 2200)
-    this._toastDurationMs = base
-    this._toastHovering = false
+    this._toastDurationMs = Math.max(1500, Math.min(5000, base))
     this._armToastDismiss()
     try { this._safeDetect() } catch {}
   }
@@ -6540,26 +6538,11 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     }
   }
 
-  onToastMouseEnter(): void {
-    this._toastHovering = true
-    if (this.toastTimer) {
-      clearTimeout(this.toastTimer)
-      this.toastTimer = null
-    }
-  }
-
-  onToastMouseLeave(): void {
-    this._toastHovering = false
-    if (this.toastMessage) this._armToastDismiss()
-  }
-
   private _toastDurationMs = 2200
-  private _toastHovering = false
 
   private _armToastDismiss(): void {
     if (this.toastTimer) clearTimeout(this.toastTimer)
     this.toastTimer = setTimeout(() => {
-      if (this._toastHovering) return
       this.toastMessage = ''
       this.toastTimer = null
       try { this._safeDetect() } catch {}
@@ -7816,6 +7799,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
   _customInlineUpdate(...args: any[]): any { return invokeFeature("Panel","_customInlineUpdate",this,args) }
   customInlineCancel(...args: any[]): any { return invokeFeature("Panel","customInlineCancel",this,args) }
   customInlineValue(...args: any[]): any { return invokeFeature("Panel","customInlineValue",this,args) }
+  customInlineBlur(...args: any[]): any { return invokeFeature("Panel","customInlineBlur",this,args) }
   customInlineCommit(...args: any[]): any { return invokeFeature("Panel","customInlineCommit",this,args) }
   get _customTraceClipboard(): any { const fn=featureApis.Panel?._customTraceClipboard; return typeof fn === "function" ? fn.bind(this) : undefined }
   get _customTraceTransfer(): any { const fn=featureApis.Panel?._customTraceTransfer; return typeof fn === "function" ? fn.bind(this) : undefined }

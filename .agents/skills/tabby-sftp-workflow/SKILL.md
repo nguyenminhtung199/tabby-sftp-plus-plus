@@ -59,7 +59,7 @@ description: Use before code changes, npm commands, tests or plugin operations i
 
 - The plugin uses only locale/en-US.po. Remove language pickers and language import/export options; do not detect or change the host language. SftpI18nService retains its caller facade and ignores legacy locale-setting requests. Legacy stored language keys are ignored.
 - Keep code comments and user-visible fallback text in English. Non-English historical comments were removed with AST checks rather than replacing code text blindly. Pinyin boundary data and Unicode terminal fixtures remain escaped so arbitrary Unicode filenames and terminal input still work. Do not remove Unicode handling when cleaning language.
-- Toasts are positioned 16px above the panel bottom with their existing dismiss/pause behavior. Avoid later top-position overrides. test-english-source.cjs checks catalogs, old locale settings, interpolation, settings/export choices and source/bundle text; Electron tests verify actual toast geometry.
+- Toasts are positioned 16px above the panel bottom, expire automatically after 2-5 seconds, have no close button and do not pause when hovered. Avoid later top-position overrides. test-english-source.cjs checks catalogs, old locale settings, interpolation, settings/export choices and source/bundle text; Electron tests verify actual toast geometry.
 
 ## Explorer collision batches and folder progress
 
@@ -98,3 +98,10 @@ description: Use before code changes, npm commands, tests or plugin operations i
 - File icon theme resolution is memoized per pane and filename with a bounded 1,024-name cache. Icon directories/rules/disabled icons, cell revision and _iconResolutionRevision invalidate it. Repeated customSetiPython/iconSrc calls during selection must not rescan theme suffixes. Keep .txt and user icon rules unchanged.
 - Click bookkeeping timers run outside Angular; do not add a second application tick 250ms after every selection. syncPaneSelectionVisual changes only rows whose selected class differs.
 - test-selection-performance.cjs verifies icon resolution reuse/invalidation, 40 live frames without full-panel rendering, visible-only lookup for 50,000 models, one release commit and full-range Shift selection. Electron tests enable real icon rules and use production selectLocal callbacks for Ctrl/Shift selections with both large panes mounted, preserving page identity and visible selection.
+
+
+## Inline names and transient notifications
+
+- Rename/new-file/new-folder inputs have no close button. Enter commits; Escape cancels. customInlineBlur commits a valid nonempty name, dismisses an empty draft and lets an existing failed-name edit be abandoned without retrying it. Busy operations remain guarded. Keep both flat/grouped rows and draft rows on the same blur handler.
+- Notifications have no close button or hover handlers. showToast preserves short/long defaults and clamps custom durations to 1.5-5 seconds; replacing one cancels its old timer. Preserve bottom positioning. Do not restore hover-paused persistent toasts.
+- test-inline-edit.cjs uses real filesystem operations for blur rename/create and empty/error dismissal; test-inline-toast-dismissal.cjs checks all three input layouts and timer replacement/expiry. Electron tests use blur events for failed-name dismissal and verify a hovered notification disappears automatically. The hidden Electron window can change document.activeElement via input.blur() without emitting blur, so dispatch the FocusEvent explicitly in that fixture.
