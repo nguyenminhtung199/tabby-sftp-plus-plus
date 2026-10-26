@@ -65,6 +65,7 @@ export class PanelRubberBand {
   private _rbElPaths: string[] = []
   private _rbOffPageSelected: any[] = []
   private _rbEntrySource: any[] | null = null
+  private _rbEntryPathSource: string[] | null = null
   private _rbEntriesByPath = new Map<string, any>()
   private _rbPaneListEl: HTMLElement | null = null
   private _rbPaneListRect: DOMRect | null = null
@@ -250,7 +251,7 @@ export class PanelRubberBand {
       if (!this.rubberBand.active) return
       this._rbUpdateRectEl()
       this._rbApplyLiveSelectionFromRect()
-      this.host.zone.run(() => { try { this.host.cdr.detectChanges() } catch {} })
+      // Live row classes already changed above; commit the Angular view on mouseup.
     })
   }
 
@@ -356,6 +357,7 @@ export class PanelRubberBand {
     this._rbElPaths = []
     this._rbOffPageSelected = []
     this._rbEntrySource = null
+    this._rbEntryPathSource = null
     this._rbEntriesByPath.clear()
     this._rbPaneListEl = null
     this._rbPaneListRect = null
@@ -556,9 +558,12 @@ export class PanelRubberBand {
   }
 
   private _rbLookupEntries(source: any[]): Map<string, any> {
-    if (source !== this._rbEntrySource) {
+    if (source !== this._rbEntrySource || this._rbEntryPathSource !== this._rbElPaths) {
       this._rbEntrySource = source
-      this._rbEntriesByPath = new Map(source.map(e => [e.fullPath, e]))
+      this._rbEntryPathSource = this._rbElPaths
+      const visible = new Set(this._rbElPaths)
+      this._rbEntriesByPath = new Map()
+      for (const entry of source) if (visible.has(entry.fullPath)) this._rbEntriesByPath.set(entry.fullPath, entry)
     }
     return this._rbEntriesByPath
   }

@@ -3791,8 +3791,8 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     const paths = pane === 'local' ? this._localSelectedPaths : this._remoteSelectedPaths
     listEl.querySelectorAll('.entry[data-path]').forEach(el => {
       const p = el.getAttribute('data-path')
-      if (p && paths.has(p)) el.classList.add('selected')
-      else el.classList.remove('selected')
+      const selected = !!p && paths.has(p)
+      if (el.classList.contains('selected') !== selected) el.classList.toggle('selected', selected)
     })
   }
 
@@ -4167,10 +4167,10 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     }
     if (side === 'local') {
       if (this.localClickTimer) { clearTimeout(this.localClickTimer); this.localClickTimer = null }
-      this.localClickTimer = setTimeout(() => { this.localClickTimer = null }, 250)
+      this.localClickTimer = this.zone.runOutsideAngular(() => setTimeout(() => { this.localClickTimer = null }, 250))
     } else {
       if (this.remoteClickTimer) { clearTimeout(this.remoteClickTimer); this.remoteClickTimer = null }
-      this.remoteClickTimer = setTimeout(() => { this.remoteClickTimer = null }, 250)
+      this.remoteClickTimer = this.zone.runOutsideAngular(() => setTimeout(() => { this.remoteClickTimer = null }, 250))
     }
     selectFn()
   }

@@ -25,6 +25,21 @@ module.exports = function installFileIcons({apis,FilePane,theme={names:{},extens
         if(rule?.svg&&!(this.disabledIconSvgs||[]).includes(rule.svg)&&this._refreshValidIconFiles().has(rule.svg))return original.call(this,entry);
         return 'file://'+path.join(this.bundledIconDir,icon);
     };
+    // Selection changes must not re-run the theme's filename/suffix search for every binding.
+    const resolvedIcon=apis.FilePane.iconSrc,caches=new WeakMap();
+    const inputs=['bundledIconDir','iconBaseDir','fileTypeIcons','disabledIconSvgs','cellRevision','_iconResolutionRevision'];
+    apis.FilePane.iconSrc=function(entry){
+        if(!entry||entry.isDirectory)return resolvedIcon.call(this,entry);
+        let state=caches.get(this);
+        if(!state||inputs.some((key,index)=>state.inputs[index]!==this[key])){
+            state={inputs:inputs.map(key=>this[key]),names:new Map()};caches.set(this,state);
+        }
+        const name=path.basename(entry.linkTarget&&!entry.isSymlink?entry.linkTarget:entry.name||'').toLowerCase();
+        if(state.names.has(name))return state.names.get(name);
+        const result=resolvedIcon.call(this,entry);
+        if(state.names.size>=1024)state.names.delete(state.names.keys().next().value);
+        state.names.set(name,result);return result;
+    };
     apis.FilePane.customSetiPython=function(entry){
         if(!entry || entry.isDirectory)return false;
         return /(?:^|[\\/])(?:python|vscode_python)\.svg$/.test(this.iconSrc(entry)||'');

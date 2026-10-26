@@ -129,7 +129,10 @@ export class SftpFilePaneComponent {
   private _iconSrcMemo = new Map<string, string | null>()
   private _folderIconMemo: { v: string | null } | null = null
 
+  private _iconResolutionRevision = 0
+
   private _clearIconMemo(): void {
+    this._iconResolutionRevision++
     this._iconSrcMemo.clear()
     this._folderIconMemo = null
   }
@@ -463,7 +466,7 @@ export class SftpFilePaneComponent {
     if (changes.navigationReturnPath && this.navigationReturnPath) this.revealListKey(this.navigationReturnPath)
     if (changes.navFocusKey && this.navFocusKey) this.revealListKey(this.navFocusKey)
     if (this.customInlineEdit?.originalPath) this.revealListKey(this.customInlineEdit.originalPath)
-    this.rebuildListPage()
+    if (changes.entries || changes.groupRows || changes.pathInput || changes.filterActive || changes.sortBy || changes.sortAsc || changes.navigationReturnPath || changes.navFocusKey || changes.customInlineEdit) this.rebuildListPage()
 
     if (changes.pathInput && !this._pathFocused) {
       this.pathModel = this.pathInput

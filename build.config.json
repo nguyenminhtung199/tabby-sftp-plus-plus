@@ -24,6 +24,7 @@
     "test-explorer-collisions.cjs",
     "test-conflict-preflight.cjs",
     "test-transfer-performance.cjs",
-    "test-remote-drag-hover.cjs"
+    "test-remote-drag-hover.cjs",
+    "test-selection-performance.cjs"
   ]
 }
