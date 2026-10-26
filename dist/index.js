@@ -2103,7 +2103,7 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
         this.platformService = platformService;
         this.hostApp = hostApp;
         this.pkgVersion = (__webpack_require__(/*! ../../package.json */ "./package.json").version);
-        this.pkgBuildTime =  true ? "2026-10-26T02:53:46.628Z" : 0;
+        this.pkgBuildTime =  true ? "2026-10-26T03:09:49.284Z" : 0;
         this.themeLabelKeys = {
             '': 'theme.auto',
             dark: 'theme.dark',
@@ -6190,6 +6190,7 @@ class PanelRubberBand {
         this._rbElPaths = [];
         this._rbOffPageSelected = [];
         this._rbEntrySource = null;
+        this._rbEntryPathSource = null;
         this._rbEntriesByPath = new Map();
         this._rbPaneListEl = null;
         this._rbPaneListRect = null;
@@ -6355,10 +6356,7 @@ class PanelRubberBand {
                 return;
             this._rbUpdateRectEl();
             this._rbApplyLiveSelectionFromRect();
-            this.host.zone.run(() => { try {
-                this.host.cdr.detectChanges();
-            }
-            catch (_a) { } });
+            // Live row classes already changed above; commit the Angular view on mouseup.
         });
     }
     _rbOnMouseUp(event) {
@@ -6468,6 +6466,7 @@ class PanelRubberBand {
         this._rbElPaths = [];
         this._rbOffPageSelected = [];
         this._rbEntrySource = null;
+        this._rbEntryPathSource = null;
         this._rbEntriesByPath.clear();
         this._rbPaneListEl = null;
         this._rbPaneListRect = null;
@@ -6662,9 +6661,14 @@ class PanelRubberBand {
         return hitIndices;
     }
     _rbLookupEntries(source) {
-        if (source !== this._rbEntrySource) {
+        if (source !== this._rbEntrySource || this._rbEntryPathSource !== this._rbElPaths) {
             this._rbEntrySource = source;
-            this._rbEntriesByPath = new Map(source.map(e => [e.fullPath, e]));
+            this._rbEntryPathSource = this._rbElPaths;
+            const visible = new Set(this._rbElPaths);
+            this._rbEntriesByPath = new Map();
+            for (const entry of source)
+                if (visible.has(entry.fullPath))
+                    this._rbEntriesByPath.set(entry.fullPath, entry);
         }
         return this._rbEntriesByPath;
     }
@@ -8201,6 +8205,7 @@ let SftpFilePaneComponent = class SftpFilePaneComponent {
         this._validIconDirCache = '';
         this._iconSrcMemo = new Map();
         this._folderIconMemo = null;
+        this._iconResolutionRevision = 0;
         this.pathInputChange = new _angular_core__WEBPACK_IMPORTED_MODULE_1__.EventEmitter();
         this.pathEnter = new _angular_core__WEBPACK_IMPORTED_MODULE_1__.EventEmitter();
         this.pathBlur = new _angular_core__WEBPACK_IMPORTED_MODULE_1__.EventEmitter();
@@ -8296,6 +8301,7 @@ let SftpFilePaneComponent = class SftpFilePaneComponent {
         return this._refreshValidIconFiles().has(svg);
     }
     _clearIconMemo() {
+        this._iconResolutionRevision++;
         this._iconSrcMemo.clear();
         this._folderIconMemo = null;
     }
@@ -8601,7 +8607,8 @@ let SftpFilePaneComponent = class SftpFilePaneComponent {
             this.revealListKey(this.navFocusKey);
         if ((_a = this.customInlineEdit) === null || _a === void 0 ? void 0 : _a.originalPath)
             this.revealListKey(this.customInlineEdit.originalPath);
-        this.rebuildListPage();
+        if (changes.entries || changes.groupRows || changes.pathInput || changes.filterActive || changes.sortBy || changes.sortAsc || changes.navigationReturnPath || changes.navFocusKey || changes.customInlineEdit)
+            this.rebuildListPage();
         if (changes.pathInput && !this._pathFocused) {
             this.pathModel = this.pathInput;
         }
@@ -23451,10 +23458,9 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
         const paths = pane === 'local' ? this._localSelectedPaths : this._remoteSelectedPaths;
         listEl.querySelectorAll('.entry[data-path]').forEach(el => {
             const p = el.getAttribute('data-path');
-            if (p && paths.has(p))
-                el.classList.add('selected');
-            else
-                el.classList.remove('selected');
+            const selected = !!p && paths.has(p);
+            if (el.classList.contains('selected') !== selected)
+                el.classList.toggle('selected', selected);
         });
     }
     _stripSelectionVisual(side, prevPaths) {
@@ -23854,14 +23860,14 @@ let SftpFloatingPanel = SftpFloatingPanel_1 = class SftpFloatingPanel extends _c
                 clearTimeout(this.localClickTimer);
                 this.localClickTimer = null;
             }
-            this.localClickTimer = setTimeout(() => { this.localClickTimer = null; }, 250);
+            this.localClickTimer = this.zone.runOutsideAngular(() => setTimeout(() => { this.localClickTimer = null; }, 250));
         }
         else {
             if (this.remoteClickTimer) {
                 clearTimeout(this.remoteClickTimer);
                 this.remoteClickTimer = null;
             }
-            this.remoteClickTimer = setTimeout(() => { this.remoteClickTimer = null; }, 250);
+            this.remoteClickTimer = this.zone.runOutsideAngular(() => setTimeout(() => { this.remoteClickTimer = null; }, 250));
         }
         selectFn();
     }
@@ -31650,6 +31656,21 @@ module.exports = function installFileIcons({apis,FilePane,theme={names:{},extens
         if(rule?.svg&&!(this.disabledIconSvgs||[]).includes(rule.svg)&&this._refreshValidIconFiles().has(rule.svg))return original.call(this,entry);
         return 'file://'+path.join(this.bundledIconDir,icon);
     };
+    // Selection changes must not re-run the theme's filename/suffix search for every binding.
+    const resolvedIcon=apis.FilePane.iconSrc,caches=new WeakMap();
+    const inputs=['bundledIconDir','iconBaseDir','fileTypeIcons','disabledIconSvgs','cellRevision','_iconResolutionRevision'];
+    apis.FilePane.iconSrc=function(entry){
+        if(!entry||entry.isDirectory)return resolvedIcon.call(this,entry);
+        let state=caches.get(this);
+        if(!state||inputs.some((key,index)=>state.inputs[index]!==this[key])){
+            state={inputs:inputs.map(key=>this[key]),names:new Map()};caches.set(this,state);
+        }
+        const name=path.basename(entry.linkTarget&&!entry.isSymlink?entry.linkTarget:entry.name||'').toLowerCase();
+        if(state.names.has(name))return state.names.get(name);
+        const result=resolvedIcon.call(this,entry);
+        if(state.names.size>=1024)state.names.delete(state.names.keys().next().value);
+        state.names.set(name,result);return result;
+    };
     apis.FilePane.customSetiPython=function(entry){
         if(!entry || entry.isDirectory)return false;
         return /(?:^|[\\/])(?:python|vscode_python)\.svg$/.test(this.iconSrc(entry)||'');
@@ -33306,7 +33327,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"names":{"mix":"vscode_hex.svg","karm
 (module) {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.20","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off","test:terminal":"node test-native-terminal.cjs","test:screen":"node test-screen-terminal.cjs"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.21","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off","test:terminal":"node test-native-terminal.cjs","test:screen":"node test-screen-terminal.cjs"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
 
 /***/ },
 
