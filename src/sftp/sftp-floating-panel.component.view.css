@@ -673,6 +673,11 @@
       width: max-content;
       min-width: 100%;
     }
+    /* Unused space after the last column belongs to the current directory. */
+    .sftp-root .entry[data-path],
+    .sftp-root .entry.custom-inline-draft,
+    .sftp-root .entry.group-row { min-width: 0; }
+
     .sftp-root .entry > span {
       padding: 3px 0;
 
