@@ -158,7 +158,7 @@ function panel(){const p=Object.create(Panel.prototype);Object.assign(p,{context
  exists.sftpSession.readdir=async()=>{throw Error('permission denied');};await assert.rejects(exists._remoteEntryExists('/folder','missing.txt'),/permission denied/);
  for(const [action,method] of Object.entries({newFolder:'ctxNewFolder',newFile:'ctxNewFile',rename:'ctxRename',delete:'ctxDelete',openLocal:'ctxOpenLocal',upload:'ctxUpload',revealInExplorer:'ctxRevealInExplorer',chmod:'ctxChmod',details:'ctxDetails',copy:'ctxClipboardCopy',cut:'ctxClipboardCut',paste:'ctxClipboardPaste',refresh:'ctxRefresh',selectAll:'ctxSelectAll',selectInvert:'ctxSelectInvert',copyPath:'ctxCopyPath'})){
   const command=panel();let calls=0;command[method]=async()=>{calls++;throw Error('fixture '+action);};
-  assert.equal(await command.onContextMenuAction(action),false);assert.equal(calls,1);assert.match(command.toast,/fixture/);
+  assert.equal(await command.onContextMenuAction(action),false);assert.equal(calls,1);assert.match(action==='rename'?command.operationError.messages.join(' '):command.toast,/fixture/);
  }
 
 

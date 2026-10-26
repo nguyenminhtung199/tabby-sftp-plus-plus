@@ -81,7 +81,7 @@ export interface PastePendingPort {
 export interface PasteUiPort {
   refreshLocal(): Promise<void>
   refreshRemote(): Promise<unknown>
-  notifyPasteFailed(): void
+  notifyPasteFailed(details?: string[]): void
   hasSftpSession(): boolean
 }
 
@@ -218,6 +218,7 @@ export class PasteUseCase {
   ): Promise<void> {
 
     let failed = 0
+    const failureDetails: string[] = []
     for (const entry of entries) {
       try {
         if (resolvedKeys.has(pasteEntryKey(entry)) || entry.batch?.cancelled) continue
@@ -243,6 +244,7 @@ export class PasteUseCase {
       } catch (e) {
         failed++
         log.error('Paste entry failed:', entry.name, e)
+        if (failureDetails.length < 8) failureDetails.push(entry.name + ': ' + String((e as any)?.message || e))
       }
     }
     try {
@@ -252,7 +254,7 @@ export class PasteUseCase {
       log.warn('Paste post-refresh failed:', e)
     }
     if (failed > 0) {
-      this.ports.ui.notifyPasteFailed()
+      this.ports.ui.notifyPasteFailed(failureDetails)
     }
   }
 
@@ -381,6 +383,7 @@ export class PasteUseCase {
 }
 
 export interface PanelPasteHost {
+  reportError?(message:string):void
   sftpSession: unknown
 
   sshSession?: unknown
@@ -575,9 +578,9 @@ export class PanelPasteAdapter {
       ui: {
         refreshLocal: () => host.refreshLocal(),
         refreshRemote: () => host.refreshRemote(),
-        notifyPasteFailed: () => {
-          const msg = host.i18n.t('notify.pasteFailed')
-          try { host.notifications?.error?.(msg, '') } catch {}
+        notifyPasteFailed: (details) => {
+          const msg = host.i18n.t('notify.pasteFailed') + (details?.length ? '\n' + details.join('\n') : '')
+          if(host.reportError)host.reportError(msg);else try { host.notifications?.error?.(msg, '') } catch {}
         },
         hasSftpSession: () => !!host.sftpSession,
       },

@@ -1517,6 +1517,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       resolveDropDestDir: (ev, side) => panel._resolveDropDestDir(ev, side),
     })
     this._fileDropRuntime = new PanelDropAdapter({
+      reportError: message => panel.showOperationError(message),
       cdr: this.cdr,
       markViewDirty: () => panel._safeDetect(),
 
@@ -1646,6 +1647,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       get effectiveLang() { return panel.effectiveLang },
       get i18n() { return panel.i18n },
       get notifications() { return panel.notifications },
+      reportError: (message) => panel.showOperationError(message),
       scanLocalDir: (p) => panel._scanLocalDir(p),
       uploadFile: (remotePath, localPath) => panel._doUpload(remotePath, localPath),
       downloadFile: (remotePath, localPath, mode, size) =>
@@ -1689,7 +1691,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
           } catch(error:any) { if (!['ENOENT','ENOTEMPTY','EEXIST'].includes(error.code) && !/no such file|not empty/i.test(error.message)) throw error }
         }
       },
-      notifyConflictError: (name, error) => this.showToast('Could not complete ' + name + ': ' + String((error as any)?.message || error), 7000),
+      notifyConflictError: (name, error) => this.showOperationError('Could not complete ' + name + ': ' + String((error as any)?.message || error)),
       onConflictResolved: (item, action) => {
         if (item.transferCtx) return
         const queued = this.transfers.filter(row => row.queued && row.remotePath === item.remotePath && row.localPath === item.localPath)
@@ -2209,6 +2211,8 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
   }
 
   _base_ngOnDestroy(): void {
+    if (this._operationErrorFocusTimer) clearTimeout(this._operationErrorFocusTimer)
+    this.operationError = null
     if (this._folderProgressDetect) clearTimeout(this._folderProgressDetect)
     this._stopPluginUpdates?.()
     this._destroyed = true
@@ -5013,28 +5017,29 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
   private async _moveDroppedEntries(payload: DragPayload, side: 'local' | 'remote', dest: string): Promise<void> {
     if (payload.sourceScope !== this._dropTmpScope ||
         (side === 'remote' && (!this.connected || !this.sftpSession || this._remoteDragSession !== this.sftpSession))) {
-      this.showToast('Drag again from this file pane to move files.'); return
+      this.showOperationError('Drag again from this file pane to move files.'); return
     }
     if (this._internalMoveBusy || this._conflictQueue.length || this.showConflictDialog) {
-      this.showToast('Resolve the current file conflict before moving more files.'); return
+      this.showOperationError('Resolve the current file conflict before moving more files.'); return
     }
     const api = side === 'local' ? path : path.posix
     const entries = payload.paths.map(e => ({ ...e, fullPath: 'fullPath' in e ? e.fullPath : e.remotePath }))
       .filter(e => api.resolve(api.dirname(e.fullPath)) !== api.resolve(dest))
     const recursive = entries.find(e => e.isDirectory && isPathInside(e.fullPath, api.join(dest, e.name), side === 'remote'))
-    if (recursive) { this.showToast(this.i18n.t('op.cannotCopyIntoSelf', { name: recursive.name })); return }
+    if (recursive) { this.showOperationError(this.i18n.t('op.cannotCopyIntoSelf', { name: recursive.name })); return }
     if (!entries.length) return
     this._internalMoveBusy = true
     try { await this._pasteAdapter.paste(entries, side, dest, 'cut', side) }
     catch (error) {
       log.error('[drop] Internal move failed:', side, dest, error)
-      this.showToast(this.i18n.t('notify.pasteFailed'))
+      this.showOperationError(this.i18n.t('notify.pasteFailed') + ': ' + String((error as any)?.message || error))
     } finally { this._internalMoveBusy = false }
   }
 
   async _base_onDrop(ev: DragEvent, targetPane: 'local' | 'remote'): Promise<void> {
     const destDir = this._resolveDropDestDir(ev, targetPane)
-    await this._fileDropRuntime.onDrop(ev, targetPane, destDir)
+    try { await this._fileDropRuntime.onDrop(ev, targetPane, destDir) }
+    catch (error) { log.error('Drop failed', error); this.showOperationError('Could not complete the drop: ' + String((error as any)?.message || error)) }
   }
 
   private _resolveDropDestDir(ev: DragEvent, targetPane: 'local' | 'remote'): string | undefined {
@@ -5391,15 +5396,15 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
         localPath: string,
         logOperation?: 'upload' | 'download' | 'edit-upload' | 'edit-download',
       ) => this.trackTransfer(t, direction, remotePath, localPath, logOperation as any),
-      onUploadError: (_remotePath: string, localPath: string) => {
+      onUploadError: (_remotePath: string, localPath: string, error: unknown) => {
         const name = path.basename(localPath)
-        const msg = this.i18n.t('notify.uploadFailed', { name })
-        try { this.notifications?.error?.(msg, '') } catch { /* ignore */ }
+        const msg = this.i18n.t('notify.uploadFailed', { name }) + '\n' + String((error as any)?.message || error)
+        this.showOperationError(msg)
       },
-      onDownloadError: (remotePath: string) => {
+      onDownloadError: (remotePath: string, error: unknown) => {
         const name = path.basename(remotePath)
-        const msg = this.i18n.t('notify.downloadFailed', { name })
-        try { this.notifications?.error?.(msg, '') } catch { /* ignore */ }
+        const msg = this.i18n.t('notify.downloadFailed', { name }) + '\n' + String((error as any)?.message || error)
+        this.showOperationError(msg)
       },
     }
   }
@@ -6094,7 +6099,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     if (mode !== 'remote-chmod' && !val) {
       const message = this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name'
       if (this._customInlineEdit) this._customInlineUpdate({ error: message })
-      this.showToast(message, 3000)
+      this._reportInputFailure(message)
       return
     }
 
@@ -6103,7 +6108,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       switch (mode) {
         case 'local-mkdir': {
           const existing = safeJoinUnder(tp!, val, false)
-          if (!existing) { this.showToast(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name', 3000); break }
+          if (!existing) { this._reportInputFailure(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name'); break }
           let exType: 'file' | 'dir' | null = null
           try { const st = await fs.stat(existing); exType = st.isDirectory() ? 'dir' : 'file' } catch {   }
           if (exType === 'dir') { this._showInputConflict('dir-dup', val); break }
@@ -6112,7 +6117,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
         }
         case 'local-rename': {
           const newPath = safeJoinUnder(this.localPath, val, false)
-          if (!newPath) { this.showToast(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name', 3000); break }
+          if (!newPath) { this._reportInputFailure(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name'); break }
           const sameLocalFile = process.platform === 'win32' && path.resolve(newPath).toLowerCase() === path.resolve(tp!).toLowerCase()
             && await fs.stat(tp!, { bigint: true }).then(async source => { const target = await fs.stat(newPath, { bigint: true }).catch(() => null); return !!target && source.ino !== BigInt(0) && source.ino === target.ino && source.dev === target.dev })
           if (newPath !== tp && !sameLocalFile) {
@@ -6126,7 +6131,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
         case 'remote-mkdir': {
           if (!this.sftpSession) return
           const dest = safeJoinUnder(tp!, val, true)
-          if (!dest) { this.showToast(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name', 3000); break }
+          if (!dest) { this._reportInputFailure(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name'); break }
           const r = await this._remoteEntryExists(tp!, val)
           if (r.isDirectory) { this._showInputConflict('dir-dup', val); break }
           if (r.exists) { this._showInputConflict('file-when-mkdir', val); break }
@@ -6134,7 +6139,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
         }
         case 'local-touch': {
           const newPath = safeJoinUnder(tp!, val, false)
-          if (!newPath) { this.showToast(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name', 3000); break }
+          if (!newPath) { this._reportInputFailure(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name'); break }
           let exType: 'file' | 'dir' | null = null
           try { const st = await fs.stat(newPath); exType = st.isDirectory() ? 'dir' : 'file' } catch {   }
           if (exType === 'dir') { this._showInputConflict('dir-when-touch', val); break }
@@ -6153,7 +6158,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
         case 'remote-rename': {
           if (!this.sftpSession) return
           const newPath = safeJoinUnder(this.remotePath, val, true)
-          if (!newPath) { this.showToast(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name', 3000); break }
+          if (!newPath) { this._reportInputFailure(this.i18n.t('op.failed', { reason: 'invalid name' }) || 'Invalid name'); break }
           if (newPath !== rp) {
             const r = await this._remoteEntryExists(this.remotePath, val)
             if (r.isDirectory) { this._showInputConflict('dir-dup', val); break }
@@ -6175,15 +6180,15 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       const mode = this.inputDialogMode || ''
 
       if (mode.includes('rename')) {
-        this.showToast(this.i18n.t('op.renameFailed', { reason }), 4000)
+        this._reportInputFailure(this.i18n.t('op.renameFailed', { reason }))
       } else if (mode.includes('mkdir')) {
-        this.showToast(this.i18n.t('op.mkdirFailed', { reason }), 4000)
+        this._reportInputFailure(this.i18n.t('op.mkdirFailed', { reason }))
       } else if (mode.includes('touch')) {
-        this.showToast(this.i18n.t('op.touchFailed', { reason }), 4000)
+        this._reportInputFailure(this.i18n.t('op.touchFailed', { reason }))
       } else if (mode.includes('chmod')) {
-        this.showToast(this.i18n.t('op.chmodFailed', { reason }), 4000)
+        this._reportInputFailure(this.i18n.t('op.chmodFailed', { reason }))
       } else {
-        this.showToast(this.i18n.t('op.failed', { reason }), 4000)
+        this._reportInputFailure(this.i18n.t('op.failed', { reason }))
       }
     } finally {
       this._inputBusy = false
@@ -6197,8 +6202,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       : 'input.dirWhenTouch'
 
     const message = this.i18n.t(key, { val })
-    if (this._customInlineEdit) this._customInlineUpdate({ error: message })
-    this.showToast(message, 3000)
+    this._reportInputFailure(message)
   }
 
   async _base_confirmDelete(): Promise<void> {
@@ -6514,6 +6518,43 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
   private _notifyPathCopied(count: number): void {
     this.showToast(this.i18n.t('notify.pathCopied', { n: count }))
+  }
+
+  operationError: { messages: string[]; hasMore: boolean } | null = null
+  private _operationErrorFocusTimer: ReturnType<typeof setTimeout> | null = null
+
+  showOperationError(message: string): void {
+    if (this._destroyed) return
+    const detail = String(message).trim().slice(0, 4000)
+    if (!detail) return
+    if (this.operationError?.messages.includes(detail)) return
+    if (this.operationError && this.operationError.messages.length >= 8) {
+      if (this.operationError.hasMore) return
+      this.operationError = { ...this.operationError, hasMore: true }
+    } else this.operationError = { messages: [...(this.operationError?.messages || []), detail], hasMore: false }
+    try { this._safeDetect() } catch { /* view may be disposing */ }
+    if (this._operationErrorFocusTimer) clearTimeout(this._operationErrorFocusTimer)
+    const focus = () => { this._operationErrorFocusTimer = null; if (this._destroyed || !this.operationError) return; this.elRef?.nativeElement?.querySelector?.('.operation-error-ok')?.focus() }
+    if (this.zone?.runOutsideAngular) this.zone.runOutsideAngular(() => { this._operationErrorFocusTimer = setTimeout(focus, 0) })
+  }
+
+  acknowledgeOperationError(): void {
+    if (this._operationErrorFocusTimer) clearTimeout(this._operationErrorFocusTimer)
+    this._operationErrorFocusTimer = null
+    this.operationError = null
+    if (this._customInlineEdit && !this._customInlineEdit.busy) this._customInlineEdit = { ...this._customInlineEdit, focusRevision: (this._customInlineEdit.focusRevision || 0) + 1 }
+    try { this._safeDetect() } catch { /* view may be disposing */ }
+  }
+
+  onOperationErrorKey(event: KeyboardEvent): void {
+    event.stopPropagation()
+    if (event.key === 'Enter') { event.preventDefault(); this.acknowledgeOperationError() }
+    else if (event.key === 'Tab') { event.preventDefault(); this.elRef?.nativeElement?.querySelector?.('.operation-error-ok')?.focus() }
+  }
+
+  private _reportInputFailure(message: string): void {
+    if (this._customInlineEdit) this._customInlineUpdate({ error: this._customInlineEdit.error || message })
+    else this.showOperationError(message)
   }
 
   dismissToast(): void {
@@ -6901,6 +6942,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       }
     } catch (e) {
       log.error('Queued download failed for', item.file.fullPath, e)
+      this.showOperationError('Download failed: ' + item.file.name + '\n' + String((e as any)?.message || e))
     } finally {
 
       fileOperation.finish(item.entry.batch)
@@ -7135,6 +7177,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       }
     } catch (e) {
       log.error('Queued upload failed for', item.localPath, e)
+      this.showOperationError('Upload failed: ' + path.basename(item.localPath) + '\n' + String((e as any)?.message || e))
     } finally {
 
       fileOperation.finish(item.entry.batch)
@@ -7255,6 +7298,7 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
   private _isPanelModalOpen(): boolean {
     return !!(
+      this.operationError ||
       this.viewerVisible ||
       this.editorVisible ||
       this.deleteConfirmVisible ||

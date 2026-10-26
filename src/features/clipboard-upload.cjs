@@ -3,8 +3,8 @@ module.exports = function installClipboardUpload({apis,Panel, electron, stagingR
     const {Readable}=require('stream'),{pipeline}=require('stream/promises');
     const root=stagingRoot||path.join(process.env.APPDATA||path.join(os.homedir(),'.config'),'tabby','sftp-plus-plus','uploads');
     const editable=target=>!!target&&(target.isContentEditable||!!target.closest?.('input,textarea,select,[contenteditable="true"]'));
-    const blocked=p=>p._destroyed||!p.connected||!p.sftpSession||p.inputDialogVisible||p.deleteConfirmVisible||p.showConflictDialog||p.showPermDialog||p.cwdSetupVisible||p.detailsVisible||p.showTransferLog;
-    const notice=(p,error)=>p.showToast?.('Upload failed: '+error.message);
+    const blocked=p=>p._destroyed||p.operationError||!p.connected||!p.sftpSession||p.inputDialogVisible||p.deleteConfirmVisible||p.showConflictDialog||p.showPermDialog||p.cwdSetupVisible||p.detailsVisible||p.showTransferLog;
+    const notice=(p,error)=>p.showOperationError?p.showOperationError('Upload failed: '+error.message):p.showToast?.('Upload failed: '+error.message);
     const capture=event=>{event.preventDefault?.();event.stopImmediatePropagation?.();event.stopPropagation?.();};
     const image=()=>{try{const value=electron?.clipboard?.readImage();return value&&!value.isEmpty()?value:null;}catch{return null;}};
     const outside=(panel,fn)=>panel.zone?.runOutsideAngular?panel.zone.runOutsideAngular(fn):fn();

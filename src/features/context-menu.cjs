@@ -50,7 +50,7 @@ module.exports = function installContextMenu({apis,Panel,Angular,Platform,Menu,R
     apis.Panel.onContextMenuAction=function(action){
         if(!['editFile','download','openWith','openTerminalHere','copyFileName'].includes(action)){
             const handlers={newFolder:'ctxNewFolder',newFile:'ctxNewFile',rename:'ctxRename',delete:'ctxDelete',openLocal:'ctxOpenLocal',upload:'ctxUpload',revealInExplorer:'ctxRevealInExplorer',chmod:'ctxChmod',details:'ctxDetails',copy:'ctxClipboardCopy',cut:'ctxClipboardCut',paste:'ctxClipboardPaste',refresh:'ctxRefresh',selectAll:'ctxSelectAll',selectInvert:'ctxSelectInvert',copyPath:'ctxCopyPath'};
-            const failed=error=>{try{if(!this._destroyed)this.showToast?.('Context menu action failed: '+(error?.message||String(error)),7000);}catch{}return false;};
+            const failed=error=>{try{if(!this._destroyed)(action==='rename'&&this.showOperationError?this.showOperationError:this.showToast)?.call(this,'Context menu action failed: '+(error?.message||String(error)));}catch{}return false;};
             try{const result=handlers[action]?this[handlers[action]]():dispatch.call(this,action);return result?.then?Promise.resolve(result).catch(failed):result;}catch(error){return failed(error);}
         }
         const pane=this.contextMenuPane,entry=this.contextMenuEntry;

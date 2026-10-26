@@ -99,6 +99,7 @@ export interface DropFilesystemPort {
 }
 
 export interface DropNotifyPort {
+  operationFailed?(name:string,error:unknown):void
   copyFailed(fileName: string): void
 }
 
@@ -188,6 +189,7 @@ export class DropUseCase {
           await this.ports.transfer.streamUploadOne(p.fullPath, remoteDir, batch)
         } catch (e) {
           log.error('Upload failed for', p.fullPath, e)
+          this.ports.notify.operationFailed?.(p.name,e)
         }
       }))
       if (this.ports.conflict.hasPendingConflicts()) {
@@ -208,6 +210,7 @@ export class DropUseCase {
           await this.ports.transfer.downloadRemoteEntry(p, localDir, batch)
         } catch (e) {
           log.error('Download failed for', p.remotePath, e)
+          this.ports.notify.operationFailed?.(p.name,e)
         }
       }))
       if (this.ports.conflict.hasPendingConflicts()) {
@@ -244,6 +247,7 @@ export class DropUseCase {
           await this.ports.transfer.streamUploadOne(p, remoteDir, batch)
         } catch (e) {
           log.error('Upload failed for', p, e)
+          this.ports.notify.operationFailed?.(path.basename(p),e)
         }
       }))
       if (this.ports.conflict.hasPendingConflicts()) {
@@ -263,6 +267,7 @@ export class DropUseCase {
 ﻿
 
 export interface PanelDropHost {
+  reportError?(message:string):void
   cdr: ChangeDetectorRef
   markViewDirty?(): void
   connected: boolean
@@ -346,6 +351,7 @@ export class PanelDropAdapter {
         copyIntoLocalDir: (sources, destDir) => host.copyLocalPaths ? host.copyLocalPaths(sources,destDir) : this._copyIntoLocalDir(sources, destDir),
       },
       notify: {
+        operationFailed: (name,error) => host.reportError?.('Could not transfer '+name+': '+String((error as any)?.message||error)),
         copyFailed: (fileName) => this._notifyCopyFailed(fileName),
       },
       dragState: {
@@ -380,7 +386,7 @@ export class PanelDropAdapter {
 
   private _notifyCopyFailed(fileName: string): void {
     const msg = this.host.i18n.t('notify.copyFailed', { name: fileName })
-    try { this.host.notifications?.error?.(msg, '') } catch {}
+    if(this.host.reportError)this.host.reportError(msg);else try { this.host.notifications?.error?.(msg, '') } catch {}
   }
 
   private async _copyIntoLocalDir(sources: string[], destDir: string): Promise<void> {

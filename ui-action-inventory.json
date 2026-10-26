@@ -1,8 +1,9 @@
 [
   {
     "selector": "sftp-plus-panel",
-    "eventCount": 206,
+    "eventCount": 217,
     "actions": [
+      "acknowledgeOperationError",
       "addBookmark",
       "applyLocalFilter",
       "applyRemoteFilter",
@@ -58,6 +59,7 @@
       "onLocalPaneNav",
       "onLocalPathBlur",
       "onLocalSort",
+      "onOperationErrorKey",
       "onPaneContextMenu",
       "onPaneListClick",
       "onPaneMouseDown",

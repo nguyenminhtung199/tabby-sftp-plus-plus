@@ -17,6 +17,13 @@
         <div class="resize-handle rh-se" (mousedown)="onResizeStart($event, 'se')"></div>
         <div class="resize-handle rh-sw" (mousedown)="onResizeStart($event, 'sw')"></div>
       </div>
+      <div class="operation-error-overlay" *ngIf="operationError" (mousedown)="$event.stopPropagation()" (click)="$event.stopPropagation()" (dragover)="$event.preventDefault(); $event.stopPropagation()" (drop)="$event.preventDefault(); $event.stopPropagation()" (keydown)="onOperationErrorKey($event)">
+        <div class="operation-error-dialog" role="alertdialog" aria-modal="true" aria-label="File operation failed">
+          <strong>File operation failed</strong>
+          <div class="operation-error-details"><p *ngFor="let message of operationError.messages">{{ message }}</p><p *ngIf="operationError.hasMore">More errors occurred. See transfer history for details.</p></div>
+          <button type="button" class="operation-error-ok" (click)="acknowledgeOperationError()">OK</button>
+        </div>
+      </div>
       <div class="sftp-main">
 
       <div class="top-bar" [class.has-plugin-update]="pluginUpdate.available || pluginUpdate.restartRequired" (mousedown)="onTopBarMouseDown($event)" (contextmenu)="onTopBarContextMenu($event)">

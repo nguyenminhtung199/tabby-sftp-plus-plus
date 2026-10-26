@@ -4,7 +4,7 @@ const policy=require('../../transfer-policy.json').pluginUpdate;
 
 function panelHasWork(panel){
     if(panel._destroyed)return false;
-    if(panel._internalMoveBusy||panel._customSyncNowBusy||panel._conflictQueue?.length||panel._customInlineEdit||panel._inputBusy||panel._customImagePasteTask||panel._customDropActions?.size||panel._customActiveDrops)return true;
+    if(panel.operationError||panel._internalMoveBusy||panel._customSyncNowBusy||panel._conflictQueue?.length||panel._customInlineEdit||panel._inputBusy||panel._customImagePasteTask||panel._customDropActions?.size||panel._customActiveDrops)return true;
     if(panel._upQueue?.length||panel._dlQueue?.length||panel._upActiveCount||panel._dlActiveCount||panel._activeUploadTargets?.size||panel._activeDownloadTargets?.size)return true;
     if([...panel._customExternalSessions?.values?.()||[]].some(s=>s.busy||s.opening))return true;
     return (panel.transfers||[]).some(row=>{

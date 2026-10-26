@@ -26,7 +26,7 @@ module.exports=function installPasteSafety({apis,Panel}){
                 return await original.apply(this,args);
             }catch(error){
                 if(entries.length&&!this.clipboardEntries?.length){this.clipboardEntries=entries;this.clipboardSource=source;}
-                try{if(!this._destroyed)this.showToast?.('Paste failed: '+(error?.message||String(error)),7000);}catch{}
+                try{if(!this._destroyed)(this.showOperationError||this.showToast)?.call(this,'Paste failed: '+(error?.message||String(error)));}catch{}
                 return false;
             }finally{this._customPasteBusy=false;}
         };

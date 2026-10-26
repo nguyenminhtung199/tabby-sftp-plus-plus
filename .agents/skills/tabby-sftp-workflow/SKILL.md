@@ -111,3 +111,12 @@ description: Use before code changes, npm commands, tests or plugin operations i
 
 - File rows (data-path), inline draft rows and group rows use intrinsic grid width with min-width:0. Preserve configured pixel column widths; do not stretch their hit area to the pane width. The remaining space after the last visible column belongs to the pane-list, supporting deselection, blank-area context menus, rubber-band starts and drops into the current directory. Keep the column header full-width and retain horizontal scrolling when columns exceed the viewport.
 - Do not add a synthetic drop strip or per-row listeners to create this space. Electron layout tests mount production CSS and hit-test to the right of rows in both local and remote panes, with no extra columns, extra columns, grouped rows and wide overflowing columns. They verify selection clearing, current-directory context-menu state and blank drop routing.
+
+
+## Acknowledged file-operation errors
+
+- Drag/drop, move/copy/paste and inline-name failures use SftpFloatingPanel.showOperationError, a nonblocking plugin-owned alertdialog with OK/Enter acknowledgement. Success/info toasts keep their automatic expiry. Requested transfer cancellation is not an error popup. Do not use blocking native alert/message boxes for transfer callbacks.
+- Keep the error state until acknowledged, deduplicate identical messages and bound visible batch details to eight plus a more-errors hint. Late callbacks after destruction must not create a dialog. Error UI rendering is best-effort and must not throw another exception during disposal.
+- Modal errors block panel shortcuts, image paste and plugin restart. Error acknowledgement restores inline-name focus for correction; modal-driven blur must not cancel the name edit. Maintain Enter/Tab ownership inside the dialog and preserve source/destination safety checks.
+- Route errors explicitly at input validation/rename, drop adapter/queue catches, transfer-engine failure, conflict resolution and paste ports. Avoid classifying success/error by message regex. Preserve actual failure reasons and source filenames; existing file-conflict choice dialogs remain unchanged.
+- test-operation-errors.cjs checks bounded persistence, acknowledgement, focus, destruction and transfer failure versus cancellation. Electron tests render the production error markup for failed rename and failed drop, exercise OK/Enter and retain success-toast expiry.

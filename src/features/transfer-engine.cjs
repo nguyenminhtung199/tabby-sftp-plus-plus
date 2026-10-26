@@ -105,7 +105,7 @@ module.exports = function installTransferEngine({apis,Panel,resume}) {
         }catch(error){
             retained=!!state&&!transfer?.userCancelled;
             if(state){if(retained)resume.fail(state,error.code==='RESUME_CONFLICT'?'Conflict':(!panel.connected||panel._destroyed||panel.sftpSession!==session||transfer?.interrupted||/connection|closed|disconnect/i.test(error.message)?'Interrupted':'Failed'));else resume.finish(state);}
-            if(transfer){transfer.setStatus(error.message);transfer.cancelled=true;}panel.showToast?.((retained?'Transfer interrupted; partial file retained: ':'Transfer failed: ')+path.basename(remote)+' — '+error.message,7000);return false;
+            if(transfer){transfer.setStatus(error.message);transfer.cancelled=true;}const message=(retained?'Transfer interrupted; partial file retained: ':'Transfer failed: ')+path.basename(remote)+' — '+error.message;if(!transfer?.userCancelled){if(panel.showOperationError)panel.showOperationError(message);else panel.showToast?.(message,7000);}return false;
         }
         finally{
             if(pending)await pending;
