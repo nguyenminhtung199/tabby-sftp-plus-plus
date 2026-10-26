@@ -93,8 +93,8 @@
             [class.nav-focus]="isNavFocusedEntry(e)"
             [class.hidden-entry]="isHiddenEntry(e)"
             [draggable]="draggable && isSelected(e)"
-            (dragstart)="entryDragStart.emit({ entry: e, event: $event })"
-            (dragend)="entryDragEnd.emit()"
+            (dragstart)="$event.stopPropagation(); entryDragStart.emit({ entry: e, event: $event })"
+            (dragend)="$event.stopPropagation(); entryDragEnd.emit()"
             [style.gridTemplateColumns]="colWidths">
             <span class="icon">
 
@@ -144,8 +144,8 @@
                 [class.nav-focus]="isNavFocusedEntry(row.entry)"
                 [class.hidden-entry]="isHiddenEntry(row.entry)"
                 [draggable]="draggable && isSelected(row.entry)"
-                (dragstart)="entryDragStart.emit({ entry: row.entry, event: $event })"
-                (dragend)="entryDragEnd.emit()"
+                (dragstart)="$event.stopPropagation(); entryDragStart.emit({ entry: row.entry, event: $event })"
+                (dragend)="$event.stopPropagation(); entryDragEnd.emit()"
                 [style.gridTemplateColumns]="colWidths">
                 <span class="icon">
                   <ng-container *ngIf="row.entry.isDirectory">

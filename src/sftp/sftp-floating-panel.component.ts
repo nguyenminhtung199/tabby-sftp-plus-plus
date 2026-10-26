@@ -12,7 +12,7 @@ import * as path from 'path'
 import * as fs from 'fs/promises'
 import * as fsSync from 'fs'
 import * as os from 'os'
-import { randomUUID } from 'crypto'
+import { createHash, randomUUID } from 'crypto'
 
 import { Component, OnInit, OnDestroy, AfterViewInit, HostListener, ChangeDetectorRef, ElementRef, NgZone, Injector, ViewEncapsulation, Inject, Optional } from '@angular/core'
 import { ThemesService, NotificationsService, ConfigService, AppService, HostAppService } from 'tabby-core'
@@ -4715,6 +4715,23 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
   private _dragCachePending = false
   private _dragCacheTransfers: Array<{ cancel: () => void | Promise<void> }> = []
   private _dragCacheInFlight = new Set<string>()
+  private _dragCacheEntries: SFTPFile[] = []
+  private _dragCacheContextSession: unknown
+  private _dragCacheRoot = ''
+  private _dragReadyFiles = new Map<string, string>()
+
+  private _remoteDragCacheKey(entry: SFTPFile): string {
+    return JSON.stringify([entry.fullPath, entry.size, entry.modified?.getTime?.() || 0])
+  }
+
+  private _remoteDragCacheRoot(): string {
+    if (this._dragCacheContextSession !== this.sftpSession || !this._dragCacheRoot) {
+      this._dragCacheContextSession = this.sftpSession
+      this._dragCacheRoot = path.join(os.tmpdir(), 'sftp-plus-dragout', randomUUID())
+      this._dragReadyFiles = new Map()
+    }
+    return this._dragCacheRoot
+  }
 
   private _clearCustomDragPreview(): void {
     if (this._customDragPreviewEl) {
@@ -4723,13 +4740,14 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     }
   }
 
-  private _cancelRemoteDragCache(): void {
+  private _cancelRemoteDragCache(keepPlan = false): void {
+    if (!keepPlan) this._dragCacheEntries = []
     this._dragCachePending = false
     this._dragCacheGen++
     if (this._dragCacheTimer) {
       clearTimeout(this._dragCacheTimer)
-      this._dragCacheTimer = null
     }
+    this._dragCacheTimer = null
     const pending = this._dragCacheTransfers.splice(0)
     for (const t of pending) {
       try { void Promise.resolve(t.cancel()).catch(() => {}) } catch { /* ignore */ }
@@ -4739,18 +4757,19 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
   private _scheduleRemoteDragCache(entries: SFTPFile[]): void {
     this._cancelRemoteDragCache()
-    const eligible = entries.filter(e =>
-      !e.isDirectory
-      && (e.size ?? 0) > 0
-      && (e.size ?? 0) <= SftpFloatingPanel.DRAG_CACHE_MAX_BYTES,
-    )
-    if (!eligible.length) return
-    const gen = this._dragCacheGen
+    this._dragCacheEntries = entries.filter(e => !e.isDirectory && (e.size ?? 0) > 0 && (e.size ?? 0) <= SftpFloatingPanel.DRAG_CACHE_MAX_BYTES)
+    this._dragCachePending = this._dragCacheEntries.length > 0
+    // Internal drags need only their payload. Warm OS drag-out files after leaving the panel.
+  }
+
+  private _armRemoteDragCache(): void {
+    if (!this._dragCacheEntries?.length || this._dragCacheTimer) return
     this._dragCachePending = true
+    const gen = this._dragCacheGen, entries = this._dragCacheEntries
     this._dragCacheTimer = this.zone.runOutsideAngular(() => setTimeout(() => {
       this._dragCacheTimer = null
       if (gen !== this._dragCacheGen) return
-      void this._cacheRemoteFilesForDrag(eligible, gen)
+      void this._cacheRemoteFilesForDrag(entries, gen)
     }, SftpFloatingPanel.DRAG_CACHE_DELAY_MS))
   }
 
@@ -4840,20 +4859,29 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
   onDragOver(ev: DragEvent, targetPane: 'local' | 'remote'): void {
     if (this._dragCachePending) {
       const destination = this._resolveDropDestDir(ev, targetPane)
-      if (targetPane === 'local' || (destination && this._normRemoteDir(destination) !== this._normRemoteDir(this.remotePath))) this._cancelRemoteDragCache()
+      if (targetPane === 'local' || (destination && this._normRemoteDir(destination) !== this._normRemoteDir(this.remotePath))) this._cancelRemoteDragCache(true)
     }
     this._fileDnd.onDragOver(ev, targetPane)
   }
 
   onDragEnter(ev: DragEvent, targetPane: 'local' | 'remote'): void {
+    if (this._dragCachePending) this._cancelRemoteDragCache(true)
     this._fileDnd.onDragEnter(ev, targetPane)
   }
 
   onDragLeave(ev: DragEvent, targetPane: 'local' | 'remote'): void {
     this._fileDnd.onDragLeave(ev, targetPane)
+    const element = this.elRef?.nativeElement as HTMLElement | undefined
+    const host = element?.querySelector?.<HTMLElement>('.sftp-root') || element
+    if (!host || !this._dragCacheEntries?.length) return
+    if (ev.relatedTarget && host.contains(ev.relatedTarget as Node)) return
+    const rect = host.getBoundingClientRect()
+    if (ev.clientX >= rect.left && ev.clientX <= rect.right && ev.clientY >= rect.top && ev.clientY <= rect.bottom) return
+    this._armRemoteDragCache()
   }
 
   onDragStartLocal(ev: DragEvent, entry: LocalEntry): void {
+    this._cancelRemoteDragCache()
     const src = this._resolveDragSource(ev, entry, this.selectedLocal)
     if (!src) return
     this._setCustomDragPreview(ev, src.map(e => ({ name: e.name, isDirectory: e.isDirectory })))
@@ -4881,33 +4909,24 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
   onDragStartRemote(ev: DragEvent, entry: SFTPFile): void {
     if (!this.connected) return
+    this._cancelRemoteDragCache()
     const src = this._resolveDragSource(ev, entry, this.selectedRemote)
     if (!src) return
     this._setCustomDragPreview(ev, src.map(e => ({ name: e.name, isDirectory: e.isDirectory })))
     const cur = this._normRemoteDir(this.remotePath)
     this._fileDnd.setDragSource('remote', src.every(e => this._normRemoteDir(path.posix.dirname(e.fullPath)) === cur), cur)
     this._remoteDragSession = this.sftpSession
-    log.info('[dragstart] remote modified:', src.map(e => ({ name: e.name, modified: e.modified, modifiedMs: e.modified?.getTime?.() })))
     const p: DragPayload = { kind: 'remote-paths', sourceScope: this._dropTmpScope, paths: src.map(e => ({ remotePath: e.fullPath, name: e.name, isDirectory: e.isDirectory, size: e.size, mode: e.mode, modified: e.modified?.getTime?.() })) }
     ev.dataTransfer?.setData('application/x-sftp-plus', JSON.stringify(p))
     if (ev.dataTransfer) ev.dataTransfer.effectAllowed = 'copyMove'
 
-    const tmpDir = path.join(os.tmpdir(), 'sftp-plus-dragout')
+    this._remoteDragCacheRoot()
     const uriList: string[] = []
-    for (const e of src) {
-      const tmpPath = path.join(tmpDir, e.name)
-      try {
-        const st = fsSync.statSync(tmpPath)
-        if (e.isDirectory) {
-          if (st.isDirectory() && fsSync.statSync(path.join(tmpPath, '.sftp-cache-done'))) {
-            try { const file = new File([''], e.name); (file as any).path = tmpPath; ev.dataTransfer?.items.add(file) } catch {}
-            uriList.push(`file:///${tmpPath.replace(/\\/g, '/')}`)
-          }
-        } else if (st.size === (e.size ?? 0)) {
-          try { const file = new File([''], e.name); (file as any).path = tmpPath; ev.dataTransfer?.items.add(file) } catch {}
-          uriList.push(`file:///${tmpPath.replace(/\\/g, '/')}`)
-        }
-      } catch {   }
+    for (const entry of src) {
+      const cachedPath = this._dragReadyFiles.get(this._remoteDragCacheKey(entry))
+      if (!cachedPath) continue
+      try { const file = new File([''], entry.name); (file as any).path = cachedPath; ev.dataTransfer?.items.add(file) } catch {}
+      uriList.push(encodeURI('file:///' + cachedPath.replace(/\\/g, '/')))
     }
 
     if (uriList.length > 0 && uriList.length === src.length) {
@@ -4934,7 +4953,8 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
 
   private async _cacheRemoteFilesForDrag(entries: SFTPFile[], gen: number): Promise<void> {
     if (!this.sftpSession || gen !== this._dragCacheGen) return
-    const tmpDir = path.join(os.tmpdir(), 'sftp-plus-dragout')
+    const session = this.sftpSession
+    const tmpDir = this._remoteDragCacheRoot()
     await fs.mkdir(tmpDir, { recursive: true }).catch(() => {})
     if (gen !== this._dragCacheGen) return
 
@@ -4950,13 +4970,17 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       if (this._dragCacheInFlight.has(flightKey)) continue
       this._dragCacheInFlight.add(flightKey)
       try {
-        const tmpPath = path.join(tmpDir, safeName)
+        const cacheKey = this._remoteDragCacheKey(entry)
+        const folder = path.join(tmpDir, createHash('sha256').update(cacheKey).digest('hex').slice(0, 20))
+        await fs.mkdir(folder, { recursive: true })
+        const tmpPath = path.join(folder, safeName)
         const cached = await fs.stat(tmpPath).then(s => s.size === (entry.size ?? 0)).catch(() => false)
-        if (cached || gen !== this._dragCacheGen) continue
+        if (gen !== this._dragCacheGen || this.sftpSession !== session) return
+        if (cached) { this._dragReadyFiles.set(cacheKey, tmpPath); continue }
 
         const dragCancelRef: { current: { cancel?: () => void | Promise<void> } | null } = { current: null }
         const ctx = this._byteTransferCtx(dragCancelRef)
-        await downloadRemoteFile(ctx, entry.fullPath, tmpPath, undefined, entry.size, {
+        const ok = await downloadRemoteFile(ctx, entry.fullPath, tmpPath, undefined, entry.size, {
           exposeCancel: true,
           onTransfer: (dl) => {
             if (gen !== this._dragCacheGen) {
@@ -4966,6 +4990,10 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
             this._dragCacheTransfers.push(dl)
           },
         })
+        if (ok && gen === this._dragCacheGen && this.sftpSession === session) {
+          this._dragReadyFiles.set(cacheKey, tmpPath)
+          if (this._dragReadyFiles.size > 128) this._dragReadyFiles.delete(this._dragReadyFiles.keys().next().value)
+        }
       } catch {
 
       } finally {

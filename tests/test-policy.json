@@ -26,7 +26,8 @@
     "test-english-source.cjs",
     "test-explorer-collisions.cjs",
     "test-conflict-preflight.cjs",
-    "test-transfer-performance.cjs"
+    "test-transfer-performance.cjs",
+    "test-remote-drag-hover.cjs"
   ],
   "renderer": {
     "timeoutMs": 30000,

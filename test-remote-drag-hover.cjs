@@ -1,0 +1,22 @@
+const assert=require('assert/strict'),fs=require('fs'),fsp=fs.promises,path=require('path'),os=require('os'),crypto=require('crypto'),Module=require('module');
+const header=fs.readFileSync('test-context-menu.cjs','utf8').split('(async()=>{')[0],h=new Module(path.join(__dirname,'drag-hover-harness.cjs'),module);h.filename=path.join(__dirname,'drag-hover-harness.cjs');h.paths=module.paths;h._compile(header+'\nmodule.exports=sandbox.module.exports.testing;',h.filename);
+const {Panel}=h.exports;
+(async()=>{
+ const root=await fsp.mkdtemp(path.join(os.tmpdir(),'sftp-hover-'));
+ try{
+  const entry={name:'one.txt',fullPath:'/remote/one.txt',isDirectory:false,size:1,modified:new Date(1700000000000)},session={},payloads=new Map();let caches=0,syncReads=0;
+  const panel=Object.create(Panel.prototype);Object.assign(panel,{connected:true,sftpSession:session,remotePath:'/remote',_selectedRemote:[entry],_dropTmpScope:'hover-fixture',zone:{runOutsideAngular:fn=>fn()},_rubberBand:{cleanup(){},markDragCancelled(){}},_fileDnd:{setDragSource(){},onDragEnter(){},onDragOver(){},onDragLeave(){},onEntryDragEnd(){}},_setCustomDragPreview(){},_dragCacheGen:0,_dragCacheTransfers:[],_dragCacheInFlight:new Set(),_dragCacheTimer:null,_dragCacheContextSession:session,_dragCacheRoot:root,_dragReadyFiles:new Map(),_cacheRemoteFilesForDrag:async()=>{caches++;},elRef:{nativeElement:{contains:node=>!!node?.inside,getBoundingClientRect:()=>({left:0,right:500,top:0,bottom:500})}}});
+  const event={dataTransfer:{setData:(type,value)=>payloads.set(type,value),items:{add(){}}}},hover={clientX:200,clientY:200,target:{closest:()=>null},relatedTarget:{inside:true}};
+  const original=fs.statSync;fs.statSync=(...args)=>{syncReads++;return original(...args);};try{panel.onDragStartRemote(event,entry);}finally{fs.statSync=original;}
+  assert.equal(syncReads,0,'dragstart must not touch synchronous disk metadata');assert.equal(JSON.parse(payloads.get('application/x-sftp-plus')).paths[0].remotePath,entry.fullPath);assert.equal(panel._dragCacheTimer,null);
+  await new Promise(resolve=>setTimeout(resolve,500));assert.equal(caches,0,'holding a remote drag beyond the old 450ms delay does not start SFTP work');
+  panel.onDragLeave(hover,'remote');assert.equal(panel._dragCacheTimer,null,'crossing between panes remains inside the panel');panel.onDragLeave({...hover,relatedTarget:null},'remote');assert.equal(panel._dragCacheTimer,null,'null relatedTarget with coordinates inside the panel is not an OS exit');panel.onDragEnter(hover,'local');assert.equal(panel._dragCachePending,false,'local dragenter immediately cancels OS warmup');panel.onDragOver(hover,'local');assert.equal(caches,0);
+  panel.onDragLeave({...hover,clientX:600,relatedTarget:null},'local');assert.ok(panel._dragCacheTimer,'leaving the whole panel arms OS drag-out');panel.onDragEnter(hover,'local');assert.equal(panel._dragCacheTimer,null,'re-entry stops the outside warmup before any download');
+  panel.onDragLeave({...hover,clientX:600,relatedTarget:null},'local');await new Promise(resolve=>setTimeout(resolve,500));assert.equal(caches,1,'OS warmup remains available outside the panel');panel._cancelRemoteDragCache();
+  // A ready cache is looked up in memory; it belongs to this session and exact source metadata.
+  const key=panel._remoteDragCacheKey(entry),folder=path.join(root,crypto.createHash('sha256').update(key).digest('hex').slice(0,20)),cachedPath=path.join(folder,entry.name);await fsp.mkdir(folder,{recursive:true});await fsp.writeFile(cachedPath,'x');await Panel.prototype._cacheRemoteFilesForDrag.call(panel,[entry],panel._dragCacheGen);assert.equal(panel._dragReadyFiles.get(key),cachedPath);
+  payloads.clear();panel.onDragStartRemote(event,entry);assert.ok(payloads.get('text/uri-list').includes('one.txt'));assert.equal(panel._dragCacheTimer,null);panel._cancelRemoteDragCache();
+  panel.sftpSession={};payloads.clear();panel.onDragStartRemote(event,entry);assert.equal(payloads.has('text/uri-list'),false,'a different server/session cannot reuse another session cache');panel._cancelRemoteDragCache();
+  console.log('PASS: real remote dragstart has zero synchronous stat reads; 500ms internal hover starts zero SFTP work; pane entry cancels warmup; OS exit/re-entry and ready session-scoped caches remain supported.');
+ }finally{const target=path.resolve(root);assert.ok(target.startsWith(path.resolve(os.tmpdir())+path.sep));await fsp.rm(target,{recursive:true,force:true});}
+})().catch(error=>{console.error(error);process.exitCode=1;});

@@ -419,6 +419,8 @@ export class SftpFilePaneComponent {
       const hover = (kind: 'over' | 'enter' | 'leave', event: DragEvent) => {
         const area = surface(event)
         if (!area) return
+        // This file pane owns hover; keep outer Tabby drag handlers out of its hot path.
+        event.stopPropagation()
         if (kind === 'over' && (event.target as Element)?.closest('.entry.header')) {
           if (this.dragHoverHandler) this.dragHoverHandler('leave', event)
           else this.listDragLeave.emit(event)
@@ -433,6 +435,7 @@ export class SftpFilePaneComponent {
       const leave = (event: DragEvent) => hover('leave', event)
       const drop = (event: DragEvent) => {
         if (!surface(event)) return
+        event.stopPropagation()
         if ((event.target as Element)?.closest('.entry.header')) { this.onHeaderDragOver(event); return }
         // Only the actual drop enters Angular. DataTransfer is consumed synchronously by its handler.
         this.zone.run(() => this.listDrop.emit(event))
