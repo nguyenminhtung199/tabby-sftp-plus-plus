@@ -1,7 +1,7 @@
 [
   {
     "selector": "sftp-plus-panel",
-    "eventCount": 217,
+    "eventCount": 215,
     "actions": [
       "acknowledgeOperationError",
       "addBookmark",

@@ -41,7 +41,7 @@ description: Use before code changes, npm commands, tests or plugin operations i
 
 ## Plugin self update
 
-- src/runtime/plugin-updater.cjs owns one shared updater for the process. It checks the configured Git origin/main outside Angular, initially after 10 seconds and then every 30 minutes while a panel exists. Timers/listeners stop with the last panel. Documentation-only commits do not offer an update: only dist/package changes do. Settings are in transfer-policy.json pluginUpdate.
+- src/runtime/plugin-updater.cjs owns one shared updater for the process. It checks the configured Git origin/main outside Angular, initially after 10 seconds and then every 30 minutes while a panel exists. A separate ten-second local metadata poll detects installed-but-not-loaded builds without running Git or network requests. Timers/listeners stop with the last panel. Documentation-only commits do not offer an update: only dist/package changes do. Settings are in transfer-policy.json pluginUpdate.
 - This updater supports the Git checkout/junction installation: validate exact repository root, origin and main; require a verified dist artifact; apply a clean fast-forward to the advertised commit. Never reset/stash user changes, install dependencies silently, or edit Tabby core/configuration. A changed runtime dependency manifest requires manual installation.
 - Use the host HostAppService.relaunch() API only after successful update verification. Active/queued/paused transfers, file conflicts, inline changes and active save-upload work in any subscribed panel block restart. If work starts during update, keep Restart Tabby available for a later click. Idle save watchers are not active transfers.
 - test-plugin-updater.cjs uses an isolated local bare Git remote and cloned installations to verify actual check/update, dirty/diverged/foreign/build guards and restart ordering without restarting the user's Tabby. Renderer checks use the real production button markup and a mocked host relaunch API.
@@ -122,3 +122,11 @@ description: Use before code changes, npm commands, tests or plugin operations i
 - test-operation-errors.cjs checks bounded persistence, acknowledgement, focus, destruction and transfer failure versus cancellation. Electron tests render the production error markup for failed rename and failed drop, exercise OK/Enter and retain success-toast expiry.
 
 - Inline filename inputs use one white outer outline, a transparent inner border and no focus shadow in normal/focus/focus-visible states. Do not add primary/danger-colored inner borders; validation errors are acknowledged in the error dialog.
+
+
+## Loaded build versus installed update
+
+- The updater captures the running package version and __SFTP_PLUS_BUILD_TIME__ from the loaded bundle. scripts/build.cjs writes that exact compile timestamp into dist/build-info.json, instead of a later verification completion timestamp. Compare installed metadata against this captured identity; Git HEAD already matching origin/main does not mean the current process loaded that build.
+- Direct local builds/fast-forwards, including same-version rebuilds, offer Restart Tabby until explicitly restarted. Never restart automatically. Verify checkout identity, tracked runtime cleanliness and the artifact manifest again before relaunch; all existing active-operation guards still apply.
+- Keep the header update control visible: Check for updates, Checking, Update available, Updating or Restart Tabby according to state. A manual check performs no installation or restart. Runtime-local checks are lightweight and stop with the last subscribed panel.
+- Updater Git fixtures cover external installation, same-version rebuild, dirty-runtime restart rejection, fresh-runtime identity and local polling without Git. Renderer tests verify visible button states, manual check without relaunch and equality between the loaded compile identity and installed build metadata.

@@ -1,6 +1,8 @@
 'use strict';
 const fs=require('fs/promises'),path=require('path'),{execFile}=require('child_process');
 const policy=require('../../transfer-policy.json').pluginUpdate;
+const runningBuildTime=typeof __SFTP_PLUS_BUILD_TIME__==='string'?__SFTP_PLUS_BUILD_TIME__:null;
+const bundledVersion=runningBuildTime?require('../../package.json').version:null;
 
 function panelHasWork(panel){
     if(panel._destroyed)return false;
@@ -18,6 +20,7 @@ function panelHasWork(panel){
 class PluginUpdater{
     constructor(root,options={}){
         this.root=path.resolve(root);this.policy={...policy,...options};this.listeners=new Map();
+        this.runningBuildTime=options.runningBuildTime??runningBuildTime;this.runningVersion=options.runningVersion??bundledVersion;
         this.state=Object.freeze({available:false,checking:false,updating:false,restartRequired:false,version:'',error:''});
     }
     publish(patch){this.state=Object.freeze({...this.state,...patch});for(const fn of this.listeners.keys())try{fn(this.state);}catch{};}
@@ -26,8 +29,9 @@ class PluginUpdater{
         if(this.listeners.size===1){
             this.initial=setTimeout(()=>void this.check(),this.policy.initialDelayMs);this.initial.unref?.();
             this.timer=setInterval(()=>void this.check(),this.policy.intervalMs);this.timer.unref?.();
+            this.runtimeTimer=setInterval(()=>{if(!this.state.checking)void this.checkRuntime();},this.policy.runtimeCheckIntervalMs);this.runtimeTimer.unref?.();
         }
-        return ()=>{this.listeners.delete(listener);if(!this.listeners.size){clearTimeout(this.initial);clearInterval(this.timer);}};
+        return ()=>{this.listeners.delete(listener);if(!this.listeners.size){clearTimeout(this.initial);clearInterval(this.timer);clearInterval(this.runtimeTimer);}};
     }
     hasWork(){return [...this.listeners.values()].some(check=>{try{return check();}catch{return true;}});}
     git(args){
@@ -57,12 +61,26 @@ class PluginUpdater{
         try{await this.git(['diff','--quiet',local,target,'--','dist','package.json']);return false;}
         catch(error){if(error.code===1)return true;throw error;}
     }
+    async checkRuntime(){
+        if(this.runtimeChecking||this.state.updating||this.state.restartRequired||(!this.runningBuildTime&&!this.runningVersion))return false;
+        this.runtimeChecking=true;
+        try{
+            const [pkg,build]=await Promise.all(['package.json','dist/build-info.json'].map(file=>fs.readFile(path.join(this.root,file),'utf8').then(JSON.parse)));
+            if(pkg.name!=='tabby-sftp-plus-plus'||typeof pkg.version!=='string'||!build.sourceBuild)return false;
+            const changed=this.runningVersion&&pkg.version!==this.runningVersion || this.runningBuildTime&&typeof build.builtAt==='string'&&build.builtAt!==this.runningBuildTime;
+            if(!changed)return false;
+            await fs.access(path.join(this.root,'dist/index.js'));
+            this.target=null;this.publish({available:false,restartRequired:true,version:pkg.version,error:''});return true;
+        }catch{return false;}finally{this.runtimeChecking=false;}
+    }
     async check(){
         if(this.state.checking||this.state.updating||this.state.restartRequired)return;
         this.publish({checking:true,error:''});
         try{
+            if(await this.checkRuntime())return;
             await this.validateCheckout();
             await this.git(['fetch','--no-tags','--quiet','origin','refs/heads/'+this.policy.branch+':refs/remotes/origin/'+this.policy.branch]);
+            if(this.state.restartRequired)return;
             const local=await this.git(['rev-parse','HEAD']),target=await this.git(['rev-parse','refs/remotes/origin/'+this.policy.branch]);
             if(local===target){this.target=null;this.publish({available:false,version:''});return;}
             if(!await this.canFastForward(local,target))throw Error('Plugin has local commits; automatic update cannot fast-forward.');
@@ -89,6 +107,9 @@ class PluginUpdater{
                 if(await this.git(['rev-parse','HEAD'])!==target)throw Error('Could not verify the installed plugin update.');
                 this.publish({available:false,restartRequired:true,version:after.version});
             }
+            await this.validateCheckout();
+            await this.manifest('HEAD');
+            try{await this.git(['diff','--quiet','HEAD','--','dist','package.json','package-lock.json']);}catch(error){if(error.code===1)throw Error('Installed plugin files changed. Finish the build before restarting.');throw error;}
             if(this.hasWork())throw Error('Plugin updated. Finish file operations, then click Restart Tabby.');
             await relaunch();return true;
         }catch(error){this.publish({error:error.message});return false;}

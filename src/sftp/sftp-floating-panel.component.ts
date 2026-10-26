@@ -1958,7 +1958,13 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
   private _pluginUpdater: any
 
   async updatePlugin(): Promise<void> {
-    if (!this._pluginUpdater) return
+    if (!this._pluginUpdater || this._pluginUpdater.state.checking || this._pluginUpdater.state.updating) return
+    if (!this._pluginUpdater.state.available && !this._pluginUpdater.state.restartRequired) {
+      await this.zone.runOutsideAngular(() => this._pluginUpdater.check())
+      if (this._pluginUpdater.state.error) this.showToast(this._pluginUpdater.state.error, 5000)
+      else if (!this._pluginUpdater.state.available && !this._pluginUpdater.state.restartRequired) this.showToast('SFTP++ is up to date.')
+      return
+    }
     let host: HostAppService | null = null
     try { host = this.injector.get(HostAppService, null as any) } catch { /* unsupported host */ }
     if (!host || typeof host.relaunch !== 'function') { this.showToast('Tabby restart API is unavailable.'); return }

@@ -131,6 +131,7 @@
     "branch": "main",
     "initialDelayMs": 10000,
     "intervalMs": 1800000,
-    "timeoutMs": 45000
+    "timeoutMs": 45000,
+    "runtimeCheckIntervalMs": 10000
   }
 }
