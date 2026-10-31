@@ -3,6 +3,13 @@
       <p class="ss-desc">{{ i18n.t('settings.desc') }}</p>
 
 
+      <div class="ss-section ss-plugin-updates">
+        <label class="ss-label">Plugin updates</label>
+        <p>Current version: {{ pkgVersion }}</p>
+        <button type="button" class="ss-btn" (click)="checkPluginUpdates()" [disabled]="pluginUpdate.checking || pluginUpdate.updating">{{ pluginUpdate.checking ? 'Checking…' : 'Check for updates' }}</button>
+        <button type="button" class="ss-btn ss-btn-primary" *ngIf="pluginUpdate.available || pluginUpdate.restartRequired" (click)="applyPluginUpdate()" [disabled]="pluginUpdate.checking || pluginUpdate.updating">{{ pluginUpdate.updating ? 'Updating…' : pluginUpdate.restartRequired ? 'Restart Tabby' : 'Update and restart Tabby' }}</button>
+        <p role="status" *ngIf="pluginUpdate.error || pluginUpdate.available || pluginUpdate.restartRequired || pluginUpdateMessage">{{ pluginUpdate.error || (pluginUpdate.restartRequired ? 'Restart Tabby to load version ' + pluginUpdate.version : pluginUpdate.available ? 'Update available: ' + pluginUpdate.version : pluginUpdateMessage) }}</p>
+      </div>
       <div class="ss-section">
         <label class="ss-label">{{ i18n.t('settings.theme') }}</label>
         <div class="ss-color-row">

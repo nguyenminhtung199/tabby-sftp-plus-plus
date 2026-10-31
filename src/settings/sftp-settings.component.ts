@@ -1,7 +1,7 @@
 import { featureApis, invokeFeature, readFeature, writeFeature } from "../features/api"
 ﻿
 
-import { Component, Injectable, Optional, OnDestroy, Inject } from '@angular/core'
+import { Component, Injectable, Optional, OnDestroy, Inject, NgZone, ChangeDetectorRef } from '@angular/core'
 import { SettingsTabProvider } from 'tabby-settings'
 import { ConfigService, HotkeysService, PlatformService, HostAppService } from 'tabby-core'
 import { defaultSftpPlusConfig, normalizeCaretShape, type CaretShape } from '../tabby/config-provider'
@@ -53,6 +53,8 @@ import { log } from '../services/sftp-logger'
 export const SFTP_PLUS_SETTINGS_TAB_ID = 'sftp-settings'
 
 declare const __SFTP_PLUS_BUILD_TIME__: string
+
+const {getPluginUpdater}=require('../runtime/plugin-updater.cjs')
 
 const PREFIX = 'sftp-plus-settings'
 
@@ -449,15 +451,61 @@ export class SftpSettingsTabComponent implements OnDestroy {
 
     @Optional() private platformService?: PlatformService,
     @Optional() private hostApp?: HostAppService,
+    @Optional() private updateZone?: NgZone,
+    @Optional() private updateDetector?: ChangeDetectorRef,
   ) {
 
     this.i18n = new SftpI18nService(configService)
     this.transferLogImport = new SftpTransferLogService(configService)
   }
 
+  pluginUpdate = { available: false, checking: false, updating: false, restartRequired: false, version: '', error: '' }
+  pluginUpdateMessage = ''
+  private _settingsUpdater: any
+  private _stopSettingsUpdater?: () => void
+  private _settingsUpdaterDestroyed = false
+  private _settingsUpdaterSubscribed = false
+
+  private _outsideSettingsUpdate<T>(work: () => T): T {
+    return this.updateZone ? this.updateZone.runOutsideAngular(work) : work()
+  }
+
+  private _ensureSettingsUpdater(): any {
+    if (!this._settingsUpdater) {
+      this._settingsUpdater = getPluginUpdater(path.resolve(__dirname, '..'))
+      this._stopSettingsUpdater = this._outsideSettingsUpdate(() => this._settingsUpdater.subscribe((state: any) => {
+        if (this._settingsUpdaterDestroyed) return
+        this.pluginUpdate = state
+        try { if (this._settingsUpdaterSubscribed) this.updateDetector?.detectChanges() } catch { /* settings view may be closing */ }
+      }))
+      this._settingsUpdaterSubscribed = true
+    }
+    return this._settingsUpdater
+  }
+
+  async checkPluginUpdates(): Promise<void> {
+    const updater = this._ensureSettingsUpdater()
+    if (updater.state.checking || updater.state.updating) return
+    this.pluginUpdateMessage = ''
+    await this._outsideSettingsUpdate(() => updater.check())
+    if (this._settingsUpdaterDestroyed) return
+    this.pluginUpdate = updater.state
+    this.pluginUpdateMessage = updater.state.restartRequired ? 'Restart Tabby to load the installed update.' : updater.state.available ? 'Update available: ' + updater.state.version : updater.state.error ? '' : 'SFTP++ is up to date.'
+    this.updateDetector?.detectChanges()
+  }
+
+  async applyPluginUpdate(): Promise<void> {
+    const updater = this._ensureSettingsUpdater()
+    if (updater.state.checking || updater.state.updating) return
+    if (!this.hostApp?.relaunch) { this.pluginUpdateMessage = 'Tabby restart API is unavailable.'; return }
+    await this._outsideSettingsUpdate(() => updater.update(() => this.hostApp!.relaunch()))
+    if (!this._settingsUpdaterDestroyed) { this.pluginUpdate = updater.state; this.updateDetector?.detectChanges() }
+  }
+
   private _settingsChangedHandler: (() => void) | null = null
 
   _base_ngOnInit(): void {
+    this._ensureSettingsUpdater()
 
     this._refreshFromConfig()
 
@@ -473,6 +521,8 @@ export class SftpSettingsTabComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this._settingsUpdaterDestroyed = true
+    this._stopSettingsUpdater?.()
     this.cancelHotkeyRecording()
 
     if (this.panelHotkeyRecording) this._teardownPanelHotkeyRecording()

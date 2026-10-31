@@ -1,7 +1,7 @@
 [
   {
     "selector": "sftp-plus-panel",
-    "eventCount": 215,
+    "eventCount": 217,
     "actions": [
       "acknowledgeOperationError",
       "addBookmark",
@@ -104,14 +104,16 @@
   },
   {
     "selector": "settings",
-    "eventCount": 156,
+    "eventCount": 159,
     "actions": [
       "_saveToConfig",
+      "applyPluginUpdate",
       "cancelAddCustomRule",
       "cancelEditFolderIcon",
       "cancelEditIcon",
       "cancelHotkeyRecording",
       "cancelThemeColorOverwrite",
+      "checkPluginUpdates",
       "closeClearConfirm",
       "closeExportDialog",
       "confirmAddCustomRule",
