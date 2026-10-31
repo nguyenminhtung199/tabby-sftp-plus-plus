@@ -35,8 +35,8 @@ function isEpoch1970(ms: number): boolean {
 
 function entryMtimeToMsOrUndefined(e: { modified?: Date | number | string | null; mtime?: number | null; attrs?: { mtime?: number; modified?: Date | number | string } }): number | undefined {
   const rawModified = e.modified ?? e.attrs?.modified
-  if (rawModified instanceof Date) {
-    const t = rawModified.getTime()
+  if (rawModified instanceof Date || typeof (rawModified as any)?.getTime === 'function') {
+    const t = (rawModified as Date).getTime()
     return isEpoch1970(t) ? undefined : t
   }
   if (typeof rawModified === 'number' && Number.isFinite(rawModified)) {
@@ -125,11 +125,12 @@ export class DownloadDirUseCase {
     const localDir = path.join(localDest, base)
     const isTop = !topCtx
     let ctx = topCtx
+    let initialEntries: SftpDirEntry[] | undefined
 
     const existing = await this.ports.localFs.lstat(localDir)
     if (existing && (!existing.isDirectory() || existing.isSymbolicLink())) {
       fileOperation.enqueue(this.ports.conflictQueue, {localPath:localDir,remotePath:remoteSrc,remoteDir:path.posix.dirname(remoteSrc),fileName:base,localStat:existing,direction:'download',isDirectory:true,typeMismatch:true,transferCtx:ctx,mode:ctx?.moveSource?'cut':undefined},ctx?.batch || batch)
-      if (ctx) this.ports.folder.markHadConflict(ctx)
+      if (ctx) { ctx.discoveryIncomplete = true; ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1); this.ports.folder.markHadConflict(ctx) }
       this.ports.conflictQueue.showDialog()
       return !isTop
     }
@@ -137,7 +138,10 @@ export class DownloadDirUseCase {
 
       const targetExists = await this.ports.localFs.pathExists(localDir)
       if (!moveSource && this.ports.tarChannel && (!targetExists || forceOverwrite)) {
-        const r = await this.ports.tarChannel.tryDownloadDir(remoteSrc, localDest, this.ports.folder, base, targetExists, this.ports.tarChannelMode)
+        initialEntries = await this.ports.sftp.readdir(remoteSrc)
+        const preview = initialEntries.filter(entry => safeEntryName(entry.name) === entry.name && !entry.isSymlink)
+        const statsHint = preview.every(entry => !entry.isDirectory && entry.isSymlink === false && entry.size != null) ? { size: preview.reduce((sum,entry)=>sum+(entry.size || 0),0), count: preview.length } : undefined
+        const r = await this.ports.tarChannel.tryDownloadDir(remoteSrc, localDest, this.ports.folder, base, targetExists, this.ports.tarChannelMode, statsHint)
         if (r === 'success') return true
         if (r === 'failed') return false
         log.info('[download-dir] tar channel fell back, starting standard file-by-file transfer:', remoteSrc)
@@ -148,21 +152,14 @@ export class DownloadDirUseCase {
         // Existing directories require per-file conflict decisions, including tar-only preference.
       }
 
-      let totalSize = 0
-      let itemCount = 0
       ctx = this.ports.folder.start(base, 'download', remoteSrc, localDir, 0, 0)
       ctx.moveSource = moveSource
       ctx.sourceDirectories = []
-      ctx.batch = batch; if (ctx.t) ctx.t.batch = batch
+      ctx.batch = batch; if (ctx.t) { ctx.t.batch = batch; ctx.t.discoveryComplete = false }
       ctx.producing = true
+      ctx.discoveryPending = 1; ctx.discoveredBytes = 0; ctx.discoveredItems = 0
       folderPhase(this.ports.folder, ctx, 'scanning', remoteSrc)
-      try {
-        const stats = await this.remoteStats.scanDir(remoteSrc)
-        totalSize = stats.size; itemCount = stats.count
-        if (ctx.t) { ctx.t.bytesTotal = totalSize; ctx.t.itemCount = itemCount }
-        this.ports.folder.updateLogSize?.(ctx, totalSize)
-      } catch (error) { ctx.producing = false; ctx.failed = true; this.ports.folder.finish(ctx, false); throw error }
-      if (this.ports.folder.isAborted(ctx)) { ctx.producing = false; this.ports.folder.finish(ctx, false); return false }
+      log.info('[download-dir] streaming traversal; no recursive pre-scan:', remoteSrc)
     }
 
     if (ctx?.moveSource) ctx.sourceDirectories!.push(remoteSrc)
@@ -171,7 +168,19 @@ export class DownloadDirUseCase {
     const limiter = inLimiter ?? new ConcurrencyLimiter(clampDirConcurrency(this.dirConcurrency?.()))
     try {
       await this.ports.localFs.mkdirRecursive(localDir)
-      const entries = await this.ports.sftp.readdir(remoteSrc)
+      if (!(await dirGate(this.ports.folder, ctx))) { success = false; return false }
+      const names = new Set<string>()
+      const entries = (initialEntries || await this.ports.sftp.readdir(remoteSrc)).filter(entry => {
+        const name = safeEntryName(entry.name)
+        if (!name || name !== entry.name || names.has(name) || entry.isSymlink === true) return false
+        names.add(name); return true
+      })
+      if (!(await dirGate(this.ports.folder, ctx))) { success = false; return false }
+      if (ctx) {
+        ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1) + entries.filter(entry => entry.isDirectory).length
+        for (const entry of entries) if (!entry.isDirectory) { ctx.discoveredBytes = (ctx.discoveredBytes || 0) + Math.max(0, entry.size || 0); ctx.discoveredItems = (ctx.discoveredItems || 0) + 1 }
+        this.publishDiscovery(ctx)
+      }
 
       const settled = await mapSettledConcurrent(entries, clampDirConcurrency(this.dirConcurrency?.()) * 2, async (entry): Promise<boolean> => {
         if (!(await dirGate(this.ports.folder, ctx))) return false
@@ -185,6 +194,11 @@ export class DownloadDirUseCase {
 
         if (entry.isSymlink === true || (entry.isSymlink == null && await this.ports.sftp.isSymlink(remoteP))) {
           log.info('skip symlink during folder download:', entry.name)
+          if (ctx) {
+            if (entry.isDirectory) ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1)
+            else { ctx.discoveredBytes = Math.max(0, (ctx.discoveredBytes || 0) - (entry.size || 0)); ctx.discoveredItems = Math.max(0, (ctx.discoveredItems || 0) - 1) }
+            this.publishDiscovery(ctx)
+          }
           return true
         }
 
@@ -195,13 +209,16 @@ export class DownloadDirUseCase {
         }
 
         return gatedDirTask(this.ports.folder, ctx, limiter, async (): Promise<boolean> => {
-          const sz = entry.size || 0
+          let sz = entry.size || 0
 
           let remoteMtime = entryMtimeToMsOrUndefined(entry) ?? 0
-          if (remoteMtime === 0) {
+          if (remoteMtime === 0 || entry.size == null) {
             try {
               const st = await this.ports.sftp.stat(remoteP)
-              if (st) remoteMtime = entryMtimeToMsOrUndefined(st) ?? 0
+              if (st) {
+                remoteMtime = entryMtimeToMsOrUndefined(st) ?? 0
+                if (entry.size == null && st.size != null) { sz = Math.max(0, st.size); entry.size = sz; if (ctx) { ctx.discoveredBytes = (ctx.discoveredBytes || 0) + sz; this.publishDiscovery(ctx) } }
+              }
             } catch (e) {
               log.warn('stat fallback for folder download conflict failed:', remoteP, e)
             }
@@ -265,6 +282,16 @@ export class DownloadDirUseCase {
     }
     return success && !ctx?.hadConflict
   }
+
+  private publishDiscovery(ctx: FolderTransferCtx): void {
+    if (ctx.t) {
+      ctx.t.bytesTotal = ctx.discoveredBytes || 0; ctx.t.itemCount = ctx.discoveredItems || 0
+      ctx.t.discoveryComplete = ctx.discoveryPending === 0 && !ctx.discoveryIncomplete
+    }
+    if (ctx.discoveryPending === 0) this.ports.folder.updateLogSize?.(ctx, ctx.discoveredBytes || 0)
+    folderPhase(this.ports.folder, ctx, 'transferring')
+  }
+
 }
 
 export class DownloadOneUseCase {

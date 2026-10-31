@@ -86,7 +86,7 @@ function tarWorthwhile(
   const mbStr = mb.toFixed(1)
   if (!stats) {
 
-    if (mode === 'preferSftp') return { ok: false, reason: 'no remote stats (probe unavailable): prefer-SFTP mode falls back to SFTP' }
+    if (mode === 'smart' || mode === 'preferSftp') return { ok: false, reason: 'no remote stats: use streaming SFTP without waiting for archive preparation' }
     return { ok: true, reason: 'no remote stats (probe unavailable): keep tar channel' }
   }
   if (stats.count >= th.minFiles && stats.size <= th.maxBytes) {
@@ -912,12 +912,12 @@ export class TarChannel {
     }
   }
 
-  private async _remoteDirStats(dir: string): Promise<{ size: number; count: number } | null> {
+  private async _remoteDirStats(dir: string, timeoutMs = REMOTE_STATS_TIMEOUT_MS): Promise<{ size: number; count: number } | null> {
     try {
       const q = shellQuotePosix(dir)
       const out = await this.deps.exec(
         `find ${q} -type f -printf '%s\\n' 2>/dev/null | awk '{n++; s+=$1} END {print n+0, s+0}'`,
-        REMOTE_STATS_TIMEOUT_MS,
+        timeoutMs,
         { retryOnEmpty: false },
       )
       const m = String(out ?? '').trim().match(/^(\d+)\s+(\d+)$/)
@@ -937,9 +937,11 @@ export class TarChannel {
     mergeIntoExisting = false,
 
     mode: TarChannelMode = 'smart',
+    statsHint?: { size: number; count: number },
   ): Promise<TarChannelResult> {
 
     if (mode === 'sftpOnly') return 'fallback'
+    if (statsHint && !tarWorthwhile(mode, statsHint).ok) return 'fallback'
 
     if (!this.deps.hasSsh()) {
       return this._decline(mode, name, 'other', `no ssh session: ${remoteSrc} -> ${localDest}`)
@@ -957,7 +959,7 @@ export class TarChannel {
     const parent = path.posix.dirname(remoteSrc)
     const base = path.posix.basename(remoteSrc)
 
-    const dirStats = await this._remoteDirStats(remoteSrc)
+    const dirStats = statsHint || await this._remoteDirStats(remoteSrc, mode === 'smart' || mode === 'preferSftp' ? 3_000 : REMOTE_STATS_TIMEOUT_MS)
     const verdict = tarWorthwhile(mode, dirStats)
     if (!verdict.ok) {
 
@@ -998,7 +1000,7 @@ export class TarChannel {
       )
     }
 
-    const realSize = await this.deps.scanRemoteSize(remoteSrc).catch(() => 0)
+    const realSize = dirStats?.size ?? 0
     const displayTotal = realSize > 0 ? realSize : tarSize
     const disp = (b: number) => displayTotal === tarSize ? b : Math.round(b * displayTotal / tarSize)
     const ctx = folder.start(name, 'download', remoteSrc, path.join(localDest, base), displayTotal, 1)

@@ -5095,7 +5095,11 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
     const session = this.sftpSession
     if (!session) return { size: 0, count: 0 }
     const limiter = new ConcurrencyLimiter(8)
+    const visited = new Set<string>()
     const scan = async (dir: string): Promise<{ size: number; count: number }> => {
+      const key = path.posix.resolve(dir)
+      if (visited.has(key)) return { size: 0, count: 0 }
+      visited.add(key)
       let entries: Array<{ name: string; isDirectory: boolean; size?: number }>
       try {
         entries = await limiter.run(() => session.readdir(dir))
@@ -5104,6 +5108,8 @@ export class SftpFloatingPanel extends SftpPanelBookmarkController implements On
       let count = 0
       const subs: Array<Promise<{ size: number; count: number }>> = []
       for (const e of entries) {
+        const name = safeEntryName(e.name)
+        if (!name || name !== e.name) continue
 
         if ((e as any).isSymlink || (e as any).isSymbolicLink) continue
         if (e.isDirectory) {

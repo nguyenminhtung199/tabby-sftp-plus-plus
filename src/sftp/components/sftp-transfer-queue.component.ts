@@ -47,11 +47,12 @@ export class SftpTransferQueueComponent {
   phaseLabel(t: PanelTransferItem): string {
     if (!t.isFolder) return ''
     if (t.waitingForServer) return 'Waiting for server…'
+    if (t.discoveryComplete === false && t.phase === 'transferring') return 'Transferring; discovering remaining files…'
     return ({ preparing: 'Preparing folder…', scanning: 'Scanning files…', checking: 'Checking existing files…', extracting: 'Extracting files…', waiting: 'Waiting for file conflict decisions…' } as Record<string, string>)[t.phase || ''] || ''
   }
 
   indeterminate(t: PanelTransferItem): boolean {
-    return !!t.isFolder && (['preparing', 'scanning', 'checking', 'extracting', 'waiting'].includes(t.phase || '') || (!(t.bytesTotal > 0) && !(t.itemCount > 0)))
+    return !!t.isFolder && (t.discoveryComplete === false || ['preparing', 'scanning', 'checking', 'extracting', 'waiting'].includes(t.phase || '') || (!(t.bytesTotal > 0) && !(t.itemCount > 0)))
   }
 
   modeOf(t: PanelTransferItem): 'sftp' | 'tar' | null {
@@ -63,7 +64,7 @@ export class SftpTransferQueueComponent {
   }
 
   etaText(t: PanelTransferItem): string {
-    if (t.paused || t.queued || t.skippedAsDuplicate) return ''
+    if (t.discoveryComplete === false || t.paused || t.queued || t.skippedAsDuplicate) return ''
     if (!(t.bytesTotal > 0) || !(t.bytesDone > 0)) return ''
 
     const bps = t.speedBps

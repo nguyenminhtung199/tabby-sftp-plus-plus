@@ -58,7 +58,7 @@ export interface TarChannelPort {
     mergeIntoExisting?: boolean, mode?: string, reuseLogEntryId?: string,
   ): Promise<TarChannelResult>
 
-  tryDownloadDir(remoteSrc: string, localDest: string, folder: FolderTransferPort, name: string, mergeIntoExisting?: boolean, mode?: string): Promise<TarChannelResult>
+  tryDownloadDir(remoteSrc: string, localDest: string, folder: FolderTransferPort, name: string, mergeIntoExisting?: boolean, mode?: string, statsHint?: {size:number;count:number}): Promise<TarChannelResult>
 
   tryUploadBatch?(
     localPaths: string[], remoteDir: string, folder: FolderTransferPort,

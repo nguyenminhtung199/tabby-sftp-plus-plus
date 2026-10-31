@@ -30,7 +30,8 @@
     "test-remote-drag-hover.cjs",
     "test-selection-performance.cjs",
     "test-inline-toast-dismissal.cjs",
-    "test-operation-errors.cjs"
+    "test-operation-errors.cjs",
+    "test-download-discovery.cjs"
   ],
   "renderer": {
     "timeoutMs": 30000,

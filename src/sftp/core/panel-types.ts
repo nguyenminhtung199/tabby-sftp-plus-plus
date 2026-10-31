@@ -86,6 +86,10 @@ export type ConflictQueueItem = {
 }
 
 export type FolderTransferCtx = {
+  discoveryPending?: number
+  discoveryIncomplete?: boolean
+  discoveredBytes?: number
+  discoveredItems?: number
   pendingConflicts?: number
   session?: unknown
   moveSource?: boolean
@@ -125,6 +129,7 @@ export type PanelTransferItem = {
 
   queued?: boolean
   logEntryId?: string
+  discoveryComplete?: boolean
   isFolder?: boolean
   waitingForServer?: boolean
   phase?: 'preparing' | 'scanning' | 'checking' | 'transferring' | 'extracting' | 'waiting'

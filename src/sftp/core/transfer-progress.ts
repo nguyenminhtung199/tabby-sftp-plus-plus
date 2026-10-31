@@ -2,7 +2,7 @@ import type { FolderTransferCtx } from './panel-types'
 import type { FolderTransferPort } from './transfer-types'
 
 export function folderPhase(folder: FolderTransferPort, ctx: FolderTransferCtx, phase: string, item = ''): void {
-  if (ctx.t) ctx.t.phase = phase
+  if (ctx.t) ctx.t.phase = phase === 'checking' && ctx.liveBytes?.size ? 'transferring' : phase
   folder.updateProgress(ctx, Math.max(ctx.t?.bytesDone || 0, (ctx.skippedBytes || 0) + ctx.bytesDone + liveFolderBytes(ctx)), item, ctx.itemDone)
 }
 
