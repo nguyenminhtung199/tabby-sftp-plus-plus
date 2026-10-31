@@ -18,7 +18,7 @@
               [title]="directionTitle(t)">{{ directionBadge(t) }}</span>
             <span *ngIf="t.isFolder">📁</span>
             <span class="transfer-name" [title]="t.name">{{ t.name }}</span>
-            <span class="transfer-size" *ngIf="t.bytesTotal > 0">{{ t.isFolder ? formatSize(t.bytesDone || 0) + ' / ' : '' }}{{ formatSize(t.bytesTotal) }}</span>
+            <span class="transfer-size" *ngIf="t.bytesTotal > 0">{{ t.isFolder && t.discoveryComplete === false ? formatSize(t.bytesDone || 0) + ' processed' : (t.isFolder ? formatSize(t.bytesDone || 0) + ' / ' : '') + formatSize(t.bytesTotal) }}</span>
             <span class="transfer-size" *ngIf="!(t.bytesTotal > 0) && t.bytesDone > 0">{{ formatSize(t.bytesDone) }}</span>
 
             <span *ngIf="modeOf(t) === 'tar'" class="mode-tag tag-tar" [title]="i18n.t('log.modeTar')">📦 {{ i18n.t('log.modeTar') }}</span>
@@ -30,7 +30,7 @@
           </div>
           <div class="transfer-sub" *ngIf="phaseLabel(t) as phase">{{ phase }}</div>
           <div class="transfer-sub" *ngIf="t.isFolder && t.currentItem">
-            {{ t.currentItem }}<span *ngIf="t.currentItemSize != null">  {{ formatSize(t.currentItemSize) }}</span> ({{ t.itemDone }}{{ t.itemCount > 0 ? '/' + t.itemCount : '' }})
+            {{ t.currentItem }}<span *ngIf="t.currentItemSize != null">  {{ formatSize(t.currentItemSize) }}</span> ({{ t.itemDone }}{{ t.discoveryComplete !== false && t.itemCount > 0 ? '/' + t.itemCount : '' }})
           </div>
         </div>
         <div class="transfer-stats">
