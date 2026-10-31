@@ -2106,7 +2106,7 @@ let SftpSettingsTabComponent = class SftpSettingsTabComponent {
         this.updateZone = updateZone;
         this.updateDetector = updateDetector;
         this.pkgVersion = (__webpack_require__(/*! ../../package.json */ "./package.json").version);
-        this.pkgBuildTime =  true ? "2026-10-31T04:24:29.091Z" : 0;
+        this.pkgBuildTime =  true ? "2026-10-31T04:45:06.908Z" : 0;
         this.themeLabelKeys = {
             '': 'theme.auto',
             dark: 'theme.dark',
@@ -14653,6 +14653,88 @@ function resolveSftpPlusBundledIconDir(bootstrapData) {
 
 /***/ },
 
+/***/ "./src/sftp/core/local-tree-inspection.ts"
+/*!************************************************!*\
+  !*** ./src/sftp/core/local-tree-inspection.ts ***!
+  \************************************************/
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   inspectLocalTrees: () => (/* binding */ inspectLocalTrees)
+/* harmony export */ });
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! fs/promises */ "fs/promises");
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs_promises__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
+
+
+/** One bounded archive-eligibility pass; timeout prevents scheduling further filesystem work. */
+async function inspectLocalTrees(roots, budgetMs = 3000) {
+    let expired = false, timer;
+    const deadline = Number.isFinite(budgetMs) ? Date.now() + budgetMs : Infinity;
+    const inspect = async () => {
+        const queue = roots.map(file => ({ file, depth: 0 })), seen = new Set();
+        let cursor = 0, size = 0, count = 0;
+        while (cursor < queue.length) {
+            if (expired || Date.now() >= deadline)
+                return null;
+            const batch = queue.slice(cursor, cursor + 8);
+            cursor += batch.length;
+            const results = await Promise.all(batch.map(async (item) => {
+                const stat = await fs_promises__WEBPACK_IMPORTED_MODULE_0__.lstat(item.file);
+                if (expired)
+                    return null;
+                if (stat.isSymbolicLink() || item.depth > 100)
+                    return { item, link: true, size: 0, children: null };
+                return { item, link: false, size: stat.size, children: stat.isDirectory() ? await fs_promises__WEBPACK_IMPORTED_MODULE_0__.readdir(item.file) : null };
+            }));
+            if (expired || Date.now() >= deadline)
+                return null;
+            for (const result of results) {
+                if (!result)
+                    return null;
+                const key = path__WEBPACK_IMPORTED_MODULE_1__.resolve(result.item.file);
+                if (seen.has(key))
+                    continue;
+                seen.add(key);
+                if (result.link)
+                    return { size, count, hasSymlink: true };
+                if (result.children) {
+                    for (const name of result.children) {
+                        if (name === '.' || name === '..' || path__WEBPACK_IMPORTED_MODULE_1__.basename(name) !== name)
+                            return null;
+                        queue.push({ file: path__WEBPACK_IMPORTED_MODULE_1__.join(result.item.file, name), depth: result.item.depth + 1 });
+                    }
+                }
+                else {
+                    size += result.size;
+                    count++;
+                }
+            }
+            if (cursor % 128 === 0)
+                await new Promise(resolve => setTimeout(resolve, 0));
+        }
+        return { size, count, hasSymlink: false };
+    };
+    try {
+        const work = inspect().catch(() => null);
+        if (!Number.isFinite(budgetMs))
+            return await work;
+        const timeout = new Promise(resolve => { timer = setTimeout(() => { expired = true; resolve(null); }, Math.max(0, budgetMs)); });
+        return await Promise.race([work, timeout]);
+    }
+    finally {
+        expired = true;
+        if (timer)
+            clearTimeout(timer);
+    }
+}
+
+
+/***/ },
+
 /***/ "./src/sftp/core/navigation-memory.ts"
 /*!********************************************!*\
   !*** ./src/sftp/core/navigation-memory.ts ***!
@@ -15704,19 +15786,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   TarChannel: () => (/* binding */ TarChannel)
 /* harmony export */ });
-/* harmony import */ var _transfer_progress__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./transfer-progress */ "./src/sftp/core/transfer-progress.ts");
-/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! child_process */ "child_process");
-/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! fs */ "fs");
-/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! fs/promises */ "fs/promises");
-/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(fs_promises__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! os */ "os");
-/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(os__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! path */ "path");
-/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _fs_ops__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./fs-ops */ "./src/sftp/core/fs-ops.ts");
-/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../services/sftp-logger */ "./src/services/sftp-logger.ts");
+/* harmony import */ var _local_tree_inspection__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./local-tree-inspection */ "./src/sftp/core/local-tree-inspection.ts");
+/* harmony import */ var _transfer_progress__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./transfer-progress */ "./src/sftp/core/transfer-progress.ts");
+/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! child_process */ "child_process");
+/* harmony import */ var child_process__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(child_process__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! fs */ "fs");
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! fs/promises */ "fs/promises");
+/* harmony import */ var fs_promises__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(fs_promises__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! os */ "os");
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(os__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _fs_ops__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./fs-ops */ "./src/sftp/core/fs-ops.ts");
+/* harmony import */ var _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../services/sftp-logger */ "./src/services/sftp-logger.ts");
+
 
 
 
@@ -15784,12 +15868,12 @@ function resolveLocalTarCmd() {
         return localTarCmdCache;
     if (process.platform === 'win32') {
         const root = process.env.SystemRoot || process.env.windir || 'C:\\Windows';
-        const candidate = path__WEBPACK_IMPORTED_MODULE_5__.join(root, 'System32', 'tar.exe');
-        if ((0,fs__WEBPACK_IMPORTED_MODULE_2__.existsSync)(candidate)) {
+        const candidate = path__WEBPACK_IMPORTED_MODULE_6__.join(root, 'System32', 'tar.exe');
+        if ((0,fs__WEBPACK_IMPORTED_MODULE_3__.existsSync)(candidate)) {
             localTarCmdCache = candidate;
             return candidate;
         }
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn('tar channel: System32\\tar.exe not found, falling back to PATH tar:', candidate);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.warn('tar channel: System32\\tar.exe not found, falling back to PATH tar:', candidate);
     }
     localTarCmdCache = 'tar';
     return 'tar';
@@ -15815,7 +15899,7 @@ function runLocalTar(args) {
         };
         const text = () => chunks.join('').trim();
         try {
-            const child = (0,child_process__WEBPACK_IMPORTED_MODULE_1__.spawn)(resolveLocalTarCmd(), args, { stdio: ['ignore', 'ignore', 'pipe'] });
+            const child = (0,child_process__WEBPACK_IMPORTED_MODULE_2__.spawn)(resolveLocalTarCmd(), args, { stdio: ['ignore', 'ignore', 'pipe'] });
             (_a = child.stderr) === null || _a === void 0 ? void 0 : _a.on('data', take);
             child.on('error', (e) => { var _a; return done({ ok: false, code: null, output: `spawn failed: ${(_a = e === null || e === void 0 ? void 0 : e.message) !== null && _a !== void 0 ? _a : e}` }); });
             child.on('close', (code) => done({ ok: code === 0, code, output: text() }));
@@ -15846,7 +15930,7 @@ async function detectLocalTarFlavor() {
             resolve(s);
         } };
         try {
-            const child = (0,child_process__WEBPACK_IMPORTED_MODULE_1__.spawn)(resolveLocalTarCmd(), ['--version'], { stdio: ['ignore', 'pipe', 'pipe'] });
+            const child = (0,child_process__WEBPACK_IMPORTED_MODULE_2__.spawn)(resolveLocalTarCmd(), ['--version'], { stdio: ['ignore', 'pipe', 'pipe'] });
             const take = (b) => { if (chunks.join('').length < 2000)
                 chunks.push(b.toString('utf8')); };
             (_a = child.stdout) === null || _a === void 0 ? void 0 : _a.on('data', take);
@@ -15867,42 +15951,42 @@ async function detectLocalTarFlavor() {
     return localTarFlavorCache;
 }
 async function assertExtractedUnderRoot(root) {
-    const rootReal = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.realpath(root).catch(() => path__WEBPACK_IMPORTED_MODULE_5__.resolve(root));
-    const prefix = rootReal.endsWith(path__WEBPACK_IMPORTED_MODULE_5__.sep) ? rootReal : rootReal + path__WEBPACK_IMPORTED_MODULE_5__.sep;
+    const rootReal = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.realpath(root).catch(() => path__WEBPACK_IMPORTED_MODULE_6__.resolve(root));
+    const prefix = rootReal.endsWith(path__WEBPACK_IMPORTED_MODULE_6__.sep) ? rootReal : rootReal + path__WEBPACK_IMPORTED_MODULE_6__.sep;
     const walk = async (dir) => {
         let entries;
         try {
-            entries = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readdir(dir, { withFileTypes: true });
+            entries = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.readdir(dir, { withFileTypes: true });
         }
         catch (_a) {
             return false;
         }
         for (const e of entries) {
-            const full = path__WEBPACK_IMPORTED_MODULE_5__.join(dir, e.name);
+            const full = path__WEBPACK_IMPORTED_MODULE_6__.join(dir, e.name);
             if (e.isSymbolicLink()) {
                 let target;
                 try {
-                    target = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readlink(full);
+                    target = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.readlink(full);
                 }
                 catch (_b) {
                     return false;
                 }
-                const resolved = path__WEBPACK_IMPORTED_MODULE_5__.resolve(path__WEBPACK_IMPORTED_MODULE_5__.dirname(full), target);
+                const resolved = path__WEBPACK_IMPORTED_MODULE_6__.resolve(path__WEBPACK_IMPORTED_MODULE_6__.dirname(full), target);
                 if (resolved !== rootReal && !resolved.startsWith(prefix)) {
-                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn('tar channel: symlink target escapes sandbox, rejected:', full, '->', target);
+                    _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.warn('tar channel: symlink target escapes sandbox, rejected:', full, '->', target);
                     return false;
                 }
                 continue;
             }
             let real;
             try {
-                real = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.realpath(full);
+                real = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.realpath(full);
             }
             catch (_c) {
                 return false;
             }
             if (real !== rootReal && !real.startsWith(prefix)) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn('tar channel: zip-slip rejected path:', real);
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.warn('tar channel: zip-slip rejected path:', real);
                 return false;
             }
             if (e.isDirectory()) {
@@ -15914,47 +15998,25 @@ async function assertExtractedUnderRoot(root) {
     };
     return walk(root);
 }
-async function containsSymlink(root, depth = 0) {
-    if (depth > 100)
-        return true;
-    let names;
-    try {
-        names = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readdir(root);
-    }
-    catch (_a) {
-        return true;
-    }
-    for (const name of names) {
-        const full = path__WEBPACK_IMPORTED_MODULE_5__.join(root, name);
-        const st = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(full).catch(() => null);
-        if (!st)
-            return true;
-        if (st.isSymbolicLink())
-            return true;
-        if (st.isDirectory() && await containsSymlink(full, depth + 1))
-            return true;
-    }
-    return false;
-}
 const STAGING_DIR_NAME = '.sftp-plus-tmp';
 async function resolveStagingRoot(nearDir) {
     var _a;
-    const candidate = path__WEBPACK_IMPORTED_MODULE_5__.join(nearDir, STAGING_DIR_NAME);
+    const candidate = path__WEBPACK_IMPORTED_MODULE_6__.join(nearDir, STAGING_DIR_NAME);
     try {
-        await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdir(candidate, { recursive: true });
+        await fs_promises__WEBPACK_IMPORTED_MODULE_4__.mkdir(candidate, { recursive: true });
         return candidate;
     }
     catch (e) {
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn(`tar channel: staging dir unusable near target, falling back to system temp: ${candidate} :: ${String((_a = e === null || e === void 0 ? void 0 : e.message) !== null && _a !== void 0 ? _a : e)}`);
-        return os__WEBPACK_IMPORTED_MODULE_4__.tmpdir();
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.warn(`tar channel: staging dir unusable near target, falling back to system temp: ${candidate} :: ${String((_a = e === null || e === void 0 ? void 0 : e.message) !== null && _a !== void 0 ? _a : e)}`);
+        return os__WEBPACK_IMPORTED_MODULE_5__.tmpdir();
     }
 }
 async function cleanupStaging(root, subDir) {
     if (subDir)
-        await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rm(subDir, { recursive: true, force: true }).catch(() => { });
-    if (!root || root === os__WEBPACK_IMPORTED_MODULE_4__.tmpdir())
+        await fs_promises__WEBPACK_IMPORTED_MODULE_4__.rm(subDir, { recursive: true, force: true }).catch(() => { });
+    if (!root || root === os__WEBPACK_IMPORTED_MODULE_5__.tmpdir())
         return;
-    await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rmdir(root).catch(() => { });
+    await fs_promises__WEBPACK_IMPORTED_MODULE_4__.rmdir(root).catch(() => { });
 }
 function makeTempName(baseName, kind) {
     return `${sanitizeNameSegment(baseName)}.sftp-plus-${kind}-${Math.random().toString(36).slice(2, 8)}`;
@@ -15970,42 +16032,42 @@ function sanitizeNameSegment(name) {
     return Array.from(cleaned).slice(0, 40).join('');
 }
 function buildRemoteUploadLanding(opts) {
-    const extractDirEntry = path__WEBPACK_IMPORTED_MODULE_5__.posix.join(opts.remoteExtractDir, opts.expectedBase);
+    const extractDirEntry = path__WEBPACK_IMPORTED_MODULE_6__.posix.join(opts.remoteExtractDir, opts.expectedBase);
     const placeStep = opts.mergeIntoExisting
-        ? `&& mkdir -p ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTarget)} ` +
-            `&& cp -a ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(extractDirEntry + '/.')} ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTarget + '/')} `
-        : `&& test ! -e ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTarget)} ` +
-            `&& mv ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(extractDirEntry)} ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTarget)} `;
+        ? `&& mkdir -p ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(opts.remoteTarget)} ` +
+            `&& cp -a ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(extractDirEntry + '/.')} ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(opts.remoteTarget + '/')} `
+        : `&& test ! -e ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(opts.remoteTarget)} ` +
+            `&& mv ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(extractDirEntry)} ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(opts.remoteTarget)} `;
     return {
-        cmd: `! tar tzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTar)} | grep -E '(^/|(^|/)\\.\\.((/|$)))' >/dev/null ` +
-            `&& mkdir -p ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteExtractDir)} ` +
-            `&& tar xzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTar)} -C ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteExtractDir)} ` +
-            `&& test -e ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(extractDirEntry)} ` +
+        cmd: `! tar tzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(opts.remoteTar)} | grep -E '(^/|(^|/)\\.\\.((/|$)))' >/dev/null ` +
+            `&& mkdir -p ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(opts.remoteExtractDir)} ` +
+            `&& tar xzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(opts.remoteTar)} -C ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(opts.remoteExtractDir)} ` +
+            `&& test -e ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(extractDirEntry)} ` +
             placeStep +
-            `&& rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteExtractDir)} ` +
+            `&& rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(opts.remoteExtractDir)} ` +
             `&& printf '${TAR_OK}\\n'`,
         retryOnEmpty: opts.mergeIntoExisting,
     };
 }
 function buildRemoteUploadBatchLanding(opts) {
-    const at = (base, n) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(path__WEBPACK_IMPORTED_MODULE_5__.posix.join(base, n));
+    const at = (base, n) => (0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(path__WEBPACK_IMPORTED_MODULE_6__.posix.join(base, n));
     const entryChecks = opts.names.map(n => `&& test -e ${at(opts.remoteExtractDir, n)} `).join('');
     const targetChecks = opts.names.map(n => `&& test ! -e ${at(opts.remoteDir, n)} `).join('');
     const moves = opts.names.map(n => `&& mv ${at(opts.remoteExtractDir, n)} ${at(opts.remoteDir, n)} `).join('');
-    return (`! tar tzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTar)} | grep -E '(^/|(^|/)\\.\\.((/|$)))' >/dev/null ` +
-        `&& mkdir -p ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteExtractDir)} ` +
-        `&& tar xzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteTar)} -C ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteExtractDir)} ` +
+    return (`! tar tzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(opts.remoteTar)} | grep -E '(^/|(^|/)\\.\\.((/|$)))' >/dev/null ` +
+        `&& mkdir -p ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(opts.remoteExtractDir)} ` +
+        `&& tar xzf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(opts.remoteTar)} -C ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(opts.remoteExtractDir)} ` +
         entryChecks +
         targetChecks +
         moves +
-        `&& rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(opts.remoteExtractDir)} ` +
+        `&& rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(opts.remoteExtractDir)} ` +
         `&& printf '${TAR_OK}\\n'`);
 }
 async function extractTarSafely(tarFile, localDest, expectedBase, stagingRoot, mergeIntoExisting = false) {
     var _a, _b;
-    const sandbox = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_5__.join(stagingRoot !== null && stagingRoot !== void 0 ? stagingRoot : os__WEBPACK_IMPORTED_MODULE_4__.tmpdir(), 'untar-')).catch(() => null);
+    const sandbox = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_6__.join(stagingRoot !== null && stagingRoot !== void 0 ? stagingRoot : os__WEBPACK_IMPORTED_MODULE_5__.tmpdir(), 'untar-')).catch(() => null);
     if (!sandbox) {
-        return { ok: false, code: 'localExtractFailed', detail: `cannot create extract sandbox under ${stagingRoot !== null && stagingRoot !== void 0 ? stagingRoot : os__WEBPACK_IMPORTED_MODULE_4__.tmpdir()}` };
+        return { ok: false, code: 'localExtractFailed', detail: `cannot create extract sandbox under ${stagingRoot !== null && stagingRoot !== void 0 ? stagingRoot : os__WEBPACK_IMPORTED_MODULE_5__.tmpdir()}` };
     }
     try {
         const flavor = await detectLocalTarFlavor();
@@ -16037,29 +16099,29 @@ async function extractTarSafely(tarFile, localDest, expectedBase, stagingRoot, m
         if (!(await assertExtractedUnderRoot(sandbox))) {
             return { ok: false, code: 'localExtractFailed', detail: `extracted tree escapes sandbox (zip-slip or symbolic link): ${localDest}` };
         }
-        const extractedDir = path__WEBPACK_IMPORTED_MODULE_5__.join(sandbox, expectedBase);
-        const st = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(extractedDir).catch(() => null);
+        const extractedDir = path__WEBPACK_IMPORTED_MODULE_6__.join(sandbox, expectedBase);
+        const st = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.lstat(extractedDir).catch(() => null);
         if (!st) {
-            const tops = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readdir(sandbox).catch(() => []);
+            const tops = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.readdir(sandbox).catch(() => []);
             const detail = `expected top-level entry missing after extract: expected="${expectedBase}" ` +
                 `got=${JSON.stringify(tops.slice(0, 3))} (tar=${flavor}): ${localDest}`;
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn('tar channel: ' + detail);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.warn('tar channel: ' + detail);
             return { ok: false, code: tops.length === 1 ? 'nameEncodingUnsupported' : 'localExtractFailed', detail };
         }
-        await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdir(localDest, { recursive: true }).catch(() => { });
-        const finalDest = path__WEBPACK_IMPORTED_MODULE_5__.join(localDest, expectedBase);
+        await fs_promises__WEBPACK_IMPORTED_MODULE_4__.mkdir(localDest, { recursive: true }).catch(() => { });
+        const finalDest = path__WEBPACK_IMPORTED_MODULE_6__.join(localDest, expectedBase);
         if (mergeIntoExisting) {
             const stats = { dirs: 0, files: 0, links: 0, vanished: [], failed: [] };
-            const seen = new Set([await fs_promises__WEBPACK_IMPORTED_MODULE_3__.realpath(finalDest).catch(() => finalDest)]);
+            const seen = new Set([await fs_promises__WEBPACK_IMPORTED_MODULE_4__.realpath(finalDest).catch(() => finalDest)]);
             await mergeDirInto(extractedDir, finalDest, stats, seen);
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info(`tar channel: merge into existing dir done (dirs=${stats.dirs} files=${stats.files} ` +
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.info(`tar channel: merge into existing dir done (dirs=${stats.dirs} files=${stats.files} ` +
                 `links=${stats.links} skipped=${stats.vanished.length} failed=${stats.failed.length}): ${finalDest}`);
             if (stats.vanished.length) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn(`tar channel: merge skipped ${stats.vanished.length} entries (source vanished after listing): ` +
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.warn(`tar channel: merge skipped ${stats.vanished.length} entries (source vanished after listing): ` +
                     stats.vanished.slice(0, 5).join(' | '));
             }
             if (stats.failed.length) {
-                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn(`tar channel: merge failed ${stats.failed.length} entries, refill via per-file channel: ` +
+                _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.warn(`tar channel: merge failed ${stats.failed.length} entries, refill via per-file channel: ` +
                     stats.failed.slice(0, 5).join(' | '));
                 return {
                     ok: false,
@@ -16069,17 +16131,17 @@ async function extractTarSafely(tarFile, localDest, expectedBase, stagingRoot, m
             }
             return { ok: true };
         }
-        if (await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(finalDest).then(() => true).catch(() => false)) {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn('tar channel: destination already exists, abort move:', finalDest);
+        if (await fs_promises__WEBPACK_IMPORTED_MODULE_4__.stat(finalDest).then(() => true).catch(() => false)) {
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.warn('tar channel: destination already exists, abort move:', finalDest);
             return { ok: false, code: 'localExtractFailed', detail: `destination already exists, abort move: ${finalDest}` };
         }
         try {
-            await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rename(extractedDir, finalDest);
+            await fs_promises__WEBPACK_IMPORTED_MODULE_4__.rename(extractedDir, finalDest);
         }
         catch (e) {
-            if (typeof fs_promises__WEBPACK_IMPORTED_MODULE_3__.cp === 'function') {
+            if (typeof fs_promises__WEBPACK_IMPORTED_MODULE_4__.cp === 'function') {
                 try {
-                    await fs_promises__WEBPACK_IMPORTED_MODULE_3__.cp(extractedDir, finalDest, { recursive: true, dereference: false });
+                    await fs_promises__WEBPACK_IMPORTED_MODULE_4__.cp(extractedDir, finalDest, { recursive: true, dereference: false });
                 }
                 catch (e2) {
                     return {
@@ -16100,7 +16162,7 @@ async function extractTarSafely(tarFile, localDest, expectedBase, stagingRoot, m
         return { ok: true };
     }
     finally {
-        await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rm(sandbox, { recursive: true, force: true }).catch(() => { });
+        await fs_promises__WEBPACK_IMPORTED_MODULE_4__.rm(sandbox, { recursive: true, force: true }).catch(() => { });
     }
 }
 async function mergeDirInto(src, dest, stats, seen, depth = 0) {
@@ -16109,21 +16171,21 @@ async function mergeDirInto(src, dest, stats, seen, depth = 0) {
         stats.failed.push(`depth limit reached at "${dest}"`);
         return;
     }
-    await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdir(dest, { recursive: true }).catch(() => { });
+    await fs_promises__WEBPACK_IMPORTED_MODULE_4__.mkdir(dest, { recursive: true }).catch(() => { });
     let entries;
     try {
-        entries = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readdir(src, { withFileTypes: true });
+        entries = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.readdir(src, { withFileTypes: true });
     }
     catch (err) {
         stats.vanished.push(`${src} :: ${String((_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : err)}`);
         return;
     }
     for (const e of entries) {
-        const s = path__WEBPACK_IMPORTED_MODULE_5__.join(src, e.name);
-        const d = path__WEBPACK_IMPORTED_MODULE_5__.join(dest, e.name);
+        const s = path__WEBPACK_IMPORTED_MODULE_6__.join(src, e.name);
+        const d = path__WEBPACK_IMPORTED_MODULE_6__.join(dest, e.name);
         let st;
         try {
-            st = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(s);
+            st = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.lstat(s);
         }
         catch (err) {
             stats.vanished.push(`${s} :: ${String((_b = err === null || err === void 0 ? void 0 : err.message) !== null && _b !== void 0 ? _b : err)}`);
@@ -16134,7 +16196,7 @@ async function mergeDirInto(src, dest, stats, seen, depth = 0) {
             continue;
         }
         if (st.isDirectory()) {
-            const real = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.realpath(s).catch(() => s);
+            const real = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.realpath(s).catch(() => s);
             if (seen.has(real)) {
                 stats.vanished.push(`${s} (alias already merged)`);
                 continue;
@@ -16149,20 +16211,20 @@ async function mergeDirInto(src, dest, stats, seen, depth = 0) {
     }
 }
 async function copyLinkOrTarget(s, d, stats, seen, depth) {
-    const target = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.readlink(s).catch(() => null);
+    const target = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.readlink(s).catch(() => null);
     if (target !== null) {
-        const dst = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(d).catch(() => null);
+        const dst = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.lstat(d).catch(() => null);
         if (dst && !dst.isDirectory())
-            await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rm(d, { force: true }).catch(() => { });
-        const ok = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.symlink(target, d).then(() => true).catch(() => false);
+            await fs_promises__WEBPACK_IMPORTED_MODULE_4__.rm(d, { force: true }).catch(() => { });
+        const ok = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.symlink(target, d).then(() => true).catch(() => false);
         if (ok) {
             stats.links++;
             return;
         }
     }
-    const rst = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(s).catch(() => null);
+    const rst = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.stat(s).catch(() => null);
     if (rst === null || rst === void 0 ? void 0 : rst.isDirectory()) {
-        const real = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.realpath(s).catch(() => s);
+        const real = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.realpath(s).catch(() => s);
         if (seen.has(real)) {
             stats.vanished.push(`${s} (alias already merged)`);
             return;
@@ -16181,17 +16243,17 @@ async function copyLinkOrTarget(s, d, stats, seen, depth) {
 }
 async function copyEntry(s, d, stats) {
     var _a;
-    const dst = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(d).catch(() => null);
+    const dst = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.lstat(d).catch(() => null);
     if (dst) {
         if (dst.isDirectory()) {
             stats.failed.push(`"${d}" (destination is a directory, refusing to replace)`);
             return;
         }
         if (!dst.isFile())
-            await fs_promises__WEBPACK_IMPORTED_MODULE_3__.rm(d, { force: true }).catch(() => { });
+            await fs_promises__WEBPACK_IMPORTED_MODULE_4__.rm(d, { force: true }).catch(() => { });
     }
     try {
-        await fs_promises__WEBPACK_IMPORTED_MODULE_3__.copyFile(s, d);
+        await fs_promises__WEBPACK_IMPORTED_MODULE_4__.copyFile(s, d);
     }
     catch (err) {
         const msg = String((_a = err === null || err === void 0 ? void 0 : err.message) !== null && _a !== void 0 ? _a : err);
@@ -16212,12 +16274,12 @@ class TarChannel {
     _decline(mode, name, code, detail, folder, ctx) {
         var _a, _b;
         if (mode !== 'tarOnly') {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn(`tar channel unavailable (${code}), fallback to per-file channel: ${detail}`);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.warn(`tar channel unavailable (${code}), fallback to per-file channel: ${detail}`);
             if (folder && ctx)
                 return tarRecoverableFallback(folder, ctx);
             return 'fallback';
         }
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn(`tar channel required by TAR-only mode but unusable (${code}), transfer will fail: ${detail}`);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.warn(`tar channel required by TAR-only mode but unusable (${code}), transfer will fail: ${detail}`);
         if (folder && ctx) {
             try {
                 folder.finish(ctx, false);
@@ -16236,7 +16298,7 @@ class TarChannel {
         const r = await runLocalTar(['--version']);
         this.localTarOk = r.ok;
         if (!r.ok)
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.warn(`tar channel: local tar unusable ("${resolveLocalTarCmd()}"): ${r.output}`);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.warn(`tar channel: local tar unusable ("${resolveLocalTarCmd()}"): ${r.output}`);
         return this.localTarOk;
     }
     async _remoteTarAvailable() {
@@ -16280,7 +16342,7 @@ class TarChannel {
         return `${io}nice -n 19 `;
     }
     async tryUploadDir(localPath, remoteTarget, folder, name, mergeIntoExisting = false, mode = 'smart', reuseLogEntryId) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f;
         if (mode === 'sftpOnly')
             return 'fallback';
         if (!this.deps.hasSsh()) {
@@ -16289,49 +16351,50 @@ class TarChannel {
         if (localPath.includes('\0') || remoteTarget.includes('\0')) {
             return this._decline(mode, name, 'other', `NUL byte in path: ${localPath} -> ${remoteTarget}`);
         }
+        const localStats = await (0,_local_tree_inspection__WEBPACK_IMPORTED_MODULE_0__.inspectLocalTrees)([localPath], mode === 'smart' || mode === 'preferSftp' ? 3000 : mode === 'tarOnly' ? Infinity : REMOTE_STATS_TIMEOUT_MS);
+        if (!localStats)
+            return this._decline(mode, name, 'other', 'Local archive inspection did not complete within its budget.');
+        if (localStats.hasSymlink)
+            return this._decline(mode, name, 'symlinkUnsupported', 'Local tree contains a symlink: ' + localPath);
+        const verdict = tarWorthwhile(mode, localStats);
+        if (!verdict.ok) {
+            return this._decline(mode, name, 'other', `not worthwhile (${verdict.reason}): ${localPath} -> ${remoteTarget}`);
+        }
         if (!(await this._localTarAvailable())) {
             return this._decline(mode, name, 'localTarMissing', `local tar unavailable (pack step): ${localPath}`);
         }
         if (!(await this._remoteTarAvailable())) {
             return this._decline(mode, name, 'remoteTarMissing', `remote tar unavailable (extract step): ${remoteTarget}`);
         }
-        if (await containsSymlink(localPath)) {
-            return this._decline(mode, name, 'symlinkUnsupported', `local tree contains symlink: ${localPath}`);
-        }
-        const localStats = this.deps.scanLocalDir ? await this.deps.scanLocalDir(localPath).catch(() => null) : null;
-        const verdict = tarWorthwhile(mode, localStats);
-        if (!verdict.ok) {
-            return this._decline(mode, name, 'other', `not worthwhile (${verdict.reason}): ${localPath} -> ${remoteTarget}`);
-        }
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info(`tar channel: packed upload start (${mergeIntoExisting ? 'merge-into-existing' : 'fresh'}); ${verdict.reason}: ${localPath} -> ${remoteTarget}`);
-        const stagingRoot = await resolveStagingRoot(path__WEBPACK_IMPORTED_MODULE_5__.dirname(path__WEBPACK_IMPORTED_MODULE_5__.resolve(localPath)));
-        const tmpDir = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_5__.join(stagingRoot, 'pack-')).catch(() => null);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.info(`tar channel: packed upload start (${mergeIntoExisting ? 'merge-into-existing' : 'fresh'}); ${verdict.reason}: ${localPath} -> ${remoteTarget}`);
+        const stagingRoot = await resolveStagingRoot(path__WEBPACK_IMPORTED_MODULE_6__.dirname(path__WEBPACK_IMPORTED_MODULE_6__.resolve(localPath)));
+        const tmpDir = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_6__.join(stagingRoot, 'pack-')).catch(() => null);
         if (!tmpDir) {
             return this._decline(mode, name, 'other', `local staging dir unusable (mkdtemp failed): ${stagingRoot}`);
         }
-        const tarFile = path__WEBPACK_IMPORTED_MODULE_5__.join(tmpDir, `${makeTempName(path__WEBPACK_IMPORTED_MODULE_5__.basename(localPath), 'tar')}.tar.gz`);
-        const packArgs = ['-czf', tarFile, '-C', path__WEBPACK_IMPORTED_MODULE_5__.dirname(localPath), path__WEBPACK_IMPORTED_MODULE_5__.basename(localPath)];
-        let packed = await runLocalTar(['-czf', '--format=pax', tarFile, '-C', path__WEBPACK_IMPORTED_MODULE_5__.dirname(localPath), path__WEBPACK_IMPORTED_MODULE_5__.basename(localPath)]);
+        const tarFile = path__WEBPACK_IMPORTED_MODULE_6__.join(tmpDir, `${makeTempName(path__WEBPACK_IMPORTED_MODULE_6__.basename(localPath), 'tar')}.tar.gz`);
+        const packArgs = ['-czf', tarFile, '-C', path__WEBPACK_IMPORTED_MODULE_6__.dirname(localPath), path__WEBPACK_IMPORTED_MODULE_6__.basename(localPath)];
+        let packed = await runLocalTar(['-czf', '--format=pax', tarFile, '-C', path__WEBPACK_IMPORTED_MODULE_6__.dirname(localPath), path__WEBPACK_IMPORTED_MODULE_6__.basename(localPath)]);
         if (!packed.ok)
             packed = await runLocalTar(packArgs);
         if (!packed.ok) {
             await cleanupStaging(stagingRoot, tmpDir);
             return this._decline(mode, name, 'localPackFailed', `local tar pack failed: ${localPath} (tar="${resolveLocalTarCmd()}") :: output="${packed.output.slice(0, 400)}"`);
         }
-        const tarSize = (_b = (_a = (await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(tarFile).catch(() => null))) === null || _a === void 0 ? void 0 : _a.size) !== null && _b !== void 0 ? _b : 0;
+        const tarSize = (_b = (_a = (await fs_promises__WEBPACK_IMPORTED_MODULE_4__.stat(tarFile).catch(() => null))) === null || _a === void 0 ? void 0 : _a.size) !== null && _b !== void 0 ? _b : 0;
         if (tarSize <= 0) {
             await cleanupStaging(stagingRoot, tmpDir);
             return this._decline(mode, name, 'localPackFailed', `local tarball empty or unreadable: ${tarFile}`);
         }
-        const parent = path__WEBPACK_IMPORTED_MODULE_5__.posix.dirname(remoteTarget);
-        const remoteTar = path__WEBPACK_IMPORTED_MODULE_5__.posix.join(parent, `${makeTempName(path__WEBPACK_IMPORTED_MODULE_5__.posix.basename(remoteTarget), 'tar')}.tar.gz`);
-        const realSize = await this.deps.scanLocalSize(localPath).catch(() => 0);
+        const parent = path__WEBPACK_IMPORTED_MODULE_6__.posix.dirname(remoteTarget);
+        const remoteTar = path__WEBPACK_IMPORTED_MODULE_6__.posix.join(parent, `${makeTempName(path__WEBPACK_IMPORTED_MODULE_6__.posix.basename(remoteTarget), 'tar')}.tar.gz`);
+        const realSize = (_c = localStats === null || localStats === void 0 ? void 0 : localStats.size) !== null && _c !== void 0 ? _c : 0;
         const displayTotal = realSize > 0 ? realSize : tarSize;
         const disp = (b) => displayTotal === tarSize ? b : Math.round(b * displayTotal / tarSize);
         const ctx = folder.start(name, 'upload', remoteTarget, localPath, displayTotal, 1, reuseLogEntryId);
-        (_c = folder.markChannelMode) === null || _c === void 0 ? void 0 : _c.call(folder, ctx, 'tar');
+        (_d = folder.markChannelMode) === null || _d === void 0 ? void 0 : _d.call(folder, ctx, 'tar');
         if (realSize > 0)
-            (_d = folder.updateLogSize) === null || _d === void 0 ? void 0 : _d.call(folder, ctx, realSize);
+            (_e = folder.updateLogSize) === null || _e === void 0 ? void 0 : _e.call(folder, ctx, realSize);
         let remoteExtractDir = null;
         try {
             if (folder.isAborted(ctx)) {
@@ -16346,28 +16409,28 @@ class TarChannel {
             if (!upOk) {
                 return this._decline(mode, name, 'tarballFailed', `tarball upload failed: ${remoteTarget}`, folder, ctx);
             }
-            remoteExtractDir = path__WEBPACK_IMPORTED_MODULE_5__.posix.join(parent, makeTempName(path__WEBPACK_IMPORTED_MODULE_5__.posix.basename(remoteTarget), 'untar'));
-            const expectedBase = path__WEBPACK_IMPORTED_MODULE_5__.posix.basename(remoteTarget);
-            (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderPhase)(folder, ctx, 'extracting', name);
+            remoteExtractDir = path__WEBPACK_IMPORTED_MODULE_6__.posix.join(parent, makeTempName(path__WEBPACK_IMPORTED_MODULE_6__.posix.basename(remoteTarget), 'untar'));
+            const expectedBase = path__WEBPACK_IMPORTED_MODULE_6__.posix.basename(remoteTarget);
+            (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_1__.folderPhase)(folder, ctx, 'extracting', name);
             const landing = buildRemoteUploadLanding({
                 remoteTar, remoteExtractDir, expectedBase, remoteTarget, mergeIntoExisting,
             });
-            (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderPhase)(folder, ctx, 'extracting', name);
+            (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_1__.folderPhase)(folder, ctx, 'extracting', name);
             const out = await this.deps.exec(landing.cmd, REMOTE_TAR_TIMEOUT_MS, { retryOnEmpty: landing.retryOnEmpty });
             if (!new RegExp(`\\b${TAR_OK}\\b`).test(out)) {
-                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
+                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
                 return this._decline(mode, name, 'remotePackFailed', `remote extract failed: ${remoteTarget} :: output="${String(out !== null && out !== void 0 ? out : '').trim().slice(0, 400)}"`, folder, ctx);
             }
             folder.updateProgress(ctx, displayTotal, name, 1, displayTotal);
             folder.finish(ctx, true);
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info('tar channel upload OK:', localPath, '->', remoteTarget);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.info('tar channel upload OK:', localPath, '->', remoteTarget);
             return 'success';
         }
         catch (e) {
             if (remoteExtractDir) {
-                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
+                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
             }
-            return this._decline(mode, name, 'other', `upload via tar channel threw: ${remoteTarget} :: ${String((_e = e === null || e === void 0 ? void 0 : e.message) !== null && _e !== void 0 ? _e : e)}`, folder, ctx);
+            return this._decline(mode, name, 'other', `upload via tar channel threw: ${remoteTarget} :: ${String((_f = e === null || e === void 0 ? void 0 : e.message) !== null && _f !== void 0 ? _f : e)}`, folder, ctx);
         }
         finally {
             this.deps.remoteUnlink(remoteTar).catch(() => { });
@@ -16377,21 +16440,21 @@ class TarChannel {
     async tryUploadBatch(localPaths, remoteDir, folder, name, mode = 'smart') {
         var _a, _b, _c, _d, _e, _f;
         const skip = (detail) => {
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info(`[batch-upload] batch packing not applicable, per-file channel takes over: ${detail}`);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.info(`[batch-upload] batch packing not applicable, per-file channel takes over: ${detail}`);
             return 'fallback';
         };
         if (mode === 'sftpOnly')
             return 'fallback';
         if (localPaths.length < 2)
             return skip(`only ${localPaths.length} entry`);
-        const parents = [...new Set(localPaths.map(p => path__WEBPACK_IMPORTED_MODULE_5__.dirname(p)))];
+        const parents = [...new Set(localPaths.map(p => path__WEBPACK_IMPORTED_MODULE_6__.dirname(p)))];
         if (parents.length !== 1)
             return skip(`${parents.length} distinct parent dirs (multiple landing points)`);
         if (remoteDir.includes('\0') || localPaths.some(p => p.includes('\0')))
             return skip('NUL byte in path');
         const names = [];
         for (const p of localPaths) {
-            const b = path__WEBPACK_IMPORTED_MODULE_5__.basename(p);
+            const b = path__WEBPACK_IMPORTED_MODULE_6__.basename(p);
             if (!b || b === '.' || b === '..' || b.includes('/') || b.includes('\\'))
                 return skip(`unsafe entry name: ${JSON.stringify(b)}`);
             names.push(b);
@@ -16403,30 +16466,25 @@ class TarChannel {
             return skip(`too many entry names for one command line (${argChars} chars)`);
         if (!this.deps.hasSsh())
             return skip(`no ssh session: ${remoteDir}`);
+        const stats = await (0,_local_tree_inspection__WEBPACK_IMPORTED_MODULE_0__.inspectLocalTrees)(localPaths, mode === 'smart' || mode === 'preferSftp' ? 3000 : mode === 'tarOnly' ? Infinity : REMOTE_STATS_TIMEOUT_MS);
+        if (!stats)
+            return skip('Local archive inspection did not complete within its budget.');
+        if (stats.hasSymlink)
+            return skip('Local batch contains a symlink.');
+        const verdict = tarWorthwhile(mode, stats);
+        if (!verdict.ok)
+            return skip(`not worthwhile (${verdict.reason}): ${names.length} entries -> ${remoteDir}`);
         if (!(await this._localTarAvailable()))
             return skip(`local tar unavailable (pack step): ${parents[0]}`);
         if (!(await this._remoteTarAvailable()))
             return skip(`remote tar unavailable (extract step): ${remoteDir}`);
-        for (const p of localPaths) {
-            const st = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.lstat(p).catch(() => null);
-            if (!st)
-                return skip(`lstat failed: ${p}`);
-            if (st.isSymbolicLink())
-                return skip(`entry is a symlink: ${p}`);
-            if (st.isDirectory() && (await containsSymlink(p)))
-                return skip(`local tree contains symlink: ${p}`);
-        }
-        const stats = this.deps.scanLocalPaths ? await this.deps.scanLocalPaths(localPaths).catch(() => null) : null;
-        const verdict = tarWorthwhile(mode, stats);
-        if (!verdict.ok)
-            return skip(`not worthwhile (${verdict.reason}): ${names.length} entries -> ${remoteDir}`);
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info(`[batch-upload] packed batch upload start; ${verdict.reason}; ${names.length} entries: ${parents[0]} -> ${remoteDir}`);
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.info(`[batch-upload] packed batch upload start; ${verdict.reason}; ${names.length} entries: ${parents[0]} -> ${remoteDir}`);
         const stagingRoot = await resolveStagingRoot(parents[0]);
-        const tmpDir = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_5__.join(stagingRoot, 'pack-')).catch(() => null);
+        const tmpDir = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_6__.join(stagingRoot, 'pack-')).catch(() => null);
         if (!tmpDir)
             return skip(`local staging dir unusable (mkdtemp failed): ${stagingRoot}`);
-        const batchTag = `${path__WEBPACK_IMPORTED_MODULE_5__.basename(remoteDir) || 'batch'}-${names.length}`;
-        const tarFile = path__WEBPACK_IMPORTED_MODULE_5__.join(tmpDir, `${makeTempName(batchTag, 'tar')}.tar.gz`);
+        const batchTag = `${path__WEBPACK_IMPORTED_MODULE_6__.basename(remoteDir) || 'batch'}-${names.length}`;
+        const tarFile = path__WEBPACK_IMPORTED_MODULE_6__.join(tmpDir, `${makeTempName(batchTag, 'tar')}.tar.gz`);
         const packTail = ['-C', parents[0], ...names];
         let packed = await runLocalTar(['-czf', '--format=pax', tarFile, ...packTail]);
         if (!packed.ok)
@@ -16435,7 +16493,7 @@ class TarChannel {
             await cleanupStaging(stagingRoot, tmpDir);
             return skip(`local tar pack failed (tar="${resolveLocalTarCmd()}") :: output="${packed.output.slice(0, 400)}"`);
         }
-        const tarSize = (_b = (_a = (await fs_promises__WEBPACK_IMPORTED_MODULE_3__.stat(tarFile).catch(() => null))) === null || _a === void 0 ? void 0 : _a.size) !== null && _b !== void 0 ? _b : 0;
+        const tarSize = (_b = (_a = (await fs_promises__WEBPACK_IMPORTED_MODULE_4__.stat(tarFile).catch(() => null))) === null || _a === void 0 ? void 0 : _a.size) !== null && _b !== void 0 ? _b : 0;
         if (tarSize <= 0) {
             await cleanupStaging(stagingRoot, tmpDir);
             return skip(`local tarball empty or unreadable: ${tarFile}`);
@@ -16443,7 +16501,7 @@ class TarChannel {
         const realSize = (_c = stats === null || stats === void 0 ? void 0 : stats.size) !== null && _c !== void 0 ? _c : 0;
         const displayTotal = realSize > 0 ? realSize : tarSize;
         const disp = (b) => displayTotal === tarSize ? b : Math.round(b * displayTotal / tarSize);
-        const remoteTar = path__WEBPACK_IMPORTED_MODULE_5__.posix.join(remoteDir, `${makeTempName(batchTag, 'tar')}.tar.gz`);
+        const remoteTar = path__WEBPACK_IMPORTED_MODULE_6__.posix.join(remoteDir, `${makeTempName(batchTag, 'tar')}.tar.gz`);
         const ctx = folder.start(name, 'upload', remoteDir, parents[0], displayTotal, names.length);
         (_d = folder.markChannelMode) === null || _d === void 0 ? void 0 : _d.call(folder, ctx, 'tar');
         if (realSize > 0)
@@ -16462,20 +16520,20 @@ class TarChannel {
             if (!upOk) {
                 return this._decline(mode, name, 'tarballFailed', `batch tarball upload failed: ${remoteDir}`, folder, ctx);
             }
-            remoteExtractDir = path__WEBPACK_IMPORTED_MODULE_5__.posix.join(remoteDir, makeTempName(batchTag, 'untar'));
+            remoteExtractDir = path__WEBPACK_IMPORTED_MODULE_6__.posix.join(remoteDir, makeTempName(batchTag, 'untar'));
             const out = await this.deps.exec(buildRemoteUploadBatchLanding({ remoteTar, remoteExtractDir, remoteDir, names }), REMOTE_TAR_TIMEOUT_MS, { retryOnEmpty: false });
             if (!new RegExp(`\\b${TAR_OK}\\b`).test(out)) {
-                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
+                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
                 return this._decline(mode, name, 'remotePackFailed', `remote extract/landing failed: ${remoteDir} :: output="${String(out !== null && out !== void 0 ? out : '').trim().slice(0, 400)}"`, folder, ctx);
             }
             folder.updateProgress(ctx, displayTotal, name, names.length, displayTotal);
             folder.finish(ctx, true);
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info(`[batch-upload] tar channel upload OK: ${names.length} entries -> ${remoteDir}`);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.info(`[batch-upload] tar channel upload OK: ${names.length} entries -> ${remoteDir}`);
             return 'success';
         }
         catch (e) {
             if (remoteExtractDir) {
-                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
+                this.deps.exec(`rm -rf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(remoteExtractDir)}`).catch(() => { });
             }
             return this._decline(mode, name, 'other', `batch upload via tar channel threw: ${remoteDir} :: ${String((_f = e === null || e === void 0 ? void 0 : e.message) !== null && _f !== void 0 ? _f : e)}`, folder, ctx);
         }
@@ -16486,7 +16544,7 @@ class TarChannel {
     }
     async _remoteDirStats(dir, timeoutMs = REMOTE_STATS_TIMEOUT_MS) {
         try {
-            const q = (0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(dir);
+            const q = (0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(dir);
             const out = await this.deps.exec(`find ${q} -type f -printf '%s\\n' 2>/dev/null | awk '{n++; s+=$1} END {print n+0, s+0}'`, timeoutMs, { retryOnEmpty: false });
             const m = String(out !== null && out !== void 0 ? out : '').trim().match(/^(\d+)\s+(\d+)$/);
             if (!m)
@@ -16515,24 +16573,24 @@ class TarChannel {
         if (!(await this._remoteTarAvailable())) {
             return this._decline(mode, name, 'remoteTarMissing', `remote tar unavailable (pack step): ${remoteSrc}`);
         }
-        const parent = path__WEBPACK_IMPORTED_MODULE_5__.posix.dirname(remoteSrc);
-        const base = path__WEBPACK_IMPORTED_MODULE_5__.posix.basename(remoteSrc);
+        const parent = path__WEBPACK_IMPORTED_MODULE_6__.posix.dirname(remoteSrc);
+        const base = path__WEBPACK_IMPORTED_MODULE_6__.posix.basename(remoteSrc);
         const dirStats = statsHint || await this._remoteDirStats(remoteSrc, mode === 'smart' || mode === 'preferSftp' ? 3000 : REMOTE_STATS_TIMEOUT_MS);
         const verdict = tarWorthwhile(mode, dirStats);
         if (!verdict.ok) {
             return this._decline(mode, name, 'other', `not worthwhile (${verdict.reason}): ${remoteSrc} -> ${localDest}`);
         }
-        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info(`tar channel: packed download start (mergeIntoExisting=${mergeIntoExisting}); ${verdict.reason}: ` +
+        _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.info(`tar channel: packed download start (mergeIntoExisting=${mergeIntoExisting}); ${verdict.reason}: ` +
             `${remoteSrc} -> ${localDest}`);
-        const remoteTar = path__WEBPACK_IMPORTED_MODULE_5__.posix.join(parent, `${makeTempName(base, 'tar')}.tar`);
+        const remoteTar = path__WEBPACK_IMPORTED_MODULE_6__.posix.join(parent, `${makeTempName(base, 'tar')}.tar`);
         const paxFlag = (await this._remoteTarSupportsPax()) ? '--format=pax ' : '';
-        let out = await this.deps.exec(`${await this._remoteNicePrefix()}tar cf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(remoteTar)} ${paxFlag}-C ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(parent)} ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(base)} ` +
+        let out = await this.deps.exec(`${await this._remoteNicePrefix()}tar cf ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(remoteTar)} ${paxFlag}-C ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(parent)} ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(base)} ` +
             `&& printf '${TAR_OK}\\n'`, REMOTE_TAR_TIMEOUT_MS, { retryOnEmpty: true });
         if (!new RegExp(`\\b${TAR_OK}\\b`).test(out)) {
             this.deps.remoteUnlink(remoteTar).catch(() => { });
             return this._decline(mode, name, 'remotePackFailed', `remote pack failed: ${remoteSrc} (pax=${paxFlag ? 'on' : 'off'}) :: output="${String(out !== null && out !== void 0 ? out : '').trim().slice(0, 400)}"`);
         }
-        out = await this.deps.exec(`wc -c < ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_6__.shellQuotePosix)(remoteTar)}`, undefined, { retryOnEmpty: true });
+        out = await this.deps.exec(`wc -c < ${(0,_fs_ops__WEBPACK_IMPORTED_MODULE_7__.shellQuotePosix)(remoteTar)}`, undefined, { retryOnEmpty: true });
         const tarSize = parseInt(out.trim(), 10);
         if (!Number.isFinite(tarSize) || tarSize <= 0) {
             this.deps.remoteUnlink(remoteTar).catch(() => { });
@@ -16541,13 +16599,13 @@ class TarChannel {
         const realSize = (_a = dirStats === null || dirStats === void 0 ? void 0 : dirStats.size) !== null && _a !== void 0 ? _a : 0;
         const displayTotal = realSize > 0 ? realSize : tarSize;
         const disp = (b) => displayTotal === tarSize ? b : Math.round(b * displayTotal / tarSize);
-        const ctx = folder.start(name, 'download', remoteSrc, path__WEBPACK_IMPORTED_MODULE_5__.join(localDest, base), displayTotal, 1);
+        const ctx = folder.start(name, 'download', remoteSrc, path__WEBPACK_IMPORTED_MODULE_6__.join(localDest, base), displayTotal, 1);
         (_b = folder.markChannelMode) === null || _b === void 0 ? void 0 : _b.call(folder, ctx, 'tar');
         if (realSize > 0)
             (_c = folder.updateLogSize) === null || _c === void 0 ? void 0 : _c.call(folder, ctx, realSize);
         const stagingRoot = await resolveStagingRoot(localDest);
-        const tmpDir = await fs_promises__WEBPACK_IMPORTED_MODULE_3__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_5__.join(stagingRoot, 'pack-')).catch(() => null);
-        const tarFile = tmpDir ? path__WEBPACK_IMPORTED_MODULE_5__.join(tmpDir, `${makeTempName(base, 'tar')}.tar`) : null;
+        const tmpDir = await fs_promises__WEBPACK_IMPORTED_MODULE_4__.mkdtemp(path__WEBPACK_IMPORTED_MODULE_6__.join(stagingRoot, 'pack-')).catch(() => null);
+        const tarFile = tmpDir ? path__WEBPACK_IMPORTED_MODULE_6__.join(tmpDir, `${makeTempName(base, 'tar')}.tar`) : null;
         try {
             if (folder.isAborted(ctx)) {
                 folder.finish(ctx, false);
@@ -16564,19 +16622,19 @@ class TarChannel {
             if (!dlOk) {
                 return this._decline(mode, name, 'tarballFailed', `tarball download failed: ${remoteSrc}`, folder, ctx);
             }
-            ;(0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderPhase)(folder, ctx, 'extracting', name);
+            ;(0,_transfer_progress__WEBPACK_IMPORTED_MODULE_1__.folderPhase)(folder, ctx, 'extracting', name);
             const extracted = await extractTarSafely(tarFile, localDest, base, stagingRoot, mergeIntoExisting);
             if (extracted.ok === false) {
                 return this._decline(mode, name, extracted.code, extracted.detail, folder, ctx);
             }
             if (!(realSize > 0) && !mergeIntoExisting) {
-                const extractedSize = await this.deps.scanLocalSize(path__WEBPACK_IMPORTED_MODULE_5__.join(localDest, base)).catch(() => 0);
+                const extractedSize = await this.deps.scanLocalSize(path__WEBPACK_IMPORTED_MODULE_6__.join(localDest, base)).catch(() => 0);
                 if (extractedSize > 0)
                     (_d = folder.updateLogSize) === null || _d === void 0 ? void 0 : _d.call(folder, ctx, extractedSize);
             }
             folder.updateProgress(ctx, displayTotal, name, 1, displayTotal);
             folder.finish(ctx, true);
-            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_7__.log.info('tar channel download OK:', remoteSrc, '->', localDest);
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_8__.log.info('tar channel download OK:', remoteSrc, '->', localDest);
             return 'success';
         }
         catch (e) {
@@ -18977,7 +19035,7 @@ class DownloadDirUseCase {
                         ctx.discoveredBytes = (ctx.discoveredBytes || 0) + Math.max(0, entry.size || 0);
                         ctx.discoveredItems = (ctx.discoveredItems || 0) + 1;
                     }
-                this.publishDiscovery(ctx);
+                ;(0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.publishFolderDiscovery)(this.ports.folder, ctx);
             }
             const settled = await (0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.mapSettledConcurrent)(entries, (0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.clampDirConcurrency)((_c = this.dirConcurrency) === null || _c === void 0 ? void 0 : _c.call(this)) * 2, async (entry) => {
                 if (!(await dirGate(this.ports.folder, ctx)))
@@ -18998,7 +19056,7 @@ class DownloadDirUseCase {
                             ctx.discoveredBytes = Math.max(0, (ctx.discoveredBytes || 0) - (entry.size || 0));
                             ctx.discoveredItems = Math.max(0, (ctx.discoveredItems || 0) - 1);
                         }
-                        this.publishDiscovery(ctx);
+                        ;(0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.publishFolderDiscovery)(this.ports.folder, ctx);
                     }
                     return true;
                 }
@@ -19021,7 +19079,7 @@ class DownloadDirUseCase {
                                     entry.size = sz;
                                     if (ctx) {
                                         ctx.discoveredBytes = (ctx.discoveredBytes || 0) + sz;
-                                        this.publishDiscovery(ctx);
+                                        (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.publishFolderDiscovery)(this.ports.folder, ctx);
                                     }
                                 }
                             }
@@ -19098,17 +19156,6 @@ class DownloadDirUseCase {
             }
         }
         return success && !(ctx === null || ctx === void 0 ? void 0 : ctx.hadConflict);
-    }
-    publishDiscovery(ctx) {
-        var _a, _b;
-        if (ctx.t) {
-            ctx.t.bytesTotal = ctx.discoveredBytes || 0;
-            ctx.t.itemCount = ctx.discoveredItems || 0;
-            ctx.t.discoveryComplete = ctx.discoveryPending === 0 && !ctx.discoveryIncomplete;
-        }
-        if (ctx.discoveryPending === 0)
-            (_b = (_a = this.ports.folder).updateLogSize) === null || _b === void 0 ? void 0 : _b.call(_a, ctx, ctx.discoveredBytes || 0);
-        (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderPhase)(this.ports.folder, ctx, 'transferring');
     }
 }
 class DownloadOneUseCase {
@@ -19203,22 +19250,28 @@ class MergeLocalDirUseCase {
         catch (_b) { }
         let ownCtx = null;
         if (isTop && !topCtx && this.ports.folder) {
-            let totalSize = 0;
-            let itemCount = 0;
-            if (this.ports.scanLocalDir) {
-                try {
-                    const s = await this.ports.scanLocalDir(localSrc);
-                    totalSize = s.size;
-                    itemCount = s.count;
-                }
-                catch (_c) { }
-            }
-            ownCtx = this.ports.folder.start(path__WEBPACK_IMPORTED_MODULE_1__.basename(localSrc), 'upload', remoteDest, localSrc, totalSize, itemCount, reuseLogEntryId);
+            ownCtx = this.ports.folder.start(path__WEBPACK_IMPORTED_MODULE_1__.basename(localSrc), 'upload', remoteDest, localSrc, 0, 0, reuseLogEntryId);
+            ownCtx.producing = true;
+            ownCtx.discoveryPending = 1;
+            ownCtx.discoveredBytes = 0;
+            ownCtx.discoveredItems = 0;
+            if (ownCtx.t)
+                ownCtx.t.discoveryComplete = false;
         }
         const ctx = topCtx !== null && topCtx !== void 0 ? topCtx : ownCtx;
         let success = true;
         try {
-            const children = await this.ports.localFs.listChildren(localSrc);
+            const seen = new Set();
+            const children = (await this.ports.localFs.listChildren(localSrc)).filter(child => {
+                if (child.isSymbolicLink || (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(child.name) !== child.name || seen.has(child.name))
+                    return false;
+                seen.add(child.name);
+                return true;
+            });
+            if (ctx && this.ports.folder) {
+                ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1) + children.length;
+                (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.publishFolderDiscovery)(this.ports.folder, ctx);
+            }
             for (const c of children) {
                 if (ctx && this.ports.folder) {
                     if (this.ports.folder.isAborted(ctx)) {
@@ -19241,7 +19294,23 @@ class MergeLocalDirUseCase {
                 const localP = path__WEBPACK_IMPORTED_MODULE_1__.join(localSrc, safeName);
                 const remoteP = path__WEBPACK_IMPORTED_MODULE_1__.posix.join(remoteDest, safeName);
                 const st = await this.ports.localFs.lstat(localP);
-                if (!st)
+                if (ctx && this.ports.folder) {
+                    ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1);
+                    if (!st)
+                        ctx.discoveryIncomplete = true;
+                    else if (!st.isSymbolicLink() && st.isDirectory())
+                        ctx.discoveryPending++;
+                    else if (!st.isSymbolicLink()) {
+                        ctx.discoveredBytes = (ctx.discoveredBytes || 0) + st.size;
+                        ctx.discoveredItems = (ctx.discoveredItems || 0) + 1;
+                    }
+                    ;(0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.publishFolderDiscovery)(this.ports.folder, ctx);
+                }
+                if (!st) {
+                    success = false;
+                    continue;
+                }
+                if (st.isSymbolicLink())
                     continue;
                 if (st.isDirectory()) {
                     const childOk = await this.execute(localP, remoteP, false, undefined, ctx);
@@ -19273,8 +19342,11 @@ class MergeLocalDirUseCase {
             throw e;
         }
         finally {
-            if (ownCtx && this.ports.folder)
+            if (ownCtx && this.ports.folder) {
+                ownCtx.producing = false;
+                ownCtx.failed = !success;
                 this.ports.folder.finish(ownCtx, success);
+            }
         }
         if (isTop)
             await this.ports.refreshRemote();
@@ -19360,7 +19432,7 @@ class UploadPathUseCase {
     async execute(remoteDir, localPath, topCtx, inLimiter, batch, moveSource = false) {
         if (!this.ports.sftp.hasSession())
             return false;
-        const st = await this.ports.localFs.lstat(localPath);
+        const st = (topCtx === null || topCtx === void 0 ? void 0 : topCtx.discoveryLimiter) ? await topCtx.discoveryLimiter.run(() => this.ports.localFs.lstat(localPath)) : await this.ports.localFs.lstat(localPath);
         if (!st)
             return false;
         if (st.isSymbolicLink())
@@ -19374,18 +19446,26 @@ class UploadPathUseCase {
         return this._uploadFile(remoteDir, localPath, remoteTarget, st, isTop, topCtx, batch);
     }
     async _uploadDirectory(remoteDir, localPath, remoteTarget, st, isTop, topCtx, inLimiter, batch, moveSource = false) {
-        var _a, _b, _c, _d, _e, _f;
+        var _a, _b, _c, _d, _e;
         let ctx = topCtx;
-        if (await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, false)) {
+        const targetExists = (expectDir) => {
+            const check = async () => ctx && !(await dirGate(this.ports.folder, ctx)) ? false : this.ports.conflictDetection.checkRemotePathExists(remoteTarget, expectDir);
+            return (ctx === null || ctx === void 0 ? void 0 : ctx.discoveryLimiter) ? ctx.discoveryLimiter.run(check) : check();
+        };
+        if (await targetExists(false)) {
             fileOperation.enqueue(this.ports.conflictQueue, { localPath, remotePath: remoteTarget, remoteDir, fileName: path__WEBPACK_IMPORTED_MODULE_1__.basename(localPath), localStat: st, direction: 'upload', isDirectory: true, typeMismatch: true, transferCtx: ctx, mode: (ctx === null || ctx === void 0 ? void 0 : ctx.moveSource) ? 'cut' : undefined }, (ctx === null || ctx === void 0 ? void 0 : ctx.batch) || batch);
-            if (ctx)
+            if (ctx) {
+                ctx.discoveryIncomplete = true;
+                ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1);
+                (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.publishFolderDiscovery)(this.ports.folder, ctx);
                 this.ports.folder.markHadConflict(ctx);
+            }
             this.ports.conflictQueue.showDialog();
             return !isTop;
         }
         if (isTop) {
             const base = path__WEBPACK_IMPORTED_MODULE_1__.basename(localPath);
-            if (!moveSource && this.ports.tarChannel && !(await this.ports.conflictDetection.checkRemotePathExists(remoteTarget))) {
+            if (!moveSource && this.ports.tarChannel && !(await targetExists())) {
                 // Archive only fresh targets. Existing directories need individual file conflict choices.
                 const r = await this.ports.tarChannel.tryUploadDir(localPath, remoteTarget, this.ports.folder, base, false, this.ports.tarChannelMode);
                 if (r === 'success')
@@ -19394,40 +19474,24 @@ class UploadPathUseCase {
                     return false;
                 _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('[upload-dir] tar channel fell back, starting standard file-by-file transfer:', localPath);
             }
-            let totalSize = 0;
-            let itemCount = 0;
             ctx = this.ports.folder.start(base, 'upload', remoteTarget, localPath, 0, 0);
             ctx.moveSource = moveSource;
             ctx.sourceDirectories = [];
             ctx.batch = batch;
-            if (ctx.t)
+            if (ctx.t) {
                 ctx.t.batch = batch;
+                ctx.t.discoveryComplete = false;
+            }
             ctx.producing = true;
+            ctx.discoveryPending = 1;
+            ctx.discoveredBytes = 0;
+            ctx.discoveredItems = 0;
+            ctx.discoveryLimiter = new _concurrency__WEBPACK_IMPORTED_MODULE_3__.ConcurrencyLimiter(Math.min(4, (0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.clampDirConcurrency)((_a = this.dirConcurrency) === null || _a === void 0 ? void 0 : _a.call(this))));
             (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.folderPhase)(this.ports.folder, ctx, 'scanning', localPath);
-            try {
-                const stats = await this.ports.localFs.scanDir(localPath);
-                totalSize = stats.size;
-                itemCount = stats.count;
-                if (ctx.t) {
-                    ctx.t.bytesTotal = totalSize;
-                    ctx.t.itemCount = itemCount;
-                }
-                (_b = (_a = this.ports.folder).updateLogSize) === null || _b === void 0 ? void 0 : _b.call(_a, ctx, totalSize);
-            }
-            catch (error) {
-                ctx.producing = false;
-                ctx.failed = true;
-                this.ports.folder.finish(ctx, false);
-                throw error;
-            }
-            if (this.ports.folder.isAborted(ctx)) {
-                ctx.producing = false;
-                this.ports.folder.finish(ctx, false);
-                return false;
-            }
+            _services_sftp_logger__WEBPACK_IMPORTED_MODULE_5__.log.info('[upload-dir] streaming traversal; no recursive pre-scan:', localPath);
         }
         // Same-named directories merge; files are checked individually below.
-        if (await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, false)) {
+        if (await targetExists(false)) {
             if (ctx && isTop) {
                 ctx.producing = false;
                 ctx.failed = true;
@@ -19436,10 +19500,15 @@ class UploadPathUseCase {
             throw new Error('Cannot merge a folder into an existing file: ' + remoteTarget);
         }
         try {
-            await this.ports.sftp.mkdir(remoteTarget);
+            const create = async () => { if (!ctx || await dirGate(this.ports.folder, ctx))
+                await this.ports.sftp.mkdir(remoteTarget); };
+            if (ctx === null || ctx === void 0 ? void 0 : ctx.discoveryLimiter)
+                await ctx.discoveryLimiter.run(create);
+            else
+                await create();
         }
         catch (error) {
-            if (!await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, true)) {
+            if (!await targetExists(true)) {
                 if (ctx && isTop) {
                     ctx.producing = false;
                     ctx.failed = true;
@@ -19450,11 +19519,26 @@ class UploadPathUseCase {
         }
         if (ctx === null || ctx === void 0 ? void 0 : ctx.moveSource)
             ctx.sourceDirectories.push(localPath);
-        const limiter = inLimiter !== null && inLimiter !== void 0 ? inLimiter : new _concurrency__WEBPACK_IMPORTED_MODULE_3__.ConcurrencyLimiter((0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.clampDirConcurrency)((_c = this.dirConcurrency) === null || _c === void 0 ? void 0 : _c.call(this)));
+        const limiter = inLimiter !== null && inLimiter !== void 0 ? inLimiter : new _concurrency__WEBPACK_IMPORTED_MODULE_3__.ConcurrencyLimiter((0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.clampDirConcurrency)((_b = this.dirConcurrency) === null || _b === void 0 ? void 0 : _b.call(this)));
         let success = true;
         try {
-            const children = await this.ports.localFs.listChildren(localPath);
-            const settled = await (0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.mapSettledConcurrent)(children.filter(c => !c.isSymbolicLink), (0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.clampDirConcurrency)((_d = this.dirConcurrency) === null || _d === void 0 ? void 0 : _d.call(this)) * 2, async (c) => {
+            if (!(await dirGate(this.ports.folder, ctx))) {
+                success = false;
+                return false;
+            }
+            const readDirectory = () => this.ports.localFs.listChildren(localPath);
+            const seen = new Set();
+            const children = (await ((ctx === null || ctx === void 0 ? void 0 : ctx.discoveryLimiter) ? ctx.discoveryLimiter.run(readDirectory) : readDirectory())).filter(child => {
+                if (child.isSymbolicLink || (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(child.name) !== child.name || seen.has(child.name))
+                    return false;
+                seen.add(child.name);
+                return true;
+            });
+            if (ctx) {
+                ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1) + children.length;
+                (0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.publishFolderDiscovery)(this.ports.folder, ctx);
+            }
+            const settled = await (0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.mapSettledConcurrent)(children.filter(c => !c.isSymbolicLink), (0,_concurrency__WEBPACK_IMPORTED_MODULE_3__.clampDirConcurrency)((_c = this.dirConcurrency) === null || _c === void 0 ? void 0 : _c.call(this)) * 2, async (c) => {
                 if (!(await dirGate(this.ports.folder, ctx)))
                     return false;
                 const safeName = (0,_path_utils__WEBPACK_IMPORTED_MODULE_2__.safeEntryName)(c.name);
@@ -19463,9 +19547,24 @@ class UploadPathUseCase {
                     return true;
                 }
                 const childLocal = path__WEBPACK_IMPORTED_MODULE_1__.join(localPath, safeName);
-                const st = await this.ports.localFs.lstat(childLocal);
+                const readMetadata = async () => (await dirGate(this.ports.folder, ctx)) ? this.ports.localFs.lstat(childLocal) : null;
+                const st = await ((ctx === null || ctx === void 0 ? void 0 : ctx.discoveryLimiter) ? ctx.discoveryLimiter.run(readMetadata) : readMetadata());
+                if (ctx) {
+                    ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1);
+                    if (!st)
+                        ctx.discoveryIncomplete = true;
+                    else if (!st.isSymbolicLink() && st.isDirectory())
+                        ctx.discoveryPending++;
+                    else if (!st.isSymbolicLink()) {
+                        ctx.discoveredBytes = (ctx.discoveredBytes || 0) + st.size;
+                        ctx.discoveredItems = (ctx.discoveredItems || 0) + 1;
+                    }
+                    ;(0,_transfer_progress__WEBPACK_IMPORTED_MODULE_0__.publishFolderDiscovery)(this.ports.folder, ctx);
+                }
                 if (!st)
                     return false;
+                if (st.isSymbolicLink())
+                    return true;
                 if (st.isDirectory()) {
                     if (!(await dirGate(this.ports.folder, ctx)))
                         return false;
@@ -19476,7 +19575,7 @@ class UploadPathUseCase {
             const folded = foldSettled(settled);
             success = folded.success;
             if (success && (ctx === null || ctx === void 0 ? void 0 : ctx.moveSource))
-                await ((_f = (_e = this.ports.localFs).removeEmptyDirectory) === null || _f === void 0 ? void 0 : _f.call(_e, localPath));
+                await ((_e = (_d = this.ports.localFs).removeEmptyDirectory) === null || _e === void 0 ? void 0 : _e.call(_d, localPath));
             if (folded.firstErr != null)
                 throw folded.firstErr;
         }
@@ -19570,6 +19669,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   folderSkipped: () => (/* binding */ folderSkipped),
 /* harmony export */   getTransferProgressAgeMs: () => (/* binding */ getTransferProgressAgeMs),
 /* harmony export */   markTransferProgress: () => (/* binding */ markTransferProgress),
+/* harmony export */   publishFolderDiscovery: () => (/* binding */ publishFolderDiscovery),
 /* harmony export */   resetTransferProgressClock: () => (/* binding */ resetTransferProgressClock)
 /* harmony export */ });
 function folderPhase(folder, ctx, phase, item = '') {
@@ -19631,6 +19731,18 @@ function getTransferProgressAgeMs() {
 }
 function resetTransferProgressClock() {
     _lastProgressAt = 0;
+}
+/** Both directions discover totals during their bounded traversal. */
+function publishFolderDiscovery(folder, ctx) {
+    var _a, _b;
+    if (ctx.t) {
+        ctx.t.bytesTotal = ctx.discoveredBytes || 0;
+        ctx.t.itemCount = ctx.discoveredItems || 0;
+        ctx.t.discoveryComplete = ctx.discoveryPending === 0 && !ctx.discoveryIncomplete;
+    }
+    if (ctx.discoveryPending === 0)
+        (_a = folder.updateLogSize) === null || _a === void 0 ? void 0 : _a.call(folder, ctx, ctx.discoveredBytes || 0);
+    folderPhase(folder, ctx, 'transferring', ((_b = ctx.t) === null || _b === void 0 ? void 0 : _b.currentItem) || '');
 }
 
 
@@ -30253,7 +30365,7 @@ module.exports = "    .sftp-transfers {\n      display: flex; flex-direction: co
 (module) {
 
 "use strict";
-module.exports = "    <div class=\"sftp-transfers\" *ngIf=\"transfers.length && !hidden && !minimized\"\n      (mousedown)=\"$event.stopPropagation()\"\n      (wheel)=\"$event.stopPropagation()\">\n      <div class=\"transfer-header\">\n        <span>{{ i18n.t('transfer.inProgress') }} <span class=\"transfer-count\" *ngIf=\"transfers.length\">({{ transfers.length }})</span></span>\n        <div class=\"transfer-header-btns\">\n          <button class=\"btn-link\" (click)=\"minimizeChange.emit(true)\" title=\"{{ i18n.t('transfer.minimizePanel') }}\">─</button>\n          <button class=\"btn-link\" (click)=\"hiddenChange.emit(true)\" title=\"{{ i18n.t('transfer.hidePanel') || 'Hide' }}\">✕</button>\n        </div>\n      </div>\n      <div class=\"transfer\" *ngFor=\"let t of transfers; trackBy: trackByTransfer\">\n        <div class=\"transfer-main\">\n          <div class=\"transfer-title\">\n\n            <span class=\"dir-badge\"\n              [class.dir-upload]=\"t.direction === 'upload'\"\n              [class.dir-download]=\"t.direction === 'download'\"\n              [title]=\"directionTitle(t)\">{{ directionBadge(t) }}</span>\n            <span *ngIf=\"t.isFolder\">📁</span>\n            <span class=\"transfer-name\" [title]=\"t.name\">{{ t.name }}</span>\n            <span class=\"transfer-size\" *ngIf=\"t.bytesTotal > 0\">{{ t.isFolder ? formatSize(t.bytesDone || 0) + ' / ' : '' }}{{ formatSize(t.bytesTotal) }}</span>\n            <span class=\"transfer-size\" *ngIf=\"!(t.bytesTotal > 0) && t.bytesDone > 0\">{{ formatSize(t.bytesDone) }}</span>\n\n            <span *ngIf=\"modeOf(t) === 'tar'\" class=\"mode-tag tag-tar\" [title]=\"i18n.t('log.modeTar')\">📦 {{ i18n.t('log.modeTar') }}</span>\n            <span *ngIf=\"modeOf(t) === 'sftp'\" class=\"mode-tag tag-sftp\" [title]=\"i18n.t('log.modeSftp')\">⇄ {{ i18n.t('log.modeSftp') }}</span>\n            <span class=\"paused-tag\" *ngIf=\"t.paused\">{{ i18n.t('transfer.paused') }}</span>\n            <span class=\"queued-tag\" *ngIf=\"t.queued\" title=\"{{ i18n.t('transfer.queued') }}\">⏳</span>\n\n            <span class=\"skipped-tag\" *ngIf=\"t.skippedAsDuplicate\" title=\"issue #15: content identical, transfer not executed\">↪ {{ i18n.t('transfer.skippedAsDuplicate') }}</span>\n          </div>\n          <div class=\"transfer-sub\" *ngIf=\"phaseLabel(t) as phase\">{{ phase }}</div>\n          <div class=\"transfer-sub\" *ngIf=\"t.isFolder && t.currentItem\">\n            {{ t.currentItem }}<span *ngIf=\"t.currentItemSize != null\">  {{ formatSize(t.currentItemSize) }}</span> ({{ t.itemDone }}{{ t.itemCount > 0 ? '/' + t.itemCount : '' }})\n          </div>\n        </div>\n        <div class=\"transfer-stats\">\n\n          <span>{{ (t.queued || t.skippedAsDuplicate) ? '--' : (t.speed || '--') }}</span>\n          <span *ngIf=\"!t.skippedAsDuplicate\">{{ !indeterminate(t) && (t.bytesTotal > 0 || t.itemCount > 0) ? formatPercent(t.percent) + '%' : '--' }}</span>\n\n          <span class=\"transfer-eta\" *ngIf=\"etaText(t) as eta\">{{ eta }}</span>\n          <button *ngIf=\"!t.paused && !t.queued && !t.skippedAsDuplicate\" class=\"btn-pause\" (click)=\"pause.emit(t)\" title=\"{{ i18n.t('transfer.pause') }}\">⏸</button>\n          <button *ngIf=\"t.paused\" class=\"btn-resume\" (click)=\"resume.emit(t)\" title=\"{{ i18n.t('transfer.resume') }}\">▶</button>\n          <button *ngIf=\"t.isFolder && !t.queued && !t.skippedAsDuplicate\" class=\"btn-cancel-current\" (click)=\"cancelCurrent.emit(t)\" title=\"{{ i18n.t('transfer.cancelCurrent') }}\">⏹</button>\n          <button *ngIf=\"!t.isFolder && !t.skippedAsDuplicate\" class=\"btn-cancel\" (click)=\"cancel.emit(t)\" title=\"{{ i18n.t('transfer.cancel') }}\">⏹</button>\n          <button *ngIf=\"t.isFolder && !t.skippedAsDuplicate\" class=\"btn-cancel\" (click)=\"cancel.emit(t)\" title=\"{{ i18n.t('transfer.cancelAll') }}\">✕</button>\n        </div>\n\n        <div class=\"bar\" [class.indeterminate]=\"indeterminate(t) && !t.paused\" *ngIf=\"!t.skippedAsDuplicate\"><div class=\"fill\" [style.width.%]=\"indeterminate(t) ? 30 : t.percent\"></div></div>\n      </div>\n    </div>\n    <div class=\"sftp-transfers-mini\" *ngIf=\"transfers.length && !hidden && minimized\"\n      (click)=\"minimizeChange.emit(false)\" (mousedown)=\"$event.stopPropagation()\">\n      <span>📦 {{ i18n.t('transfer.inProgress') }} ({{ transfers.length }})</span>\n    </div>\n";
+module.exports = "    <div class=\"sftp-transfers\" *ngIf=\"transfers.length && !hidden && !minimized\"\n      (mousedown)=\"$event.stopPropagation()\"\n      (wheel)=\"$event.stopPropagation()\">\n      <div class=\"transfer-header\">\n        <span>{{ i18n.t('transfer.inProgress') }} <span class=\"transfer-count\" *ngIf=\"transfers.length\">({{ transfers.length }})</span></span>\n        <div class=\"transfer-header-btns\">\n          <button class=\"btn-link\" (click)=\"minimizeChange.emit(true)\" title=\"{{ i18n.t('transfer.minimizePanel') }}\">─</button>\n          <button class=\"btn-link\" (click)=\"hiddenChange.emit(true)\" title=\"{{ i18n.t('transfer.hidePanel') || 'Hide' }}\">✕</button>\n        </div>\n      </div>\n      <div class=\"transfer\" *ngFor=\"let t of transfers; trackBy: trackByTransfer\">\n        <div class=\"transfer-main\">\n          <div class=\"transfer-title\">\n\n            <span class=\"dir-badge\"\n              [class.dir-upload]=\"t.direction === 'upload'\"\n              [class.dir-download]=\"t.direction === 'download'\"\n              [title]=\"directionTitle(t)\">{{ directionBadge(t) }}</span>\n            <span *ngIf=\"t.isFolder\">📁</span>\n            <span class=\"transfer-name\" [title]=\"t.name\">{{ t.name }}</span>\n            <span class=\"transfer-size\" *ngIf=\"t.bytesTotal > 0\">{{ t.isFolder && t.discoveryComplete === false ? formatSize(t.bytesDone || 0) + ' processed' : (t.isFolder ? formatSize(t.bytesDone || 0) + ' / ' : '') + formatSize(t.bytesTotal) }}</span>\n            <span class=\"transfer-size\" *ngIf=\"!(t.bytesTotal > 0) && t.bytesDone > 0\">{{ formatSize(t.bytesDone) }}</span>\n\n            <span *ngIf=\"modeOf(t) === 'tar'\" class=\"mode-tag tag-tar\" [title]=\"i18n.t('log.modeTar')\">📦 {{ i18n.t('log.modeTar') }}</span>\n            <span *ngIf=\"modeOf(t) === 'sftp'\" class=\"mode-tag tag-sftp\" [title]=\"i18n.t('log.modeSftp')\">⇄ {{ i18n.t('log.modeSftp') }}</span>\n            <span class=\"paused-tag\" *ngIf=\"t.paused\">{{ i18n.t('transfer.paused') }}</span>\n            <span class=\"queued-tag\" *ngIf=\"t.queued\" title=\"{{ i18n.t('transfer.queued') }}\">⏳</span>\n\n            <span class=\"skipped-tag\" *ngIf=\"t.skippedAsDuplicate\" title=\"issue #15: content identical, transfer not executed\">↪ {{ i18n.t('transfer.skippedAsDuplicate') }}</span>\n          </div>\n          <div class=\"transfer-sub\" *ngIf=\"phaseLabel(t) as phase\">{{ phase }}</div>\n          <div class=\"transfer-sub\" *ngIf=\"t.isFolder && t.currentItem\">\n            {{ t.currentItem }}<span *ngIf=\"t.currentItemSize != null\">  {{ formatSize(t.currentItemSize) }}</span> ({{ t.itemDone }}{{ t.discoveryComplete !== false && t.itemCount > 0 ? '/' + t.itemCount : '' }})\n          </div>\n        </div>\n        <div class=\"transfer-stats\">\n\n          <span>{{ (t.queued || t.skippedAsDuplicate) ? '--' : (t.speed || '--') }}</span>\n          <span *ngIf=\"!t.skippedAsDuplicate\">{{ !indeterminate(t) && (t.bytesTotal > 0 || t.itemCount > 0) ? formatPercent(t.percent) + '%' : '--' }}</span>\n\n          <span class=\"transfer-eta\" *ngIf=\"etaText(t) as eta\">{{ eta }}</span>\n          <button *ngIf=\"!t.paused && !t.queued && !t.skippedAsDuplicate\" class=\"btn-pause\" (click)=\"pause.emit(t)\" title=\"{{ i18n.t('transfer.pause') }}\">⏸</button>\n          <button *ngIf=\"t.paused\" class=\"btn-resume\" (click)=\"resume.emit(t)\" title=\"{{ i18n.t('transfer.resume') }}\">▶</button>\n          <button *ngIf=\"t.isFolder && !t.queued && !t.skippedAsDuplicate\" class=\"btn-cancel-current\" (click)=\"cancelCurrent.emit(t)\" title=\"{{ i18n.t('transfer.cancelCurrent') }}\">⏹</button>\n          <button *ngIf=\"!t.isFolder && !t.skippedAsDuplicate\" class=\"btn-cancel\" (click)=\"cancel.emit(t)\" title=\"{{ i18n.t('transfer.cancel') }}\">⏹</button>\n          <button *ngIf=\"t.isFolder && !t.skippedAsDuplicate\" class=\"btn-cancel\" (click)=\"cancel.emit(t)\" title=\"{{ i18n.t('transfer.cancelAll') }}\">✕</button>\n        </div>\n\n        <div class=\"bar\" [class.indeterminate]=\"indeterminate(t) && !t.paused\" *ngIf=\"!t.skippedAsDuplicate\"><div class=\"fill\" [style.width.%]=\"indeterminate(t) ? 30 : t.percent\"></div></div>\n      </div>\n    </div>\n    <div class=\"sftp-transfers-mini\" *ngIf=\"transfers.length && !hidden && minimized\"\n      (click)=\"minimizeChange.emit(false)\" (mousedown)=\"$event.stopPropagation()\">\n      <span>📦 {{ i18n.t('transfer.inProgress') }} ({{ transfers.length }})</span>\n    </div>\n";
 
 /***/ },
 
@@ -33179,7 +33291,7 @@ module.exports=async function createRemoteFile(session,file,setPermissions){
 
 const fs=__webpack_require__(/*! fs/promises */ "fs/promises"),path=__webpack_require__(/*! path */ "path"),{execFile}=__webpack_require__(/*! child_process */ "child_process");
 const policy=(__webpack_require__(/*! ../../transfer-policy.json */ "./transfer-policy.json").pluginUpdate);
-const runningBuildTime= true?"2026-10-31T04:24:29.091Z":0;
+const runningBuildTime= true?"2026-10-31T04:45:06.908Z":0;
 const bundledVersion=runningBuildTime?(__webpack_require__(/*! ../../package.json */ "./package.json").version):null;
 
 function panelHasWork(panel){
@@ -33546,7 +33658,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"names":{"mix":"vscode_hex.svg","karm
 (module) {
 
 "use strict";
-module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.28","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off","test:terminal":"node test-native-terminal.cjs","test:screen":"node test-screen-terminal.cjs"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"tabby-sftp-plus-plus","version":"2.0.29","description":"SFTP++: independent SFTP Plus fork with local editing, visible large-file transfers, session sidebar and recovery.","keywords":["tabby-plugin","sftp","file-manager","ssh","tabby"],"main":"dist/index.js","scripts":{"build":"node scripts/build.cjs","typecheck":"tsc --noEmit","test":"node scripts/test.cjs","test:renderer":"node scripts/test-renderer.cjs","test:native":"node scripts/test-native.cjs","diagnostics:on":"node scripts/diagnostics-control.cjs on","diagnostics:off":"node scripts/diagnostics-control.cjs off","test:terminal":"node test-native-terminal.cjs","test:screen":"node test-screen-terminal.cjs"},"files":["dist"],"author":"DD1024z","license":"MIT","repository":{"type":"git","url":"git+https://github.com/nguyenminhtung199/tabby-sftp-plus-plus.git"},"homepage":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus#readme","bugs":{"url":"https://github.com/nguyenminhtung199/tabby-sftp-plus-plus/issues"},"devDependencies":{"@angular/animations":"^15.2.10","@angular/common":"^15.2.10","@angular/compiler":"^15.2.10","@angular/core":"^15.2.10","@angular/forms":"^15.2.10","@angular/localize":"^15.2.10","@angular/platform-browser":"^15.2.10","@angular/platform-browser-dynamic":"^15.2.10","@ng-bootstrap/ng-bootstrap":"^14.2.0","@types/node":"^22.13.10","@types/webpack-env":"^1.18.8","apply-loader":"^2.0.0","css-loader":"^7.1.2","electron":"^43.7.0","graceful-fs":"^4.2.11","reflect-metadata":"^0.2.2","rxjs":"^7.8.2","rxjs-native-fixture":"npm:rxjs@^7.8.2","sass":"^1.86.0","sass-loader":"^16.0.5","ssh2":"^1.17.0","style-loader":"^4.0.0","tabby-core":"^1.0.231-nightly.0","tabby-settings":"^1.0.231-nightly.0","tabby-terminal":"^1.0.231-nightly.0","ts-loader":"^9.5.2","typescript":"^4.9.5","webpack":"^5.98.0","webpack-cli":"^6.0.1","zone.js":"^0.12.0"},"displayName":"SFTP++","forkedFrom":"tabby-sftp-plus@2.4.1 (DD1024z, MIT)"}');
 
 /***/ },
 
@@ -33724,7 +33836,7 @@ var __param = (undefined && undefined.__param) || function (paramIndex, decorato
 
 
 
-const testing = { TarChannel: (__webpack_require__(/*! ./sftp/core/tar-channel */ "./src/sftp/core/tar-channel.ts").TarChannel), PluginUpdater: (__webpack_require__(/*! ./runtime/plugin-updater.cjs */ "./src/runtime/plugin-updater.cjs").PluginUpdater), mapConcurrent: _sftp_core_concurrency__WEBPACK_IMPORTED_MODULE_0__.mapConcurrent, mapSettledConcurrent: _sftp_core_concurrency__WEBPACK_IMPORTED_MODULE_0__.mapSettledConcurrent, PanelTransferCoordinator: _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_6__.PanelTransferCoordinator, ConflictResolveUseCase: _sftp_core_conflict__WEBPACK_IMPORTED_MODULE_1__.ConflictResolveUseCase, SftpConflictDetector: _sftp_core_conflict__WEBPACK_IMPORTED_MODULE_1__.SftpConflictDetector, folderFileProgress: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_2__.folderFileProgress, folderSkipped: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_2__.folderSkipped, folderPhase: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_2__.folderPhase, I18nService: _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_13__.SftpI18nService, PanelPasteAdapter: _sftp_core_paste__WEBPACK_IMPORTED_MODULE_9__.PanelPasteAdapter, PanelDropAdapter: _sftp_core_drop__WEBPACK_IMPORTED_MODULE_8__.PanelDropAdapter, parseDragPayload: _sftp_core_drop__WEBPACK_IMPORTED_MODULE_8__.parseDragPayload, featureApis: _features_api__WEBPACK_IMPORTED_MODULE_10__.featureApis, NavigationMemory: _sftp_core_navigation_memory__WEBPACK_IMPORTED_MODULE_11__.NavigationMemory, TransferLogService: _services_sftp_transfer_log_service__WEBPACK_IMPORTED_MODULE_12__.SftpTransferLogService, computeSelection: _sftp_core_selection__WEBPACK_IMPORTED_MODULE_14__.computeSelection, setDateFormatPattern: _sftp_core_file_utils__WEBPACK_IMPORTED_MODULE_15__.setDateFormatPattern, Panel: _sftp_sftp_floating_panel_component__WEBPACK_IMPORTED_MODULE_24__.SftpFloatingPanel, FilePane: _sftp_components_sftp_file_pane_component__WEBPACK_IMPORTED_MODULE_32__.SftpFilePaneComponent, Menu: _sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_33__.SftpContextMenuComponent, LogDialog: _sftp_components_sftp_transfer_log_dialog_component__WEBPACK_IMPORTED_MODULE_31__.SftpTransferLogDialogComponent, PanelRubberBand: _sftp_components_panel_rubber_band__WEBPACK_IMPORTED_MODULE_4__.PanelRubberBand, PanelFileDnd: _sftp_components_panel_file_dnd__WEBPACK_IMPORTED_MODULE_5__.PanelFileDnd, PanelTransferRuntime: _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_6__.PanelTransferRuntime, DownloadOneUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_7__.DownloadOneUseCase, DownloadDirUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_7__.DownloadDirUseCase, UploadPathUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_7__.UploadPathUseCase, PasteUseCase: _sftp_core_paste__WEBPACK_IMPORTED_MODULE_9__.PasteUseCase };
+const testing = { MergeLocalDirUseCase: (__webpack_require__(/*! ./sftp/core/transfer-ops */ "./src/sftp/core/transfer-ops.ts").MergeLocalDirUseCase), inspectLocalTrees: (__webpack_require__(/*! ./sftp/core/local-tree-inspection */ "./src/sftp/core/local-tree-inspection.ts").inspectLocalTrees), TarChannel: (__webpack_require__(/*! ./sftp/core/tar-channel */ "./src/sftp/core/tar-channel.ts").TarChannel), PluginUpdater: (__webpack_require__(/*! ./runtime/plugin-updater.cjs */ "./src/runtime/plugin-updater.cjs").PluginUpdater), mapConcurrent: _sftp_core_concurrency__WEBPACK_IMPORTED_MODULE_0__.mapConcurrent, mapSettledConcurrent: _sftp_core_concurrency__WEBPACK_IMPORTED_MODULE_0__.mapSettledConcurrent, PanelTransferCoordinator: _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_6__.PanelTransferCoordinator, ConflictResolveUseCase: _sftp_core_conflict__WEBPACK_IMPORTED_MODULE_1__.ConflictResolveUseCase, SftpConflictDetector: _sftp_core_conflict__WEBPACK_IMPORTED_MODULE_1__.SftpConflictDetector, folderFileProgress: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_2__.folderFileProgress, folderSkipped: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_2__.folderSkipped, folderPhase: _sftp_core_transfer_progress__WEBPACK_IMPORTED_MODULE_2__.folderPhase, I18nService: _services_sftp_i18n_service__WEBPACK_IMPORTED_MODULE_13__.SftpI18nService, PanelPasteAdapter: _sftp_core_paste__WEBPACK_IMPORTED_MODULE_9__.PanelPasteAdapter, PanelDropAdapter: _sftp_core_drop__WEBPACK_IMPORTED_MODULE_8__.PanelDropAdapter, parseDragPayload: _sftp_core_drop__WEBPACK_IMPORTED_MODULE_8__.parseDragPayload, featureApis: _features_api__WEBPACK_IMPORTED_MODULE_10__.featureApis, NavigationMemory: _sftp_core_navigation_memory__WEBPACK_IMPORTED_MODULE_11__.NavigationMemory, TransferLogService: _services_sftp_transfer_log_service__WEBPACK_IMPORTED_MODULE_12__.SftpTransferLogService, computeSelection: _sftp_core_selection__WEBPACK_IMPORTED_MODULE_14__.computeSelection, setDateFormatPattern: _sftp_core_file_utils__WEBPACK_IMPORTED_MODULE_15__.setDateFormatPattern, Panel: _sftp_sftp_floating_panel_component__WEBPACK_IMPORTED_MODULE_24__.SftpFloatingPanel, FilePane: _sftp_components_sftp_file_pane_component__WEBPACK_IMPORTED_MODULE_32__.SftpFilePaneComponent, Menu: _sftp_components_sftp_context_menu_component__WEBPACK_IMPORTED_MODULE_33__.SftpContextMenuComponent, LogDialog: _sftp_components_sftp_transfer_log_dialog_component__WEBPACK_IMPORTED_MODULE_31__.SftpTransferLogDialogComponent, PanelRubberBand: _sftp_components_panel_rubber_band__WEBPACK_IMPORTED_MODULE_4__.PanelRubberBand, PanelFileDnd: _sftp_components_panel_file_dnd__WEBPACK_IMPORTED_MODULE_5__.PanelFileDnd, PanelTransferRuntime: _sftp_core_transfer_coordinator__WEBPACK_IMPORTED_MODULE_6__.PanelTransferRuntime, DownloadOneUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_7__.DownloadOneUseCase, DownloadDirUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_7__.DownloadDirUseCase, UploadPathUseCase: _sftp_core_transfer_ops__WEBPACK_IMPORTED_MODULE_7__.UploadPathUseCase, PasteUseCase: _sftp_core_paste__WEBPACK_IMPORTED_MODULE_9__.PasteUseCase };
 
 
 
