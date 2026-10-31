@@ -402,24 +402,20 @@ export class MergeLocalDirUseCase {
 
     let ownCtx: FolderTransferCtx | null = null
     if (isTop && !topCtx && this.ports.folder) {
-      let totalSize = 0
-      let itemCount = 0
-      if (this.ports.scanLocalDir) {
-        try {
-          const s = await this.ports.scanLocalDir(localSrc)
-          totalSize = s.size
-          itemCount = s.count
-        } catch {   }
-      }
-      ownCtx = this.ports.folder.start(
-        path.basename(localSrc), 'upload', remoteDest, localSrc, totalSize, itemCount, reuseLogEntryId,
-      )
+      ownCtx = this.ports.folder.start(path.basename(localSrc), 'upload', remoteDest, localSrc, 0, 0, reuseLogEntryId)
+      ownCtx.producing = true; ownCtx.discoveryPending = 1; ownCtx.discoveredBytes = 0; ownCtx.discoveredItems = 0
+      if (ownCtx.t) ownCtx.t.discoveryComplete = false
     }
     const ctx = topCtx ?? ownCtx
 
     let success = true
     try {
-      const children = await this.ports.localFs.listChildren(localSrc)
+      const seen = new Set<string>()
+      const children = (await this.ports.localFs.listChildren(localSrc)).filter(child => {
+        if (child.isSymbolicLink || safeEntryName(child.name) !== child.name || seen.has(child.name)) return false
+        seen.add(child.name); return true
+      })
+      if (ctx && this.ports.folder) { ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1) + children.length; publishFolderDiscovery(this.ports.folder, ctx) }
       for (const c of children) {
 
         if (ctx && this.ports.folder) {
@@ -442,7 +438,15 @@ export class MergeLocalDirUseCase {
         const localP = path.join(localSrc, safeName)
         const remoteP = path.posix.join(remoteDest, safeName)
         const st = await this.ports.localFs.lstat(localP)
-        if (!st) continue
+        if (ctx && this.ports.folder) {
+          ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1)
+          if (!st) ctx.discoveryIncomplete = true
+          else if (!st.isSymbolicLink() && st.isDirectory()) ctx.discoveryPending++
+          else if (!st.isSymbolicLink()) { ctx.discoveredBytes = (ctx.discoveredBytes || 0) + st.size; ctx.discoveredItems = (ctx.discoveredItems || 0) + 1 }
+          publishFolderDiscovery(this.ports.folder, ctx)
+        }
+        if (!st) { success = false; continue }
+        if (st.isSymbolicLink()) continue
         if (st.isDirectory()) {
           const childOk = await this.execute(localP, remoteP, false, undefined, ctx)
           if (!childOk) success = false
@@ -466,7 +470,7 @@ export class MergeLocalDirUseCase {
       log.error(`merge local dir failed: ${localSrc} :: ${errText(e)}`)
       throw e
     } finally {
-      if (ownCtx && this.ports.folder) this.ports.folder.finish(ownCtx, success)
+      if (ownCtx && this.ports.folder) { ownCtx.producing = false; ownCtx.failed = !success; this.ports.folder.finish(ownCtx, success) }
     }
     if (isTop) await this.ports.refreshRemote()
     return success
