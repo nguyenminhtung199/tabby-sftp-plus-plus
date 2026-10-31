@@ -158,6 +158,7 @@ export class DownloadDirUseCase {
       ctx.batch = batch; if (ctx.t) { ctx.t.batch = batch; ctx.t.discoveryComplete = false }
       ctx.producing = true
       ctx.discoveryPending = 1; ctx.discoveredBytes = 0; ctx.discoveredItems = 0
+      ctx.discoveryLimiter = new ConcurrencyLimiter(Math.min(4, clampDirConcurrency(this.dirConcurrency?.())))
       folderPhase(this.ports.folder, ctx, 'scanning', remoteSrc)
       log.info('[download-dir] streaming traversal; no recursive pre-scan:', remoteSrc)
     }
@@ -170,7 +171,9 @@ export class DownloadDirUseCase {
       await this.ports.localFs.mkdirRecursive(localDir)
       if (!(await dirGate(this.ports.folder, ctx))) { success = false; return false }
       const names = new Set<string>()
-      const entries = (initialEntries || await this.ports.sftp.readdir(remoteSrc)).filter(entry => {
+      const readDirectory = async () => (await dirGate(this.ports.folder, ctx)) ? this.ports.sftp.readdir(remoteSrc) : []
+      const listing = initialEntries || await (ctx?.discoveryLimiter ? ctx.discoveryLimiter.run(readDirectory) : readDirectory())
+      const entries = listing.filter(entry => {
         const name = safeEntryName(entry.name)
         if (!name || name !== entry.name || names.has(name) || entry.isSymlink === true) return false
         names.add(name); return true

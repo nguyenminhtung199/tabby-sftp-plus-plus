@@ -86,6 +86,7 @@ export type ConflictQueueItem = {
 }
 
 export type FolderTransferCtx = {
+  discoveryLimiter?: import('./concurrency').ConcurrencyLimiter
   discoveryPending?: number
   discoveryIncomplete?: boolean
   discoveredBytes?: number
