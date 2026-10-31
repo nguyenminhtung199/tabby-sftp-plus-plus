@@ -28,6 +28,7 @@
     "test-selection-performance.cjs",
     "test-inline-toast-dismissal.cjs",
     "test-operation-errors.cjs",
-    "test-download-discovery.cjs"
+    "test-download-discovery.cjs",
+    "test-upload-discovery.cjs"
   ]
 }

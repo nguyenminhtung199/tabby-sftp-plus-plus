@@ -55,3 +55,13 @@ export function getTransferProgressAgeMs(): number {
 export function resetTransferProgressClock(): void {
   _lastProgressAt = 0
 }
+
+/** Both directions discover totals during their bounded traversal. */
+export function publishFolderDiscovery(folder: FolderTransferPort, ctx: FolderTransferCtx): void {
+  if (ctx.t) {
+    ctx.t.bytesTotal = ctx.discoveredBytes || 0; ctx.t.itemCount = ctx.discoveredItems || 0
+    ctx.t.discoveryComplete = ctx.discoveryPending === 0 && !ctx.discoveryIncomplete
+  }
+  if (ctx.discoveryPending === 0) folder.updateLogSize?.(ctx, ctx.discoveredBytes || 0)
+  folderPhase(folder, ctx, 'transferring', ctx.t?.currentItem || '')
+}

@@ -1,3 +1,4 @@
+import { inspectLocalTrees } from './local-tree-inspection'
 import { folderPhase } from './transfer-progress'
 import { spawn } from 'child_process'
 import { existsSync } from 'fs'
@@ -230,24 +231,6 @@ async function assertExtractedUnderRoot(root: string): Promise<boolean> {
     return true
   }
   return walk(root)
-}
-
-async function containsSymlink(root: string, depth = 0): Promise<boolean> {
-  if (depth > 100) return true
-  let names: string[]
-  try {
-    names = await fs.readdir(root)
-  } catch {
-    return true
-  }
-  for (const name of names) {
-    const full = path.join(root, name)
-    const st = await fs.lstat(full).catch(() => null)
-    if (!st) return true
-    if (st.isSymbolicLink()) return true
-    if (st.isDirectory() && await containsSymlink(full, depth + 1)) return true
-  }
-  return false
 }
 
 const STAGING_DIR_NAME = '.sftp-plus-tmp'
@@ -674,24 +657,21 @@ export class TarChannel {
       return this._decline(mode, name, 'other', `NUL byte in path: ${localPath} -> ${remoteTarget}`)
     }
 
-    if (!(await this._localTarAvailable())) {
-      return this._decline(mode, name, 'localTarMissing', `local tar unavailable (pack step): ${localPath}`)
-    }
-    if (!(await this._remoteTarAvailable())) {
-      return this._decline(mode, name, 'remoteTarMissing', `remote tar unavailable (extract step): ${remoteTarget}`)
-    }
-    if (await containsSymlink(localPath)) {
-
-      return this._decline(mode, name, 'symlinkUnsupported', `local tree contains symlink: ${localPath}`)
-    }
-
-    const localStats = this.deps.scanLocalDir ? await this.deps.scanLocalDir(localPath).catch(() => null) : null
+    const localStats = await inspectLocalTrees([localPath], mode === 'smart' || mode === 'preferSftp' ? 3000 : mode === 'tarOnly' ? Infinity : REMOTE_STATS_TIMEOUT_MS)
+    if (!localStats) return this._decline(mode, name, 'other', 'Local archive inspection did not complete within its budget.')
+    if (localStats.hasSymlink) return this._decline(mode, name, 'symlinkUnsupported', 'Local tree contains a symlink: ' + localPath)
     const verdict = tarWorthwhile(mode, localStats)
     if (!verdict.ok) {
 
       return this._decline(mode, name, 'other', `not worthwhile (${verdict.reason}): ${localPath} -> ${remoteTarget}`)
     }
 
+    if (!(await this._localTarAvailable())) {
+      return this._decline(mode, name, 'localTarMissing', `local tar unavailable (pack step): ${localPath}`)
+    }
+    if (!(await this._remoteTarAvailable())) {
+      return this._decline(mode, name, 'remoteTarMissing', `remote tar unavailable (extract step): ${remoteTarget}`)
+    }
     log.info(`tar channel: packed upload start (${mergeIntoExisting ? 'merge-into-existing' : 'fresh'}); ${verdict.reason}: ${localPath} -> ${remoteTarget}`)
 
     const stagingRoot = await resolveStagingRoot(path.dirname(path.resolve(localPath)))
@@ -720,7 +700,7 @@ export class TarChannel {
     const parent = path.posix.dirname(remoteTarget)
 
     const remoteTar = path.posix.join(parent, `${makeTempName(path.posix.basename(remoteTarget), 'tar')}.tar.gz`)
-    const realSize = await this.deps.scanLocalSize(localPath).catch(() => 0)
+    const realSize = localStats?.size ?? 0
     const displayTotal = realSize > 0 ? realSize : tarSize
     const disp = (b: number) => displayTotal === tarSize ? b : Math.round(b * displayTotal / tarSize)
     const ctx = folder.start(name, 'upload', remoteTarget, localPath, displayTotal, 1, reuseLogEntryId)
@@ -819,19 +799,14 @@ export class TarChannel {
     const argChars = names.reduce((n, s) => n + s.length + 1, 0)
     if (argChars > BATCH_MAX_ARG_CHARS) return skip(`too many entry names for one command line (${argChars} chars)`)
     if (!this.deps.hasSsh()) return skip(`no ssh session: ${remoteDir}`)
+    const stats = await inspectLocalTrees(localPaths, mode === 'smart' || mode === 'preferSftp' ? 3000 : mode === 'tarOnly' ? Infinity : REMOTE_STATS_TIMEOUT_MS)
+    if (!stats) return skip('Local archive inspection did not complete within its budget.')
+    if (stats.hasSymlink) return skip('Local batch contains a symlink.')
+    const verdict = tarWorthwhile(mode, stats)
+    if (!verdict.ok) return skip(`not worthwhile (${verdict.reason}): ${names.length} entries -> ${remoteDir}`)
     if (!(await this._localTarAvailable())) return skip(`local tar unavailable (pack step): ${parents[0]}`)
     if (!(await this._remoteTarAvailable())) return skip(`remote tar unavailable (extract step): ${remoteDir}`)
 
-    for (const p of localPaths) {
-      const st = await fs.lstat(p).catch(() => null)
-      if (!st) return skip(`lstat failed: ${p}`)
-      if (st.isSymbolicLink()) return skip(`entry is a symlink: ${p}`)
-      if (st.isDirectory() && (await containsSymlink(p))) return skip(`local tree contains symlink: ${p}`)
-    }
-
-    const stats = this.deps.scanLocalPaths ? await this.deps.scanLocalPaths(localPaths).catch(() => null) : null
-    const verdict = tarWorthwhile(mode, stats)
-    if (!verdict.ok) return skip(`not worthwhile (${verdict.reason}): ${names.length} entries -> ${remoteDir}`)
     log.info(`[batch-upload] packed batch upload start; ${verdict.reason}; ${names.length} entries: ${parents[0]} -> ${remoteDir}`)
 
     const stagingRoot = await resolveStagingRoot(parents[0])

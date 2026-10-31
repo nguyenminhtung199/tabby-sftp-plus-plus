@@ -143,3 +143,11 @@ description: Use before code changes, npm commands, tests or plugin operations i
 - test-download-discovery.cjs blocks a child listing until the first file starts downloading, proving streaming order and no recursive pre-scan. It also checks exact discovered totals, one traversal listing per directory, safe names/links, empty folders, cancellation, root-list reuse, SDK dates and archive probe budget. Native loopback tests verify normal folder downloads do not invoke the pre-scan port. Fresh metadata verification during file commit is separate and must remain intact.
 
 - Remote directory discovery also shares one limiter across the whole folder transfer (configured file concurrency, capped at four reads). Per-directory worker pools alone do not bound requests across a branching tree. Recheck pause/cancel after a discovery slot is acquired.
+
+
+## Symmetric upload/download discovery
+
+- UploadPathUseCase now discovers local metadata and uploads files in the same bounded traversal, matching normal download behavior. Do not call localFs.scanDir before folder upload. Both directions use publishFolderDiscovery for growing totals and unknown-percent/ETA handling. Upload's shared discovery limiter bounds local metadata and remote directory setup; file transfer concurrency remains separately bounded.
+- Archive eligibility uses inspectLocalTrees once for symlink detection and size/count, with eight filesystem operations per wave and a three-second automatic-mode budget. On timeout, stop scheduling further work; at most the current bounded I/O wave may finish. Reuse inspection size after packing rather than running another scan. Explicit archive modes retain their safety inspection and packing requirement.
+- File/folder collision rules remain path/name based: merge existing directories, resolve duplicate leaves, never silently auto-skip solely by size/mtime. Apply-all decisions stay within one operation and commit-time change/permission validation remains fresh.
+- test-upload-discovery.cjs blocks descendant enumeration until the first upload starts, forbids recursive pre-scan, verifies exact totals/bytes, safe names, links and empty directories, and checks one archive inspection plus timeout cancellation. Existing native folder-merge and permission tests remain required.

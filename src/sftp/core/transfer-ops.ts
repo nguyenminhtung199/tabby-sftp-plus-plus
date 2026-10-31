@@ -1,6 +1,6 @@
 import type { FileOperationBatch } from './panel-types'
 const fileOperation = require('../../runtime/file-operation.cjs')
-import { folderFileProgress, folderPhase, folderSkipped } from './transfer-progress'
+import { folderFileProgress, folderPhase, folderSkipped, publishFolderDiscovery } from './transfer-progress'
 import * as path from 'path'
 
 import { type Stats } from 'fs'
@@ -182,7 +182,7 @@ export class DownloadDirUseCase {
       if (ctx) {
         ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1) + entries.filter(entry => entry.isDirectory).length
         for (const entry of entries) if (!entry.isDirectory) { ctx.discoveredBytes = (ctx.discoveredBytes || 0) + Math.max(0, entry.size || 0); ctx.discoveredItems = (ctx.discoveredItems || 0) + 1 }
-        this.publishDiscovery(ctx)
+        publishFolderDiscovery(this.ports.folder, ctx)
       }
 
       const settled = await mapSettledConcurrent(entries, clampDirConcurrency(this.dirConcurrency?.()) * 2, async (entry): Promise<boolean> => {
@@ -200,7 +200,7 @@ export class DownloadDirUseCase {
           if (ctx) {
             if (entry.isDirectory) ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1)
             else { ctx.discoveredBytes = Math.max(0, (ctx.discoveredBytes || 0) - (entry.size || 0)); ctx.discoveredItems = Math.max(0, (ctx.discoveredItems || 0) - 1) }
-            this.publishDiscovery(ctx)
+            publishFolderDiscovery(this.ports.folder, ctx)
           }
           return true
         }
@@ -220,7 +220,7 @@ export class DownloadDirUseCase {
               const st = await this.ports.sftp.stat(remoteP)
               if (st) {
                 remoteMtime = entryMtimeToMsOrUndefined(st) ?? 0
-                if (entry.size == null && st.size != null) { sz = Math.max(0, st.size); entry.size = sz; if (ctx) { ctx.discoveredBytes = (ctx.discoveredBytes || 0) + sz; this.publishDiscovery(ctx) } }
+                if (entry.size == null && st.size != null) { sz = Math.max(0, st.size); entry.size = sz; if (ctx) { ctx.discoveredBytes = (ctx.discoveredBytes || 0) + sz; publishFolderDiscovery(this.ports.folder, ctx) } }
               }
             } catch (e) {
               log.warn('stat fallback for folder download conflict failed:', remoteP, e)
@@ -286,14 +286,6 @@ export class DownloadDirUseCase {
     return success && !ctx?.hadConflict
   }
 
-  private publishDiscovery(ctx: FolderTransferCtx): void {
-    if (ctx.t) {
-      ctx.t.bytesTotal = ctx.discoveredBytes || 0; ctx.t.itemCount = ctx.discoveredItems || 0
-      ctx.t.discoveryComplete = ctx.discoveryPending === 0 && !ctx.discoveryIncomplete
-    }
-    if (ctx.discoveryPending === 0) this.ports.folder.updateLogSize?.(ctx, ctx.discoveredBytes || 0)
-    folderPhase(this.ports.folder, ctx, 'transferring')
-  }
 
 }
 
@@ -567,7 +559,7 @@ export class UploadPathUseCase {
     moveSource = false,
   ): Promise<boolean> {
     if (!this.ports.sftp.hasSession()) return false
-    const st = await this.ports.localFs.lstat(localPath)
+    const st = topCtx?.discoveryLimiter ? await topCtx.discoveryLimiter.run(() => this.ports.localFs.lstat(localPath)) : await this.ports.localFs.lstat(localPath)
     if (!st) return false
     if (st.isSymbolicLink()) return false
 
@@ -594,16 +586,20 @@ export class UploadPathUseCase {
     moveSource = false,
   ): Promise<boolean> {
     let ctx = topCtx
-    if (await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, false)) {
+    const targetExists = (expectDir?: boolean): Promise<boolean> => {
+      const check = async () => ctx && !(await dirGate(this.ports.folder, ctx)) ? false : this.ports.conflictDetection.checkRemotePathExists(remoteTarget, expectDir)
+      return ctx?.discoveryLimiter ? ctx.discoveryLimiter.run(check) : check()
+    }
+    if (await targetExists(false)) {
       fileOperation.enqueue(this.ports.conflictQueue, {localPath,remotePath:remoteTarget,remoteDir,fileName:path.basename(localPath),localStat:st,direction:'upload',isDirectory:true,typeMismatch:true,transferCtx:ctx,mode:ctx?.moveSource?'cut':undefined},ctx?.batch || batch)
-      if (ctx) this.ports.folder.markHadConflict(ctx)
+      if (ctx) { ctx.discoveryIncomplete = true; ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1); publishFolderDiscovery(this.ports.folder, ctx); this.ports.folder.markHadConflict(ctx) }
       this.ports.conflictQueue.showDialog()
       return !isTop
     }
     if (isTop) {
       const base = path.basename(localPath)
 
-      if (!moveSource && this.ports.tarChannel && !(await this.ports.conflictDetection.checkRemotePathExists(remoteTarget))) {
+      if (!moveSource && this.ports.tarChannel && !(await targetExists())) {
         // Archive only fresh targets. Existing directories need individual file conflict choices.
         const r = await this.ports.tarChannel.tryUploadDir(localPath, remoteTarget, this.ports.folder, base, false, this.ports.tarChannelMode)
         if (r === 'success') return true
@@ -612,31 +608,25 @@ export class UploadPathUseCase {
         log.info('[upload-dir] tar channel fell back, starting standard file-by-file transfer:', localPath)
       }
 
-      let totalSize = 0
-      let itemCount = 0
       ctx = this.ports.folder.start(base, 'upload', remoteTarget, localPath, 0, 0)
-      ctx.moveSource = moveSource
-      ctx.sourceDirectories = []
-      ctx.batch = batch; if (ctx.t) ctx.t.batch = batch
-      ctx.producing = true
+      ctx.moveSource = moveSource; ctx.sourceDirectories = []
+      ctx.batch = batch; if (ctx.t) { ctx.t.batch = batch; ctx.t.discoveryComplete = false }
+      ctx.producing = true; ctx.discoveryPending = 1; ctx.discoveredBytes = 0; ctx.discoveredItems = 0
+      ctx.discoveryLimiter = new ConcurrencyLimiter(Math.min(4, clampDirConcurrency(this.dirConcurrency?.())))
       folderPhase(this.ports.folder, ctx, 'scanning', localPath)
-      try {
-        const stats = await this.ports.localFs.scanDir(localPath)
-        totalSize = stats.size; itemCount = stats.count
-        if (ctx.t) { ctx.t.bytesTotal = totalSize; ctx.t.itemCount = itemCount }
-        this.ports.folder.updateLogSize?.(ctx, totalSize)
-      } catch (error) { ctx.producing = false; ctx.failed = true; this.ports.folder.finish(ctx, false); throw error }
-      if (this.ports.folder.isAborted(ctx)) { ctx.producing = false; this.ports.folder.finish(ctx, false); return false }
-
+      log.info('[upload-dir] streaming traversal; no recursive pre-scan:', localPath)
     }
 
     // Same-named directories merge; files are checked individually below.
-    if (await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, false)) {
+    if (await targetExists(false)) {
       if (ctx && isTop) { ctx.producing = false; ctx.failed = true; this.ports.folder.finish(ctx, false) }
       throw new Error('Cannot merge a folder into an existing file: ' + remoteTarget)
     }
-    try { await this.ports.sftp.mkdir(remoteTarget) } catch (error) {
-      if (!await this.ports.conflictDetection.checkRemotePathExists(remoteTarget, true)) {
+    try {
+      const create = async () => { if (!ctx || await dirGate(this.ports.folder, ctx)) await this.ports.sftp.mkdir(remoteTarget) }
+      if (ctx?.discoveryLimiter) await ctx.discoveryLimiter.run(create); else await create()
+    } catch (error) {
+      if (!await targetExists(true)) {
         if (ctx && isTop) { ctx.producing = false; ctx.failed = true; this.ports.folder.finish(ctx, false) }
         throw error
       }
@@ -648,7 +638,14 @@ export class UploadPathUseCase {
     let success = true
     try {
 
-      const children = await this.ports.localFs.listChildren(localPath)
+      if (!(await dirGate(this.ports.folder, ctx))) { success = false; return false }
+      const readDirectory = () => this.ports.localFs.listChildren(localPath)
+      const seen = new Set<string>()
+      const children = (await (ctx?.discoveryLimiter ? ctx.discoveryLimiter.run(readDirectory) : readDirectory())).filter(child => {
+        if (child.isSymbolicLink || safeEntryName(child.name) !== child.name || seen.has(child.name)) return false
+        seen.add(child.name); return true
+      })
+      if (ctx) { ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1) + children.length; publishFolderDiscovery(this.ports.folder, ctx) }
       const settled = await mapSettledConcurrent(children.filter(c => !c.isSymbolicLink), clampDirConcurrency(this.dirConcurrency?.()) * 2, async (c): Promise<boolean> => {
           if (!(await dirGate(this.ports.folder, ctx))) return false
           const safeName = safeEntryName(c.name)
@@ -657,8 +654,17 @@ export class UploadPathUseCase {
             return true
           }
           const childLocal = path.join(localPath, safeName)
-          const st = await this.ports.localFs.lstat(childLocal)
+          const readMetadata = async () => (await dirGate(this.ports.folder, ctx)) ? this.ports.localFs.lstat(childLocal) : null
+          const st = await (ctx?.discoveryLimiter ? ctx.discoveryLimiter.run(readMetadata) : readMetadata())
+          if (ctx) {
+            ctx.discoveryPending = Math.max(0, (ctx.discoveryPending || 1) - 1)
+            if (!st) ctx.discoveryIncomplete = true
+            else if (!st.isSymbolicLink() && st.isDirectory()) ctx.discoveryPending++
+            else if (!st.isSymbolicLink()) { ctx.discoveredBytes = (ctx.discoveredBytes || 0) + st.size; ctx.discoveredItems = (ctx.discoveredItems || 0) + 1 }
+            publishFolderDiscovery(this.ports.folder, ctx)
+          }
           if (!st) return false
+          if (st.isSymbolicLink()) return true
           if (st.isDirectory()) {
 
             if (!(await dirGate(this.ports.folder, ctx))) return false
